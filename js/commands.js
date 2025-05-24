@@ -29,105 +29,96 @@ function getTerminalCommands(context) {
         aliases: ["core", "all", "root"],
         children: [
             {
-                name: "Software Engineering (Full-Stack)",
-                aliases: ["se", "software", "fullstack", "swe", "software-engineering"],
+                name: "Languages & Frameworks",
+                aliases: ["lang", "frameworks"],
                 children: [
-                    { name: "Languages", aliases: ["langs"], children: [
-                        {name: "JavaScript (ES6+)"}, {name: "Python"}, {name: "Java"}, {name: "SQL"}, {name: "HTML5"}, {name: "CSS3"}, {name: "TypeScript"}, {name: "Bash"}, {name: "C++ (Foundational)"}
-                    ]},
-                    { name: "Front-End", aliases: ["fe", "frontend"], children: [
-                        {name: "React"}, {name: "Next.js"}, {name: "Vue.js"}, {name: "Angular (Conceptual)"}, {name: "Svelte (Conceptual)"}, {name: "Redux"}, {name: "Zustand"}, {name: "Tailwind CSS"}, {name: "Material-UI"}, {name: "Webpack"}, {name: "Vite"}, {name: "WebSockets"}, {name: "HTML Canvas"}
-                    ]},
-                    { name: "Back-End", aliases: ["be", "backend"], children: [
-                        {name: "Node.js (Express.js, NestJS)"}, {name: "Python (Django, Flask, FastAPI)"}, {name: "Java (Spring Boot)"}, {name: "RESTful APIs"}, {name: "GraphQL"}, {name: "Microservices"}, {name: "Serverless (AWS Lambda, Google Cloud Functions)"}, {name: "Authentication (OAuth, JWT)"}
-                    ]},
-                    { name: "Databases", aliases: ["db"], children: [
-                        {name: "PostgreSQL"}, {name: "MongoDB"}, {name: "MySQL"}, {name: "Redis"}, {name: "Elasticsearch"}, {name: "Firebase"}, {name: "DynamoDB"}, {name: "SQLAlchemy"}, {name: "Prisma ORM"}, {name: "Database Design & Normalization"}
-                    ]},
-                    { name: "DevOps & Cloud", aliases: ["devops", "cloud"], children: [
-                        {name: "Docker"}, {name: "Kubernetes (k8s)"}, {name: "AWS (EC2, S3, RDS, Lambda, EKS, ECS, VPC, IAM, CloudFormation)"}, {name: "GCP (Compute Engine, GKE, Cloud SQL, Cloud Functions)"}, {name: "Azure (Conceptual)"}, {name: "Terraform"}, {name: "Ansible"}, {name: "CI/CD (Jenkins, GitHub Actions, GitLab CI)"}
-                    ]},
-                    { name: "Version Control", children: [{name: "Git"}, {name: "GitHub"}, {name: "GitLab"}, {name: "Bitbucket"}] },
-                    { name: "Testing", children: [
-                        {name: "Jest"}, {name: "Mocha"}, {name: "Chai"}, {name: "React Testing Library"}, {name: "Cypress"}, {name: "PyTest"}, {name: "JUnit"}, {name: "Unit, Integration, E2E Testing"}
-                    ]},
-                    { name: "Architecture & Design", aliases: ["arch"], children: [
-                        {name: "Design Patterns (GoF)"}, {name: "SOLID Principles"}, {name: "System Design"}, {name: "Scalability & Performance"}, {name: "Security Best Practices"}, {name: "API Design & Management"}
-                    ]},
-                    { name: "Agile & Methodologies", children: [{name: "Scrum"}, {name: "Kanban"}, {name: "TDD"}, {name: "BDD"}, {name: "JIRA"}, {name: "Confluence"}] }
+                    {
+                        name: "Python",
+                        children: [
+                            { name: "NumPy" },
+                            { name: "Pandas" },
+                            { name: "Scikit-Learn" },
+                            { name: "Matplotlib" }
+                        ]
+                    },
+                    { name: "TypeScript" },
+                    { name: "SQL" },
+                    { name: "Apache Spark" }
                 ]
             },
             {
-                name: "Artificial Intelligence",
-                aliases: ["ai", "artificial-intelligence"],
+                name: "Artificial Intelligence & Machine Learning",
+                aliases: ["ai", "ml"],
                 children: [
-                    { name: "Machine Learning", aliases: ["ml"], children: [
-                        {name: "Supervised Learning (Regression, Classification - SVM, Decision Trees, Random Forests, XGBoost, LightGBM)"},
-                        {name: "Unsupervised Learning (Clustering - K-Means, DBSCAN; Dimensionality Reduction - PCA, t-SNE)"},
-                        {name: "Reinforcement Learning (Q-Learning, Deep Q-Networks - Conceptual)"}
-                    ]},
-                    { name: "Deep Learning", aliases: ["dl", "deeplearning"], children: [
-                        {name: "Neural Networks (ANN, CNN, RNN, LSTM, GRU, Transformers - BERT, GPT conceptual)"},
-                        {name: "Frameworks (TensorFlow, PyTorch, Keras, Hugging Face Transformers)"},
-                        {name: "Computer Vision (Image Classification, Object Detection, Segmentation using DL)"},
-                        {name: "NLP with Deep Learning (Sequence-to-Sequence, Attention Mechanisms)"}
-                    ]},
-                    { name: "Natural Language Processing (NLP)", aliases: ["nlp"], children: [
-                        {name: "Text Preprocessing"}, {name: "Feature Extraction (TF-IDF, Word Embeddings - Word2Vec, GloVe, FastText)"},
-                        {name: "Sentiment Analysis"}, {name: "Topic Modeling (LDA)"}, {name: "Named Entity Recognition (NER)"},
-                        {name: "Text Summarization"}, {name: "Question Answering Systems"}, {name: "Libraries (NLTK, spaCy, Gensim)"}
-                    ]},
-                    { name: "AI Ethics & Explainability", aliases: ["xai", "responsible-ai"], children: [
-                        {name: "Bias Detection & Mitigation"}, {name: "Fairness in AI"},
-                        {name: "Interpretability Methods (LIME, SHAP)"}, {name: "Privacy-Preserving ML (Federated Learning - Conceptual)"}
-                    ]}
+                    {
+                        name: "Core Machine Learning",
+                        aliases: ["coreml"],
+                        children: [
+                            { name: "Regression" },
+                            { name: "Classification" }
+                        ]
+                    },
+                    {
+                        name: "Generative AI",
+                        aliases: ["genai"],
+                        children: [
+                            { name: "LLMs (Large Language Models)" },
+                            { name: "RAG (Retrieval Augmented Generation)" }
+                        ]
+                    },
+                    {
+                        name: "Explainable AI",
+                        aliases: ["xai"],
+                        children: [
+                            { name: "Explainability (SHAP)" },
+                            { name: "Interpretable models" }
+                        ]
+                    },
+                    { name: "NLP Basics", aliases: ["nlp"] },
+                    { name: "Deep Learning Basics", aliases: ["dl"] }
                 ]
             },
             {
-                name: "Data Science",
-                aliases: ["ds", "datasci", "data-science"],
+                name: "Data Science & Analysis",
+                aliases: ["ds", "analysis", "datasci"],
                 children: [
-                    { name: "Data Analysis & Manipulation", aliases: ["analysis"], children: [{name: "Pandas"}, {name: "NumPy"}, {name: "SciPy"}, {name: "Polars (Exploratory)"}, {name: "SQL for Data Analysis"}] },
-                    { name: "Data Visualization", aliases: ["viz"], children: [
-                        {name: "Matplotlib"}, {name: "Seaborn"}, {name: "Plotly"}, {name: "Bokeh"}, {name: "Dash / Streamlit (for interactive dashboards)"}, {name: "Geospatial Visualization (GeoPandas - Conceptual)"}
-                    ]},
-                    { name: "Statistical Modeling & Inference", aliases: ["stats"], children: [
-                        {name: "Descriptive & Inferential Statistics"}, {name: "Hypothesis Testing"}, {name: "A/B Testing Design & Analysis"},
-                        {name: "Regression Models (Linear, Logistic)"}, {name: "Time Series Analysis (ARIMA, Prophet)"}, {name: "Bayesian Methods (Conceptual)"}
-                    ]},
-                    { name: "Experimentation & Reporting", children: [{name: "Jupyter Notebooks"}, {name: "Google Colab"}, {name: "Reproducible Research"}, {name: "Communicating Insights"}, {name: "Storytelling with Data"}] }
+                    {
+                        name: "Statistical Foundations",
+                        aliases: ["stats"],
+                        children: [
+                            { name: "Descriptive & Inferential Statistics" }
+                        ]
+                    },
+                    {
+                        name: "Data Visualization",
+                        aliases: ["viz"],
+                        children: [
+                            { name: "Matplotlib" },
+                            { name: "Seaborn" },
+                            { name: "Streamlit" }
+                        ]
+                    },
+                    { name: "Operational Research", aliases: ["or"] }
                 ]
             },
             {
-                name: "Data Engineering",
-                aliases: ["de", "dataeng", "data-engineering"],
+                name: "Platforms & Tools",
+                aliases: ["platforms", "tools"],
                 children: [
-                    { name: "Data Pipelines & ETL", aliases: ["pipelines", "etl"], children: [
-                        {name: "Apache Airflow"}, {name: "Luigi (Conceptual)"}, {name: "AWS Glue"}, {name: "Azure Data Factory (Conceptual)"}, {name: "Google Cloud Dataflow (Conceptual)"}, {name: "Data Warehousing (Redshift, BigQuery, Snowflake - Design & Use)"}, {name: "Data Integration"}
-                    ]},
-                    { name: "Big Data Processing", aliases: ["bigdata"], children: [
-                        {name: "Apache Spark (Core, SQL, Streaming)"}, {name: "Apache Kafka (Data Ingestion, Streaming)"}, {name: "Apache Flink (Conceptual)"}, {name: "Hadoop Ecosystem (HDFS, MapReduce, Hive - Conceptual)"}
-                    ]},
-                    { name: "Data Storage & Management", aliases: ["storage"], children: [
-                        {name: "Data Lakes (AWS S3, Azure Blob, GCS)"}, {name: "Delta Lake"}, {name: "Database Optimization & Performance Tuning"}, {name: "Data Governance & Quality Frameworks"}, {name: "Data Modeling (Relational, NoSQL)"}
-                    ]},
-                    { name: "Streaming Technologies", aliases: ["stream"], children: [{name: "Real-time Data Processing Architectures"}, {name: "Kafka Streams"}, {name: "Spark Streaming"}, {name: "Change Data Capture (CDC - Conceptual)"}] },
-                    { name: "MLOps (Infrastructure Focus)", aliases: ["mlops"], children: [{name: "Model Deployment Infrastructure"}, {name: "Monitoring Pipelines"}, {name: "Scalable Serving"}, {name: "Kubeflow"}, {name: "MLflow"}, {name: "Feature Stores (Conceptual)"}] }
-                ]
-            },
-            {
-                name: "Cross-Functional Skills",
-                aliases: ["softskills", "general", "core"],
-                children: [
-                    { name: "Problem Solving & Analytical Thinking" },
-                    { name: "Algorithm Design & Data Structures" },
-                    { name: "System Design & Architecture (Foundational)" },
-                    { name: "Excellent Communication (Verbal & Written)" },
-                    { name: "Teamwork & Collaboration in Agile Environments" },
-                    { name: "Project Management Basics & SDLC" },
-                    { name: "Critical Thinking & Decision Making" },
-                    { name: "Adaptability & Continuous Learning Mindset" },
-                    { name: "Business Acumen (Domain Understanding)"}
+                    {
+                        name: "Palantir Foundry",
+                        aliases: ["foundry"],
+                        children: [
+                            { name: "Workshop" },
+                            { name: "Ontology" },
+                            { name: "Pipeline Builder" },
+                            { name: "Code Repo" },
+                            { name: "AIP suite" },
+                            { name: "Contour" }
+                        ]
+                    },
+                    { name: "REST APIs" },
+                    { name: "Git" }
                 ]
             }
         ]
@@ -136,7 +127,6 @@ function getTerminalCommands(context) {
     /** Renders the skill tree, handling nodes that might be strings. */
     function renderSkillTree(node, indent = '', isLast = true, outputArray = []) {
         if (!node || typeof node.name === 'undefined') {
-            // This check should ideally not be hit if skillsData is well-formed
             console.error("Error in renderSkillTree: Node or node.name is undefined. Node:", node);
             outputArray.push(`${indent}${isLast ? '└── ' : '├── '}[Error: Malformed skill data]`);
             return outputArray;
@@ -216,7 +206,6 @@ function getTerminalCommands(context) {
 
     const terminalCommands = {
         'about': () => {
-            // Uses fullBioText from the context passed by matrix.js
             appendToTerminal(context.fullBioText.replace(/\n/g, '<br/>'));
         },
         'clear': () => {
@@ -241,7 +230,7 @@ function getTerminalCommands(context) {
                     appendToTerminal("CV link not configured.", 'output-error'); return;
                 }
                 appendToTerminal(`Attempting to download CV...`);
-                const linkEl = document.createElement('a'); // Changed variable name from 'l'
+                const linkEl = document.createElement('a');
                 linkEl.href = context.userDetails.cvLink;
                 linkEl.download = `${context.userDetails.userName.replace(/\s+/g, "_")}_CV.pdf`;
                 document.body.appendChild(linkEl);
@@ -258,7 +247,7 @@ function getTerminalCommands(context) {
             });
         },
         'help': () => {
-            let commandList = [ // REMOVED: open command; MODIFIED: theme command description
+            let commandList = [
                 { cmd: "about", display: "about", desc: "Display information about me." },
                 { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
                 { cmd: "contact", display: "contact", desc: "Show contact information." },
@@ -270,14 +259,10 @@ function getTerminalCommands(context) {
                 { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree ai" },
                 { cmd: "sudo", display: "sudo", desc: "Attempt superuser command." },
                 { cmd: "whoami", display: "whoami", desc: "Display current user." },
-                // Theme command will be added last after sorting
             ];
-            // Sort alphabetically first
             commandList.sort((a, b) => a.display.localeCompare(b.display));
-
-            // Define and add the theme command (to be moved to the end)
             const themeCommandHelp = { cmd: "theme <name|mode>", display: "theme <name|mode>", desc: "Themes: amber, cyan, green, purple, twilight, light, dark." };
-            commandList.push(themeCommandHelp); // Add it, it will be the last due to push
+            commandList.push(themeCommandHelp);
 
             let helpOutput = "Available commands:\n";
             const padChar = "&nbsp;";
@@ -294,7 +279,7 @@ function getTerminalCommands(context) {
             appendToTerminal(`Visit: <a href="https://github.com/${context.userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${context.userDetails.githubUser}</a>`);
         },
         'skills': () => {
-            appendToTerminal(`Core Areas: Full-Stack Development, Artificial Intelligence, Data Science, Data Engineering.\nKey Technologies: JavaScript (React, Node.js), Python (TensorFlow, PyTorch, Pandas, Django/Flask), Java (Spring Boot), SQL/NoSQL, Docker, Kubernetes, AWS/GCP.\nType 'skilltree' for a detailed breakdown.`.replace(/\n/g, '<br/>'));
+            appendToTerminal(`Key Areas: Languages & Frameworks (Python, TypeScript, SQL, Spark), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown.`.replace(/\n/g, '<br/>'));
         },
         'skilltree': (args) => {
             const pathArg = args.join(' ').trim();
@@ -342,44 +327,42 @@ function getTerminalCommands(context) {
                     renderSkillTree(child, '  ', index === targetNode.children.length - 1, outputArray);
                 });
             } else if (targetNode !== skillsData) {
-                outputArray.push("    (No further sub-categories or specific skills listed here.)");
+                 outputArray.push("    (Specific skill or category. Use parent path to see siblings.)");
             } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) {
                 outputArray.push("  (No skill categories defined under root)");
             }
 
             appendToTerminal(outputArray.join('\n').replace(/\n/g, '<br/>'));
             if (!pathArg) {
-                 appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree se`) or full paths (e.g., `skilltree \"Artificial Intelligence > NLP\"`).", "output-text");
+                 appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree lang`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
         'sudo': () => {
             appendToTerminal(`Access Denied. User ${context.userDetails.userName} not authorized for sudo. Incident logged.`, 'output-error');
         },
-        // MODIFIED: Unified theme command
         'theme': (args) => {
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
-            // MODIFIED: Alphabetized darkThemes for help message consistency
             const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight'];
-            const validSpecificThemes = [...darkThemes]; // All manually set-able themes
+            const validSpecificThemes = [...darkThemes];
 
-            document.body.className = ''; // Clear all body classes
+            document.body.className = ''; 
 
             if (themeNameInput === 'light') {
                 document.body.classList.add('theme-light');
                 appendToTerminal('Theme set to light mode.', 'output-success');
             } else if (themeNameInput === 'dark') {
-                document.body.classList.add('theme-green'); // Default dark
+                document.body.classList.add('theme-green'); 
                 appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
             } else if (validSpecificThemes.includes(themeNameInput)) {
                 document.body.classList.add(`theme-${themeNameInput}`);
                 appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
             } else {
                 appendToTerminal(`Usage: theme <${darkThemes.sort().join('|')}|light|dark>`, 'output-error');
-                document.body.classList.add('theme-green'); // Fallback to default
+                document.body.classList.add('theme-green'); 
                 document.body.classList.add('font-fira');
                 return;
             }
-            document.body.classList.add('font-fira'); // Always re-apply default font
+            document.body.classList.add('font-fira'); 
         },
         'whoami': () => {
             appendToTerminal(context.userDetails.userName);
