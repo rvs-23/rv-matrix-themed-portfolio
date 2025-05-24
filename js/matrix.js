@@ -147,6 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
          return 'Fira Code, monospace';
     }
 
+    function resizeTerminalElement(width, height) {
+        if (mainContentContainer) {
+            mainContentContainer.style.width = width;
+            mainContentContainer.style.height = height;
+            // Optionally, trigger canvas resize if terminal size affects canvas layout significantly
+            // resizeAllCanvases(); // Uncomment if matrix rain columns or other canvas elements depend on terminal size
+        }
+    }
+
     let fullWelcomeMessageStringGlobal = '';
 
     function toggleCrtMode(activate) {
@@ -255,8 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (nnVisInterval) stopAsciiNnVis();
 
         nnCurrentLayerConfig = (layerConfig && layerConfig.length > 0) ? layerConfig : [3, 5, 2];
-        if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2]; // Min 2 layers
-        // Cap number of nodes for performance/display
+        if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2];
         nnCurrentLayerConfig = nnCurrentLayerConfig.map(nodes => Math.min(nodes, 14));
 
 
@@ -295,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let x = 0; x < columns; x++) {
                 rainDrops[x] = {
                     y: Math.floor(Math.random() * (window.innerHeight / rainFontSize)),
-                    isLeading: true, // Flag to identify the first character of a new drop
+                    isLeading: true,
                 };
             }
             if (parallaxCanvasFg) initializeParallaxFgSymbols();
@@ -306,7 +314,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const themeColors = getCurrentThemeColors();
             matrixRainCtx.fillStyle = themeColors.trail;
             matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
-            matrixRainCtx.font = `bold ${rainFontSize}px ${getCurrentFontFamily()}`; // Make all rain bold for consistency, glow will differentiate
+            // Font is set to bold for all characters. The "leading" effect is through color and shadow.
+            matrixRainCtx.font = `bold ${rainFontSize}px ${getCurrentFontFamily()}`;
 
             for (let i = 0; i < rainDrops.length; i++) {
                 const text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
@@ -314,9 +323,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (drop.isLeading) {
                     matrixRainCtx.fillStyle = themeColors.glow;
-                    matrixRainCtx.shadowColor = themeColors.glow;
-                    matrixRainCtx.shadowBlur = 7; // Adjusted blur for better visual
-                    drop.isLeading = false; // Only the very first char is "leading"
+                    matrixRainCtx.shadowColor = themeColors.glow; // Shadow gives a stronger glow/bold appearance
+                    matrixRainCtx.shadowBlur = 10; // Increase blur for more prominent glow
+                    matrixRainCtx.shadowOffsetX = 0; // No offset for a centered glow
+                    matrixRainCtx.shadowOffsetY = 0;
+                    drop.isLeading = false; // Only the very first char is "leading" for this drop cycle
                 } else {
                     matrixRainCtx.fillStyle = themeColors.primary;
                     matrixRainCtx.shadowBlur = 0; // Reset shadow for subsequent chars
@@ -331,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 drop.y++;
             }
             matrixRainCtx.shadowBlur = 0; // Ensure shadow is reset after the loop
+            matrixRainCtx.shadowColor = 'transparent'; // Clear shadow color
         }
 
 
@@ -424,7 +436,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContentContainer,
             allMatrixChars,
             startAsciiNnVis,
-            stopAsciiNnVis
+            stopAsciiNnVis,
+            resizeTerminalElement // Pass resize function to commands context
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
@@ -517,7 +530,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (terminalOutput) displayInitialWelcomeMessage();
 
-        window.addEventListener('resize', resizeAllCanvases);
+        window.addEventListener('resize', resizeAllCanvases); // This handles canvas resizing
+        // Note: Terminal CSS width/height in % or vw/vh will also respond to window resize.
+        // The 'resize term' command provides explicit control.
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         document.addEventListener('keydown', globalKeydownHandler);
 

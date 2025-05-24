@@ -8,7 +8,7 @@
     --background-color: #000;
     --terminal-background-color: rgba(17, 24, 39, 0.88);
     --text-shadow-color: rgba(0, 255, 0, 0.7);
-    --border-color: rgba(0, 255, 0, 0.6); /* Used for content container, might be reused or removed from nav */
+    --border-color: rgba(0, 255, 0, 0.6);
     --hover-color: #33FF33;
     --hover-shadow-color: rgba(51, 255, 51, 0.9);
     --scrollbar-track-color: rgba(0, 255, 0, 0.1);
@@ -20,13 +20,13 @@
     --loader-text-color: #0F0;
     --loader-spinner-color: #0F0;
     --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
-    --matrix-rain-glow-color: #9FFF9F; /* Lighter, brighter green for glow */
+    --matrix-rain-glow-color: #9FFF9F; /* Brighter green for glow */
     --footer-height: 3.5rem;
 
     /* Font Families */
     --font-stack-inter: 'Inter', sans-serif;
     --font-stack-fira: 'Fira Code', monospace;
-    --font-mono-current: var(--font-stack-fira); /* Defaulted to Fira Code */
+    --font-mono-current: var(--font-stack-fira);
 }
 
 /* --- THEMES --- */
@@ -79,55 +79,31 @@ body.theme-light {
     --scrollbar-track-color: rgba(44, 62, 80, 0.05); --scrollbar-thumb-color: rgba(44, 62, 80, 0.3);
     --scrollbar-thumb-hover-color: rgba(44, 62, 80, 0.5); --nav-icon-color: #2c3e50;
     --nav-icon-hover-color: #3498db; --nav-label-bg: rgba(44, 62, 80, 0.1);
-    --loader-text-color: #2c3e50; --loader-spinner-color: #3498db; --matrix-rain-glow-color: #4c5f73; /* Darker glow for light bg */
+    --loader-text-color: #2c3e50; --loader-spinner-color: #3498db; --matrix-rain-glow-color: #4c5f73;
     --matrix-rain-trail-color: rgba(236, 240, 241, 0.15);
 }
-
-/* NEW THEMES */
 /* Crimson Theme */
 body.theme-crimson {
-    --primary-color: #DC143C; /* Crimson */
-    --secondary-color: #FF6347; /* Tomato */
-    --background-color: #100000; /* Very dark red */
-    --terminal-background-color: rgba(20, 0, 0, 0.88); /* Dark red, slightly transparent */
-    --text-shadow-color: rgba(220, 20, 60, 0.6);
-    --border-color: rgba(220, 20, 60, 0.5);
-    --hover-color: #FF4500; /* OrangeRed */
-    --hover-shadow-color: rgba(255, 69, 0, 0.8);
-    --scrollbar-track-color: rgba(220, 20, 60, 0.1);
-    --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
-    --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7);
-    --nav-icon-color: #DC143C;
-    --nav-icon-hover-color: #FF4500;
-    --nav-label-bg: rgba(220, 20, 60, 0.15);
-    --loader-text-color: #DC143C;
-    --loader-spinner-color: #FF6347;
-    --matrix-rain-trail-color: rgba(10, 0, 0, 0.07);
-    --matrix-rain-glow-color: #FF8C70; /* Lighter red/coral for glow */
+    --primary-color: #DC143C; --secondary-color: #FF6347; --background-color: #100000;
+    --terminal-background-color: rgba(20, 0, 0, 0.88); --text-shadow-color: rgba(220, 20, 60, 0.6);
+    --border-color: rgba(220, 20, 60, 0.5); --hover-color: #FF4500; --hover-shadow-color: rgba(255, 69, 0, 0.8);
+    --scrollbar-track-color: rgba(220, 20, 60, 0.1); --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
+    --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7); --nav-icon-color: #DC143C;
+    --nav-icon-hover-color: #FF4500; --nav-label-bg: rgba(220, 20, 60, 0.15);
+    --loader-text-color: #DC143C; --loader-spinner-color: #FF6347;
+    --matrix-rain-trail-color: rgba(10, 0, 0, 0.07); --matrix-rain-glow-color: #FF8C70;
 }
-
 /* Forest Theme */
 body.theme-forest {
-    --primary-color: #228B22; /* ForestGreen */
-    --secondary-color: #ADFF2F; /* GreenYellow */
-    --background-color: #001000; /* Very dark green */
-    --terminal-background-color: rgba(0, 20, 0, 0.88); /* Dark green, slightly transparent */
-    --text-shadow-color: rgba(34, 139, 34, 0.6);
-    --border-color: rgba(34, 139, 34, 0.5);
-    --hover-color: #32CD32; /* LimeGreen */
-    --hover-shadow-color: rgba(50, 205, 50, 0.8);
-    --scrollbar-track-color: rgba(34, 139, 34, 0.1);
-    --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
-    --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7);
-    --nav-icon-color: #228B22;
-    --nav-icon-hover-color: #32CD32;
-    --nav-label-bg: rgba(34, 139, 34, 0.15);
-    --loader-text-color: #228B22;
-    --loader-spinner-color: #ADFF2F;
-    --matrix-rain-trail-color: rgba(0, 10, 0, 0.07);
-    --matrix-rain-glow-color: #98FB98; /* PaleGreen for glow */
+    --primary-color: #228B22; --secondary-color: #ADFF2F; --background-color: #001000;
+    --terminal-background-color: rgba(0, 20, 0, 0.88); --text-shadow-color: rgba(34, 139, 34, 0.6);
+    --border-color: rgba(34, 139, 34, 0.5); --hover-color: #32CD32; --hover-shadow-color: rgba(50, 205, 50, 0.8);
+    --scrollbar-track-color: rgba(34, 139, 34, 0.1); --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
+    --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7); --nav-icon-color: #228B22;
+    --nav-icon-hover-color: #32CD32; --nav-label-bg: rgba(34, 139, 34, 0.15);
+    --loader-text-color: #228B22; --loader-spinner-color: #ADFF2F;
+    --matrix-rain-trail-color: rgba(0, 10, 0, 0.07); --matrix-rain-glow-color: #98FB98;
 }
-
 
 body.font-fira { --font-mono-current: var(--font-stack-fira); }
 
@@ -175,22 +151,23 @@ body {
     position: relative; z-index: 10;
     color: var(--primary-color);
     font-family: var(--font-mono-current);
-    font-size: 11px; /* Original font size */
+    font-size: 11px;
     text-shadow: 0 0 8px var(--text-shadow-color);
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 0;
-    padding: 1rem; /* Original padding */
-    width: 540px; /* 600px * 0.9 = 540px */
-    max-width: 81%; /* 90% * 0.9 = 81% */
-    height: 64.8vh; /* 72vh * 0.9 = 64.8vh */
+    padding: 1rem;
+    /* Default dimensions: height 10% smaller (58.32vh), width 5% more (567px) */
+    width: 567px; /* (was 540px * 1.05) */
+    max-width: 85.05%; /* (was 81% * 1.05, relative to 90% * 1.05) */
+    height: 58.32vh; /* (was 64.8vh * 0.9) */
     background-color: var(--terminal-background-color);
     border-radius: 0.4rem;
     box-shadow: 0 8px 16px -4px var(--text-shadow-color), 0 3px 7px -2px var(--text-shadow-color);
     border: 1px solid var(--border-color);
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: hidden; /* Important: Keep this to hide scrollbars if content overflows temporarily during resize */
     display: flex; flex-direction: column;
-    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease; /* Added width/height transition */
 }
 
 #terminal-output {
@@ -199,7 +176,7 @@ body {
     line-height: 1.4; padding-right: 5px;
     position: relative;
 }
-#terminal-output > div { margin-bottom: 0.8em; } /* Spacing for output lines */
+#terminal-output > div { margin-bottom: 0.8em; }
 
 .prompt-line { margin-top: 1em; flex-shrink: 0; padding-bottom: 0.2em; display: flex; align-items: center; }
 .prompt-arrow { color: var(--primary-color); transition: color 0.3s ease; margin-right: 0.6em; font-weight: bold; }
@@ -244,8 +221,8 @@ body {
 }
 
 /* Terminal Output Types */
-.output-command {} /* Style for echoed commands if needed */
-.output-text {} /* Default output text */
+.output-command {}
+.output-text {}
 .output-error { color: #FF4136; text-shadow: 0 0 5px rgba(255, 65, 54, 0.7); }
 .output-success { color: var(--secondary-color); text-shadow: 0 0 5px var(--secondary-color); }
 .ascii-name {
@@ -262,8 +239,7 @@ body {
     background-color: transparent; padding: 0.5rem 0.8rem;
     display: flex; justify-content: center; align-items: center;
     gap: 1.3rem; z-index: 150;
-    /* border-top: 1px solid var(--border-color); REMOVED */
-    transition: border-color 0.3s ease; /* Kept for other potential border changes */
+    transition: border-color 0.3s ease;
 }
 .nav-icon {
     color: var(--nav-icon-color); font-size: 1.2rem;
@@ -289,112 +265,83 @@ body {
 }
 .nav-icon:hover .nav-label { opacity: 1; visibility: visible; bottom: 135%; }
 
-/* Styles for Terminal Glitch Overlay (easter.egg command) */
 .terminal-glitch-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: var(--terminal-background-color); /* Match terminal bg */
+    background-color: var(--terminal-background-color);
     color: var(--primary-color);
     font-family: var(--font-mono-current);
-    font-size: inherit; /* Inherit from parent terminal */
-    line-height: inherit; /* Inherit from parent terminal */
-    overflow: hidden; z-index: 500; /* Above terminal content, below CRT overlay */
+    font-size: inherit;
+    line-height: inherit;
+    overflow: hidden; z-index: 500;
     white-space: pre-wrap; word-break: break-all;
     opacity: 0.95; padding: inherit; box-sizing: border-box;
 }
 
-/* ==========================================================================
-   CRT Mode (Konami Code Easter Egg)
-   ========================================================================== */
+/* CRT Mode */
 body.crt-mode {
     animation: crt-flicker 0.15s infinite, crt-scanline 5s linear infinite;
     filter: contrast(1.15) brightness(0.95) sepia(0.2) hue-rotate(-15deg) blur(0.3px);
-    position: relative; /* Needed for scanline pseudo-element */
-    overflow: hidden; /* Hide scanlines overflowing */
+    position: relative;
+    overflow: hidden;
 }
-
-body.crt-mode::before { /* Scanlines effect */
+body.crt-mode::before {
     content: "";
-    position: fixed; /* Use fixed to cover the viewport */
-    top: 0;
-    left: 0;
-    width: 100vw; /* Cover full viewport width */
-    height: 100vh; /* Cover full viewport height */
-    background: linear-gradient(
-        to bottom,
-        rgba(18, 16, 16, 0) 50%, /* Transparent part of scanline */
-        rgba(0, 0, 0, 0.25) 51%  /* Darker part of scanline */
-    );
-    background-size: 100% 4px; /* Width and thickness of scanlines */
-    z-index: 250; /* Below terminal content but above general page background */
-    pointer-events: none; /* Allow interaction with elements below */
-    opacity: 0.5; /* Adjust intensity of scanlines */
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient( to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 51% );
+    background-size: 100% 4px;
+    z-index: 250; pointer-events: none; opacity: 0.5;
 }
-
-body.crt-mode #contentContainer,
-body.crt-mode .minimal-nav {
-    /* Enhance text glow in CRT mode */
+body.crt-mode #contentContainer, body.crt-mode .minimal-nav {
     text-shadow: 0 0 7px var(--primary-color), 0 0 12px var(--primary-color);
 }
-
-body.crt-mode #matrix-canvas,
-body.crt-mode #parallax-canvas-bg,
-body.crt-mode #parallax-canvas-fg {
-    filter: saturate(0.7) brightness(0.8); /* Mute background canvases slightly */
+body.crt-mode #matrix-canvas, body.crt-mode #parallax-canvas-bg, body.crt-mode #parallax-canvas-fg {
+    filter: saturate(0.7) brightness(0.8);
 }
-
 @keyframes crt-flicker {
-    0%, 100% { opacity: 1; }
-    48% { opacity: 0.95; }
-    50% { opacity: 0.93; } /* Make flicker more noticeable */
-    52% { opacity: 0.95; }
+    0%, 100% { opacity: 1; } 48% { opacity: 0.95; } 50% { opacity: 0.93; } 52% { opacity: 0.95; }
+}
+@keyframes crt-scanline {
+    0% { background-position-y: 0; } 100% { background-position-y: -200px; }
 }
 
-@keyframes crt-scanline { /* Animates the scanline position for a rolling effect */
-    0% { background-position-y: 0; }
-    100% { background-position-y: -200px; } /* Adjust for desired rolling speed, ensures repetition */
-}
-
-/* ==========================================================================
-   ASCII Neural Network Visualization
-   ========================================================================== */
+/* ASCII Neural Network Visualization */
 .ascii-nn-vis {
-    font-family: var(--font-mono-current); /* Crucial: Ensure monospaced font */
-    line-height: 1.2; /* Adjust for tight ASCII art display */
-    white-space: pre;     /* Preserve all spaces and line breaks */
-    overflow-x: auto;   /* Allow horizontal scrolling if network is wide */
-    color: var(--primary-color); /* Use current theme's primary color */
-    text-shadow: 0 0 5px var(--text-shadow-color); /* Optional: slight glow */
-    padding: 0.5em 0;     /* Some vertical padding */
-    margin-bottom: 0.5em; /* Space below the visualization */
+    font-family: var(--font-mono-current);
+    line-height: 1.2; white-space: pre; overflow-x: auto;
+    color: var(--primary-color); text-shadow: 0 0 5px var(--text-shadow-color);
+    padding: 0.5em 0; margin-bottom: 0.5em;
 }
-
 
 /* Responsive Adjustments */
 @media (max-width: 767px) {
     .content-container {
-        width: 90%; /* Was 95%, make it a bit smaller relative to its new base size */
-        padding: 0.6rem; /* Adjusted padding */
-        font-size: 9px; /* Adjusted font size */
-        height: auto;
-        max-height: calc(100vh - var(--footer-height) - 0.8rem); /* Adjusted max-height */
+        /* width: 94.5%; Approx 90% of new default max-width (85.05vw * 1.05)  */
+        width: auto; /* Let padding and max-width control it better */
+        max-width: 95%; /* Make it take most of the screen */
+        padding: 0.6rem;
+        font-size: 9px;
+        height: auto; /* Height will be content-driven or fill available space up to max-height */
+        max-height: calc(100vh - var(--footer-height) - 1rem); /* Slightly less vertical padding */
     }
     #terminal-output { line-height: 1.3; }
-    .ascii-name {font-size: 0.9em;} /* Adjusted ascii name size */
+    .ascii-name {font-size: 0.9em;}
     .minimal-nav { padding: 0.3rem 0.4rem; gap: 0.8rem; }
     .nav-icon { font-size: 1.0rem; }
     .nav-label { font-size: 0.6rem; }
     .loading-text { font-size: 0.75em; }
     .matrix-chars { max-width: 90%; font-size: 0.7em; }
-    :root { --footer-height: 3rem; } /* Adjust footer height for smaller screens */
+    :root { --footer-height: 3rem; }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
     .content-container {
-        width: 76.5%; /* 85% * 0.9 = 76.5% */
-        font-size: 10px; /* Adjusted font size */
-        height: 67.5vh; /* 75vh * 0.9 = 67.5vh */
-        padding: 0.8rem; /* Adjusted padding */
+        /* width: 80%; Approx 85% of new default width (567px) but relative to viewport */
+        max-width: 600px; /* Cap it for tablets */
+        font-size: 10px;
+        height: 60vh; /* Adjust height for tablets */
+        padding: 0.8rem;
     }
     .minimal-nav { gap: 1.2rem; }
 }
