@@ -24,12 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Matrix Rain Configuration ---
     const defaultRainConfig = {
-        fontSize: 16,        // Pixels
+        fontSize: 18,        // Pixels
         fontFamily: "Fira Code, monospace", // Monospace font
-        speed: 80,           // Milliseconds interval for redraw (lower is faster)
-        density: 1.0,        // Multiplier for number of columns (0.1 to 2.0)
+        speed: 101,           // Milliseconds interval for redraw (lower is faster)
+        density: 0.69,        // Multiplier for number of columns (0.1 to 2.0)
         trailEffect: true,   // True for fading tails, false for more solid redraw
-        randomizeSpeed: false // True to add slight speed variation to drops
+        randomizeSpeed: true // True to add slight speed variation to drops
     };
     let rainConfigOptions = { ...defaultRainConfig };
     let rainAnimationIntervalId = null; // To store the interval ID for matrix rain
