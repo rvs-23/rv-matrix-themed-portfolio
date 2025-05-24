@@ -19,8 +19,8 @@
     --nav-label-bg: rgba(0, 255, 0, 0.15);
     --loader-text-color: #0F0;
     --loader-spinner-color: #0F0;
-    --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
-    --matrix-rain-glow-color: #9FFF9F; /* Brighter green for glow */
+    --matrix-rain-trail-color: rgba(0, 0, 0, 0.05); /* Default trail opacity */
+    --matrix-rain-glow-color: #9FFF9F;
     --footer-height: 3.5rem;
 
     /* Font Families */
@@ -30,7 +30,7 @@
 }
 
 /* --- THEMES --- */
-/* Cyan Theme */
+/* (Other themes remain the same) */
 body.theme-cyan {
     --primary-color: #0FF; --secondary-color: #0F0; --text-shadow-color: rgba(0, 255, 255, 0.7);
     --border-color: rgba(0, 255, 255, 0.6); --hover-color: #5FFFFF; --hover-shadow-color: rgba(95, 255, 255, 0.9);
@@ -40,7 +40,6 @@ body.theme-cyan {
     --loader-text-color: #0FF; --loader-spinner-color: #0FF; --matrix-rain-glow-color: #AFFFFF;
     --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
 }
-/* Amber Theme */
 body.theme-amber {
     --primary-color: #FFBF00; --secondary-color: #FFD700; --text-shadow-color: rgba(255, 191, 0, 0.7);
     --border-color: rgba(255, 191, 0, 0.6); --hover-color: #FFD700; --hover-shadow-color: rgba(255, 215, 0, 0.9);
@@ -50,7 +49,6 @@ body.theme-amber {
     --loader-text-color: #FFBF00; --loader-spinner-color: #FFBF00; --matrix-rain-glow-color: #FFDDA0;
     --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
 }
-/* Purple Theme */
 body.theme-purple {
     --primary-color: #C000C0; --secondary-color: #DA70D6; --text-shadow-color: rgba(192, 0, 192, 0.7);
     --border-color: rgba(192, 0, 192, 0.6); --hover-color: #EE82EE; --hover-shadow-color: rgba(238, 130, 238, 0.9);
@@ -60,7 +58,6 @@ body.theme-purple {
     --loader-text-color: #C000C0; --loader-spinner-color: #C000C0; --matrix-rain-glow-color: #ECA0EC;
     --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
 }
-/* Twilight Theme */
 body.theme-twilight {
     --primary-color: #e6a0c4; --secondary-color: #9b84ec; --background-color: #0a061a;
     --terminal-background-color: rgba(20, 10, 40, 0.88); --text-shadow-color: rgba(230, 160, 196, 0.6);
@@ -71,7 +68,6 @@ body.theme-twilight {
     --loader-text-color: #e6a0c4; --loader-spinner-color: #e6a0c4; --matrix-rain-glow-color: #f0c0e0;
     --matrix-rain-trail-color: rgba(10, 6, 26, 0.07);
 }
-/* Light Theme */
 body.theme-light {
     --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #ecf0f1;
     --terminal-background-color: rgba(255, 255, 255, 0.92); --text-shadow-color: rgba(44, 62, 80, 0.2);
@@ -82,7 +78,6 @@ body.theme-light {
     --loader-text-color: #2c3e50; --loader-spinner-color: #3498db; --matrix-rain-glow-color: #4c5f73;
     --matrix-rain-trail-color: rgba(236, 240, 241, 0.15);
 }
-/* Crimson Theme */
 body.theme-crimson {
     --primary-color: #DC143C; --secondary-color: #FF6347; --background-color: #100000;
     --terminal-background-color: rgba(20, 0, 0, 0.88); --text-shadow-color: rgba(220, 20, 60, 0.6);
@@ -93,7 +88,6 @@ body.theme-crimson {
     --loader-text-color: #DC143C; --loader-spinner-color: #FF6347;
     --matrix-rain-trail-color: rgba(10, 0, 0, 0.07); --matrix-rain-glow-color: #FF8C70;
 }
-/* Forest Theme */
 body.theme-forest {
     --primary-color: #228B22; --secondary-color: #ADFF2F; --background-color: #001000;
     --terminal-background-color: rgba(0, 20, 0, 0.88); --text-shadow-color: rgba(34, 139, 34, 0.6);
@@ -119,7 +113,7 @@ body {
     overflow: hidden;
 }
 
-/* Loading Screen */
+/* Loading Screen (remains the same) */
 #loading-screen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: #000;
@@ -140,7 +134,7 @@ body {
 .spinner { margin-top: 1.2rem; width: 35px; height: 35px; border: 3px solid rgba(0,0,0,0.1); border-left-color: var(--loader-spinner-color); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 8px var(--loader-spinner-color); transition: border-left-color 0.3s ease, box-shadow 0.3s ease; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Canvas Layers */
+/* Canvas Layers (remains the same) */
 #matrix-canvas, #parallax-canvas-bg, #parallax-canvas-fg { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 #parallax-canvas-bg { z-index: 1; }
 #parallax-canvas-fg { z-index: 2; }
@@ -156,18 +150,19 @@ body {
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 0;
     padding: 1rem;
-    /* Default dimensions: height 10% smaller (58.32vh), width 5% more (567px) */
-    width: 567px; /* (was 540px * 1.05) */
-    max-width: 85.05%; /* (was 81% * 1.05, relative to 90% * 1.05) */
-    height: 58.32vh; /* (was 64.8vh * 0.9) */
+    /* Default dimensions: width 55vw, height 50vh */
+    width: 55vw;
+    height: 50vh;
+    max-width: 90vw; /* Prevent it from becoming too wide on very large screens */
+    max-height: 90vh; /* Prevent it from becoming too tall */
     background-color: var(--terminal-background-color);
     border-radius: 0.4rem;
     box-shadow: 0 8px 16px -4px var(--text-shadow-color), 0 3px 7px -2px var(--text-shadow-color);
     border: 1px solid var(--border-color);
     box-sizing: border-box;
-    overflow: hidden; /* Important: Keep this to hide scrollbars if content overflows temporarily during resize */
+    overflow: hidden;
     display: flex; flex-direction: column;
-    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease; /* Added width/height transition */
+    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
 
 #terminal-output {
@@ -191,16 +186,17 @@ body {
     padding-right: 0.2em;
 }
 
-/* Scrollbar Styling */
+/* Scrollbar Styling (remains the same) */
 #terminal-output::-webkit-scrollbar { width: 8px; }
 #terminal-output::-webkit-scrollbar-track { background: var(--scrollbar-track-color); border-radius: 8px; transition: background 0.3s ease; }
 #terminal-output::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-color); border-radius: 8px; transition: background 0.3s ease; }
 #terminal-output::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-color); }
 
+
 /* Animations & Effects */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes glitch-hover-effect {
+@keyframes glitch-hover-effect { /* Duration increased by 15% (0.25s * 1.15 = 0.2875s) */
     0%, 100% { transform: translateX(0) skewX(0); opacity: 1; text-shadow: 0 0 8px var(--hover-shadow-color); }
     20% { transform: translateX(-2px) skewX(-3deg); opacity: 0.85; text-shadow: 1px 0px var(--hover-shadow-color), -1px 0px var(--secondary-color); }
     40% { transform: translateX(2px) skewX(3deg); opacity: 1; }
@@ -217,10 +213,10 @@ body {
 }
 .content-container a:hover, #terminal-output a:hover {
     color: var(--hover-color);
-    animation: glitch-hover-effect 0.25s linear 3;
+    animation: glitch-hover-effect 0.2875s linear 3; /* Updated duration */
 }
 
-/* Terminal Output Types */
+/* Terminal Output Types (remains the same) */
 .output-command {}
 .output-text {}
 .output-error { color: #FF4136; text-shadow: 0 0 5px rgba(255, 65, 54, 0.7); }
@@ -233,7 +229,7 @@ body {
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-/* Minimal Navigation Bar */
+/* Minimal Navigation Bar (remains the same, border-top already removed) */
 .minimal-nav {
     position: fixed; bottom: 0; left: 0; width: 100%;
     background-color: transparent; padding: 0.5rem 0.8rem;
@@ -250,7 +246,7 @@ body {
 }
 .nav-icon:hover {
     color: var(--nav-icon-hover-color);
-    animation: glitch-hover-effect 0.25s linear 3;
+    animation: glitch-hover-effect 0.2875s linear 3; /* Updated duration */
 }
 .nav-label {
     position: absolute; bottom: 125%; left: 50%;
@@ -265,6 +261,7 @@ body {
 }
 .nav-icon:hover .nav-label { opacity: 1; visibility: visible; bottom: 135%; }
 
+/* Terminal Glitch Overlay (remains the same) */
 .terminal-glitch-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -278,7 +275,7 @@ body {
     opacity: 0.95; padding: inherit; box-sizing: border-box;
 }
 
-/* CRT Mode */
+/* CRT Mode (remains the same) */
 body.crt-mode {
     animation: crt-flicker 0.15s infinite, crt-scanline 5s linear infinite;
     filter: contrast(1.15) brightness(0.95) sepia(0.2) hue-rotate(-15deg) blur(0.3px);
@@ -306,7 +303,7 @@ body.crt-mode #matrix-canvas, body.crt-mode #parallax-canvas-bg, body.crt-mode #
     0% { background-position-y: 0; } 100% { background-position-y: -200px; }
 }
 
-/* ASCII Neural Network Visualization */
+/* ASCII Neural Network Visualization (remains the same) */
 .ascii-nn-vis {
     font-family: var(--font-mono-current);
     line-height: 1.2; white-space: pre; overflow-x: auto;
@@ -317,31 +314,25 @@ body.crt-mode #matrix-canvas, body.crt-mode #parallax-canvas-bg, body.crt-mode #
 /* Responsive Adjustments */
 @media (max-width: 767px) {
     .content-container {
-        /* width: 94.5%; Approx 90% of new default max-width (85.05vw * 1.05)  */
-        width: auto; /* Let padding and max-width control it better */
-        max-width: 95%; /* Make it take most of the screen */
-        padding: 0.6rem;
-        font-size: 9px;
-        height: auto; /* Height will be content-driven or fill available space up to max-height */
-        max-height: calc(100vh - var(--footer-height) - 1rem); /* Slightly less vertical padding */
+        width: 90vw; /* Use viewport width for smaller screens */
+        height: 75vh; /* Adjust height for smaller screens */
+        font-size: 10px; /* Slightly larger for mobile readability if terminal is bigger */
+        padding: 0.8rem;
+        max-height: calc(100vh - var(--footer-height) - 1rem);
     }
-    #terminal-output { line-height: 1.3; }
-    .ascii-name {font-size: 0.9em;}
-    .minimal-nav { padding: 0.3rem 0.4rem; gap: 0.8rem; }
-    .nav-icon { font-size: 1.0rem; }
-    .nav-label { font-size: 0.6rem; }
-    .loading-text { font-size: 0.75em; }
-    .matrix-chars { max-width: 90%; font-size: 0.7em; }
-    :root { --footer-height: 3rem; }
+    #terminal-output { line-height: 1.35; } /* Adjust line height slightly */
+    .ascii-name {font-size: 1em;}
+    .minimal-nav { padding: 0.4rem 0.5rem; gap: 1rem; } /* Slightly more padding/gap */
+    .nav-icon { font-size: 1.1rem; }
+    :root { --footer-height: 3.2rem; }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
     .content-container {
-        /* width: 80%; Approx 85% of new default width (567px) but relative to viewport */
-        max-width: 600px; /* Cap it for tablets */
-        font-size: 10px;
-        height: 60vh; /* Adjust height for tablets */
-        padding: 0.8rem;
+        width: 70vw; /* Adjust for tablet */
+        height: 60vh; /* Adjust for tablet */
+        font-size: 11px;
+        padding: 0.9rem;
     }
     .minimal-nav { gap: 1.2rem; }
 }
