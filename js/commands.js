@@ -12,6 +12,8 @@
  * @param {string} context.fullBioText - The complete bio text with newlines.
  * @param {HTMLElement} context.mainContentContainer - Reference to the main terminal container.
  * @param {string} context.allMatrixChars - String of all characters for glitch effects.
+ * @param {function} context.startAsciiNnVis - Function to start ASCII NN visualization.
+ * @param {function} context.stopAsciiNnVis - Function to stop ASCII NN visualization.
  * @returns {object} The terminalCommands object.
  */
 function getTerminalCommands(context) {
@@ -19,9 +21,11 @@ function getTerminalCommands(context) {
         appendToTerminal,
         fullWelcomeMessageString,
         userDetails,
-        fullBioText, // Now receiving this from matrix.js
+        fullBioText,
         mainContentContainer,
         allMatrixChars,
+        startAsciiNnVis,
+        stopAsciiNnVis
     } = context;
 
     const skillsData = {
@@ -124,7 +128,6 @@ function getTerminalCommands(context) {
         ]
     };
 
-    /** Renders the skill tree, handling nodes that might be strings. */
     function renderSkillTree(node, indent = '', isLast = true, outputArray = []) {
         if (!node || typeof node.name === 'undefined') {
             console.error("Error in renderSkillTree: Node or node.name is undefined. Node:", node);
@@ -142,7 +145,6 @@ function getTerminalCommands(context) {
         return outputArray;
     }
 
-    /** Activates the terminal glitch easter egg and displays a quote. */
     async function activateTerminalGlitchAndQuote() {
         const terminalOutput = document.getElementById('terminal-output');
         if (!terminalOutput || !context.mainContentContainer) return;
@@ -157,9 +159,10 @@ function getTerminalCommands(context) {
         const computedStyle = getComputedStyle(terminalOutput);
         const lineHeight = parseFloat(computedStyle.lineHeight) || 16;
         const fontSize = parseFloat(computedStyle.fontSize) || 11;
-        const charWidth = (fontSize * 0.6) || 7;
-        const overlayHeight = overlay.clientHeight > 0 ? overlay.clientHeight : 300;
-        const overlayWidth = overlay.clientWidth > 0 ? overlay.clientWidth : 500;
+        const charWidth = (fontSize * 0.6);
+        const overlayHeight = overlay.clientHeight > 0 ? overlay.clientHeight : context.mainContentContainer.clientHeight;
+        const overlayWidth = overlay.clientWidth > 0 ? overlay.clientWidth : context.mainContentContainer.clientWidth;
+
         const lines = Math.max(1, Math.floor(overlayHeight / lineHeight));
         const charsPerLine = Math.max(1, Math.floor(overlayWidth / charWidth));
         let glitchIntervalCount = 0;
@@ -182,7 +185,9 @@ function getTerminalCommands(context) {
         }, 80);
 
         function finalizeEasterEgg() {
-            if (document.contains(overlay)) overlay.remove();
+            if (context.mainContentContainer.contains(overlay)) {
+                context.mainContentContainer.removeChild(overlay);
+            }
             context.mainContentContainer.style.position = '';
             terminalOutput.innerHTML = '';
             context.appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
@@ -196,8 +201,8 @@ function getTerminalCommands(context) {
             const commandInput = document.getElementById('command-input');
             if(commandInput) commandInput.focus();
         }
-        setTimeout(() => { // Fallback for safety
-            if (document.contains(overlay)) {
+        setTimeout(() => {
+            if (context.mainContentContainer.contains(overlay)) {
                  clearInterval(glitchInterval);
                  finalizeEasterEgg();
             }
@@ -211,6 +216,7 @@ function getTerminalCommands(context) {
         'clear': () => {
             const terminalOutput = document.getElementById('terminal-output');
             if (!terminalOutput) return;
+            if (typeof context.stopAsciiNnVis === 'function') context.stopAsciiNnVis();
             terminalOutput.innerHTML = '';
             appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
         },
@@ -247,22 +253,21 @@ function getTerminalCommands(context) {
             });
         },
         'help': () => {
-            let commandList = [
+            let commandList = [ // Removed 'sudo' from this list
                 { cmd: "about", display: "about", desc: "Display information about me." },
                 { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
                 { cmd: "contact", display: "contact", desc: "Show contact information." },
                 { cmd: "date", display: "date", desc: "Display current date and time." },
                 { cmd: "download cv", display: "download cv", desc: "Download my CV." },
                 { cmd: "easter.egg", display: "easter.egg", desc: "???" },
+                { cmd: "nnvis [--layers n1 n2...]", display: "nnvis [--layers n1 n2...]", desc: "Visualize an ASCII neural network." },
                 { cmd: "projects", display: "projects", desc: "Show my featured projects (placeholder)." },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
                 { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree ai" },
-                { cmd: "sudo", display: "sudo", desc: "Attempt superuser command." },
+                { cmd: "theme <name|mode>", display: "theme <name|mode>", desc: "Themes: amber, cyan, green, purple, twilight, light, dark." },
                 { cmd: "whoami", display: "whoami", desc: "Display current user." },
             ];
             commandList.sort((a, b) => a.display.localeCompare(b.display));
-            const themeCommandHelp = { cmd: "theme <name|mode>", display: "theme <name|mode>", desc: "Themes: amber, cyan, green, purple, twilight, light, dark." };
-            commandList.push(themeCommandHelp);
 
             let helpOutput = "Available commands:\n";
             const padChar = "&nbsp;";
@@ -270,9 +275,27 @@ function getTerminalCommands(context) {
             const spacesBeforeDash = 3;
             commandList.forEach(item => {
                 const fixedDisplay = item.display.padEnd(maxLength, ' ');
-                helpOutput += `${padChar.repeat(2)}${fixedDisplay}${padChar.repeat(spacesBeforeDash)}-${padChar}${item.desc}\n`;
+                helpOutput += `${padChar.repeat(2)}${fixedDisplay.replace(/ /g, padChar)}${padChar.repeat(spacesBeforeDash)}-${padChar}${item.desc}\n`;
             });
             appendToTerminal(helpOutput.trim().replace(/\n/g, '<br/>'));
+        },
+        'nnvis': (args) => {
+            let layerConfig = null; // Default config will be used in matrix.js if null
+            if (args.length > 0 && args[0].toLowerCase() === '--layers') {
+                layerConfig = args.slice(1).map(num => parseInt(num, 10)).filter(num => !isNaN(num) && num > 0);
+                if (layerConfig.length === 0) {
+                    appendToTerminal("Invalid layer configuration. Usage: nnvis --layers n1 n2 ... (e.g., nnvis --layers 3 5 2)", 'output-error');
+                    layerConfig = null; // Fallback to default
+                } else {
+                     appendToTerminal(`Configuring network with layers: ${layerConfig.join(', ')}`, 'output-text');
+                }
+            }
+
+            if (typeof context.startAsciiNnVis === 'function') {
+                context.startAsciiNnVis(layerConfig); // Pass the config
+            } else {
+                appendToTerminal("ASCII Neural Network Visualization module not loaded.", 'output-error');
+            }
         },
         'projects': () => {
             appendToTerminal("Project showcase under development. Check GitHub!");
@@ -327,7 +350,7 @@ function getTerminalCommands(context) {
                     renderSkillTree(child, '  ', index === targetNode.children.length - 1, outputArray);
                 });
             } else if (targetNode !== skillsData) {
-                 outputArray.push("    (Specific skill or category. Use parent path to see siblings.)");
+                 outputArray.push("    └── (End of this skill branch. Explore other paths!)");
             } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) {
                 outputArray.push("  (No skill categories defined under root)");
             }
@@ -337,32 +360,36 @@ function getTerminalCommands(context) {
                  appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree lang`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
-        'sudo': () => {
-            appendToTerminal(`Access Denied. User ${context.userDetails.userName} not authorized for sudo. Incident logged.`, 'output-error');
+        'sudo': (args) => { // Simplified sudo: always deny
+            const attemptedCommand = args.join(' ');
+            appendToTerminal(`Access Denied. User ${context.userDetails.userName} not authorized for 'sudo${attemptedCommand ? ' ' + attemptedCommand : ''}'. This incident will be logged.`, 'output-error');
         },
         'theme': (args) => {
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
             const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight'];
             const validSpecificThemes = [...darkThemes];
 
-            document.body.className = ''; 
+            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-'));
+            document.body.className = '';
 
             if (themeNameInput === 'light') {
                 document.body.classList.add('theme-light');
                 appendToTerminal('Theme set to light mode.', 'output-success');
             } else if (themeNameInput === 'dark') {
-                document.body.classList.add('theme-green'); 
+                document.body.classList.add('theme-green');
                 appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
             } else if (validSpecificThemes.includes(themeNameInput)) {
                 document.body.classList.add(`theme-${themeNameInput}`);
                 appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
             } else {
-                appendToTerminal(`Usage: theme <${darkThemes.sort().join('|')}|light|dark>`, 'output-error');
-                document.body.classList.add('theme-green'); 
-                document.body.classList.add('font-fira');
-                return;
+                appendToTerminal(`Usage: theme <${validSpecificThemes.sort().join('|')}|light|dark>`, 'output-error');
+                document.body.classList.add('theme-green');
             }
-            document.body.classList.add('font-fira'); 
+            if (currentFontClass) {
+                document.body.classList.add(currentFontClass);
+            } else {
+                document.body.classList.add('font-fira');
+            }
         },
         'whoami': () => {
             appendToTerminal(context.userDetails.userName);

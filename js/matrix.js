@@ -34,6 +34,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandHistory = [];
     let historyIndex = commandHistory.length;
 
+    // --- Konami Code ---
+    const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let konamiCodeIndex = 0;
+    let crtModeActive = false;
+
+    // --- ASCII Neural Network Visualization ---
+    let nnVisInterval = null;
+    let nnVisContainer = null;
+    const nnVisFrameRate = 120; // ms per frame, faster for smoother pulse
+    const nnVisDuration = 20000; // 20 seconds
+    let nnVisPulseState = {
+        currentSegment: 0, // segment index (0 to numConnections -1)
+        positionInSegment: 0, // 0 to connectionLength -1
+        direction: 1, // 1 for forward, -1 for backward (not used yet, but for future)
+        activeNodes: []
+    };
+    let nnCurrentLayerConfig = [3, 5, 4, 2]; // Default layer configuration
+    const nnNodeChars = {
+        default: "( o )",
+        active:  "( @ )", // When pulse hits a node
+        pulsing: "( * )"  // Alternative active state
+    };
+    const nnConnectionChars = {
+        empty: " ",
+        horizontal: "─",
+        pulse: "●", // Small filled circle for pulse
+        pulseTrail: "·" // Smaller dot for trail
+    };
+    const nnConnectionLength = 5; // Number of characters for connection segment between layers
+    const nnVerticalSpacing = 1; // Lines between rows of nodes if stacked vertically
+
     // --- Loading Screen Logic ---
     let loaderCharInterval;
     let statusCyclingInterval;
@@ -43,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     let currentLoadingMsgIndex = 0;
 
-    /** Animates the block of random characters on the loading screen. */
     function animateLoaderMatrixChars() {
         if (!matrixLoaderCharsEl) return;
         let text = '';
@@ -55,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
         matrixLoaderCharsEl.textContent = text;
     }
 
-    /** Updates the status message text on the loading screen. */
     function updateLoadingStatusMessage() {
         if (!decryptStatusEl) return;
         if (currentLoadingMsgIndex < loadingMessages.length) {
@@ -64,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /** Handles hiding the loader and starting the main application logic. */
     const handleWindowLoad = () => {
         if (loadingScreen) {
             if (loaderCharInterval) clearInterval(loaderCharInterval);
@@ -90,24 +118,16 @@ document.addEventListener('DOMContentLoaded', () => {
         statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
     }
 
-    /**
-     * Appends content (HTML string) to the terminal output area.
-     * @param {string} htmlContent - The HTML content to append.
-     * @param {string} [type='output-text'] - A class for styling the output line.
-     */
     function appendToTerminal(htmlContent, type = 'output-text') {
-        if (!terminalOutput) return;
+        if (!terminalOutput) return null;
         const lineDiv = document.createElement('div');
         lineDiv.classList.add(type);
         lineDiv.innerHTML = htmlContent;
         terminalOutput.appendChild(lineDiv);
         terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        return lineDiv;
     }
 
-    /**
-     * Gets current theme's primary, secondary, and trail colors from CSS custom properties.
-     * @returns {{primary: string, secondary: string, trail: string}} Object containing color codes.
-     */
     function getCurrentThemeColors() {
         if (typeof getComputedStyle !== 'undefined' && document.body) {
             const styles = getComputedStyle(document.body);
@@ -120,15 +140,153 @@ document.addEventListener('DOMContentLoaded', () => {
         return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)' };
     }
 
-    /**
-     * Gets current themed monospace font family from CSS custom properties.
-     * @returns {string} The current monospace font family.
-     */
     function getCurrentFontFamily() {
          if (typeof getComputedStyle !== 'undefined' && document.body) return getComputedStyle(document.body).getPropertyValue('--font-mono-current').trim() || 'Fira Code, monospace';
          return 'Fira Code, monospace';
     }
 
+    let fullWelcomeMessageStringGlobal = '';
+
+    function toggleCrtMode(activate) {
+        crtModeActive = typeof activate === 'boolean' ? activate : !crtModeActive;
+        document.body.classList.toggle('crt-mode', crtModeActive);
+        if (typeof activate === 'boolean' && terminalOutput) {
+             appendToTerminal(`1980s Mode ${crtModeActive ? 'Engaged' : 'Disengaged'}. Dialing back to the future...`, 'output-success');
+        }
+        if (commandInput) commandInput.focus();
+    }
+
+    function globalKeydownHandler(e) {
+        const key = e.key.toLowerCase();
+        if (key === konamiCodeSequence[konamiCodeIndex].toLowerCase()) {
+            konamiCodeIndex++;
+            if (konamiCodeIndex === konamiCodeSequence.length) {
+                toggleCrtMode();
+                konamiCodeIndex = 0;
+                if (document.activeElement !== commandInput) e.preventDefault();
+            }
+        } else if (key === konamiCodeSequence[0].toLowerCase() && konamiCodeIndex > 0) {
+            konamiCodeIndex = 1;
+        } else {
+            konamiCodeIndex = 0;
+        }
+    }
+
+    /** ASCII Neural Network Visualization Logic */
+    function drawAsciiNnFrame() {
+        if (!nnVisContainer || !nnCurrentLayerConfig || nnCurrentLayerConfig.length === 0) return;
+
+        const numLayers = nnCurrentLayerConfig.length;
+        const maxNodesInAnyLayer = Math.max(...nnCurrentLayerConfig, 0);
+        const nodeWidth = nnNodeChars.default.length;
+        const connectionSegment = nnConnectionChars.horizontal.repeat(nnConnectionLength);
+
+        let output = [];
+        nnVisPulseState.activeNodes = []; // Reset active nodes each frame
+
+        // Determine which layer the pulse is currently "activating" or "passing through"
+        // Pulse travels node layer -> connection -> node layer
+        const pulseOverallProgress = nnVisPulseState.currentSegment * (nnConnectionLength + 1) + nnVisPulseState.positionInSegment;
+        const segmentDuration = nnConnectionLength + 1; // Time to pass one node layer and one connection
+
+        for (let i = 0; i < maxNodesInAnyLayer * (1 + nnVerticalSpacing) - nnVerticalSpacing; i++) {
+            let line = "";
+            const nodeRowIndex = Math.floor(i / (1 + nnVerticalSpacing)); // Which node row this line corresponds to
+            const isNodeLine = i % (1 + nnVerticalSpacing) === 0; // True if this line should draw nodes
+
+            for (let l = 0; l < numLayers; l++) {
+                // --- Draw Node Layer ---
+                if (isNodeLine && nodeRowIndex < nnCurrentLayerConfig[l]) {
+                    let nodeChar = nnNodeChars.default;
+                    // Check if this node should be "active" due to pulse
+                    // Pulse is "on" a node layer 'l' when currentSegment/2 is 'l' and positionInSegment is 0
+                    const pulseIsOnThisNodeLayer = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment === 0;
+
+                    if (pulseIsOnThisNodeLayer) {
+                        nodeChar = nnNodeChars.active;
+                        nnVisPulseState.activeNodes.push({layer: l, index: nodeRowIndex});
+                    }
+                    line += nodeChar;
+                } else if (isNodeLine) { // Empty space if no node at this vertical position
+                    line += " ".repeat(nodeWidth);
+                } else { // Vertical spacing line
+                    line += " ".repeat(nodeWidth);
+                }
+
+                // --- Draw Connection Layer (if not the last layer) ---
+                if (l < numLayers - 1) {
+                    if (isNodeLine) { // Only draw connections from actual node lines
+                        // Check if a node exists at current layer and next layer for this row
+                        const connects = nodeRowIndex < nnCurrentLayerConfig[l] && nodeRowIndex < nnCurrentLayerConfig[l+1];
+                        if (connects) {
+                            let currentConnection = connectionSegment;
+                            // Pulse is "on" a connection 'l' when currentSegment/2 is 'l' and positionInSegment > 0
+                            const pulseIsOnThisConnection = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment > 0;
+
+                            if (pulseIsOnThisConnection) {
+                                const pulsePosInConn = nnVisPulseState.positionInSegment -1; // 0 to nnConnectionLength-1
+                                let tempConn = connectionSegment.split('');
+                                if (pulsePosInConn < tempConn.length) {
+                                     // Simple pulse: one char
+                                    // tempConn[pulsePosInConn] = nnConnectionChars.pulse;
+                                    // Pulse with trail
+                                    tempConn[pulsePosInConn] = nnConnectionChars.pulse;
+                                    if (pulsePosInConn > 0) tempConn[pulsePosInConn-1] = nnConnectionChars.pulseTrail;
+                                    if (pulsePosInConn > 1) tempConn[pulsePosInConn-2] = nnConnectionChars.empty; // Clear older trail
+                                }
+                                currentConnection = tempConn.join('');
+                            }
+                            line += currentConnection;
+                        } else {
+                            line += " ".repeat(nnConnectionLength); // No connection, empty space
+                        }
+                    } else { // Vertical spacing line for connections
+                         line += " ".repeat(nnConnectionLength);
+                    }
+                }
+            }
+            output.push(line);
+        }
+
+        nnVisContainer.innerHTML = output.join('\n').replace(/ /g, '&nbsp;');
+
+        // Update pulse position
+        nnVisPulseState.positionInSegment++;
+        if (nnVisPulseState.positionInSegment > nnConnectionLength) { // Passed connection + node 'activation'
+            nnVisPulseState.positionInSegment = 0;
+            nnVisPulseState.currentSegment++;
+            if (nnVisPulseState.currentSegment >= (numLayers * 2) - 2) { // Reached end (approx)
+                nnVisPulseState.currentSegment = 0; // Reset pulse to start
+            }
+        }
+    }
+
+    function startAsciiNnVis(layerConfig = null) {
+        if (nnVisInterval) stopAsciiNnVis();
+
+        nnCurrentLayerConfig = (layerConfig && layerConfig.length > 0) ? layerConfig : [3, 5, 2]; // Default or user config
+        if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2]; // Min 2 layers
+
+        appendToTerminal("Initializing Neural Network Visualization...", "output-text");
+        nnVisContainer = appendToTerminal("", "ascii-nn-vis");
+        const maxNodes = Math.max(...nnCurrentLayerConfig, 0);
+        nnVisContainer.style.minHeight = `${maxNodes * (1 + nnVerticalSpacing) * 1.2}em`; // Dynamic height
+
+        nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] }; // Reset state
+        drawAsciiNnFrame();
+        nnVisInterval = setInterval(drawAsciiNnFrame, nnVisFrameRate);
+
+        setTimeout(() => {
+            stopAsciiNnVis();
+            appendToTerminal("Neural Network Visualization sequence complete.", "output-text");
+        }, nnVisDuration);
+    }
+
+    function stopAsciiNnVis() {
+        if (nnVisInterval) clearInterval(nnVisInterval);
+        nnVisInterval = null;
+        // nnVisContainer = null; // Don't nullify, so clear command can find it
+    }
 
     /** Main Initialization Function for Terminal and Graphics. */
     function initializeTerminalAndGraphics() {
@@ -136,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rainDrops = [];
         const fgParallaxSymbols = [];
 
-        /** Resizes all canvases and reinitializes size-dependent graphics. */
         function resizeAllCanvases() {
             allCanvases.forEach(canvas => {
                 if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -147,8 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (parallaxCanvasFg) initializeParallaxFgSymbols();
         }
 
-
-        /** Draws a single frame of the Matrix rain effect. */
         function drawMatrixRain() {
             if (!matrixRainCtx) return;
             matrixRainCtx.fillStyle = getCurrentThemeColors().trail;
@@ -163,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        /** Draws the parallax background grid. */
         function drawParallaxBackground() {
             if (!parallaxCtxBg) return;
             parallaxCtxBg.clearRect(0, 0, parallaxCanvasBg.width, parallaxCanvasBg.height);
@@ -180,7 +334,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        /** Initializes properties of foreground parallax symbols. */
         function initializeParallaxFgSymbols() {
             if (!parallaxCanvasFg) return;
             fgParallaxSymbols.length = 0;
@@ -195,8 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-
-        /** Draws the floating foreground parallax symbols. */
         function drawParallaxForeground() {
             if (!parallaxCtxFg) return;
             parallaxCtxFg.clearRect(0, 0, parallaxCanvasFg.width, parallaxCanvasFg.height);
@@ -217,7 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (parallaxCanvasFg) initializeParallaxFgSymbols();
 
         let rainIntervalId;
-        /** Master animation loop for effects driven by requestAnimationFrame. */
         function masterAnimationLoop() {
             if (parallaxCtxBg) drawParallaxBackground();
             if (parallaxCtxFg) drawParallaxForeground();
@@ -229,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(masterAnimationLoop);
         }
 
-        // User Details (passed to commands.js)
         const userDetails = {
             userName: "Rishav Sharma",
             userTitle: "Software Engineer / Data Scientist",
@@ -242,142 +391,118 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navCvLink) navCvLink.href = userDetails.cvLink;
 
         const bioContent = `Currently working as a Data Scientist, I'm a curious developer passionate about the full spectrum of software and data development. My interests span from foundational data engineering and robust back-end systems to the cutting edge of Machine Learning, Deep Learning, and Large Language Models. I enjoy coding and architecting solutions across this entire stack.`;
-        
-	const focusContent = `Building intuitive digital experiences, developing intelligent AI models, and engineering scalable data solutions. I thrive on continuous learning and applying elegant approaches to complex challenges in technology.`;
-        
-	const githubLink = `<a href="https://github.com/${userDetails.githubUser}" target="_blank" rel="noopener noreferrer">${userDetails.githubUser} @ The Grid</a>`;
-        
-	const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
+        const focusContent = `Building intuitive digital experiences, developing intelligent AI models, and engineering scalable data solutions. I thrive on continuous learning and applying elegant approaches to complex challenges in technology.`;
+        const githubLink = `<a href="https://github.com/${userDetails.githubUser}" target="_blank" rel="noopener noreferrer">${userDetails.githubUser} @ The Grid</a>`;
+        const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
 
         const plainNameArt = `<span class="ascii-name">${userDetails.userName.toUpperCase()}</span>`;
         const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n---------------------------------------------------`;
-        const fullWelcomeMessageString = `${plainNameArt}\n${welcomeText}`;
+        fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
-        // Context object to pass necessary functions/data to commands.js
         const commandHandlerContext = {
             appendToTerminal,
-            fullWelcomeMessageString,
+            fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
             userDetails,
             fullBioText,
             mainContentContainer,
             allMatrixChars,
+            startAsciiNnVis,
+            stopAsciiNnVis
         };
-        // Get command definitions from commands.js (getTerminalCommands is expected to be defined in commands.js)
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
-        /** Handles command input from the user. */
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
-                let setInputHandled = false;
-                if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (commandHistory.length > 0) {
-                        if (historyIndex <= 0) { historyIndex = commandHistory.length - 1; }
-                        else { historyIndex--; }
-                        commandInput.value = commandHistory[historyIndex];
-                        setInputHandled = true;
-                    }
-                } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (historyIndex < commandHistory.length -1 ) {
-                        historyIndex++;
-                        commandInput.value = commandHistory[historyIndex];
-                        setInputHandled = true;
-                    } else if (historyIndex === commandHistory.length -1 || historyIndex === commandHistory.length ) {
-                        historyIndex = commandHistory.length;
-                        commandInput.value = '';
-                        setInputHandled = true;
-                    }
-                }
-
-                if(setInputHandled) {
-                    setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
-                }
-
                 if (e.key === 'Enter') {
+                    if (commandInput.disabled) return;
                     e.preventDefault();
-                    const fullCommand = commandInput.value.trim();
-                    if (fullCommand) {
-                        if (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== fullCommand) {
-                           commandHistory.push(fullCommand);
+                    const fullCommandText = commandInput.value.trim();
+                    if (fullCommandText) {
+                        if (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== fullCommandText) {
+                           commandHistory.push(fullCommandText);
                         }
                         historyIndex = commandHistory.length;
 
-                        const sanitizedCommand = fullCommand.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                        appendToTerminal(`<span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommand}</span>`);
+                        const sanitizedCommandDisplay = fullCommandText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        appendToTerminal(`<span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span>`);
 
-                        let commandNameVal;
-                        let argsVal = [];
-                        const commandParts = [];
+                        const parts = [];
                         let inQuotes = false;
                         let currentPart = "";
-
-                        for (let i = 0; i < fullCommand.length; i++) {
-                            const char = fullCommand[i];
+                        for (let i = 0; i < fullCommandText.length; i++) {
+                            const char = fullCommandText[i];
                             if (char === '"') {
                                 inQuotes = !inQuotes;
-                                if(inQuotes || (!inQuotes && currentPart.length > 0) ) {
-                                    currentPart += char;
-                                }
-                                if (!inQuotes && currentPart.endsWith('"')) {
-                                     if (currentPart) commandParts.push(currentPart);
-                                     currentPart = "";
-                                }
+                                currentPart += char;
                             } else if (char === ' ' && !inQuotes) {
-                                if (currentPart) {
-                                    commandParts.push(currentPart);
-                                    currentPart = "";
-                                }
+                                if (currentPart) parts.push(currentPart);
+                                currentPart = "";
                             } else {
                                 currentPart += char;
                             }
                         }
-                        if (currentPart) commandParts.push(currentPart);
+                        if (currentPart) parts.push(currentPart);
 
-                        if (commandParts.length > 0) {
-                            commandNameVal = commandParts[0].toLowerCase();
-                            argsVal = commandParts.slice(1).map(arg => {
-                                if (arg.startsWith('"') && arg.endsWith('"')) {
-                                    return arg.substring(1, arg.length - 1);
-                                }
-                                return arg;
-                            });
-                        } else {
-                            commandNameVal = fullCommand.toLowerCase();
-                        }
+                        const commandName = parts[0] ? parts[0].toLowerCase() : "";
+                        const args = parts.slice(1).map(arg => {
+                            if (arg.startsWith('"') && arg.endsWith('"')) {
+                                return arg.substring(1, arg.length - 1);
+                            }
+                            return arg;
+                        });
 
-                        const commandFunc = terminalCommands[commandNameVal];
+                        const commandFunc = terminalCommands[commandName];
 
                         if (typeof commandFunc === 'function') {
-                            const result = commandFunc(argsVal);
+                            const result = commandFunc(args);
                             if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
                                 result.catch(err => {
                                     console.error("Error executing async command:", err);
                                     appendToTerminal(`Async Command Error: ${err.message}`, 'output-error');
                                 });
                             }
-                        } else {
-                            appendToTerminal(`Command not found: ${commandNameVal.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error');
+                        } else if (commandName === 'sudo') { // Catch 'sudo' specifically if not in terminalCommands
+                            terminalCommands['sudo'](args); // Call the generic sudo handler
+                        }
+                        else {
+                            appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error');
                             appendToTerminal(`Type 'help' for commands.`);
                         }
                     }
                     commandInput.value = '';
                     if (terminalOutput) terminalOutput.scrollTop = terminalOutput.scrollHeight;
+
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (commandHistory.length > 0) {
+                        historyIndex = Math.max(0, historyIndex - 1);
+                        commandInput.value = commandHistory[historyIndex];
+                        setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        commandInput.value = commandHistory[historyIndex];
+                    } else {
+                        historyIndex = commandHistory.length;
+                        commandInput.value = '';
+                    }
+                    setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
                 }
             });
         }
 
-        /** Displays the initial welcome message in the terminal. */
         function displayInitialWelcomeMessage() {
-            if (terminalOutput) appendToTerminal(fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
+            if (terminalOutput) appendToTerminal(fullWelcomeMessageStringGlobal.replace(/\n/g, '<br/>'), 'output-welcome');
             if (commandInput) commandInput.focus();
         }
 
         if (terminalOutput) displayInitialWelcomeMessage();
 
-        // --- Global Event Listeners ---
         window.addEventListener('resize', resizeAllCanvases);
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        document.addEventListener('keydown', globalKeydownHandler);
 
     } // End of initializeTerminalAndGraphics()
 }); // End of DOMContentLoaded
