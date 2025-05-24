@@ -20,10 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const terminalOutput = document.getElementById('terminal-output');
     const commandInput = document.getElementById('command-input');
     const navCvLink = document.getElementById('nav-cv-link');
+    const navMediumLink = document.getElementById('nav-medium-link');
 
     // --- Configuration Variables ---
-    const rainFontSize = 13;
-    const rainAnimationInterval = 90;
+    const rainFontSize = 16;
+    const rainAnimationInterval = 80;
     const gridCellSize = 50;
     const numFgSymbols = 12;
     const allMatrixChars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
@@ -42,28 +43,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ASCII Neural Network Visualization ---
     let nnVisInterval = null;
     let nnVisContainer = null;
-    const nnVisFrameRate = 120; // ms per frame, faster for smoother pulse
-    const nnVisDuration = 20000; // 20 seconds
+    const nnVisFrameRate = 120;
+    const nnVisDuration = 20000;
     let nnVisPulseState = {
-        currentSegment: 0, // segment index (0 to numConnections -1)
-        positionInSegment: 0, // 0 to connectionLength -1
-        direction: 1, // 1 for forward, -1 for backward (not used yet, but for future)
+        currentSegment: 0,
+        positionInSegment: 0,
+        direction: 1,
         activeNodes: []
     };
-    let nnCurrentLayerConfig = [3, 5, 4, 2]; // Default layer configuration
+    let nnCurrentLayerConfig = [3, 5, 4, 2];
     const nnNodeChars = {
         default: "( o )",
-        active:  "( @ )", // When pulse hits a node
-        pulsing: "( * )"  // Alternative active state
+        active:  "( @ )",
+        pulsing: "( * )"
     };
     const nnConnectionChars = {
         empty: " ",
         horizontal: "─",
-        pulse: "●", // Small filled circle for pulse
-        pulseTrail: "·" // Smaller dot for trail
+        pulse: "●",
+        pulseTrail: "·"
     };
-    const nnConnectionLength = 5; // Number of characters for connection segment between layers
-    const nnVerticalSpacing = 1; // Lines between rows of nodes if stacked vertically
+    const nnConnectionLength = 5;
+    const nnVerticalSpacing = 1;
 
     // --- Loading Screen Logic ---
     let loaderCharInterval;
@@ -134,15 +135,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return {
                 primary: styles.getPropertyValue('--primary-color').trim() || '#0F0',
                 secondary: styles.getPropertyValue('--secondary-color').trim() || '#00FFFF',
-                trail: styles.getPropertyValue('--matrix-rain-trail-color').trim() || 'rgba(0,0,0,0.05)'
+                trail: styles.getPropertyValue('--matrix-rain-trail-color').trim() || 'rgba(0,0,0,0.05)',
+                glow: styles.getPropertyValue('--matrix-rain-glow-color').trim() || '#9FFF9F',
             };
         }
-        return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)' };
+        return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)', glow: '#9FFF9F' };
     }
 
     function getCurrentFontFamily() {
          if (typeof getComputedStyle !== 'undefined' && document.body) return getComputedStyle(document.body).getPropertyValue('--font-mono-current').trim() || 'Fira Code, monospace';
          return 'Fira Code, monospace';
+    }
+
+    function resizeTerminalElement(width, height) {
+        if (mainContentContainer) {
+            mainContentContainer.style.width = width;
+            mainContentContainer.style.height = height;
+            // Optionally, trigger canvas resize if terminal size affects canvas layout significantly
+            // resizeAllCanvases(); // Uncomment if matrix rain columns or other canvas elements depend on terminal size
+        }
     }
 
     let fullWelcomeMessageStringGlobal = '';
@@ -182,24 +193,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const connectionSegment = nnConnectionChars.horizontal.repeat(nnConnectionLength);
 
         let output = [];
-        nnVisPulseState.activeNodes = []; // Reset active nodes each frame
+        nnVisPulseState.activeNodes = [];
 
-        // Determine which layer the pulse is currently "activating" or "passing through"
-        // Pulse travels node layer -> connection -> node layer
         const pulseOverallProgress = nnVisPulseState.currentSegment * (nnConnectionLength + 1) + nnVisPulseState.positionInSegment;
-        const segmentDuration = nnConnectionLength + 1; // Time to pass one node layer and one connection
+        const segmentDuration = nnConnectionLength + 1;
 
         for (let i = 0; i < maxNodesInAnyLayer * (1 + nnVerticalSpacing) - nnVerticalSpacing; i++) {
             let line = "";
-            const nodeRowIndex = Math.floor(i / (1 + nnVerticalSpacing)); // Which node row this line corresponds to
-            const isNodeLine = i % (1 + nnVerticalSpacing) === 0; // True if this line should draw nodes
+            const nodeRowIndex = Math.floor(i / (1 + nnVerticalSpacing));
+            const isNodeLine = i % (1 + nnVerticalSpacing) === 0;
 
             for (let l = 0; l < numLayers; l++) {
-                // --- Draw Node Layer ---
                 if (isNodeLine && nodeRowIndex < nnCurrentLayerConfig[l]) {
                     let nodeChar = nnNodeChars.default;
-                    // Check if this node should be "active" due to pulse
-                    // Pulse is "on" a node layer 'l' when currentSegment/2 is 'l' and positionInSegment is 0
                     const pulseIsOnThisNodeLayer = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment === 0;
 
                     if (pulseIsOnThisNodeLayer) {
@@ -207,40 +213,34 @@ document.addEventListener('DOMContentLoaded', () => {
                         nnVisPulseState.activeNodes.push({layer: l, index: nodeRowIndex});
                     }
                     line += nodeChar;
-                } else if (isNodeLine) { // Empty space if no node at this vertical position
+                } else if (isNodeLine) {
                     line += " ".repeat(nodeWidth);
-                } else { // Vertical spacing line
+                } else {
                     line += " ".repeat(nodeWidth);
                 }
 
-                // --- Draw Connection Layer (if not the last layer) ---
                 if (l < numLayers - 1) {
-                    if (isNodeLine) { // Only draw connections from actual node lines
-                        // Check if a node exists at current layer and next layer for this row
+                    if (isNodeLine) {
                         const connects = nodeRowIndex < nnCurrentLayerConfig[l] && nodeRowIndex < nnCurrentLayerConfig[l+1];
                         if (connects) {
                             let currentConnection = connectionSegment;
-                            // Pulse is "on" a connection 'l' when currentSegment/2 is 'l' and positionInSegment > 0
                             const pulseIsOnThisConnection = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment > 0;
 
                             if (pulseIsOnThisConnection) {
-                                const pulsePosInConn = nnVisPulseState.positionInSegment -1; // 0 to nnConnectionLength-1
+                                const pulsePosInConn = nnVisPulseState.positionInSegment -1;
                                 let tempConn = connectionSegment.split('');
                                 if (pulsePosInConn < tempConn.length) {
-                                     // Simple pulse: one char
-                                    // tempConn[pulsePosInConn] = nnConnectionChars.pulse;
-                                    // Pulse with trail
                                     tempConn[pulsePosInConn] = nnConnectionChars.pulse;
                                     if (pulsePosInConn > 0) tempConn[pulsePosInConn-1] = nnConnectionChars.pulseTrail;
-                                    if (pulsePosInConn > 1) tempConn[pulsePosInConn-2] = nnConnectionChars.empty; // Clear older trail
+                                    if (pulsePosInConn > 1) tempConn[pulsePosInConn-2] = nnConnectionChars.empty;
                                 }
                                 currentConnection = tempConn.join('');
                             }
                             line += currentConnection;
                         } else {
-                            line += " ".repeat(nnConnectionLength); // No connection, empty space
+                            line += " ".repeat(nnConnectionLength);
                         }
-                    } else { // Vertical spacing line for connections
+                    } else {
                          line += " ".repeat(nnConnectionLength);
                     }
                 }
@@ -250,13 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nnVisContainer.innerHTML = output.join('\n').replace(/ /g, '&nbsp;');
 
-        // Update pulse position
         nnVisPulseState.positionInSegment++;
-        if (nnVisPulseState.positionInSegment > nnConnectionLength) { // Passed connection + node 'activation'
+        if (nnVisPulseState.positionInSegment > nnConnectionLength) {
             nnVisPulseState.positionInSegment = 0;
             nnVisPulseState.currentSegment++;
-            if (nnVisPulseState.currentSegment >= (numLayers * 2) - 2) { // Reached end (approx)
-                nnVisPulseState.currentSegment = 0; // Reset pulse to start
+            if (nnVisPulseState.currentSegment >= (numLayers * 2) - 2) {
+                nnVisPulseState.currentSegment = 0;
             }
         }
     }
@@ -264,15 +263,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function startAsciiNnVis(layerConfig = null) {
         if (nnVisInterval) stopAsciiNnVis();
 
-        nnCurrentLayerConfig = (layerConfig && layerConfig.length > 0) ? layerConfig : [3, 5, 2]; // Default or user config
-        if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2]; // Min 2 layers
+        nnCurrentLayerConfig = (layerConfig && layerConfig.length > 0) ? layerConfig : [3, 5, 2];
+        if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2];
+        nnCurrentLayerConfig = nnCurrentLayerConfig.map(nodes => Math.min(nodes, 14));
+
 
         appendToTerminal("Initializing Neural Network Visualization...", "output-text");
         nnVisContainer = appendToTerminal("", "ascii-nn-vis");
         const maxNodes = Math.max(...nnCurrentLayerConfig, 0);
-        nnVisContainer.style.minHeight = `${maxNodes * (1 + nnVerticalSpacing) * 1.2}em`; // Dynamic height
+        nnVisContainer.style.minHeight = `${maxNodes * (1 + nnVerticalSpacing) * 1.2}em`;
 
-        nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] }; // Reset state
+        nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] };
         drawAsciiNnFrame();
         nnVisInterval = setInterval(drawAsciiNnFrame, nnVisFrameRate);
 
@@ -285,7 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopAsciiNnVis() {
         if (nnVisInterval) clearInterval(nnVisInterval);
         nnVisInterval = null;
-        // nnVisContainer = null; // Don't nullify, so clear command can find it
     }
 
     /** Main Initialization Function for Terminal and Graphics. */
@@ -300,23 +300,51 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             columns = Math.floor(window.innerWidth / rainFontSize);
             rainDrops.length = 0;
-            for (let x = 0; x < columns; x++) rainDrops[x] = Math.floor(Math.random() * (window.innerHeight / rainFontSize));
+            for (let x = 0; x < columns; x++) {
+                rainDrops[x] = {
+                    y: Math.floor(Math.random() * (window.innerHeight / rainFontSize)),
+                    isLeading: true,
+                };
+            }
             if (parallaxCanvasFg) initializeParallaxFgSymbols();
         }
 
         function drawMatrixRain() {
             if (!matrixRainCtx) return;
-            matrixRainCtx.fillStyle = getCurrentThemeColors().trail;
+            const themeColors = getCurrentThemeColors();
+            matrixRainCtx.fillStyle = themeColors.trail;
             matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
-            matrixRainCtx.fillStyle = getCurrentThemeColors().primary;
-            matrixRainCtx.font = rainFontSize + 'px ' + getCurrentFontFamily();
+            // Font is set to bold for all characters. The "leading" effect is through color and shadow.
+            matrixRainCtx.font = `bold ${rainFontSize}px ${getCurrentFontFamily()}`;
+
             for (let i = 0; i < rainDrops.length; i++) {
                 const text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
-                matrixRainCtx.fillText(text, i * rainFontSize, rainDrops[i] * rainFontSize);
-                if (rainDrops[i] * rainFontSize > matrixRainCanvas.height && Math.random() > 0.975) rainDrops[i] = 0;
-                rainDrops[i]++;
+                const drop = rainDrops[i];
+
+                if (drop.isLeading) {
+                    matrixRainCtx.fillStyle = themeColors.glow;
+                    matrixRainCtx.shadowColor = themeColors.glow; // Shadow gives a stronger glow/bold appearance
+                    matrixRainCtx.shadowBlur = 10; // Increase blur for more prominent glow
+                    matrixRainCtx.shadowOffsetX = 0; // No offset for a centered glow
+                    matrixRainCtx.shadowOffsetY = 0;
+                    drop.isLeading = false; // Only the very first char is "leading" for this drop cycle
+                } else {
+                    matrixRainCtx.fillStyle = themeColors.primary;
+                    matrixRainCtx.shadowBlur = 0; // Reset shadow for subsequent chars
+                }
+
+                matrixRainCtx.fillText(text, i * rainFontSize, drop.y * rainFontSize);
+
+                if (drop.y * rainFontSize > matrixRainCanvas.height && Math.random() > 0.975) {
+                    drop.y = 0;
+                    drop.isLeading = true; // When drop resets, the next char will be leading
+                }
+                drop.y++;
             }
+            matrixRainCtx.shadowBlur = 0; // Ensure shadow is reset after the loop
+            matrixRainCtx.shadowColor = 'transparent'; // Clear shadow color
         }
+
 
         function drawParallaxBackground() {
             if (!parallaxCtxBg) return;
@@ -389,6 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cvLink: "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
         };
         if (navCvLink) navCvLink.href = userDetails.cvLink;
+        if (navMediumLink) navMediumLink.href = `https://medium.com/@${userDetails.mediumUser}`;
 
         const bioContent = `Currently working as a Data Scientist, I'm a curious developer passionate about the full spectrum of software and data development. My interests span from foundational data engineering and robust back-end systems to the cutting edge of Machine Learning, Deep Learning, and Large Language Models. I enjoy coding and architecting solutions across this entire stack.`;
         const focusContent = `Building intuitive digital experiences, developing intelligent AI models, and engineering scalable data solutions. I thrive on continuous learning and applying elegant approaches to complex challenges in technology.`;
@@ -396,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
 
         const plainNameArt = `<span class="ascii-name">${userDetails.userName.toUpperCase()}</span>`;
-        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n---------------------------------------------------`;
+        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\nType 'examples' for a list of test commands.\n---------------------------------------------------`;
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
         const commandHandlerContext = {
@@ -407,7 +436,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContentContainer,
             allMatrixChars,
             startAsciiNnVis,
-            stopAsciiNnVis
+            stopAsciiNnVis,
+            resizeTerminalElement // Pass resize function to commands context
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
@@ -461,8 +491,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                     appendToTerminal(`Async Command Error: ${err.message}`, 'output-error');
                                 });
                             }
-                        } else if (commandName === 'sudo') { // Catch 'sudo' specifically if not in terminalCommands
-                            terminalCommands['sudo'](args); // Call the generic sudo handler
+                        } else if (commandName === 'sudo') {
+                            terminalCommands['sudo'](args);
                         }
                         else {
                             appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error');
@@ -500,9 +530,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (terminalOutput) displayInitialWelcomeMessage();
 
-        window.addEventListener('resize', resizeAllCanvases);
+        window.addEventListener('resize', resizeAllCanvases); // This handles canvas resizing
+        // Note: Terminal CSS width/height in % or vw/vh will also respond to window resize.
+        // The 'resize term' command provides explicit control.
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         document.addEventListener('keydown', globalKeydownHandler);
 
-    } // End of initializeTerminalAndGraphics()
-}); // End of DOMContentLoaded
+    }
+});
