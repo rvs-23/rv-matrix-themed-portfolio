@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rv's Matrix Terminal Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css"> </head>
+<body class="theme-green">
+
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-text" id="decrypt-line1">..SYNCHRONIZING WITH NEO’S ALGORITHM..</div>
+            <div class="loading-text" id="decrypt-line2">..LOADING ARTIFICIAL CONSCIOUSNESS...</div>
+            <div class="loading-text" id="decrypt-status">..USER AUTHORIZED: PROCEED BEYOND THE CODE...</div>
+            <div class="loading-text matrix-chars" id="matrix-loader-chars"></div>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <canvas id="parallax-canvas-bg"></canvas>
+    <canvas id="parallax-canvas-fg"></canvas>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div id="contentContainer" class="content-container">
+        <pre id="terminal-output" class="leading-relaxed"></pre>
+        <div class="prompt-line flex items-center">
+            <span class="prompt-arrow mr-2">&gt;</span>
+            <input type="text" id="command-input" class="command-input flex-grow" autofocus autocomplete="off" spellcheck="false" />
+        </div>
+    </div>
+
+    <nav class="minimal-nav">
+        <a href="https://www.linkedin.com/in/rishav-sharma-23rvs/" target="_blank" class="nav-icon" aria-label="LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+            <span class="nav-label">LinkedIn</span>
+        </a>
+        <a href="https://github.com/rvs-23" target="_blank" class="nav-icon" aria-label="GitHub">
+            <i class="fab fa-github"></i>
+            <span class="nav-label">GitHub</span>
+        </a>
+        <a href="mailto:23rishavsharma@gmail.com" class="nav-icon" aria-label="Email">
+            <i class="fas fa-envelope"></i>
+            <span class="nav-label">Email</span>
+        </a>
+        <a href="https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing" target="_blank" class="nav-icon" id="nav-cv-link" aria-label="Download CV">
+            <i class="fas fa-file-arrow-down"></i>
+            <span class="nav-label">CV</span>
+        </a>
+    </nav>
+
+    <script src="js/matrix.js"></script>
+    <script src="js/commands.js"></script> </body>
+</html>
