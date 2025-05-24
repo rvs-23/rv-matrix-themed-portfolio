@@ -33,21 +33,30 @@ function getTerminalCommands(context) {
         aliases: ["core", "all", "root"],
         children: [
             {
-                name: "Languages & Frameworks",
-                aliases: ["lang", "frameworks"],
+                name: "Software Engineering",
+                aliases: ["se", "swe", "software"],
                 children: [
-                    {
-                        name: "Python",
+                     {
+                        name: "Languages & Frameworks",
+                        aliases: ["lang", "frameworks"],
                         children: [
-                            { name: "NumPy" },
-                            { name: "Pandas" },
-                            { name: "Scikit-Learn" },
-                            { name: "Matplotlib" }
+                            {
+                                name: "Python",
+                                children: [
+                                    { name: "NumPy" },
+                                    { name: "Pandas" },
+                                    { name: "Scikit-Learn" },
+                                    { name: "Matplotlib" }
+                                ]
+                            },
+                            { name: "TypeScript" },
+                            { name: "SQL" },
+                            { name: "Apache Spark" }
                         ]
                     },
-                    { name: "TypeScript" },
-                    { name: "SQL" },
-                    { name: "Apache Spark" }
+                    { name: "Front-End Development", aliases: ["frontend", "ui", "ux"] },
+                    { name: "Back-End Development", aliases: ["backend", "server"] },
+                    { name: "DevOps" , aliases: ["devops", "ci/cd"]},
                 ]
             },
             {
@@ -252,19 +261,56 @@ function getTerminalCommands(context) {
                 appendToTerminal("Easter egg malfunction. Please check console.", "output-error");
             });
         },
+        'examples': () => {
+            const exampleList = [
+                { cmd: "help", desc: "Displays all available commands." },
+                { cmd: "about", desc: "Shows a short bio." },
+                { cmd: "contact", desc: "Displays contact information (Email, LinkedIn, GitHub, Medium)." },
+                { cmd: "skills", desc: "Lists a summary of key skills." },
+                { cmd: "skilltree", desc: "Shows the top-level skill categories." },
+                { cmd: "skilltree se", desc: "Shows skills under Software Engineering." },
+                { cmd: "skilltree ai > nlp", desc: "Shows skills under NLP Basics within AI & ML." },
+                { cmd: "skilltree tools", desc: "Shows skills under Platforms & Tools." },
+                { cmd: "theme", desc: "Shows available themes and usage." },
+                { cmd: "theme light", desc: "Changes the terminal to light mode." },
+                { cmd: "theme crimson", desc: "Changes the terminal to the new crimson theme." },
+                { cmd: "theme forest", desc: "Changes the terminal to the new forest theme." },
+                { cmd: "theme green", desc: "Switches back to the default green theme." },
+                { cmd: "date", desc: "Displays the current date and time." },
+                { cmd: "download cv", desc: "Initiates download of the CV." },
+                { cmd: "whoami", desc: "Displays your username." },
+                { cmd: "nnvis", desc: "Starts a default ASCII neural network visualization." },
+                { cmd: "nnvis 2 4 3", desc: "Starts an ASCII neural network with layers 2, 4, 3." },
+                { cmd: "nnvis --layers 2 4 3 1", desc: "Also starts an ASCII neural network with a custom layer structure." },
+                { cmd: "clear", desc: "Clears the terminal screen, keeping the welcome message." },
+                { cmd: "projects", desc: "Shows a placeholder for projects (links to GitHub)." },
+                { cmd: "easter.egg", desc: "Triggers a hidden Matrix quote and terminal glitch." },
+                { cmd: "sudo test", desc: "Attempts a superuser command." }
+            ];
+            let output = "Example Commands & Expected Outcomes:\n\n";
+            const padChar = "&nbsp;";
+            const maxCmdLength = Math.max(...exampleList.map(item => item.cmd.length));
+
+            exampleList.forEach(item => {
+                const fixedCmd = item.cmd.padEnd(maxCmdLength, ' ').replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                output += `${padChar.repeat(2)}<span class="output-command">${fixedCmd.replace(/ /g, padChar)}</span>${padChar.repeat(3)}- ${item.desc.replace(/</g, "&lt;").replace(/>/g, "&gt;")}\n`;
+            });
+            appendToTerminal(output.trim().replace(/\n/g, '<br/>'));
+        },
         'help': () => {
-            let commandList = [ // Removed 'sudo' from this list
+            let commandList = [
                 { cmd: "about", display: "about", desc: "Display information about me." },
                 { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
                 { cmd: "contact", display: "contact", desc: "Show contact information." },
                 { cmd: "date", display: "date", desc: "Display current date and time." },
                 { cmd: "download cv", display: "download cv", desc: "Download my CV." },
                 { cmd: "easter.egg", display: "easter.egg", desc: "???" },
-                { cmd: "nnvis [--layers n1 n2...]", display: "nnvis [--layers n1 n2...]", desc: "Visualize an ASCII neural network." },
+                { cmd: "examples", display: "examples", desc: "Show example commands and expected outcomes." },
+                { cmd: "nnvis [n1 n2...]", display: "nnvis [n1 n2...]", desc: "Visualize an ASCII neural network. E.g. `nnvis 3 5 2`" },
                 { cmd: "projects", display: "projects", desc: "Show my featured projects (placeholder)." },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
-                { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree ai" },
-                { cmd: "theme <name|mode>", display: "theme <name|mode>", desc: "Themes: amber, cyan, green, purple, twilight, light, dark." },
+                { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree se" },
+                { cmd: "theme [name|mode]", display: "theme [name|mode]", desc: "Themes: amber, cyan, green, purple, twilight, crimson, forest, light, dark." },
                 { cmd: "whoami", display: "whoami", desc: "Display current user." },
             ];
             commandList.sort((a, b) => a.display.localeCompare(b.display));
@@ -280,19 +326,29 @@ function getTerminalCommands(context) {
             appendToTerminal(helpOutput.trim().replace(/\n/g, '<br/>'));
         },
         'nnvis': (args) => {
-            let layerConfig = null; // Default config will be used in matrix.js if null
-            if (args.length > 0 && args[0].toLowerCase() === '--layers') {
-                layerConfig = args.slice(1).map(num => parseInt(num, 10)).filter(num => !isNaN(num) && num > 0);
-                if (layerConfig.length === 0) {
-                    appendToTerminal("Invalid layer configuration. Usage: nnvis --layers n1 n2 ... (e.g., nnvis --layers 3 5 2)", 'output-error');
-                    layerConfig = null; // Fallback to default
+            let layerConfig = null;
+            let potentialLayers = [];
+
+            if (args.length > 0) {
+                if (args[0].toLowerCase() === '--layers') {
+                    potentialLayers = args.slice(1);
                 } else {
+                    potentialLayers = args; // Treat all args as potential layer numbers if --layers is not first
+                }
+                layerConfig = potentialLayers.map(num => parseInt(num, 10)).filter(num => !isNaN(num) && num > 0 && num < 15); // Added < 15 constraint for sanity
+
+                if (potentialLayers.length > 0 && layerConfig.length === 0) {
+                    appendToTerminal("Invalid layer configuration. Numbers must be positive integers (1-14). Usage: nnvis [n1 n2 ...] (e.g., nnvis 3 5 2)", 'output-error');
+                    return; // Stop if args provided but all invalid
+                } else if (layerConfig.length > 0) {
                      appendToTerminal(`Configuring network with layers: ${layerConfig.join(', ')}`, 'output-text');
                 }
+                // If layerConfig is still empty here, it means no valid numbers were passed, so default will be used.
             }
 
+
             if (typeof context.startAsciiNnVis === 'function') {
-                context.startAsciiNnVis(layerConfig); // Pass the config
+                context.startAsciiNnVis(layerConfig);
             } else {
                 appendToTerminal("ASCII Neural Network Visualization module not loaded.", 'output-error');
             }
@@ -302,7 +358,7 @@ function getTerminalCommands(context) {
             appendToTerminal(`Visit: <a href="https://github.com/${context.userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${context.userDetails.githubUser}</a>`);
         },
         'skills': () => {
-            appendToTerminal(`Key Areas: Languages & Frameworks (Python, TypeScript, SQL, Spark), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown.`.replace(/\n/g, '<br/>'));
+            appendToTerminal(`Key Areas: Software Engineering (Languages, Frameworks, Frontend, Backend, DevOps), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown.`.replace(/\n/g, '<br/>'));
         },
         'skilltree': (args) => {
             const pathArg = args.join(' ').trim();
@@ -357,38 +413,59 @@ function getTerminalCommands(context) {
 
             appendToTerminal(outputArray.join('\n').replace(/\n/g, '<br/>'));
             if (!pathArg) {
-                 appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree lang`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
+                 appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree se`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
-        'sudo': (args) => { // Simplified sudo: always deny
-            const attemptedCommand = args.join(' ');
-            appendToTerminal(`Access Denied. User ${context.userDetails.userName} not authorized for 'sudo${attemptedCommand ? ' ' + attemptedCommand : ''}'. This incident will be logged.`, 'output-error');
+        'sudo': (args) => {
+            appendToTerminal(`Access Denied. User not authorized to 'sudo'. This incident will be logged.`, 'output-error');
         },
         'theme': (args) => {
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
-            const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight'];
+            const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight', 'crimson', 'forest'];
             const validSpecificThemes = [...darkThemes];
+            const allValidOptions = [...validSpecificThemes, 'light', 'dark'];
 
+            const currentThemeClass = Array.from(document.body.classList).find(cls => cls.startsWith('theme-'));
             const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-'));
-            document.body.className = '';
 
-            if (themeNameInput === 'light') {
-                document.body.classList.add('theme-light');
-                appendToTerminal('Theme set to light mode.', 'output-success');
-            } else if (themeNameInput === 'dark') {
-                document.body.classList.add('theme-green');
-                appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
-            } else if (validSpecificThemes.includes(themeNameInput)) {
-                document.body.classList.add(`theme-${themeNameInput}`);
-                appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
-            } else {
-                appendToTerminal(`Usage: theme <${validSpecificThemes.sort().join('|')}|light|dark>`, 'output-error');
-                document.body.classList.add('theme-green');
+            const showThemeUsage = () => {
+                appendToTerminal(`Usage: theme &lt;name|mode&gt;`, 'output-error');
+                appendToTerminal(`Available themes: ${validSpecificThemes.sort().join(', ')}`);
+                appendToTerminal(`Available modes: light, dark`);
+            };
+
+            if (!themeNameInput) {
+                showThemeUsage();
+                return;
             }
-            if (currentFontClass) {
-                document.body.classList.add(currentFontClass);
+
+            if (allValidOptions.includes(themeNameInput)) {
+                document.body.className = ''; // Clear all classes first
+
+                if (themeNameInput === 'light') {
+                    document.body.classList.add('theme-light');
+                    appendToTerminal('Theme set to light mode.', 'output-success');
+                } else if (themeNameInput === 'dark') {
+                    document.body.classList.add('theme-green'); // Default dark theme
+                    appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
+                } else if (validSpecificThemes.includes(themeNameInput)) {
+                    document.body.classList.add(`theme-${themeNameInput}`);
+                    appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
+                }
+
+                if (currentFontClass) { // Reapply font class
+                    document.body.classList.add(currentFontClass);
+                } else {
+                    document.body.classList.add('font-fira'); // Default font
+                }
             } else {
-                document.body.classList.add('font-fira');
+                appendToTerminal(`Error: Theme "${themeNameInput.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" not found.`, 'output-error');
+                showThemeUsage();
+                // Do not change the theme, keep the current one
+                if (currentThemeClass) document.body.classList.add(currentThemeClass);
+                if (currentFontClass) document.body.classList.add(currentFontClass);
+                else document.body.classList.add('font-fira');
+
             }
         },
         'whoami': () => {

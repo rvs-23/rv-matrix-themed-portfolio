@@ -8,7 +8,7 @@
     --background-color: #000;
     --terminal-background-color: rgba(17, 24, 39, 0.88);
     --text-shadow-color: rgba(0, 255, 0, 0.7);
-    --border-color: rgba(0, 255, 0, 0.6);
+    --border-color: rgba(0, 255, 0, 0.6); /* Used for content container, might be reused or removed from nav */
     --hover-color: #33FF33;
     --hover-shadow-color: rgba(51, 255, 51, 0.9);
     --scrollbar-track-color: rgba(0, 255, 0, 0.1);
@@ -20,6 +20,7 @@
     --loader-text-color: #0F0;
     --loader-spinner-color: #0F0;
     --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
+    --matrix-rain-glow-color: #9FFF9F; /* Lighter, brighter green for glow */
     --footer-height: 3.5rem;
 
     /* Font Families */
@@ -36,7 +37,7 @@ body.theme-cyan {
     --scrollbar-track-color: rgba(0, 255, 255, 0.1); --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
     --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8); --nav-icon-color: #0FF;
     --nav-icon-hover-color: #5FFFFF; --nav-label-bg: rgba(0, 255, 255, 0.15);
-    --loader-text-color: #0FF; --loader-spinner-color: #0FF;
+    --loader-text-color: #0FF; --loader-spinner-color: #0FF; --matrix-rain-glow-color: #AFFFFF;
     --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
 }
 /* Amber Theme */
@@ -46,7 +47,7 @@ body.theme-amber {
     --scrollbar-track-color: rgba(255, 191, 0, 0.1); --scrollbar-thumb-color: rgba(255, 191, 0, 0.5);
     --scrollbar-thumb-hover-color: rgba(255, 191, 0, 0.8); --nav-icon-color: #FFBF00;
     --nav-icon-hover-color: #FFD700; --nav-label-bg: rgba(255, 191, 0, 0.15);
-    --loader-text-color: #FFBF00; --loader-spinner-color: #FFBF00;
+    --loader-text-color: #FFBF00; --loader-spinner-color: #FFBF00; --matrix-rain-glow-color: #FFDDA0;
     --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
 }
 /* Purple Theme */
@@ -56,7 +57,7 @@ body.theme-purple {
     --scrollbar-track-color: rgba(192, 0, 192, 0.1); --scrollbar-thumb-color: rgba(192, 0, 192, 0.5);
     --scrollbar-thumb-hover-color: rgba(192, 0, 192, 0.8); --nav-icon-color: #C000C0;
     --nav-icon-hover-color: #EE82EE; --nav-label-bg: rgba(192, 0, 192, 0.15);
-    --loader-text-color: #C000C0; --loader-spinner-color: #C000C0;
+    --loader-text-color: #C000C0; --loader-spinner-color: #C000C0; --matrix-rain-glow-color: #ECA0EC;
     --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
 }
 /* Twilight Theme */
@@ -67,7 +68,8 @@ body.theme-twilight {
     --scrollbar-track-color: rgba(230, 160, 196, 0.1); --scrollbar-thumb-color: rgba(230, 160, 196, 0.4);
     --scrollbar-thumb-hover-color: rgba(230, 160, 196, 0.7); --nav-icon-color: #e6a0c4;
     --nav-icon-hover-color: #ee82ee; --nav-label-bg: rgba(230, 160, 196, 0.15);
-    --loader-text-color: #e6a0c4; --loader-spinner-color: #e6a0c4; --matrix-rain-trail-color: rgba(10, 6, 26, 0.07);
+    --loader-text-color: #e6a0c4; --loader-spinner-color: #e6a0c4; --matrix-rain-glow-color: #f0c0e0;
+    --matrix-rain-trail-color: rgba(10, 6, 26, 0.07);
 }
 /* Light Theme */
 body.theme-light {
@@ -77,8 +79,55 @@ body.theme-light {
     --scrollbar-track-color: rgba(44, 62, 80, 0.05); --scrollbar-thumb-color: rgba(44, 62, 80, 0.3);
     --scrollbar-thumb-hover-color: rgba(44, 62, 80, 0.5); --nav-icon-color: #2c3e50;
     --nav-icon-hover-color: #3498db; --nav-label-bg: rgba(44, 62, 80, 0.1);
-    --loader-text-color: #2c3e50; --loader-spinner-color: #3498db; --matrix-rain-trail-color: rgba(236, 240, 241, 0.15);
+    --loader-text-color: #2c3e50; --loader-spinner-color: #3498db; --matrix-rain-glow-color: #4c5f73; /* Darker glow for light bg */
+    --matrix-rain-trail-color: rgba(236, 240, 241, 0.15);
 }
+
+/* NEW THEMES */
+/* Crimson Theme */
+body.theme-crimson {
+    --primary-color: #DC143C; /* Crimson */
+    --secondary-color: #FF6347; /* Tomato */
+    --background-color: #100000; /* Very dark red */
+    --terminal-background-color: rgba(20, 0, 0, 0.88); /* Dark red, slightly transparent */
+    --text-shadow-color: rgba(220, 20, 60, 0.6);
+    --border-color: rgba(220, 20, 60, 0.5);
+    --hover-color: #FF4500; /* OrangeRed */
+    --hover-shadow-color: rgba(255, 69, 0, 0.8);
+    --scrollbar-track-color: rgba(220, 20, 60, 0.1);
+    --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
+    --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7);
+    --nav-icon-color: #DC143C;
+    --nav-icon-hover-color: #FF4500;
+    --nav-label-bg: rgba(220, 20, 60, 0.15);
+    --loader-text-color: #DC143C;
+    --loader-spinner-color: #FF6347;
+    --matrix-rain-trail-color: rgba(10, 0, 0, 0.07);
+    --matrix-rain-glow-color: #FF8C70; /* Lighter red/coral for glow */
+}
+
+/* Forest Theme */
+body.theme-forest {
+    --primary-color: #228B22; /* ForestGreen */
+    --secondary-color: #ADFF2F; /* GreenYellow */
+    --background-color: #001000; /* Very dark green */
+    --terminal-background-color: rgba(0, 20, 0, 0.88); /* Dark green, slightly transparent */
+    --text-shadow-color: rgba(34, 139, 34, 0.6);
+    --border-color: rgba(34, 139, 34, 0.5);
+    --hover-color: #32CD32; /* LimeGreen */
+    --hover-shadow-color: rgba(50, 205, 50, 0.8);
+    --scrollbar-track-color: rgba(34, 139, 34, 0.1);
+    --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
+    --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7);
+    --nav-icon-color: #228B22;
+    --nav-icon-hover-color: #32CD32;
+    --nav-label-bg: rgba(34, 139, 34, 0.15);
+    --loader-text-color: #228B22;
+    --loader-spinner-color: #ADFF2F;
+    --matrix-rain-trail-color: rgba(0, 10, 0, 0.07);
+    --matrix-rain-glow-color: #98FB98; /* PaleGreen for glow */
+}
+
 
 body.font-fira { --font-mono-current: var(--font-stack-fira); }
 
@@ -126,13 +175,14 @@ body {
     position: relative; z-index: 10;
     color: var(--primary-color);
     font-family: var(--font-mono-current);
-    font-size: 11px;
+    font-size: 11px; /* Original font size */
     text-shadow: 0 0 8px var(--text-shadow-color);
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 0;
-    padding: 1rem;
-    width: 600px; max-width: 90%;
-    height: 72vh;
+    padding: 1rem; /* Original padding */
+    width: 540px; /* 600px * 0.9 = 540px */
+    max-width: 81%; /* 90% * 0.9 = 81% */
+    height: 64.8vh; /* 72vh * 0.9 = 64.8vh */
     background-color: var(--terminal-background-color);
     border-radius: 0.4rem;
     box-shadow: 0 8px 16px -4px var(--text-shadow-color), 0 3px 7px -2px var(--text-shadow-color);
@@ -212,8 +262,8 @@ body {
     background-color: transparent; padding: 0.5rem 0.8rem;
     display: flex; justify-content: center; align-items: center;
     gap: 1.3rem; z-index: 150;
-    border-top: 1px solid var(--border-color);
-    transition: border-color 0.3s ease;
+    /* border-top: 1px solid var(--border-color); REMOVED */
+    transition: border-color 0.3s ease; /* Kept for other potential border changes */
 }
 .nav-icon {
     color: var(--nav-icon-color); font-size: 1.2rem;
@@ -322,9 +372,15 @@ body.crt-mode #parallax-canvas-fg {
 
 /* Responsive Adjustments */
 @media (max-width: 767px) {
-    .content-container { width: 95%; padding: 0.7rem; font-size: 10px; height: auto; max-height: calc(100vh - var(--footer-height) - 1rem); }
+    .content-container {
+        width: 90%; /* Was 95%, make it a bit smaller relative to its new base size */
+        padding: 0.6rem; /* Adjusted padding */
+        font-size: 9px; /* Adjusted font size */
+        height: auto;
+        max-height: calc(100vh - var(--footer-height) - 0.8rem); /* Adjusted max-height */
+    }
     #terminal-output { line-height: 1.3; }
-    .ascii-name {font-size: 1em;}
+    .ascii-name {font-size: 0.9em;} /* Adjusted ascii name size */
     .minimal-nav { padding: 0.3rem 0.4rem; gap: 0.8rem; }
     .nav-icon { font-size: 1.0rem; }
     .nav-label { font-size: 0.6rem; }
@@ -334,6 +390,11 @@ body.crt-mode #parallax-canvas-fg {
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-    .content-container { width: 85%; font-size: 11px; height: 75vh; padding: 0.9rem; }
+    .content-container {
+        width: 76.5%; /* 85% * 0.9 = 76.5% */
+        font-size: 10px; /* Adjusted font size */
+        height: 67.5vh; /* 75vh * 0.9 = 67.5vh */
+        padding: 0.8rem; /* Adjusted padding */
+    }
     .minimal-nav { gap: 1.2rem; }
 }
