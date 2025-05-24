@@ -22,9 +22,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const navCvLink = document.getElementById('nav-cv-link');
     const navMediumLink = document.getElementById('nav-medium-link');
 
-    // --- Configuration Variables ---
-    const rainFontSize = 16;
-    const rainAnimationInterval = 80;
+    // --- Matrix Rain Configuration ---
+    const defaultRainConfig = {
+        fontSize: 18,        // Pixels
+        fontFamily: "Fira Code, monospace", // Monospace font
+        speed: 101,           // Milliseconds interval for redraw (lower is faster)
+        density: 0.69,        // Multiplier for number of columns (0.1 to 2.0)
+        trailEffect: true,   // True for fading tails, false for more solid redraw
+        randomizeSpeed: true // True to add slight speed variation to drops
+    };
+    let rainConfigOptions = { ...defaultRainConfig };
+    let rainAnimationIntervalId = null; // To store the interval ID for matrix rain
+
+    // --- Other Configuration Variables ---
     const gridCellSize = 50;
     const numFgSymbols = 12;
     const allMatrixChars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
@@ -40,33 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let konamiCodeIndex = 0;
     let crtModeActive = false;
 
-    // --- ASCII Neural Network Visualization ---
+    // --- ASCII Neural Network Visualization (remains the same) ---
     let nnVisInterval = null;
     let nnVisContainer = null;
     const nnVisFrameRate = 120;
     const nnVisDuration = 20000;
-    let nnVisPulseState = {
-        currentSegment: 0,
-        positionInSegment: 0,
-        direction: 1,
-        activeNodes: []
-    };
+    let nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] };
     let nnCurrentLayerConfig = [3, 5, 4, 2];
-    const nnNodeChars = {
-        default: "( o )",
-        active:  "( @ )",
-        pulsing: "( * )"
-    };
-    const nnConnectionChars = {
-        empty: " ",
-        horizontal: "─",
-        pulse: "●",
-        pulseTrail: "·"
-    };
+    const nnNodeChars = { default: "( o )", active:  "( @ )", pulsing: "( * )" };
+    const nnConnectionChars = { empty: " ", horizontal: "─", pulse: "●", pulseTrail: "·" };
     const nnConnectionLength = 5;
     const nnVerticalSpacing = 1;
 
-    // --- Loading Screen Logic ---
+    // --- Loading Screen Logic (remains the same) ---
     let loaderCharInterval;
     let statusCyclingInterval;
     const loadingMessages = [
@@ -109,13 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeTerminalAndGraphics();
         }
     };
-
     window.onload = handleWindowLoad;
-
     if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
         loaderCharInterval = setInterval(animateLoaderMatrixChars, 120);
-        animateLoaderMatrixChars();
-        updateLoadingStatusMessage();
+        animateLoaderMatrixChars(); updateLoadingStatusMessage();
         statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
     }
 
@@ -137,12 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 secondary: styles.getPropertyValue('--secondary-color').trim() || '#00FFFF',
                 trail: styles.getPropertyValue('--matrix-rain-trail-color').trim() || 'rgba(0,0,0,0.05)',
                 glow: styles.getPropertyValue('--matrix-rain-glow-color').trim() || '#9FFF9F',
+                background: styles.getPropertyValue('--background-color').trim() || '#000',
             };
         }
-        return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)', glow: '#9FFF9F' };
+        return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)', glow: '#9FFF9F', background: '#000' };
     }
 
-    function getCurrentFontFamily() {
+    function getCurrentFontFamily() { // Used for terminal, parallax. Rain uses its own config.
          if (typeof getComputedStyle !== 'undefined' && document.body) return getComputedStyle(document.body).getPropertyValue('--font-mono-current').trim() || 'Fira Code, monospace';
          return 'Fira Code, monospace';
     }
@@ -151,9 +145,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainContentContainer) {
             mainContentContainer.style.width = width;
             mainContentContainer.style.height = height;
-            // Optionally, trigger canvas resize if terminal size affects canvas layout significantly
-            // resizeAllCanvases(); // Uncomment if matrix rain columns or other canvas elements depend on terminal size
         }
+    }
+
+    // --- Rain Config Functions ---
+    function getRainConfig() {
+        return { ...rainConfigOptions };
+    }
+    function updateRainConfig(param, value) {
+        if (rainConfigOptions.hasOwnProperty(param)) {
+            rainConfigOptions[param] = value;
+            return true;
+        }
+        return false;
+    }
+    function resetRainConfig() {
+        rainConfigOptions = { ...defaultRainConfig };
     }
 
     let fullWelcomeMessageStringGlobal = '';
@@ -167,155 +174,128 @@ document.addEventListener('DOMContentLoaded', () => {
         if (commandInput) commandInput.focus();
     }
 
-    function globalKeydownHandler(e) {
+    function globalKeydownHandler(e) { // Konami code (remains the same)
         const key = e.key.toLowerCase();
         if (key === konamiCodeSequence[konamiCodeIndex].toLowerCase()) {
             konamiCodeIndex++;
             if (konamiCodeIndex === konamiCodeSequence.length) {
-                toggleCrtMode();
-                konamiCodeIndex = 0;
+                toggleCrtMode(); konamiCodeIndex = 0;
                 if (document.activeElement !== commandInput) e.preventDefault();
             }
         } else if (key === konamiCodeSequence[0].toLowerCase() && konamiCodeIndex > 0) {
             konamiCodeIndex = 1;
-        } else {
-            konamiCodeIndex = 0;
-        }
+        } else { konamiCodeIndex = 0; }
     }
 
-    /** ASCII Neural Network Visualization Logic */
+    // ASCII Neural Network Visualization Logic (remains the same)
     function drawAsciiNnFrame() {
         if (!nnVisContainer || !nnCurrentLayerConfig || nnCurrentLayerConfig.length === 0) return;
-
         const numLayers = nnCurrentLayerConfig.length;
         const maxNodesInAnyLayer = Math.max(...nnCurrentLayerConfig, 0);
         const nodeWidth = nnNodeChars.default.length;
         const connectionSegment = nnConnectionChars.horizontal.repeat(nnConnectionLength);
-
-        let output = [];
-        nnVisPulseState.activeNodes = [];
-
-        const pulseOverallProgress = nnVisPulseState.currentSegment * (nnConnectionLength + 1) + nnVisPulseState.positionInSegment;
-        const segmentDuration = nnConnectionLength + 1;
-
+        let output = []; nnVisPulseState.activeNodes = [];
         for (let i = 0; i < maxNodesInAnyLayer * (1 + nnVerticalSpacing) - nnVerticalSpacing; i++) {
-            let line = "";
-            const nodeRowIndex = Math.floor(i / (1 + nnVerticalSpacing));
+            let line = ""; const nodeRowIndex = Math.floor(i / (1 + nnVerticalSpacing));
             const isNodeLine = i % (1 + nnVerticalSpacing) === 0;
-
             for (let l = 0; l < numLayers; l++) {
                 if (isNodeLine && nodeRowIndex < nnCurrentLayerConfig[l]) {
                     let nodeChar = nnNodeChars.default;
                     const pulseIsOnThisNodeLayer = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment === 0;
-
-                    if (pulseIsOnThisNodeLayer) {
-                        nodeChar = nnNodeChars.active;
-                        nnVisPulseState.activeNodes.push({layer: l, index: nodeRowIndex});
-                    }
+                    if (pulseIsOnThisNodeLayer) { nodeChar = nnNodeChars.active; nnVisPulseState.activeNodes.push({layer: l, index: nodeRowIndex}); }
                     line += nodeChar;
-                } else if (isNodeLine) {
-                    line += " ".repeat(nodeWidth);
-                } else {
-                    line += " ".repeat(nodeWidth);
-                }
-
+                } else if (isNodeLine) { line += " ".repeat(nodeWidth); } else { line += " ".repeat(nodeWidth); }
                 if (l < numLayers - 1) {
                     if (isNodeLine) {
                         const connects = nodeRowIndex < nnCurrentLayerConfig[l] && nodeRowIndex < nnCurrentLayerConfig[l+1];
                         if (connects) {
                             let currentConnection = connectionSegment;
                             const pulseIsOnThisConnection = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment > 0;
-
                             if (pulseIsOnThisConnection) {
-                                const pulsePosInConn = nnVisPulseState.positionInSegment -1;
-                                let tempConn = connectionSegment.split('');
+                                const pulsePosInConn = nnVisPulseState.positionInSegment -1; let tempConn = connectionSegment.split('');
                                 if (pulsePosInConn < tempConn.length) {
                                     tempConn[pulsePosInConn] = nnConnectionChars.pulse;
                                     if (pulsePosInConn > 0) tempConn[pulsePosInConn-1] = nnConnectionChars.pulseTrail;
                                     if (pulsePosInConn > 1) tempConn[pulsePosInConn-2] = nnConnectionChars.empty;
-                                }
-                                currentConnection = tempConn.join('');
-                            }
-                            line += currentConnection;
-                        } else {
-                            line += " ".repeat(nnConnectionLength);
-                        }
-                    } else {
-                         line += " ".repeat(nnConnectionLength);
-                    }
+                                } currentConnection = tempConn.join('');
+                            } line += currentConnection;
+                        } else { line += " ".repeat(nnConnectionLength); }
+                    } else { line += " ".repeat(nnConnectionLength); }
                 }
-            }
-            output.push(line);
+            } output.push(line);
         }
-
         nnVisContainer.innerHTML = output.join('\n').replace(/ /g, '&nbsp;');
-
         nnVisPulseState.positionInSegment++;
         if (nnVisPulseState.positionInSegment > nnConnectionLength) {
-            nnVisPulseState.positionInSegment = 0;
-            nnVisPulseState.currentSegment++;
-            if (nnVisPulseState.currentSegment >= (numLayers * 2) - 2) {
-                nnVisPulseState.currentSegment = 0;
-            }
+            nnVisPulseState.positionInSegment = 0; nnVisPulseState.currentSegment++;
+            if (nnVisPulseState.currentSegment >= (numLayers * 2) - 2) { nnVisPulseState.currentSegment = 0; }
         }
     }
-
     function startAsciiNnVis(layerConfig = null) {
         if (nnVisInterval) stopAsciiNnVis();
-
         nnCurrentLayerConfig = (layerConfig && layerConfig.length > 0) ? layerConfig : [3, 5, 2];
         if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2];
         nnCurrentLayerConfig = nnCurrentLayerConfig.map(nodes => Math.min(nodes, 14));
-
-
         appendToTerminal("Initializing Neural Network Visualization...", "output-text");
         nnVisContainer = appendToTerminal("", "ascii-nn-vis");
         const maxNodes = Math.max(...nnCurrentLayerConfig, 0);
         nnVisContainer.style.minHeight = `${maxNodes * (1 + nnVerticalSpacing) * 1.2}em`;
-
         nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] };
-        drawAsciiNnFrame();
-        nnVisInterval = setInterval(drawAsciiNnFrame, nnVisFrameRate);
-
-        setTimeout(() => {
-            stopAsciiNnVis();
-            appendToTerminal("Neural Network Visualization sequence complete.", "output-text");
-        }, nnVisDuration);
+        drawAsciiNnFrame(); nnVisInterval = setInterval(drawAsciiNnFrame, nnVisFrameRate);
+        setTimeout(() => { stopAsciiNnVis(); appendToTerminal("Neural Network Visualization sequence complete.", "output-text"); }, nnVisDuration);
     }
-
-    function stopAsciiNnVis() {
-        if (nnVisInterval) clearInterval(nnVisInterval);
-        nnVisInterval = null;
-    }
+    function stopAsciiNnVis() { if (nnVisInterval) clearInterval(nnVisInterval); nnVisInterval = null; }
 
     /** Main Initialization Function for Terminal and Graphics. */
     function initializeTerminalAndGraphics() {
-        let columns = Math.floor(window.innerWidth / rainFontSize);
+        let columns; // Will be set by resizeMatrixRainCanvases
         const rainDrops = [];
-        const fgParallaxSymbols = [];
+        const fgParallaxSymbols = []; // Parallax symbols remain independent of rain config
 
-        function resizeAllCanvases() {
-            allCanvases.forEach(canvas => {
-                if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-            });
-            columns = Math.floor(window.innerWidth / rainFontSize);
+        function setupMatrixRainDrops() {
             rainDrops.length = 0;
+            // Calculate columns based on fontSize and density
+            columns = Math.floor((window.innerWidth / rainConfigOptions.fontSize) * rainConfigOptions.density);
+
             for (let x = 0; x < columns; x++) {
                 rainDrops[x] = {
-                    y: Math.floor(Math.random() * (window.innerHeight / rainFontSize)),
+                    y: Math.floor(Math.random() * (window.innerHeight / rainConfigOptions.fontSize)),
                     isLeading: true,
+                    // Individual speed for randomized effect
+                    speedOffset: rainConfigOptions.randomizeSpeed ? (Math.random() - 0.5) * 0.5 : 0 // +/- 25% speed variation if enabled
                 };
             }
-            if (parallaxCanvasFg) initializeParallaxFgSymbols();
         }
+
+        function resizeMatrixRainCanvases() { // Renamed to be specific
+            if (matrixRainCanvas) {
+                matrixRainCanvas.width = window.innerWidth;
+                matrixRainCanvas.height = window.innerHeight;
+            }
+            setupMatrixRainDrops(); // Recalculate drops based on new size/config
+        }
+
+        function resizeOtherCanvases() { // For parallax
+             [parallaxCanvasBg, parallaxCanvasFg].filter(Boolean).forEach(canvas => {
+                if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            });
+            if (parallaxCanvasFg) initializeParallaxFgSymbols(); // Parallax symbols depend on its canvas size
+        }
+
 
         function drawMatrixRain() {
             if (!matrixRainCtx) return;
             const themeColors = getCurrentThemeColors();
-            matrixRainCtx.fillStyle = themeColors.trail;
+
+            // Trail effect
+            if (rainConfigOptions.trailEffect) {
+                matrixRainCtx.fillStyle = themeColors.trail; // From CSS variable
+            } else {
+                matrixRainCtx.fillStyle = themeColors.background; // If no trail, fill with background
+            }
             matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
-            // Font is set to bold for all characters. The "leading" effect is through color and shadow.
-            matrixRainCtx.font = `bold ${rainFontSize}px ${getCurrentFontFamily()}`;
+
+            matrixRainCtx.font = `bold ${rainConfigOptions.fontSize}px ${rainConfigOptions.fontFamily}`;
 
             for (let i = 0; i < rainDrops.length; i++) {
                 const text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
@@ -323,33 +303,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (drop.isLeading) {
                     matrixRainCtx.fillStyle = themeColors.glow;
-                    matrixRainCtx.shadowColor = themeColors.glow; // Shadow gives a stronger glow/bold appearance
-                    matrixRainCtx.shadowBlur = 10; // Increase blur for more prominent glow
-                    matrixRainCtx.shadowOffsetX = 0; // No offset for a centered glow
+                    matrixRainCtx.shadowColor = themeColors.glow;
+                    matrixRainCtx.shadowBlur = 10;
+                    matrixRainCtx.shadowOffsetX = 0;
                     matrixRainCtx.shadowOffsetY = 0;
-                    drop.isLeading = false; // Only the very first char is "leading" for this drop cycle
+                    drop.isLeading = false;
                 } else {
                     matrixRainCtx.fillStyle = themeColors.primary;
-                    matrixRainCtx.shadowBlur = 0; // Reset shadow for subsequent chars
+                    matrixRainCtx.shadowBlur = 0;
                 }
 
-                matrixRainCtx.fillText(text, i * rainFontSize, drop.y * rainFontSize);
+                matrixRainCtx.fillText(text, i * rainConfigOptions.fontSize / rainConfigOptions.density, drop.y * rainConfigOptions.fontSize);
 
-                if (drop.y * rainFontSize > matrixRainCanvas.height && Math.random() > 0.975) {
+                // Adjust drop speed if randomized
+                const currentDropSpeed = 1 + (rainConfigOptions.randomizeSpeed ? drop.speedOffset : 0);
+                drop.y += currentDropSpeed;
+
+
+                if (drop.y * rainConfigOptions.fontSize > matrixRainCanvas.height && Math.random() > 0.975) {
                     drop.y = 0;
-                    drop.isLeading = true; // When drop resets, the next char will be leading
+                    drop.isLeading = true;
+                    if(rainConfigOptions.randomizeSpeed) { // Re-randomize speed offset when drop resets
+                        drop.speedOffset = (Math.random() - 0.5) * 0.5;
+                    }
                 }
-                drop.y++;
             }
-            matrixRainCtx.shadowBlur = 0; // Ensure shadow is reset after the loop
-            matrixRainCtx.shadowColor = 'transparent'; // Clear shadow color
+            matrixRainCtx.shadowBlur = 0;
+            matrixRainCtx.shadowColor = 'transparent';
+        }
+
+        function restartMatrixRainAnimation() {
+            if (rainAnimationIntervalId) clearInterval(rainAnimationIntervalId);
+            if (matrixRainCtx) {
+                resizeMatrixRainCanvases(); // Ensure canvas is sized and drops are set up with new config
+                rainAnimationIntervalId = setInterval(drawMatrixRain, rainConfigOptions.speed);
+            }
         }
 
 
+        // Parallax functions (remain largely the same, ensure they use their own canvas contexts)
         function drawParallaxBackground() {
             if (!parallaxCtxBg) return;
             parallaxCtxBg.clearRect(0, 0, parallaxCanvasBg.width, parallaxCanvasBg.height);
-            const themeColors = getCurrentThemeColors();
+            const themeColors = getCurrentThemeColors(); // Parallax uses theme colors too
             parallaxCtxBg.strokeStyle = themeColors.primary + '1A';
             parallaxCtxBg.lineWidth = 0.5;
             const offsetX = (mouseX / window.innerWidth - 0.5) * gridCellSize * 0.15;
@@ -361,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 parallaxCtxBg.beginPath(); parallaxCtxBg.moveTo(0, y); parallaxCtxBg.lineTo(parallaxCanvasBg.width, y); parallaxCtxBg.stroke();
             }
         }
-
         function initializeParallaxFgSymbols() {
             if (!parallaxCanvasFg) return;
             fgParallaxSymbols.length = 0;
@@ -375,13 +370,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }
-
         function drawParallaxForeground() {
             if (!parallaxCtxFg) return;
             parallaxCtxFg.clearRect(0, 0, parallaxCanvasFg.width, parallaxCanvasFg.height);
             const themeColors = getCurrentThemeColors();
+            const currentTermFont = getCurrentFontFamily(); // Parallax can use terminal font
             fgParallaxSymbols.forEach(s => {
-                parallaxCtxFg.font = s.size + 'px ' + getCurrentFontFamily();
+                parallaxCtxFg.font = `${s.size}px ${currentTermFont}`;
                 parallaxCtxFg.fillStyle = themeColors.primary + '55';
                 const targetX = s.x - (mouseX - parallaxCanvasFg.width / 2) * s.parallaxFactor;
                 const targetY = s.y - (mouseY - parallaxCanvasFg.height / 2) * s.parallaxFactor;
@@ -392,29 +387,24 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        resizeAllCanvases();
-        if (parallaxCanvasFg) initializeParallaxFgSymbols();
+        // Initial setup for canvases
+        resizeOtherCanvases(); // Parallax first
+        restartMatrixRainAnimation(); // Then Matrix rain with current config
 
-        let rainIntervalId;
-        function masterAnimationLoop() {
+        function masterAnimationLoop() { // Parallax animation loop
             if (parallaxCtxBg) drawParallaxBackground();
             if (parallaxCtxFg) drawParallaxForeground();
             requestAnimationFrame(masterAnimationLoop);
         }
-
-        if (matrixRainCtx || parallaxCtxBg || parallaxCtxFg) {
-            if (matrixRainCtx) { if(rainIntervalId) clearInterval(rainIntervalId); rainIntervalId = setInterval(drawMatrixRain, rainAnimationInterval); }
+        if (parallaxCtxBg || parallaxCtxFg) {
             requestAnimationFrame(masterAnimationLoop);
         }
 
-        const userDetails = {
-            userName: "Rishav Sharma",
-            userTitle: "Software Engineer / Data Scientist",
-            githubUser: "rvs-23",
-            linkedinUser: "rishav-sharma-23rvs",
-            mediumUser: "rvs",
-            emailAddress: "23rishavsharma@gmail.com",
-            cvLink: "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
+
+        const userDetails = { /* ... (remains the same) ... */
+            userName: "Rishav Sharma", userTitle: "Software Engineer / Data Scientist",
+            githubUser: "rvs-23", linkedinUser: "rishav-sharma-23rvs", mediumUser: "rvs",
+            emailAddress: "23rishavsharma@gmail.com", cvLink: "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
         };
         if (navCvLink) navCvLink.href = userDetails.cvLink;
         if (navMediumLink) navMediumLink.href = `https://medium.com/@${userDetails.mediumUser}`;
@@ -429,95 +419,58 @@ document.addEventListener('DOMContentLoaded', () => {
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
         const commandHandlerContext = {
-            appendToTerminal,
-            fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
-            userDetails,
-            fullBioText,
-            mainContentContainer,
-            allMatrixChars,
-            startAsciiNnVis,
-            stopAsciiNnVis,
-            resizeTerminalElement // Pass resize function to commands context
+            appendToTerminal, fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
+            userDetails, fullBioText, mainContentContainer, allMatrixChars,
+            startAsciiNnVis, stopAsciiNnVis, resizeTerminalElement,
+            getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
+        // Command Input Handling (remains the same)
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     if (commandInput.disabled) return;
-                    e.preventDefault();
-                    const fullCommandText = commandInput.value.trim();
+                    e.preventDefault(); const fullCommandText = commandInput.value.trim();
                     if (fullCommandText) {
                         if (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== fullCommandText) {
                            commandHistory.push(fullCommandText);
                         }
                         historyIndex = commandHistory.length;
-
                         const sanitizedCommandDisplay = fullCommandText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                         appendToTerminal(`<span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span>`);
-
-                        const parts = [];
-                        let inQuotes = false;
-                        let currentPart = "";
+                        const parts = []; let inQuotes = false; let currentPart = "";
                         for (let i = 0; i < fullCommandText.length; i++) {
                             const char = fullCommandText[i];
-                            if (char === '"') {
-                                inQuotes = !inQuotes;
-                                currentPart += char;
-                            } else if (char === ' ' && !inQuotes) {
-                                if (currentPart) parts.push(currentPart);
-                                currentPart = "";
-                            } else {
-                                currentPart += char;
-                            }
+                            if (char === '"') { inQuotes = !inQuotes; currentPart += char; }
+                            else if (char === ' ' && !inQuotes) { if (currentPart) parts.push(currentPart); currentPart = ""; }
+                            else { currentPart += char; }
                         }
                         if (currentPart) parts.push(currentPart);
-
                         const commandName = parts[0] ? parts[0].toLowerCase() : "";
                         const args = parts.slice(1).map(arg => {
-                            if (arg.startsWith('"') && arg.endsWith('"')) {
-                                return arg.substring(1, arg.length - 1);
-                            }
+                            if (arg.startsWith('"') && arg.endsWith('"')) { return arg.substring(1, arg.length - 1); }
                             return arg;
                         });
-
                         const commandFunc = terminalCommands[commandName];
-
                         if (typeof commandFunc === 'function') {
                             const result = commandFunc(args);
                             if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
-                                result.catch(err => {
-                                    console.error("Error executing async command:", err);
-                                    appendToTerminal(`Async Command Error: ${err.message}`, 'output-error');
-                                });
+                                result.catch(err => { console.error("Error executing async command:", err); appendToTerminal(`Async Command Error: ${err.message}`, 'output-error'); });
                             }
-                        } else if (commandName === 'sudo') {
-                            terminalCommands['sudo'](args);
-                        }
-                        else {
-                            appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error');
-                            appendToTerminal(`Type 'help' for commands.`);
-                        }
+                        } else if (commandName === 'sudo') { terminalCommands['sudo'](args); }
+                        else { appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error'); appendToTerminal(`Type 'help' for commands.`); }
                     }
-                    commandInput.value = '';
-                    if (terminalOutput) terminalOutput.scrollTop = terminalOutput.scrollHeight;
-
+                    commandInput.value = ''; if (terminalOutput) terminalOutput.scrollTop = terminalOutput.scrollHeight;
                 } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (commandHistory.length > 0) {
-                        historyIndex = Math.max(0, historyIndex - 1);
-                        commandInput.value = commandHistory[historyIndex];
+                    e.preventDefault(); if (commandHistory.length > 0) {
+                        historyIndex = Math.max(0, historyIndex - 1); commandInput.value = commandHistory[historyIndex];
                         setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
                     }
                 } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (historyIndex < commandHistory.length - 1) {
-                        historyIndex++;
-                        commandInput.value = commandHistory[historyIndex];
-                    } else {
-                        historyIndex = commandHistory.length;
-                        commandInput.value = '';
-                    }
+                    e.preventDefault(); if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++; commandInput.value = commandHistory[historyIndex];
+                    } else { historyIndex = commandHistory.length; commandInput.value = ''; }
                     setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
                 }
             });
@@ -530,11 +483,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (terminalOutput) displayInitialWelcomeMessage();
 
-        window.addEventListener('resize', resizeAllCanvases); // This handles canvas resizing
-        // Note: Terminal CSS width/height in % or vw/vh will also respond to window resize.
-        // The 'resize term' command provides explicit control.
+        window.addEventListener('resize', () => {
+            resizeOtherCanvases(); // Resize parallax canvases
+            restartMatrixRainAnimation(); // Reinitialize matrix rain on window resize
+        });
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         document.addEventListener('keydown', globalKeydownHandler);
-
     }
 });
