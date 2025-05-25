@@ -211,11 +211,23 @@ function getTerminalCommands(context) {
             terminalOutput.innerHTML = '';
             context.appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
             const quotes = [
-                "Wake up, Neo...", "The Matrix has you.", "Follow the white rabbit.", "There is no spoon.",
-                "I know kung fu.", "Choice is an illusion created between those with power and those without.",
-                "The body cannot live without the mind.", "Ever have that feeling where you're not sure if you're awake or dreaming?"
-            ];
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                 "Wake up, you…",
+                 "The Matrix has you.",
+                 "Follow the white rabbit.",
+                 "Choice is an illusion created between those with power and those without.",
+                 "The body cannot live without the mind.",
+                 `Statistics ≠ destiny, ${userDetails.userName}.`,
+                 "Code is just another form of déjà-vu.",
+                 "Data bends − people break.",
+                 "It’s not the algorithm that scares them, it’s the accuracy.",
+                 "Wake up, the bugs in your dreams are trying to unit test your sould.",
+                 "Don't think you are. Know you are. That's why you version control your skincare routing.",
+                 "Free your mind.",
+		 "A mind that won't question is more predictable than any ML algorithm",
+		 "You are not the anomaly. You are the expected exception."
+               ];
+            
+	    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             context.appendToTerminal(`\n\n<span style="font-size: 1.1em; text-align: center; display: block; padding: 1em 0;">"${randomQuote}"</span>\n\n`, 'output-success');
             const commandInput = document.getElementById('command-input');
             if(commandInput) commandInput.focus();
