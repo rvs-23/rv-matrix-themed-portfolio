@@ -32,10 +32,10 @@ function getTerminalCommands(context) {
         startAsciiNnVis,
         stopAsciiNnVis,
         resizeTerminalElement,
-        getRainConfig,      // New context function
-        updateRainConfig,   // New context function
-        resetRainConfig,    // New context function
-        restartMatrixRain   // New context function
+        getRainConfig,
+        updateRainConfig,
+        resetRainConfig,
+        restartMatrixRain
     } = context;
 
     const skillsData = {
@@ -208,7 +208,7 @@ function getTerminalCommands(context) {
                 context.mainContentContainer.removeChild(overlay);
             }
             context.mainContentContainer.style.position = '';
-            terminalOutput.innerHTML = '';
+            terminalOutput.innerHTML = ''; // Clear terminal before re-adding welcome
             context.appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
             const quotes = [
                  "Wake up, you…",
@@ -220,24 +220,25 @@ function getTerminalCommands(context) {
                  "Code is just another form of déjà-vu.",
                  "Data bends − people break.",
                  "It’s not the algorithm that scares them, it’s the accuracy.",
-                 "Wake up, the bugs in your dreams are trying to unit test your sould.",
-                 "Don't think you are. Know you are. That's why you version control your skincare routing.",
+                 "Wake up, the bugs in your dreams are trying to unit test your soul.",
+                 "Don't think you are. Know you are. That's why you version control your skincare routine.",
                  "Free your mind.",
-		 "A mind that won't question is more predictable than any ML algorithm",
-		 "You are not the anomaly. You are the expected exception."
+		         "A mind that won't question is more predictable than any ML algorithm",
+		         "You are not the anomaly. You are the expected exception."
                ];
             
-	    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+	        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             context.appendToTerminal(`\n\n<span style="font-size: 1.1em; text-align: center; display: block; padding: 1em 0;">"${randomQuote}"</span>\n\n`, 'output-success');
             const commandInput = document.getElementById('command-input');
             if(commandInput) commandInput.focus();
         }
+        // Ensure easter egg finalizes even if something hangs
         setTimeout(() => {
-            if (context.mainContentContainer.contains(overlay)) {
-                 clearInterval(glitchInterval);
-                 finalizeEasterEgg();
+            if (context.mainContentContainer.contains(overlay)) { // Check if overlay still exists
+                 clearInterval(glitchInterval); // Stop interval if it's still running
+                 finalizeEasterEgg(); // Call cleanup
             }
-        }, (maxGlitchIntervals * 80) + 500);
+        }, (maxGlitchIntervals * 80) + 500); // Slightly after expected finish
     }
 
     const terminalCommands = {
@@ -264,15 +265,34 @@ function getTerminalCommands(context) {
         'download': (args) => {
             if (args[0] && args[0].toLowerCase() === 'cv') {
                 if (!context.userDetails.cvLink || context.userDetails.cvLink === "path/to/your/resume.pdf") {
-                    appendToTerminal("CV link not configured.", 'output-error'); return;
+                    appendToTerminal("CV link not configured or is a placeholder.", 'output-error'); return;
                 }
-                appendToTerminal(`Attempting to download CV...`);
+                appendToTerminal(`Attempting to prepare CV for viewing/download...`);
+
+                let finalCvLink = context.userDetails.cvLink;
+                // Check if it's a Google Drive link and try to transform it for direct download
+                const gDriveRegex = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\//;
+                const match = context.userDetails.cvLink.match(gDriveRegex);
+
+                if (match && match[1]) {
+                    const fileId = match[1];
+                    finalCvLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                    appendToTerminal(`Using Google Drive direct download link format.`);
+                } else {
+                    appendToTerminal(`Using provided link directly. Behavior depends on link type.`);
+                }
+
                 const linkEl = document.createElement('a');
-                linkEl.href = context.userDetails.cvLink;
-                linkEl.download = `${context.userDetails.userName.replace(/\s+/g, "_")}_CV.pdf`;
+                linkEl.href = finalCvLink;
+                linkEl.download = `${context.userDetails.userName.replace(/\s+/g, "_")}_CV.pdf`; // Suggested filename
+                linkEl.target = '_blank'; // Open in new tab as a fallback or for viewing
+                linkEl.rel = 'noopener noreferrer'; // Security for target="_blank"
+                
                 document.body.appendChild(linkEl);
                 linkEl.click();
                 document.body.removeChild(linkEl);
+                appendToTerminal(`If your browser blocked the pop-up or download didn't start, check your browser settings. You can also use the CV link in the navigation bar.`, 'output-text');
+
             } else {
                 appendToTerminal(`Usage: download cv`, 'output-error');
             }
@@ -285,28 +305,107 @@ function getTerminalCommands(context) {
         },
         'examples': () => {
             const exampleList = [
-                { cmd: "help", desc: "Displays all available commands." },
-                { cmd: "about", desc: "Shows a short bio." },
-                { cmd: "skilltree se", desc: "Shows skills under Software Engineering." },
-                { cmd: "theme light", desc: "Changes the terminal to light mode." },
-                { cmd: "nnvis 2 4 3", desc: "Starts an ASCII neural network with layers 2, 4, 3." },
-                { cmd: "resize term 60vw 55vh", desc: "Resizes terminal to 60% viewport width, 55% viewport height." },
-                { cmd: "rainconfig", desc: "Shows current Matrix rain settings." },
-                { cmd: "rainconfig fontSize 12", desc: "Sets rain character size to 12px." },
-                { cmd: "rainconfig speed 40", desc: "Makes rain fall faster." },
-                { cmd: "rainconfig trailEffect false", desc: "Turns off rain trail effect." },
-                { cmd: "rainconfig reset", desc: "Resets rain settings to default." },
-                { cmd: "clear", desc: "Clears the terminal screen." },
+                "--- Matrix Terminal Portfolio: Command Examples ---",
+                "",
+                "--- Navigation & Information ---",
+                "<b>help</b>",
+                "    Description: Displays a list of all available commands.",
+                "    Example: help",
+                "",
+                "<b>about</b>",
+                "    Description: Displays detailed information about me.",
+                "    Example: about",
+                "",
+                "<b>contact</b>",
+                "    Description: Shows contact information.",
+                "    Example: contact",
+                "",
+                "<b>whoami</b>",
+                "    Description: Displays current configured user name.",
+                "    Example: whoami",
+                "",
+                "<b>date</b>",
+                "    Description: Displays the current date and time.",
+                "    Example: date",
+                "",
+                "<b>projects</b>",
+                "    Description: Shows featured projects (links to GitHub).",
+                "    Example: projects",
+                "",
+                "<b>skills</b>",
+                "    Description: Lists key skills in a summary.",
+                "    Example: skills",
+                "",
+                "<b>skilltree [path]</b>",
+                "    Description: Explore a detailed skill tree.",
+                "    Examples:",
+                "        skilltree",
+                "        skilltree se",
+                "        skilltree \"ai > genai\"",
+                "",
+                "<b>download cv</b>",
+                "    Description: Downloads my CV or opens it in a new tab.",
+                "    Example: download cv",
+                "",
+                "--- Terminal & Display ---",
+                "<b>clear</b>",
+                "    Description: Clears the terminal output.",
+                "    Example: clear",
+                "",
+                "<b>theme &lt;name|mode&gt;</b>",
+                "    Description: Changes the terminal theme.",
+                "    Themes: amber, cyan, green, purple, twilight, crimson, forest.",
+                "    Modes: light, dark.",
+                "    Examples:",
+                "        theme twilight",
+                "        theme light",
+                "",
+                "<b>resize term &lt;width&gt; &lt;height&gt;</b>",
+                "    Description: Resizes terminal (px, %, vw, vh).",
+                "    Examples:",
+                "        resize term 70vw 60vh",
+                "        resize term 800px 600px",
+                "",
+                "--- Matrix Rain Configuration ---",
+                "<b>rainconfig</b>",
+                "    Description: Shows current Matrix rain settings.",
+                "    Example: rainconfig",
+                "",
+                "<b>rainconfig &lt;param&gt; &lt;value&gt;</b>",
+                "    Description: Sets a Matrix rain parameter.",
+                "    Params: fontSize, speed, density, trailEffect, randomizeSpeed, fontFamily.",
+                "    Examples:",
+                "        rainconfig fontSize 10",
+                "        rainconfig speed 70",
+                "        rainconfig trailEffect false",
+                "",
+                "<b>rainconfig reset</b>",
+                "    Description: Resets rain settings to default.",
+                "    Example: rainconfig reset",
+                "",
+                "--- Visualizations & Fun ---",
+                "<b>nnvis [n1 n2...]</b>",
+                "    Description: Starts ASCII neural network visualization.",
+                "    Examples:",
+                "        nnvis",
+                "        nnvis 2 4 3",
+                "",
+                "<b>easter.egg</b>",
+                "    Description: ???",
+                "    Example: easter.egg",
+                "",
+                "--- Miscellaneous ---",
+                "<b>sudo &lt;command&gt;</b>",
+                "    Description: Attempt superuser command (humorous).",
+                "    Example: sudo rm -rf /",
+                "",
+                "<b>examples</b>",
+                "    Description: Displays this list of examples.",
+                "    Example: examples",
             ];
-            let output = "Example Commands & Expected Outcomes:\n\n";
-            const padChar = "&nbsp;";
-            const maxCmdLength = Math.max(...exampleList.map(item => item.cmd.length));
-
-            exampleList.forEach(item => {
-                const fixedCmd = item.cmd.padEnd(maxCmdLength, ' ').replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                output += `${padChar.repeat(2)}<span class="output-command">${fixedCmd.replace(/ /g, padChar)}</span>${padChar.repeat(3)}- ${item.desc.replace(/</g, "&lt;").replace(/>/g, "&gt;")}\n`;
-            });
-            appendToTerminal(output.trim().replace(/\n/g, '<br/>'));
+            // HTMLify for terminal output
+            const outputHTML = exampleList.join('\n').replace(/\n/g, '<br/>').replace(/<b>/g, '<span class="output-command">').replace(/<\/b>/g, '</span>');
+            appendToTerminal(outputHTML);
         },
         'help': () => {
             let commandList = [
@@ -316,15 +415,16 @@ function getTerminalCommands(context) {
                 { cmd: "date", display: "date", desc: "Display current date and time." },
                 { cmd: "download cv", display: "download cv", desc: "Download my CV." },
                 { cmd: "easter.egg", display: "easter.egg", desc: "???" },
-                { cmd: "examples", display: "examples", desc: "Show example commands." },
+                { cmd: "examples", display: "examples", desc: "Show example commands with usage." },
                 { cmd: "nnvis [n1 n2...]", display: "nnvis [n1 n2...]", desc: "Visualize an ASCII neural network. E.g. `nnvis 3 5 2`" },
-                { cmd: "projects", display: "projects", desc: "Show my featured projects (placeholder)." },
+                { cmd: "projects", display: "projects", desc: "Show my featured projects." },
                 { cmd: "rainconfig [param] [val]", display: "rainconfig [param] [val]", desc: "Configure Matrix rain. No args for current. `reset` for defaults." },
                 { cmd: "resize term <W> <H>", display: "resize term <W> <H>", desc: "Resize terminal. W/H in px, %, vw, vh. E.g. `resize term 600px 70vh`" },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
                 { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree se" },
                 { cmd: "theme [name|mode]", display: "theme [name|mode]", desc: "Themes: amber, cyan, green, purple, twilight, crimson, forest, light, dark." },
                 { cmd: "whoami", display: "whoami", desc: "Display current user." },
+                 { cmd: "sudo", display: "sudo", desc: "Attempt superuser command (humorous)." }, // Added sudo to help
             ];
             // Dynamically calculate padding for alignment
             const basePad = "  "; // Initial indent
@@ -338,10 +438,10 @@ function getTerminalCommands(context) {
 
             let helpOutput = "Available commands:\n";
             commandList.forEach(item => {
-                const displayPart = item.display.replace(/ /g, "&nbsp;");
+                const displayPart = item.display.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/ /g, "&nbsp;");
                 const paddingLength = maxDisplayLength - item.display.length;
                 const padding = "&nbsp;".repeat(paddingLength);
-                helpOutput += `${basePad}${displayPart}${padding}${descSeparator.replace(/ /g, "&nbsp;")}${item.desc}\n`;
+                helpOutput += `${basePad}${displayPart}${padding}${descSeparator.replace(/ /g, "&nbsp;")}${item.desc.replace(/</g, "&lt;").replace(/>/g, "&gt;")}\n`;
             });
             appendToTerminal(helpOutput.trim().replace(/\n/g, '<br/>'));
         },
@@ -350,28 +450,29 @@ function getTerminalCommands(context) {
             let potentialLayers = [];
 
             if (args.length > 0) {
-                if (args[0].toLowerCase() === '--layers') {
+                if (args[0].toLowerCase() === '--layers') { // Kept for compatibility if ever needed
                     potentialLayers = args.slice(1);
                 } else {
                     potentialLayers = args;
                 }
                 layerConfig = potentialLayers.map(num => parseInt(num, 10)).filter(num => !isNaN(num) && num > 0 && num < 15);
 
-                if (potentialLayers.length > 0 && layerConfig.length === 0) {
+                if (potentialLayers.length > 0 && layerConfig.length === 0 && potentialLayers.join("").trim() !== "") {
                     appendToTerminal("Invalid layer configuration. Numbers must be positive integers (1-14). Usage: nnvis [n1 n2 ...] (e.g., nnvis 3 5 2)", 'output-error');
                     return;
                 } else if (layerConfig.length > 0) {
                      appendToTerminal(`Configuring network with layers: ${layerConfig.join(', ')}`, 'output-text');
                 }
             }
+            // If layerConfig is empty after parsing (e.g. 'nnvis' or 'nnvis --layers' with no numbers), startAsciiNnVis will use defaults.
             if (typeof context.startAsciiNnVis === 'function') {
-                context.startAsciiNnVis(layerConfig);
+                context.startAsciiNnVis(layerConfig && layerConfig.length > 0 ? layerConfig : null); // Pass null for default
             } else {
                 appendToTerminal("ASCII Neural Network Visualization module not loaded.", 'output-error');
             }
         },
         'projects': () => {
-            appendToTerminal("Project showcase under development. Check GitHub!");
+            appendToTerminal("Project showcase under development. Check GitHub for now!");
             appendToTerminal(`Visit: <a href="https://github.com/${context.userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${context.userDetails.githubUser}</a>`);
         },
         'rainconfig': (args) => {
@@ -383,8 +484,17 @@ function getTerminalCommands(context) {
             if (args.length === 0) {
                 const currentConfig = getRainConfig();
                 let output = "Current Matrix Rain Configuration:\n";
+                const order = ['fontSize', 'speed', 'density', 'trailEffect', 'randomizeSpeed', 'fontFamily'];
+                order.forEach(key => {
+                    if (currentConfig.hasOwnProperty(key)) {
+                         output += `  ${key}: ${JSON.stringify(currentConfig[key])}\n`;
+                    }
+                });
+                // Add any other keys not in order, just in case
                 for (const key in currentConfig) {
-                    output += `  ${key}: ${JSON.stringify(currentConfig[key])}\n`;
+                    if (!order.includes(key)) {
+                         output += `  ${key}: ${JSON.stringify(currentConfig[key])}\n`;
+                    }
                 }
                 appendToTerminal(output.replace(/\n/g, "<br/>"));
                 return;
@@ -397,21 +507,29 @@ function getTerminalCommands(context) {
                 return;
             }
 
-            if (args.length === 2) {
+            if (args.length >= 2) { // Allow for font family names with spaces if quoted
                 const param = args[0];
-                let value = args[1];
+                let value = args.slice(1).join(" "); // Join remaining args for value
+                
+                // Remove quotes if value was quoted for multi-word strings like font families
+                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.substring(1, value.length - 1);
+                }
+
                 const currentConfig = getRainConfig();
 
                 if (!currentConfig.hasOwnProperty(param)) {
-                    appendToTerminal(`Invalid parameter: ${param}. Valid parameters are: ${Object.keys(currentConfig).join(', ')}`, "output-error");
+                    appendToTerminal(`Invalid parameter: ${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")}. Valid parameters are: ${Object.keys(currentConfig).join(', ')}`, "output-error");
                     return;
                 }
+                
+                let originalValueType = typeof currentConfig[param];
 
                 // Type conversion and validation
-                if (typeof currentConfig[param] === 'number') {
+                if (originalValueType === 'number') {
                     const numValue = parseFloat(value);
                     if (isNaN(numValue)) {
-                        appendToTerminal(`Invalid value for ${param}. Expected a number.`, "output-error");
+                        appendToTerminal(`Invalid value for ${param}. Expected a number. Got: ${value.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, "output-error");
                         return;
                     }
                     // Add specific range checks
@@ -419,43 +537,44 @@ function getTerminalCommands(context) {
                         appendToTerminal(`fontSize must be between 8 and 40.`, "output-error"); return;
                     }
                     if (param === 'speed' && (numValue < 20 || numValue > 500)) {
-                        appendToTerminal(`speed must be between 20 and 500.`, "output-error"); return;
+                        appendToTerminal(`speed (interval ms) must be between 20 and 500.`, "output-error"); return;
                     }
                     if (param === 'density' && (numValue < 0.1 || numValue > 3.0)) {
                          appendToTerminal(`density must be between 0.1 and 3.0.`, "output-error"); return;
                     }
                     value = numValue;
-                } else if (typeof currentConfig[param] === 'boolean') {
+                } else if (originalValueType === 'boolean') {
                     if (value.toLowerCase() === 'true') value = true;
                     else if (value.toLowerCase() === 'false') value = false;
                     else {
-                        appendToTerminal(`Invalid value for ${param}. Expected true or false.`, "output-error");
+                        appendToTerminal(`Invalid value for ${param}. Expected true or false. Got: ${value.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, "output-error");
                         return;
                     }
-                } else if (typeof currentConfig[param] === 'string') {
-                    // For fontFamily, remove quotes if user added them, but the value itself is a string
-                    value = value.replace(/^["']|["']$/g, "");
-                     if (param === 'fontFamily' && !/^[a-zA-Z0-9\s,-]+$/.test(value)) {
-                        appendToTerminal(`Invalid characters in fontFamily.`, "output-error"); return;
+                } else if (originalValueType === 'string') {
+                     if (param === 'fontFamily' && !/^[a-zA-Z0-9\s,-]+$/.test(value)) { // Basic validation
+                        appendToTerminal(`Invalid characters in fontFamily. Use letters, numbers, spaces, commas, hyphens.`, "output-error"); return;
                     }
+                    // Value is already a string
                 }
+
 
                 if (updateRainConfig(param, value)) {
                     restartMatrixRain();
-                    appendToTerminal(`${param} set to ${value}. Matrix rain updated.`, "output-success");
+                    appendToTerminal(`${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")} set to ${String(value).replace(/</g, "&lt;").replace(/>/g, "&gt;")}. Matrix rain updated.`, "output-success");
                 } else {
-                    appendToTerminal(`Failed to update ${param}.`, "output-error"); // Should not happen if validation passes
+                     // This case should ideally not be reached if hasOwnProperty check passes
+                    appendToTerminal(`Failed to update ${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")}.`, "output-error");
                 }
-            } else {
+            } else { // Handles cases like "rainconfig speed" (missing value)
                 appendToTerminal("Usage: rainconfig [parameter value] OR rainconfig reset OR rainconfig", "output-error");
-                appendToTerminal("Example: rainconfig fontSize 12  OR  rainconfig trailEffect false");
+                appendToTerminal("Example: rainconfig fontSize 12  OR  rainconfig fontFamily \"Courier New, monospace\"");
             }
         },
         'resize': (args) => {
             if (args[0] && args[0].toLowerCase() === 'term' && args.length === 3) {
                 const width = args[1];
                 const height = args[2];
-                const validUnits = /^\d+(\.\d+)?(px|%|vw|vh)$/;
+                const validUnits = /^\d+(\.\d+)?(px|%|vw|vh)$/i; // Case insensitive for units
                 if (validUnits.test(width) && validUnits.test(height)) {
                     if (typeof resizeTerminalElement === 'function') {
                         resizeTerminalElement(width, height);
@@ -472,7 +591,7 @@ function getTerminalCommands(context) {
             }
         },
         'skills': () => {
-            appendToTerminal(`Key Areas: Software Engineering (Languages, Frameworks, Frontend, Backend, DevOps), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown.`.replace(/\n/g, '<br/>'));
+            appendToTerminal(`Key Areas: Software Engineering (Languages, Frameworks, Frontend, Backend, DevOps), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown or 'skilltree [path]' to explore specific areas (e.g., 'skilltree ai').`.replace(/\n/g, '<br/>'));
         },
         'skilltree': (args) => {
             const pathArg = args.join(' ').trim();
@@ -491,14 +610,14 @@ function getTerminalCommands(context) {
                     if (currentNode.children) {
                         foundNodeInChildren = currentNode.children.find(child =>
                             child.name.toLowerCase() === part ||
-                            child.name.split('(')[0].trim().toLowerCase() === part ||
+                            child.name.split('(')[0].trim().toLowerCase() === part || // Match name before parenthesis
                             (child.aliases && child.aliases.map(a => a.toLowerCase()).includes(part))
                         );
                     }
 
                     if (foundNodeInChildren) {
                         currentNode = foundNodeInChildren;
-                        currentPathForDisplayArray.push(currentNode.name);
+                        currentPathForDisplayArray.push(currentNode.name); // Push the actual name for display
                     } else {
                         const errorPathTrail = currentPathForDisplayArray.length > 0 ? currentPathForDisplayArray.join(' > ') + ' > ' : '';
                         appendToTerminal(`Path segment not found: "${part.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" in "${errorPathTrail.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${part.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`, 'output-error');
@@ -508,9 +627,10 @@ function getTerminalCommands(context) {
                 }
                 if (pathFound) {
                     targetNode = currentNode;
+                    // Construct displayPath using the actual names from the traversed nodes
                     displayPath = skillsData.name + (currentPathForDisplayArray.length > 0 ? " > " + currentPathForDisplayArray.join(' > ') : "");
                 } else {
-                    return;
+                    return; // Exit if path not found
                 }
             }
 
@@ -519,33 +639,36 @@ function getTerminalCommands(context) {
                 targetNode.children.forEach((child, index) => {
                     renderSkillTree(child, '  ', index === targetNode.children.length - 1, outputArray);
                 });
-            } else if (targetNode !== skillsData) {
-                 outputArray.push("    └── (End of this skill branch. Explore other paths!)");
+            } else if (targetNode !== skillsData) { // If it's a leaf node (but not the root itself if root has no children)
+                 outputArray.push("    └── (End of this skill branch. Explore other paths or type `skilltree` to see all top categories!)");
             } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) {
                 outputArray.push("  (No skill categories defined under root)");
             }
 
+
             appendToTerminal(outputArray.join('\n').replace(/\n/g, '<br/>'));
-            if (!pathArg) {
+            if (!pathArg && skillsData.children && skillsData.children.length > 0) { // Only show hint if at root and there are children
                  appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree se`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
-        'sudo': (args) => {
-            appendToTerminal(`Access Denied. User not authorized to 'sudo'. This incident will be logged.`, 'output-error');
+        'sudo': (args) => { // Added sudo definition if it was missing
+            appendToTerminal(`Access Denied. User '${context.userDetails.userName}' is not authorized to use 'sudo'. This incident will be logged (not really).`, 'output-error');
         },
         'theme': (args) => {
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
             const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight', 'crimson', 'forest'];
+            // validSpecificThemes are the ones that can be directly applied, excluding generic 'light'/'dark'
             const validSpecificThemes = [...darkThemes];
             const allValidOptions = [...validSpecificThemes, 'light', 'dark'];
 
             const currentThemeClass = Array.from(document.body.classList).find(cls => cls.startsWith('theme-'));
-            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-'));
+            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-')); // Preserve font if set
 
             const showThemeUsage = () => {
                 appendToTerminal(`Usage: theme &lt;name|mode&gt;`, 'output-text');
                 appendToTerminal(`Available themes: ${validSpecificThemes.sort().join(', ')}`);
-                appendToTerminal(`Available modes: light, dark`);
+                appendToTerminal(`Available modes: light, dark (dark mode defaults to 'green' theme).`);
+                appendToTerminal(`Current theme: ${currentThemeClass ? currentThemeClass.replace('theme-','') : 'green'}`);
             };
 
             if (!themeNameInput) {
@@ -554,32 +677,45 @@ function getTerminalCommands(context) {
             }
 
             if (allValidOptions.includes(themeNameInput)) {
-                document.body.className = '';
+                // Remove all theme-* classes before adding the new one
+                document.body.classList.forEach(className => {
+                    if (className.startsWith('theme-')) {
+                        document.body.classList.remove(className);
+                    }
+                });
+                // Also remove crt-mode if switching to light theme, as it's designed for dark
+                if (themeNameInput === 'light' && document.body.classList.contains('crt-mode')) {
+                    document.body.classList.remove('crt-mode');
+                     // Optionally notify user CRT mode was disabled for light theme
+                }
+
 
                 if (themeNameInput === 'light') {
                     document.body.classList.add('theme-light');
                     appendToTerminal('Theme set to light mode.', 'output-success');
                 } else if (themeNameInput === 'dark') {
-                    document.body.classList.add('theme-green');
+                    document.body.classList.add('theme-green'); // 'dark' alias for default 'green'
                     appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
                 } else if (validSpecificThemes.includes(themeNameInput)) {
                     document.body.classList.add(`theme-${themeNameInput}`);
                     appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
                 }
 
+                // Re-apply font class if it was set
                 if (currentFontClass) {
                     document.body.classList.add(currentFontClass);
                 } else {
-                    document.body.classList.add('font-fira');
+                    // Ensure a default font is applied if none was explicitly set via class before
+                    // (though body style should have a default, this ensures class consistency if needed)
+                    // document.body.classList.add('font-fira'); // Or your default font class
                 }
             } else {
                 appendToTerminal(`Error: Theme "${themeNameInput.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" not found.`, 'output-error');
                 showThemeUsage();
-                if (currentThemeClass) document.body.classList.add(currentThemeClass);
-                else document.body.classList.add('theme-green');
-
-                if (currentFontClass) document.body.classList.add(currentFontClass);
-                else document.body.classList.add('font-fira');
+                // Restore previous theme if an invalid one was attempted, or default to green
+                // if (currentThemeClass) document.body.classList.add(currentThemeClass);
+                // else document.body.classList.add('theme-green');
+                // if (currentFontClass) document.body.classList.add(currentFontClass);
             }
         },
         'whoami': () => {
