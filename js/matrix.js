@@ -16,23 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const parallaxCtxFg = parallaxCanvasFg ? parallaxCanvasFg.getContext('2d') : null;
     const matrixRainCanvas = document.getElementById('matrix-canvas');
     const matrixRainCtx = matrixRainCanvas ? matrixRainCanvas.getContext('2d') : null;
-    const allCanvases = [matrixRainCanvas, parallaxCanvasBg, parallaxCanvasFg].filter(Boolean);
+    // const allCanvases = [matrixRainCanvas, parallaxCanvasBg, parallaxCanvasFg].filter(Boolean); // No longer used with nnvis removal
     const terminalOutput = document.getElementById('terminal-output');
     const commandInput = document.getElementById('command-input');
     const navCvLink = document.getElementById('nav-cv-link');
     const navMediumLink = document.getElementById('nav-medium-link');
 
+    // --- Default Terminal Size (for reset) ---
+    const defaultTerminalSize = {
+        width: '55vw', // Must match initial CSS in style.css
+        height: '50vh' // Must match initial CSS in style.css
+    };
+
     // --- Matrix Rain Configuration ---
     const defaultRainConfig = {
-        fontSize: 18,        // Pixels
-        fontFamily: "Fira Code, monospace", // Monospace font
-        speed: 101,           // Milliseconds interval for redraw (lower is faster)
-        density: 0.69,        // Multiplier for number of columns (0.1 to 2.0)
-        trailEffect: true,   // True for fading tails, false for more solid redraw
-        randomizeSpeed: true // True to add slight speed variation to drops
+        fontSize: 18,
+        fontFamily: "Fira Code, monospace",
+        speed: 101,
+        density: 0.69,
+        trailEffect: true,
+        randomizeSpeed: true
     };
     let rainConfigOptions = { ...defaultRainConfig };
-    let rainAnimationIntervalId = null; // To store the interval ID for matrix rain
+    let rainAnimationIntervalId = null;
 
     // --- Other Configuration Variables ---
     const gridCellSize = 50;
@@ -50,19 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let konamiCodeIndex = 0;
     let crtModeActive = false;
 
-    // --- ASCII Neural Network Visualization (remains the same) ---
-    let nnVisInterval = null;
-    let nnVisContainer = null;
-    const nnVisFrameRate = 120;
-    const nnVisDuration = 20000;
-    let nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] };
-    let nnCurrentLayerConfig = [3, 5, 4, 2];
-    const nnNodeChars = { default: "( o )", active:  "( @ )", pulsing: "( * )" };
-    const nnConnectionChars = { empty: " ", horizontal: "─", pulse: "●", pulseTrail: "·" };
-    const nnConnectionLength = 5;
-    const nnVerticalSpacing = 1;
+    // --- ASCII Neural Network Visualization (REMOVED) ---
+    // All nnVis related variables and functions have been removed.
 
-    // --- Loading Screen Logic (remains the same) ---
+    // --- Loading Screen Logic ---
     let loaderCharInterval;
     let statusCyclingInterval;
     const loadingMessages = [
@@ -105,12 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
             initializeTerminalAndGraphics();
         }
     };
-    window.onload = handleWindowLoad;
     if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
         loaderCharInterval = setInterval(animateLoaderMatrixChars, 120);
         animateLoaderMatrixChars(); updateLoadingStatusMessage();
         statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
     }
+    window.onload = handleWindowLoad;
 
     function appendToTerminal(htmlContent, type = 'output-text') {
         if (!terminalOutput) return null;
@@ -136,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)', glow: '#9FFF9F', background: '#000' };
     }
 
-    function getCurrentFontFamily() { // Used for terminal, parallax. Rain uses its own config.
+    function getCurrentFontFamily() {
          if (typeof getComputedStyle !== 'undefined' && document.body) return getComputedStyle(document.body).getPropertyValue('--font-mono-current').trim() || 'Fira Code, monospace';
          return 'Fira Code, monospace';
     }
@@ -148,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Rain Config Functions ---
     function getRainConfig() {
         return { ...rainConfigOptions };
     }
@@ -169,13 +165,20 @@ document.addEventListener('DOMContentLoaded', () => {
         crtModeActive = typeof activate === 'boolean' ? activate : !crtModeActive;
         document.body.classList.toggle('crt-mode', crtModeActive);
         if (typeof activate === 'boolean' && terminalOutput) {
-             appendToTerminal(`1980s Mode ${crtModeActive ? 'Engaged' : 'Disengaged'}. Dialing back to the future...`, 'output-success');
+             appendToTerminal(`Analog Channel Override: CRT Mode ${crtModeActive ? 'Engaged' : 'Disengaged'}. Frequency aligned.`, 'output-success');
         }
         if (commandInput) commandInput.focus();
     }
 
-    function globalKeydownHandler(e) { // Konami code (remains the same)
+    function globalKeydownHandler(e) {
         const key = e.key.toLowerCase();
+        if (e.target === commandInput || e.target.tagName === 'A') {
+            if (key === 'escape' && document.activeElement === commandInput) {
+                 commandInput.blur();
+            }
+            return;
+        }
+
         if (key === konamiCodeSequence[konamiCodeIndex].toLowerCase()) {
             konamiCodeIndex++;
             if (konamiCodeIndex === konamiCodeSequence.length) {
@@ -187,120 +190,56 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { konamiCodeIndex = 0; }
     }
 
-    // ASCII Neural Network Visualization Logic (remains the same)
-    function drawAsciiNnFrame() {
-        if (!nnVisContainer || !nnCurrentLayerConfig || nnCurrentLayerConfig.length === 0) return;
-        const numLayers = nnCurrentLayerConfig.length;
-        const maxNodesInAnyLayer = Math.max(...nnCurrentLayerConfig, 0);
-        const nodeWidth = nnNodeChars.default.length;
-        const connectionSegment = nnConnectionChars.horizontal.repeat(nnConnectionLength);
-        let output = []; nnVisPulseState.activeNodes = [];
-        for (let i = 0; i < maxNodesInAnyLayer * (1 + nnVerticalSpacing) - nnVerticalSpacing; i++) {
-            let line = ""; const nodeRowIndex = Math.floor(i / (1 + nnVerticalSpacing));
-            const isNodeLine = i % (1 + nnVerticalSpacing) === 0;
-            for (let l = 0; l < numLayers; l++) {
-                if (isNodeLine && nodeRowIndex < nnCurrentLayerConfig[l]) {
-                    let nodeChar = nnNodeChars.default;
-                    const pulseIsOnThisNodeLayer = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment === 0;
-                    if (pulseIsOnThisNodeLayer) { nodeChar = nnNodeChars.active; nnVisPulseState.activeNodes.push({layer: l, index: nodeRowIndex}); }
-                    line += nodeChar;
-                } else if (isNodeLine) { line += " ".repeat(nodeWidth); } else { line += " ".repeat(nodeWidth); }
-                if (l < numLayers - 1) {
-                    if (isNodeLine) {
-                        const connects = nodeRowIndex < nnCurrentLayerConfig[l] && nodeRowIndex < nnCurrentLayerConfig[l+1];
-                        if (connects) {
-                            let currentConnection = connectionSegment;
-                            const pulseIsOnThisConnection = Math.floor(nnVisPulseState.currentSegment / 2) === l && nnVisPulseState.positionInSegment > 0;
-                            if (pulseIsOnThisConnection) {
-                                const pulsePosInConn = nnVisPulseState.positionInSegment -1; let tempConn = connectionSegment.split('');
-                                if (pulsePosInConn < tempConn.length) {
-                                    tempConn[pulsePosInConn] = nnConnectionChars.pulse;
-                                    if (pulsePosInConn > 0) tempConn[pulsePosInConn-1] = nnConnectionChars.pulseTrail;
-                                    if (pulsePosInConn > 1) tempConn[pulsePosInConn-2] = nnConnectionChars.empty;
-                                } currentConnection = tempConn.join('');
-                            } line += currentConnection;
-                        } else { line += " ".repeat(nnConnectionLength); }
-                    } else { line += " ".repeat(nnConnectionLength); }
-                }
-            } output.push(line);
-        }
-        nnVisContainer.innerHTML = output.join('\n').replace(/ /g, '&nbsp;');
-        nnVisPulseState.positionInSegment++;
-        if (nnVisPulseState.positionInSegment > nnConnectionLength) {
-            nnVisPulseState.positionInSegment = 0; nnVisPulseState.currentSegment++;
-            if (nnVisPulseState.currentSegment >= (numLayers * 2) - 2) { nnVisPulseState.currentSegment = 0; }
-        }
-    }
-    function startAsciiNnVis(layerConfig = null) {
-        if (nnVisInterval) stopAsciiNnVis();
-        nnCurrentLayerConfig = (layerConfig && layerConfig.length > 0) ? layerConfig : [3, 5, 2];
-        if (nnCurrentLayerConfig.length < 2) nnCurrentLayerConfig = [3,2];
-        nnCurrentLayerConfig = nnCurrentLayerConfig.map(nodes => Math.min(nodes, 14));
-        appendToTerminal("Initializing Neural Network Visualization...", "output-text");
-        nnVisContainer = appendToTerminal("", "ascii-nn-vis");
-        const maxNodes = Math.max(...nnCurrentLayerConfig, 0);
-        nnVisContainer.style.minHeight = `${maxNodes * (1 + nnVerticalSpacing) * 1.2}em`;
-        nnVisPulseState = { currentSegment: 0, positionInSegment: 0, direction: 1, activeNodes: [] };
-        drawAsciiNnFrame(); nnVisInterval = setInterval(drawAsciiNnFrame, nnVisFrameRate);
-        setTimeout(() => { stopAsciiNnVis(); appendToTerminal("Neural Network Visualization sequence complete.", "output-text"); }, nnVisDuration);
-    }
-    function stopAsciiNnVis() { if (nnVisInterval) clearInterval(nnVisInterval); nnVisInterval = null; }
+    // ASCII Neural Network Visualization Logic REMOVED
 
     /** Main Initialization Function for Terminal and Graphics. */
     function initializeTerminalAndGraphics() {
-        let columns; // Will be set by resizeMatrixRainCanvases
+        let columns;
         const rainDrops = [];
-        const fgParallaxSymbols = []; // Parallax symbols remain independent of rain config
+        const fgParallaxSymbols = [];
 
         function setupMatrixRainDrops() {
             rainDrops.length = 0;
-            // Calculate columns based on fontSize and density
-            columns = Math.floor((window.innerWidth / rainConfigOptions.fontSize) * rainConfigOptions.density);
-
+            columns = Math.max(1, Math.floor((window.innerWidth / rainConfigOptions.fontSize) * rainConfigOptions.density));
             for (let x = 0; x < columns; x++) {
                 rainDrops[x] = {
                     y: Math.floor(Math.random() * (window.innerHeight / rainConfigOptions.fontSize)),
                     isLeading: true,
-                    // Individual speed for randomized effect
-                    speedOffset: rainConfigOptions.randomizeSpeed ? (Math.random() - 0.5) * 0.5 : 0 // +/- 25% speed variation if enabled
+                    speedOffset: rainConfigOptions.randomizeSpeed ? (Math.random() - 0.5) * 0.5 : 0
                 };
             }
         }
 
-        function resizeMatrixRainCanvases() { // Renamed to be specific
+        function resizeMatrixRainCanvases() {
             if (matrixRainCanvas) {
                 matrixRainCanvas.width = window.innerWidth;
                 matrixRainCanvas.height = window.innerHeight;
             }
-            setupMatrixRainDrops(); // Recalculate drops based on new size/config
+            setupMatrixRainDrops();
         }
 
-        function resizeOtherCanvases() { // For parallax
+        function resizeOtherCanvases() {
              [parallaxCanvasBg, parallaxCanvasFg].filter(Boolean).forEach(canvas => {
                 if (canvas) { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
             });
-            if (parallaxCanvasFg) initializeParallaxFgSymbols(); // Parallax symbols depend on its canvas size
+            if (parallaxCanvasFg) initializeParallaxFgSymbols();
         }
 
-
         function drawMatrixRain() {
-            if (!matrixRainCtx) return;
+            if (!matrixRainCtx || !matrixRainCanvas) return;
             const themeColors = getCurrentThemeColors();
 
-            // Trail effect
             if (rainConfigOptions.trailEffect) {
-                matrixRainCtx.fillStyle = themeColors.trail; // From CSS variable
+                matrixRainCtx.fillStyle = themeColors.trail;
             } else {
-                matrixRainCtx.fillStyle = themeColors.background; // If no trail, fill with background
+                matrixRainCtx.fillStyle = themeColors.background;
             }
             matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
-
             matrixRainCtx.font = `bold ${rainConfigOptions.fontSize}px ${rainConfigOptions.fontFamily}`;
 
             for (let i = 0; i < rainDrops.length; i++) {
                 const text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
                 const drop = rainDrops[i];
-
                 if (drop.isLeading) {
                     matrixRainCtx.fillStyle = themeColors.glow;
                     matrixRainCtx.shadowColor = themeColors.glow;
@@ -312,18 +251,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     matrixRainCtx.fillStyle = themeColors.primary;
                     matrixRainCtx.shadowBlur = 0;
                 }
-
                 matrixRainCtx.fillText(text, i * rainConfigOptions.fontSize / rainConfigOptions.density, drop.y * rainConfigOptions.fontSize);
-
-                // Adjust drop speed if randomized
                 const currentDropSpeed = 1 + (rainConfigOptions.randomizeSpeed ? drop.speedOffset : 0);
                 drop.y += currentDropSpeed;
-
-
                 if (drop.y * rainConfigOptions.fontSize > matrixRainCanvas.height && Math.random() > 0.975) {
                     drop.y = 0;
                     drop.isLeading = true;
-                    if(rainConfigOptions.randomizeSpeed) { // Re-randomize speed offset when drop resets
+                    if(rainConfigOptions.randomizeSpeed) {
                         drop.speedOffset = (Math.random() - 0.5) * 0.5;
                     }
                 }
@@ -335,17 +269,15 @@ document.addEventListener('DOMContentLoaded', () => {
         function restartMatrixRainAnimation() {
             if (rainAnimationIntervalId) clearInterval(rainAnimationIntervalId);
             if (matrixRainCtx) {
-                resizeMatrixRainCanvases(); // Ensure canvas is sized and drops are set up with new config
+                resizeMatrixRainCanvases();
                 rainAnimationIntervalId = setInterval(drawMatrixRain, rainConfigOptions.speed);
             }
         }
 
-
-        // Parallax functions (remain largely the same, ensure they use their own canvas contexts)
         function drawParallaxBackground() {
-            if (!parallaxCtxBg) return;
+            if (!parallaxCtxBg || !parallaxCanvasBg) return;
             parallaxCtxBg.clearRect(0, 0, parallaxCanvasBg.width, parallaxCanvasBg.height);
-            const themeColors = getCurrentThemeColors(); // Parallax uses theme colors too
+            const themeColors = getCurrentThemeColors();
             parallaxCtxBg.strokeStyle = themeColors.primary + '1A';
             parallaxCtxBg.lineWidth = 0.5;
             const offsetX = (mouseX / window.innerWidth - 0.5) * gridCellSize * 0.15;
@@ -371,10 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         function drawParallaxForeground() {
-            if (!parallaxCtxFg) return;
+            if (!parallaxCtxFg || !parallaxCanvasFg) return;
             parallaxCtxFg.clearRect(0, 0, parallaxCanvasFg.width, parallaxCanvasFg.height);
             const themeColors = getCurrentThemeColors();
-            const currentTermFont = getCurrentFontFamily(); // Parallax can use terminal font
+            const currentTermFont = getCurrentFontFamily();
             fgParallaxSymbols.forEach(s => {
                 parallaxCtxFg.font = `${s.size}px ${currentTermFont}`;
                 parallaxCtxFg.fillStyle = themeColors.primary + '55';
@@ -387,11 +319,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Initial setup for canvases
-        resizeOtherCanvases(); // Parallax first
-        restartMatrixRainAnimation(); // Then Matrix rain with current config
+        resizeOtherCanvases();
+        restartMatrixRainAnimation();
 
-        function masterAnimationLoop() { // Parallax animation loop
+        function masterAnimationLoop() {
             if (parallaxCtxBg) drawParallaxBackground();
             if (parallaxCtxFg) drawParallaxForeground();
             requestAnimationFrame(masterAnimationLoop);
@@ -400,14 +331,15 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(masterAnimationLoop);
         }
 
-
-        const userDetails = { /* ... (remains the same) ... */
+        const userDetails = {
             userName: "Rishav Sharma", userTitle: "Software Engineer / Data Scientist",
             githubUser: "rvs-23", linkedinUser: "rishav-sharma-23rvs", mediumUser: "rvs",
-            emailAddress: "23rishavsharma@gmail.com", cvLink: "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
+            emailAddress: "23rishavsharma@gmail.com",
+            cvLink: "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
         };
         if (navCvLink) navCvLink.href = userDetails.cvLink;
-        if (navMediumLink) navMediumLink.href = `https://medium.com/@${userDetails.mediumUser}`;
+        if (navMediumLink && userDetails.mediumUser) navMediumLink.href = `https://medium.com/@${userDetails.mediumUser}`;
+        else if (navMediumLink) navMediumLink.style.display = 'none';
 
         const bioContent = `Currently working as a Data Scientist, I'm a curious developer passionate about the full spectrum of software and data development. My interests span from foundational data engineering and robust back-end systems to the cutting edge of Machine Learning, Deep Learning, and Large Language Models. I enjoy coding and architecting solutions across this entire stack.`;
         const focusContent = `Building intuitive digital experiences, developing intelligent AI models, and engineering scalable data solutions. I thrive on continuous learning and applying elegant approaches to complex challenges in technology.`;
@@ -415,18 +347,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
 
         const plainNameArt = `<span class="ascii-name">${userDetails.userName.toUpperCase()}</span>`;
-        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\nType 'examples' for a list of test commands.\n---------------------------------------------------`;
+        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\nType 'examples' to load examples from examples.txt.\n---------------------------------------------------`;
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
         const commandHandlerContext = {
             appendToTerminal, fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
             userDetails, fullBioText, mainContentContainer, allMatrixChars,
-            startAsciiNnVis, stopAsciiNnVis, resizeTerminalElement,
+            // startAsciiNnVis, stopAsciiNnVis, // Removed
+            resizeTerminalElement, defaultTerminalSize, // Added defaultTerminalSize
             getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
-        // Command Input Handling (remains the same)
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -442,29 +374,28 @@ document.addEventListener('DOMContentLoaded', () => {
                         const parts = []; let inQuotes = false; let currentPart = "";
                         for (let i = 0; i < fullCommandText.length; i++) {
                             const char = fullCommandText[i];
-                            if (char === '"') { inQuotes = !inQuotes; currentPart += char; }
+                            if (char === '"') { inQuotes = !inQuotes; }
                             else if (char === ' ' && !inQuotes) { if (currentPart) parts.push(currentPart); currentPart = ""; }
                             else { currentPart += char; }
                         }
                         if (currentPart) parts.push(currentPart);
                         const commandName = parts[0] ? parts[0].toLowerCase() : "";
-                        const args = parts.slice(1).map(arg => {
-                            if (arg.startsWith('"') && arg.endsWith('"')) { return arg.substring(1, arg.length - 1); }
-                            return arg;
-                        });
+                        const args = parts.slice(1);
                         const commandFunc = terminalCommands[commandName];
                         if (typeof commandFunc === 'function') {
                             const result = commandFunc(args);
                             if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
-                                result.catch(err => { console.error("Error executing async command:", err); appendToTerminal(`Async Command Error: ${err.message}`, 'output-error'); });
+                                result.catch(err => { console.error("Error executing async command:", commandName, err); appendToTerminal(`Async Command Error: ${err.message || 'Unknown error'}`, 'output-error'); });
                             }
-                        } else if (commandName === 'sudo') { terminalCommands['sudo'](args); }
-                        else { appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error'); appendToTerminal(`Type 'help' for commands.`); }
+                        } else if (commandName) {
+                            appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error');
+                            appendToTerminal(`Type 'help' for a list of available commands.`);
+                        }
                     }
                     commandInput.value = ''; if (terminalOutput) terminalOutput.scrollTop = terminalOutput.scrollHeight;
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault(); if (commandHistory.length > 0) {
-                        historyIndex = Math.max(0, historyIndex - 1); commandInput.value = commandHistory[historyIndex];
+                        historyIndex = Math.max(0, historyIndex - 1); commandInput.value = commandHistory[historyIndex] || "";
                         setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
                     }
                 } else if (e.key === 'ArrowDown') {
@@ -472,8 +403,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         historyIndex++; commandInput.value = commandHistory[historyIndex];
                     } else { historyIndex = commandHistory.length; commandInput.value = ''; }
                     setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
+                } else if (e.key === 'Tab') {
+                     e.preventDefault();
                 }
             });
+            if(mainContentContainer) {
+                mainContentContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') {
+                        if(commandInput) commandInput.focus();
+                    }
+                });
+            }
         }
 
         function displayInitialWelcomeMessage() {
@@ -484,8 +424,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (terminalOutput) displayInitialWelcomeMessage();
 
         window.addEventListener('resize', () => {
-            resizeOtherCanvases(); // Resize parallax canvases
-            restartMatrixRainAnimation(); // Reinitialize matrix rain on window resize
+            resizeOtherCanvases();
+            restartMatrixRainAnimation();
         });
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         document.addEventListener('keydown', globalKeydownHandler);
