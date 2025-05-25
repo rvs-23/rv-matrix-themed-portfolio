@@ -66,6 +66,10 @@ resize term <width> <height>
         resize term 800px 600px
         resize term 90% 85%
 
+resize term reset
+    Description: Resets the terminal window to its default size.
+    Example: resize term reset
+
 --- Matrix Rain Configuration ---
 rainconfig
     Description: Shows the current settings for the Matrix rain animation.
@@ -90,14 +94,6 @@ rainconfig reset
     Example: rainconfig reset
 
 --- Visualizations & Fun ---
-nnvis [n1 n2 n3 ...]
-    Description: Starts an ASCII art visualization of a neural network with the specified number of nodes in each layer.
-    Default: nnvis (uses a predefined layer structure like 3 5 2)
-    Examples:
-        nnvis
-        nnvis 2 4 3
-        nnvis 4 8 8 4
-
 easter.egg
     Description: ??? (Triggers a hidden terminal glitch animation and a Matrix quote).
     Example: easter.egg
@@ -108,5 +104,5 @@ sudo <command>
     Example: sudo rm -rf /
 
 examples
-    Description: Displays this list of example commands and their usage.
+    Description: Displays the content of examples.txt.
     Example: examples
