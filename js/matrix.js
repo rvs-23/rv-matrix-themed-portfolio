@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const parallaxCtxFg = parallaxCanvasFg ? parallaxCanvasFg.getContext('2d') : null;
     const matrixRainCanvas = document.getElementById('matrix-canvas');
     const matrixRainCtx = matrixRainCanvas ? matrixRainCanvas.getContext('2d') : null;
-    // const allCanvases = [matrixRainCanvas, parallaxCanvasBg, parallaxCanvasFg].filter(Boolean); // No longer used with nnvis removal
     const terminalOutput = document.getElementById('terminal-output');
     const commandInput = document.getElementById('command-input');
     const navCvLink = document.getElementById('nav-cv-link');
@@ -28,19 +27,32 @@ document.addEventListener('DOMContentLoaded', () => {
         height: '50vh' // Must match initial CSS in style.css
     };
 
-    // --- Matrix Rain Configuration ---
+    // --- Matrix Rain Configuration (New Defaults) ---
     const defaultRainConfig = {
-        fontSize: 18,
+        fontSize: 15,
         fontFamily: "Fira Code, monospace",
         speed: 101,
         density: 0.69,
         trailEffect: true,
-        randomizeSpeed: true
+        randomizeSpeed: true,
+        opacity: 0.8,
+        blur: 0.25,
+        rainShadow: 2,
+        glitchIntensity: 0.1
+        // rainDirection removed
     };
     let rainConfigOptions = { ...defaultRainConfig };
     let rainAnimationIntervalId = null;
+    // burstGlitch related variables removed
 
-    // --- Other Configuration Variables ---
+    const availableFonts = [
+        "Fira Code, monospace",
+        "Courier New, monospace",
+        "Lucida Console, monospace",
+        "Arial, sans-serif",
+        "Verdana, sans-serif"
+    ];
+
     const gridCellSize = 50;
     const numFgSymbols = 12;
     const allMatrixChars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
@@ -51,15 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandHistory = [];
     let historyIndex = commandHistory.length;
 
-    // --- Konami Code ---
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
     let konamiCodeIndex = 0;
     let crtModeActive = false;
 
-    // --- ASCII Neural Network Visualization (REMOVED) ---
-    // All nnVis related variables and functions have been removed.
-
-    // --- Loading Screen Logic ---
     let loaderCharInterval;
     let statusCyclingInterval;
     const loadingMessages = [
@@ -144,19 +151,83 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContentContainer.style.height = height;
         }
     }
+    
+    // burstGlitch function and startRandomBurstGlitches removed
 
     function getRainConfig() {
-        return { ...rainConfigOptions };
+        return { ...rainConfigOptions, availableFonts: [...availableFonts] };
     }
+
     function updateRainConfig(param, value) {
         if (rainConfigOptions.hasOwnProperty(param)) {
-            rainConfigOptions[param] = value;
+            let isValid = true;
+            let parsedValue = value;
+
+            switch (param) {
+                case 'fontSize':
+                    parsedValue = parseInt(value, 10);
+                    if (isNaN(parsedValue) || parsedValue < 8 || parsedValue > 40) isValid = false;
+                    break;
+                case 'speed':
+                    parsedValue = parseInt(value, 10);
+                    if (isNaN(parsedValue) || parsedValue < 20 || parsedValue > 500) isValid = false;
+                    break;
+                case 'density':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0.1 || parsedValue > 3.0) isValid = false;
+                    break;
+                case 'opacity':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0.1 || parsedValue > 1.0) isValid = false;
+                    break;
+                case 'blur':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 5) isValid = false;
+                    break;
+                case 'rainShadow':
+                    parsedValue = parseInt(value, 10);
+                    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 10) isValid = false;
+                    break;
+                case 'glitchIntensity':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0.0 || parsedValue > 1.0) isValid = false;
+                    break;
+                case 'trailEffect':
+                case 'randomizeSpeed':
+                    if (String(value).toLowerCase() === 'true') parsedValue = true;
+                    else if (String(value).toLowerCase() === 'false') parsedValue = false;
+                    else isValid = false;
+                    break;
+                case 'fontFamily':
+                    const sanitizedValue = String(value).trim();
+                    if (availableFonts.includes(sanitizedValue) || /^[a-zA-Z0-9\s,-]+$/.test(sanitizedValue)) {
+                        parsedValue = sanitizedValue;
+                    } else {
+                        isValid = false;
+                        if(terminalOutput) appendToTerminal(`Font '${sanitizedValue}' not in available list or contains invalid characters. Using default.`, 'output-error');
+                        parsedValue = defaultRainConfig.fontFamily;
+                    }
+                    break;
+                // rainDirection case removed
+                default:
+                    break; 
+            }
+
+            if (!isValid && terminalOutput) { 
+                appendToTerminal(`Invalid value for ${param}. Please check range or type.`, 'output-error');
+                return false;
+            }
+            
+            rainConfigOptions[param] = parsedValue;
             return true;
         }
+        if (terminalOutput) appendToTerminal(`Unknown rain config parameter: ${param}`, 'output-error');
         return false;
     }
+
     function resetRainConfig() {
         rainConfigOptions = { ...defaultRainConfig };
+        // scheduleRandomDirectionChange removed
     }
 
     let fullWelcomeMessageStringGlobal = '';
@@ -171,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function globalKeydownHandler(e) {
-        const key = e.key.toLowerCase();
+        const key = e.key.toLowerCase(); 
         if (e.target === commandInput || e.target.tagName === 'A') {
             if (key === 'escape' && document.activeElement === commandInput) {
                  commandInput.blur();
@@ -185,25 +256,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleCrtMode(); konamiCodeIndex = 0;
                 if (document.activeElement !== commandInput) e.preventDefault();
             }
-        } else if (key === konamiCodeSequence[0].toLowerCase() && konamiCodeIndex > 0) {
+        } else if (key === konamiCodeSequence[0].toLowerCase() && konamiCodeIndex > 0) { 
             konamiCodeIndex = 1;
         } else { konamiCodeIndex = 0; }
     }
-
-    // ASCII Neural Network Visualization Logic REMOVED
-
-    /** Main Initialization Function for Terminal and Graphics. */
+    
     function initializeTerminalAndGraphics() {
         let columns;
         const rainDrops = [];
         const fgParallaxSymbols = [];
 
+        // Simplified setupMatrixRainDrops - always top-down
         function setupMatrixRainDrops() {
             rainDrops.length = 0;
-            columns = Math.max(1, Math.floor((window.innerWidth / rainConfigOptions.fontSize) * rainConfigOptions.density));
+            const effectiveDensity = Math.max(0.1, rainConfigOptions.density);
+            columns = Math.max(1, Math.floor((window.innerWidth / rainConfigOptions.fontSize) * effectiveDensity));
+            const canvasHeight = matrixRainCanvas ? matrixRainCanvas.height : window.innerHeight;
+
             for (let x = 0; x < columns; x++) {
                 rainDrops[x] = {
-                    y: Math.floor(Math.random() * (window.innerHeight / rainConfigOptions.fontSize)),
+                    y: Math.random() * (canvasHeight / rainConfigOptions.fontSize) - (canvasHeight / rainConfigOptions.fontSize), // Start off-screen or near top
                     isLeading: true,
                     speedOffset: rainConfigOptions.randomizeSpeed ? (Math.random() - 0.5) * 0.5 : 0
                 };
@@ -225,60 +297,101 @@ document.addEventListener('DOMContentLoaded', () => {
             if (parallaxCanvasFg) initializeParallaxFgSymbols();
         }
 
+        // Simplified drawMatrixRain - always top-down
         function drawMatrixRain() {
             if (!matrixRainCtx || !matrixRainCanvas) return;
             const themeColors = getCurrentThemeColors();
+            const canvasHeight = matrixRainCanvas.height;
+            const fontSize = rainConfigOptions.fontSize;
+
+            matrixRainCtx.filter = 'none';
+            matrixRainCtx.globalAlpha = 1.0; 
 
             if (rainConfigOptions.trailEffect) {
-                matrixRainCtx.fillStyle = themeColors.trail;
+                matrixRainCtx.fillStyle = themeColors.trail; 
             } else {
-                matrixRainCtx.fillStyle = themeColors.background;
+                matrixRainCtx.fillStyle = themeColors.background; 
             }
             matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
-            matrixRainCtx.font = `bold ${rainConfigOptions.fontSize}px ${rainConfigOptions.fontFamily}`;
+
+            matrixRainCtx.globalAlpha = rainConfigOptions.opacity; 
+            if (rainConfigOptions.blur > 0) {
+                matrixRainCtx.filter = `blur(${rainConfigOptions.blur}px)`;
+            } else {
+                matrixRainCtx.filter = 'none'; 
+            }
+            
+            matrixRainCtx.font = `bold ${fontSize}px ${rainConfigOptions.fontFamily}`;
 
             for (let i = 0; i < rainDrops.length; i++) {
-                const text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
+                let text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
                 const drop = rainDrops[i];
+                const effectiveDensity = Math.max(0.1, rainConfigOptions.density); 
+                let xPos = i * (fontSize / effectiveDensity);
+
+                if (rainConfigOptions.glitchIntensity > 0) {
+                    if (Math.random() < rainConfigOptions.glitchIntensity) {
+                        text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
+                    }
+                    if (Math.random() < rainConfigOptions.glitchIntensity * 0.85) { 
+                        const maxOffsetMagnitude = fontSize * (0.2 + rainConfigOptions.glitchIntensity * 0.55); 
+                        xPos += (Math.random() - 0.5) * 2 * maxOffsetMagnitude; 
+                    }
+                }
+
                 if (drop.isLeading) {
                     matrixRainCtx.fillStyle = themeColors.glow;
-                    matrixRainCtx.shadowColor = themeColors.glow;
-                    matrixRainCtx.shadowBlur = 10;
+                    matrixRainCtx.shadowColor = themeColors.glow; 
+                    matrixRainCtx.shadowBlur = rainConfigOptions.rainShadow; 
                     matrixRainCtx.shadowOffsetX = 0;
                     matrixRainCtx.shadowOffsetY = 0;
-                    drop.isLeading = false;
+                    drop.isLeading = false; 
                 } else {
                     matrixRainCtx.fillStyle = themeColors.primary;
-                    matrixRainCtx.shadowBlur = 0;
+                    matrixRainCtx.shadowBlur = 0; 
+                    matrixRainCtx.shadowColor = 'transparent'; 
                 }
-                matrixRainCtx.fillText(text, i * rainConfigOptions.fontSize / rainConfigOptions.density, drop.y * rainConfigOptions.fontSize);
+                matrixRainCtx.fillText(text, xPos, drop.y * fontSize);
+                
                 const currentDropSpeed = 1 + (rainConfigOptions.randomizeSpeed ? drop.speedOffset : 0);
-                drop.y += currentDropSpeed;
-                if (drop.y * rainConfigOptions.fontSize > matrixRainCanvas.height && Math.random() > 0.975) {
-                    drop.y = 0;
-                    drop.isLeading = true;
-                    if(rainConfigOptions.randomizeSpeed) {
+                
+                drop.y += currentDropSpeed; // Always move down
+                if (drop.y * fontSize > canvasHeight && Math.random() > 0.975) { 
+                    drop.y = 0; 
+                    drop.isLeading = true; 
+                    if(rainConfigOptions.randomizeSpeed) { 
                         drop.speedOffset = (Math.random() - 0.5) * 0.5;
                     }
                 }
             }
+            
             matrixRainCtx.shadowBlur = 0;
             matrixRainCtx.shadowColor = 'transparent';
+            matrixRainCtx.filter = 'none';
+            matrixRainCtx.globalAlpha = 1.0; 
         }
 
         function restartMatrixRainAnimation() {
-            if (rainAnimationIntervalId) clearInterval(rainAnimationIntervalId);
+            if (rainAnimationIntervalId) {
+                 clearInterval(rainAnimationIntervalId);
+                 rainAnimationIntervalId = null; // Explicitly nullify
+            }
             if (matrixRainCtx) {
-                resizeMatrixRainCanvases();
+                if (matrixRainCanvas.width !== window.innerWidth || matrixRainCanvas.height !== window.innerHeight) {
+                    resizeMatrixRainCanvases(); 
+                } else {
+                    setupMatrixRainDrops(); 
+                }
                 rainAnimationIntervalId = setInterval(drawMatrixRain, rainConfigOptions.speed);
             }
+            // scheduleRandomDirectionChange call removed
         }
-
+        
         function drawParallaxBackground() {
             if (!parallaxCtxBg || !parallaxCanvasBg) return;
             parallaxCtxBg.clearRect(0, 0, parallaxCanvasBg.width, parallaxCanvasBg.height);
             const themeColors = getCurrentThemeColors();
-            parallaxCtxBg.strokeStyle = themeColors.primary + '1A';
+            parallaxCtxBg.strokeStyle = themeColors.primary + '1A'; 
             parallaxCtxBg.lineWidth = 0.5;
             const offsetX = (mouseX / window.innerWidth - 0.5) * gridCellSize * 0.15;
             const offsetY = (mouseY / window.innerHeight - 0.5) * gridCellSize * 0.15;
@@ -306,10 +419,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!parallaxCtxFg || !parallaxCanvasFg) return;
             parallaxCtxFg.clearRect(0, 0, parallaxCanvasFg.width, parallaxCanvasFg.height);
             const themeColors = getCurrentThemeColors();
-            const currentTermFont = getCurrentFontFamily();
+            const currentTermFont = getCurrentFontFamily(); 
             fgParallaxSymbols.forEach(s => {
-                parallaxCtxFg.font = `${s.size}px ${currentTermFont}`;
-                parallaxCtxFg.fillStyle = themeColors.primary + '55';
+                parallaxCtxFg.font = `${s.size}px ${currentTermFont}`; 
+                parallaxCtxFg.fillStyle = themeColors.primary + '55'; 
                 const targetX = s.x - (mouseX - parallaxCanvasFg.width / 2) * s.parallaxFactor;
                 const targetY = s.y - (mouseY - parallaxCanvasFg.height / 2) * s.parallaxFactor;
                 s.x += s.vx + (targetX - s.x) * 0.01; s.y += s.vy + (targetY - s.y) * 0.01;
@@ -320,7 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         resizeOtherCanvases();
-        restartMatrixRainAnimation();
+        restartMatrixRainAnimation(); 
+        // startRandomBurstGlitches removed
 
         function masterAnimationLoop() {
             if (parallaxCtxBg) drawParallaxBackground();
@@ -347,15 +461,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
 
         const plainNameArt = `<span class="ascii-name">${userDetails.userName.toUpperCase()}</span>`;
-        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\nType 'examples' to load examples from examples.txt.\n---------------------------------------------------`;
+        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n---------------------------------------------------`;
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
         const commandHandlerContext = {
             appendToTerminal, fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
             userDetails, fullBioText, mainContentContainer, allMatrixChars,
-            // startAsciiNnVis, stopAsciiNnVis, // Removed
-            resizeTerminalElement, defaultTerminalSize, // Added defaultTerminalSize
-            getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation
+            resizeTerminalElement, defaultTerminalSize,
+            getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation,
+            // burstGlitch removed from context
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
@@ -381,9 +495,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (currentPart) parts.push(currentPart);
                         const commandName = parts[0] ? parts[0].toLowerCase() : "";
                         const args = parts.slice(1);
+                        
                         const commandFunc = terminalCommands[commandName];
                         if (typeof commandFunc === 'function') {
-                            const result = commandFunc(args);
+                            const result = commandFunc(args); 
                             if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
                                 result.catch(err => { console.error("Error executing async command:", commandName, err); appendToTerminal(`Async Command Error: ${err.message || 'Unknown error'}`, 'output-error'); });
                             }
@@ -404,12 +519,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else { historyIndex = commandHistory.length; commandInput.value = ''; }
                     setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
                 } else if (e.key === 'Tab') {
-                     e.preventDefault();
+                     e.preventDefault(); 
                 }
             });
             if(mainContentContainer) {
                 mainContentContainer.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') {
+                    if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') { 
                         if(commandInput) commandInput.focus();
                     }
                 });
@@ -424,8 +539,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (terminalOutput) displayInitialWelcomeMessage();
 
         window.addEventListener('resize', () => {
-            resizeOtherCanvases();
-            restartMatrixRainAnimation();
+            resizeOtherCanvases(); 
+            resizeMatrixRainCanvases(); 
         });
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         document.addEventListener('keydown', globalKeydownHandler);
