@@ -34,10 +34,22 @@ function getTerminalCommands(context) {
         updateRainConfig,
         resetRainConfig,
         restartMatrixRain,
-        // burstGlitch is no longer passed as the command is removed
     } = context;
 
-    const baseSpeedForPresets = 101; 
+    // New default rain config values (can be fetched from context.getRainConfig() if needed for base)
+    // For preset calculations, we use the new global defaults.
+    const newDefaultConfig = { // Mirrored from matrix.js for clarity in preset design
+        fontSize: 15,
+        speed: 101,
+        density: 0.69,
+        trailEffect: true,
+        randomizeSpeed: true,
+        opacity: 0.8,
+        blur: 0.25,
+        rainShadow: 2,
+        glitchIntensity: 0.1,
+        fontFamily: "Fira Code, monospace"
+    };
 
 
     const skillsData = { // Skill data remains unchanged
@@ -306,9 +318,8 @@ function getTerminalCommands(context) {
                 { cmd: "date", display: "date", desc: "Display current date and time." },
                 { cmd: "download cv", display: "download cv", desc: "Download my CV." },
                 { cmd: "easter.egg", display: "easter.egg", desc: "???" },
-                // glitchburst command removed from help
                 { cmd: "projects", display: "projects", desc: "Show my featured projects." },
-                { cmd: "rainconfig [param] [val]", display: "rainconfig [param] [val]", desc: "Configure Matrix rain. Params: fontSize, speed, density, trailEffect, randomizeSpeed, opacity, blur, rainShadow, glitchIntensity, fontFamily, rainDirection. No args for current. `reset` for defaults." },
+                { cmd: "rainconfig [param] [val]", display: "rainconfig [param] [val]", desc: "Configure Matrix rain. Params: fontSize, speed, density, trailEffect, randomizeSpeed, opacity, blur, rainShadow, glitchIntensity, fontFamily. No args for current. `reset` for defaults." }, // rainDirection removed from help
                 { cmd: "rainpreset <name>", display: "rainpreset <name>", desc: "Apply rain preset (calm, standard, storm, glitched)." },
                 { cmd: "resize term <W> <H>|reset", display: "resize term <W> <H>|reset", desc: "Resize terminal or reset. E.g. `resize term 600px 70vh` or `resize term reset`" },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
@@ -345,13 +356,13 @@ function getTerminalCommands(context) {
                 appendToTerminal("Rain configuration module not available.", "output-error");
                 return;
             }
-            const currentFullConfig = getRainConfig(); // This now includes 'availableFonts'
+            const currentFullConfig = getRainConfig(); 
 
             if (args.length === 0) { 
                 let output = "Current Matrix Rain Configuration:\n";
-                const order = ['fontSize', 'speed', 'density', 'trailEffect', 'randomizeSpeed', 'opacity', 'blur', 'rainShadow', 'glitchIntensity', 'fontFamily', 'rainDirection'];
+                const order = ['fontSize', 'speed', 'density', 'trailEffect', 'randomizeSpeed', 'opacity', 'blur', 'rainShadow', 'glitchIntensity', 'fontFamily']; // rainDirection removed
                 order.forEach(key => {
-                    if (currentFullConfig.hasOwnProperty(key) && key !== 'availableFonts') { // Exclude availableFonts from direct display here
+                    if (currentFullConfig.hasOwnProperty(key) && key !== 'availableFonts') { 
                          output += `  ${key}: ${JSON.stringify(currentFullConfig[key])}\n`;
                     }
                 });
@@ -364,7 +375,7 @@ function getTerminalCommands(context) {
                 currentFullConfig.availableFonts.forEach(font => {
                     output += `  - "${font}"\n`;
                 });
-                 output += "\nAvailable Rain Directions for 'rainDirection':\n  - \"down\", \"up\", \"random\"\n";
+                // Rain direction options removed from output
 
                 appendToTerminal(output.replace(/\n/g, "<br/>"));
                 return;
@@ -385,12 +396,7 @@ function getTerminalCommands(context) {
                     value = value.substring(1, value.length - 1);
                 }
                 
-                if (param.toLowerCase() === 'fontfamily') {
-                     // Let updateRainConfig handle validation against availableFonts and general CSS validity
-                } else if (param.toLowerCase() === 'raindirection') {
-                    // Let updateRainConfig handle validation for 'down', 'up', 'random'
-                }
-
+                // rainDirection specific logic removed here, updateRainConfig will handle unknown params if any slip through
 
                 if (updateRainConfig(param, value)) {
                     restartMatrixRain(); 
@@ -398,7 +404,7 @@ function getTerminalCommands(context) {
                 } 
             } else {
                 appendToTerminal("Usage: rainconfig [parameter value] OR rainconfig reset OR rainconfig", "output-error");
-                appendToTerminal("Example: rainconfig opacity 0.5 OR rainconfig fontFamily \"Courier New, monospace\" OR rainconfig rainDirection up");
+                appendToTerminal("Example: rainconfig opacity 0.5 OR rainconfig fontFamily \"Courier New, monospace\"");
             }
         },
         'rainpreset': (args) => {
@@ -410,40 +416,44 @@ function getTerminalCommands(context) {
             const presetName = args[0].toLowerCase();
             let presetConfig = null;
         
-            const actualBaseSpeed = baseSpeedForPresets; 
+            const baseSpeed = newDefaultConfig.speed; 
         
             switch (presetName) {
                 case 'calm':
                     presetConfig = {
-                        speed: Math.min(500, Math.max(20, Math.round(actualBaseSpeed / 0.4))), 
+                        speed: Math.min(500, Math.max(20, Math.round(baseSpeed / 0.4))), 
                         density: 0.3, opacity: 0.5, blur: 1, glitchIntensity: 0,
                         rainShadow: 3, randomizeSpeed: false, trailEffect: true,
-                        rainDirection: 'down' // Calm preset defaults to down
+                        // fontSize and fontFamily will use current global defaults unless specified here
                     };
                     break;
-                case 'standard': 
+                case 'standard': // Adjusted to match classic Matrix rain look
                     presetConfig = {
-                        speed: Math.min(500, Math.max(20, Math.round(actualBaseSpeed / 1.0))), 
-                        density: 0.6, opacity: 0.8, blur: 0.5, glitchIntensity: 0.15, 
-                        rainShadow: 5, randomizeSpeed: true, trailEffect: true,
-                        rainDirection: 'down' // Standard defaults to down
+                        speed: 90, // Slightly faster than default
+                        density: 0.75, // Denser
+                        opacity: 0.85, // Slightly more opaque
+                        blur: 0.1, // Very slight blur for softness, but still sharp
+                        glitchIntensity: 0.08, // Very subtle glitches
+                        rainShadow: 3, // A bit more glow
+                        randomizeSpeed: true, 
+                        trailEffect: true,
+                        fontFamily: "Fira Code, monospace", // Explicitly classic font
+                        fontSize: 15, // Explicitly standard size
                     };
                     break;
                 case 'storm':
                     presetConfig = {
-                        speed: Math.min(500, Math.max(20, Math.round(actualBaseSpeed / 1.8))), 
-                        density: 0.85, opacity: 0.9, blur: 0.2, glitchIntensity: 0.45, 
+                        speed: Math.min(500, Math.max(20, Math.round(baseSpeed / 1.8))), 
+                        density: 0.85, opacity: 0.9, blur: 0.15, glitchIntensity: 0.35, 
                         rainShadow: 8, randomizeSpeed: true, trailEffect: true,
-                        rainDirection: 'random' // Storm preset uses random direction
                     };
                     break;
                 case 'glitched':
                     presetConfig = {
-                        speed: Math.floor(Math.random() * (actualBaseSpeed / 0.6 - actualBaseSpeed / 1.8 + 1) + actualBaseSpeed / 1.8),
-                        density: 0.65, opacity: 0.85, blur: 1.5, glitchIntensity: 0.7, 
+                        speed: Math.floor(Math.random() * (baseSpeed / 0.6 - baseSpeed / 1.8 + 1) + baseSpeed / 1.8),
+                        density: 0.65, opacity: 0.85, blur: 1.0, glitchIntensity: 0.7, 
                         rainShadow: Math.floor(Math.random() * (8 - 4 + 1) + 4), 
                         randomizeSpeed: true, trailEffect: true,
-                        rainDirection: 'random' // Glitched preset uses random direction
                     };
                     break;
                 default:
@@ -455,6 +465,7 @@ function getTerminalCommands(context) {
             if (presetConfig) {
                 let successCount = 0;
                 let appliedSettings = "Applying preset '" + presetName + "':\n";
+                // Apply all settings from the preset, overriding current ones
                 for (const param in presetConfig) {
                     if (updateRainConfig(param, presetConfig[param])) {
                         appliedSettings += `  ${param}: ${presetConfig[param]}\n`;
@@ -463,6 +474,9 @@ function getTerminalCommands(context) {
                         appliedSettings += `  ${param}: [Failed to apply]\n`;
                     }
                 }
+                // For params not in preset, they retain their current values (or could be reset to default if desired)
+                // For now, only preset values are changed.
+
                 if (successCount > 0) {
                     restartMatrixRain(); 
                     appendToTerminal(appliedSettings.replace(/\n/g, "<br/>"), "output-text");
@@ -624,7 +638,6 @@ function getTerminalCommands(context) {
         'whoami': () => {
             appendToTerminal(context.userDetails.userName);
         }
-        // `glitchburst` command is removed
     };
 
     return terminalCommands;

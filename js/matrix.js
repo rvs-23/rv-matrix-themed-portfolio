@@ -27,30 +27,24 @@ document.addEventListener('DOMContentLoaded', () => {
         height: '50vh' // Must match initial CSS in style.css
     };
 
-    // --- Matrix Rain Configuration ---
+    // --- Matrix Rain Configuration (New Defaults) ---
     const defaultRainConfig = {
         fontSize: 15,
-        fontFamily: "Fira Code, monospace", // Default font
+        fontFamily: "Fira Code, monospace",
         speed: 101,
         density: 0.69,
         trailEffect: true,
         randomizeSpeed: true,
         opacity: 0.8,
-        blur: 0,
+        blur: 0.25,
         rainShadow: 2,
-        glitchIntensity: 0.1,
-        rainDirection: 'down' // 'down', 'up', 'random'
+        glitchIntensity: 0.1
+        // rainDirection removed
     };
     let rainConfigOptions = { ...defaultRainConfig };
     let rainAnimationIntervalId = null;
-    let burstGlitchActive = false;
-    let burstGlitchTimeoutId = null;
-    let randomBurstGlitchIntervalId = null;
-    let currentGlobalRainDirection = 'down'; // Used when rainDirection is 'random'
-    let randomDirectionChangeIntervalId = null;
+    // burstGlitch related variables removed
 
-    // Available font options for the rain
-    // Users must ensure these fonts are loaded (e.g., via CSS or system availability)
     const availableFonts = [
         "Fira Code, monospace",
         "Courier New, monospace",
@@ -59,8 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "Verdana, sans-serif"
     ];
 
-
-    // --- Other Configuration Variables ---
     const gridCellSize = 50;
     const numFgSymbols = 12;
     const allMatrixChars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
@@ -71,12 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandHistory = [];
     let historyIndex = commandHistory.length;
 
-    // --- Konami Code ---
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
     let konamiCodeIndex = 0;
     let crtModeActive = false;
 
-    // --- Loading Screen Logic ---
     let loaderCharInterval;
     let statusCyclingInterval;
     const loadingMessages = [
@@ -150,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { primary: '#0F0', secondary: '#00FFFF', trail: 'rgba(0,0,0,0.05)', glow: '#9FFF9F', background: '#000' };
     }
 
-    function getCurrentFontFamily() { // This function gets font from CSS variable, not rain config
+    function getCurrentFontFamily() {
          if (typeof getComputedStyle !== 'undefined' && document.body) return getComputedStyle(document.body).getPropertyValue('--font-mono-current').trim() || 'Fira Code, monospace';
          return 'Fira Code, monospace';
     }
@@ -162,69 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function burstGlitch(duration = 750, intensityMultiplier = 3) {
-        if (burstGlitchActive) return; 
-        burstGlitchActive = true;
-
-        const originalValues = {
-            glitchIntensity: rainConfigOptions.glitchIntensity,
-            speed: rainConfigOptions.speed,
-            fontSize: rainConfigOptions.fontSize,
-            blur: rainConfigOptions.blur,
-            density: rainConfigOptions.density,
-        };
-
-        rainConfigOptions.glitchIntensity = Math.min(1.0, originalValues.glitchIntensity * intensityMultiplier + 0.7);
-        rainConfigOptions.speed = Math.max(20, Math.round(originalValues.speed / (intensityMultiplier * 0.8)));
-        rainConfigOptions.fontSize = Math.max(8, Math.min(40, originalValues.fontSize + Math.floor(Math.random() * 8 - 4)));
-        rainConfigOptions.blur = Math.min(5, originalValues.blur + Math.random() * 1.5);
-        rainConfigOptions.density = Math.min(3.0, Math.max(0.1, originalValues.density * 1.25));
-
-        restartMatrixRainAnimation(); 
-
-        burstGlitchTimeoutId = setTimeout(() => {
-            rainConfigOptions.glitchIntensity = originalValues.glitchIntensity;
-            rainConfigOptions.speed = originalValues.speed;
-            rainConfigOptions.fontSize = originalValues.fontSize;
-            rainConfigOptions.blur = originalValues.blur;
-            rainConfigOptions.density = originalValues.density;
-
-            restartMatrixRainAnimation(); 
-            burstGlitchActive = false;
-        }, duration);
-    }
-
-    function startRandomBurstGlitches() {
-        if (randomBurstGlitchIntervalId) clearInterval(randomBurstGlitchIntervalId);
-
-        function triggerRandomBurst() {
-            burstGlitch(Math.random() * 500 + 500, Math.random() * 2 + 2); 
-            const nextBurstDelay = Math.random() * (120000 - 60000) + 60000; 
-            randomBurstGlitchIntervalId = setTimeout(triggerRandomBurst, nextBurstDelay);
-        }
-        const initialDelay = Math.random() * (90000 - 30000) + 30000;
-        randomBurstGlitchIntervalId = setTimeout(triggerRandomBurst, initialDelay);
-    }
-    
-    function scheduleRandomDirectionChange() {
-        if (randomDirectionChangeIntervalId) clearInterval(randomDirectionChangeIntervalId);
-        if (rainConfigOptions.rainDirection === 'random') {
-            const changeDirection = () => {
-                currentGlobalRainDirection = Math.random() < 0.5 ? 'down' : 'up';
-                // Don't need to call restartMatrixRainAnimation here, drawMatrixRain will pick it up
-                // but we might want to reset drop positions to make the change more apparent.
-                // For simplicity now, it will just change direction of falling.
-                // To make it more 'stormy' and reset drops:
-                // setupMatrixRainDrops(); // This would reset all drops.
-            };
-            randomDirectionChangeIntervalId = setInterval(changeDirection, Math.random() * (20000 - 10000) + 10000); // Change every 10-20s
-            currentGlobalRainDirection = Math.random() < 0.5 ? 'down' : 'up'; // Initial random direction
-        }
-    }
-
+    // burstGlitch function and startRandomBurstGlitches removed
 
     function getRainConfig() {
-        // Return availableFonts as part of the config display if needed, or handle in commands.js
         return { ...rainConfigOptions, availableFonts: [...availableFonts] };
     }
 
@@ -269,26 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     else isValid = false;
                     break;
                 case 'fontFamily':
-                    // Check if the provided font is in our curated list or a generic valid CSS font string
                     const sanitizedValue = String(value).trim();
                     if (availableFonts.includes(sanitizedValue) || /^[a-zA-Z0-9\s,-]+$/.test(sanitizedValue)) {
                         parsedValue = sanitizedValue;
                     } else {
                         isValid = false;
                         if(terminalOutput) appendToTerminal(`Font '${sanitizedValue}' not in available list or contains invalid characters. Using default.`, 'output-error');
-                        // Revert to default if invalid to prevent broken state
                         parsedValue = defaultRainConfig.fontFamily;
                     }
                     break;
-                case 'rainDirection':
-                    const direction = String(value).toLowerCase();
-                    if (['down', 'up', 'random'].includes(direction)) {
-                        parsedValue = direction;
-                        scheduleRandomDirectionChange(); // Restart or start the random direction change interval if mode is 'random'
-                    } else {
-                        isValid = false;
-                    }
-                    break;
+                // rainDirection case removed
                 default:
                     break; 
             }
@@ -307,8 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetRainConfig() {
         rainConfigOptions = { ...defaultRainConfig };
-        currentGlobalRainDirection = defaultRainConfig.rainDirection === 'random' ? (Math.random() < 0.5 ? 'down' : 'up') : defaultRainConfig.rainDirection;
-        scheduleRandomDirectionChange();
+        // scheduleRandomDirectionChange removed
     }
 
     let fullWelcomeMessageStringGlobal = '';
@@ -344,9 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function initializeTerminalAndGraphics() {
         let columns;
-        const rainDrops = []; // This will store y-positions and other per-drop states
+        const rainDrops = [];
         const fgParallaxSymbols = [];
 
+        // Simplified setupMatrixRainDrops - always top-down
         function setupMatrixRainDrops() {
             rainDrops.length = 0;
             const effectiveDensity = Math.max(0.1, rainConfigOptions.density);
@@ -354,24 +274,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const canvasHeight = matrixRainCanvas ? matrixRainCanvas.height : window.innerHeight;
 
             for (let x = 0; x < columns; x++) {
-                let initialY;
-                // Determine initial Y based on direction for a more natural start
-                // This is for initial setup. Ongoing direction changes are handled in drawMatrixRain.
-                const setupDirection = rainConfigOptions.rainDirection === 'random' ? currentGlobalRainDirection : rainConfigOptions.rainDirection;
-
-                if (setupDirection === 'up') {
-                    initialY = canvasHeight / rainConfigOptions.fontSize + Math.random() * (canvasHeight / rainConfigOptions.fontSize);
-                } else { // 'down'
-                    initialY = Math.random() * (canvasHeight / rainConfigOptions.fontSize) - (canvasHeight / rainConfigOptions.fontSize); // Start off-screen or near top
-                }
                 rainDrops[x] = {
-                    y: initialY,
+                    y: Math.random() * (canvasHeight / rainConfigOptions.fontSize) - (canvasHeight / rainConfigOptions.fontSize), // Start off-screen or near top
                     isLeading: true,
                     speedOffset: rainConfigOptions.randomizeSpeed ? (Math.random() - 0.5) * 0.5 : 0
                 };
             }
         }
-
 
         function resizeMatrixRainCanvases() {
             if (matrixRainCanvas) {
@@ -388,14 +297,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (parallaxCanvasFg) initializeParallaxFgSymbols();
         }
 
+        // Simplified drawMatrixRain - always top-down
         function drawMatrixRain() {
             if (!matrixRainCtx || !matrixRainCanvas) return;
             const themeColors = getCurrentThemeColors();
             const canvasHeight = matrixRainCanvas.height;
             const fontSize = rainConfigOptions.fontSize;
-
-            // Determine current direction for this frame
-            const frameDirection = rainConfigOptions.rainDirection === 'random' ? currentGlobalRainDirection : rainConfigOptions.rainDirection;
 
             matrixRainCtx.filter = 'none';
             matrixRainCtx.globalAlpha = 1.0; 
@@ -414,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 matrixRainCtx.filter = 'none'; 
             }
             
-            matrixRainCtx.font = `bold ${fontSize}px ${rainConfigOptions.fontFamily}`; // Use configured font
+            matrixRainCtx.font = `bold ${fontSize}px ${rainConfigOptions.fontFamily}`;
 
             for (let i = 0; i < rainDrops.length; i++) {
                 let text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
@@ -448,23 +355,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const currentDropSpeed = 1 + (rainConfigOptions.randomizeSpeed ? drop.speedOffset : 0);
                 
-                if (frameDirection === 'up') {
-                    drop.y -= currentDropSpeed;
-                    if (drop.y * fontSize < 0 && Math.random() > 0.975) { // Reset when it goes off top
-                        drop.y = canvasHeight / fontSize; // Start from bottom
-                        drop.isLeading = true; 
-                        if(rainConfigOptions.randomizeSpeed) { 
-                            drop.speedOffset = (Math.random() - 0.5) * 0.5;
-                        }
-                    }
-                } else { // 'down'
-                    drop.y += currentDropSpeed;
-                    if (drop.y * fontSize > canvasHeight && Math.random() > 0.975) { // Reset when it goes off bottom
-                        drop.y = 0; // Start from top
-                        drop.isLeading = true; 
-                        if(rainConfigOptions.randomizeSpeed) { 
-                            drop.speedOffset = (Math.random() - 0.5) * 0.5;
-                        }
+                drop.y += currentDropSpeed; // Always move down
+                if (drop.y * fontSize > canvasHeight && Math.random() > 0.975) { 
+                    drop.y = 0; 
+                    drop.isLeading = true; 
+                    if(rainConfigOptions.randomizeSpeed) { 
+                        drop.speedOffset = (Math.random() - 0.5) * 0.5;
                     }
                 }
             }
@@ -475,9 +371,11 @@ document.addEventListener('DOMContentLoaded', () => {
             matrixRainCtx.globalAlpha = 1.0; 
         }
 
-
         function restartMatrixRainAnimation() {
-            if (rainAnimationIntervalId) clearInterval(rainAnimationIntervalId);
+            if (rainAnimationIntervalId) {
+                 clearInterval(rainAnimationIntervalId);
+                 rainAnimationIntervalId = null; // Explicitly nullify
+            }
             if (matrixRainCtx) {
                 if (matrixRainCanvas.width !== window.innerWidth || matrixRainCanvas.height !== window.innerHeight) {
                     resizeMatrixRainCanvases(); 
@@ -486,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 rainAnimationIntervalId = setInterval(drawMatrixRain, rainConfigOptions.speed);
             }
-            scheduleRandomDirectionChange(); // Ensure random direction logic is active if needed
+            // scheduleRandomDirectionChange call removed
         }
         
         function drawParallaxBackground() {
@@ -523,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const themeColors = getCurrentThemeColors();
             const currentTermFont = getCurrentFontFamily(); 
             fgParallaxSymbols.forEach(s => {
-                parallaxCtxFg.font = `${s.size}px ${currentTermFont}`; // Use terminal font for consistency
+                parallaxCtxFg.font = `${s.size}px ${currentTermFont}`; 
                 parallaxCtxFg.fillStyle = themeColors.primary + '55'; 
                 const targetX = s.x - (mouseX - parallaxCanvasFg.width / 2) * s.parallaxFactor;
                 const targetY = s.y - (mouseY - parallaxCanvasFg.height / 2) * s.parallaxFactor;
@@ -534,12 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Initial setup
-        currentGlobalRainDirection = rainConfigOptions.rainDirection === 'random' ? (Math.random() < 0.5 ? 'down' : 'up') : rainConfigOptions.rainDirection;
         resizeOtherCanvases();
         restartMatrixRainAnimation(); 
-        startRandomBurstGlitches(); 
-
+        // startRandomBurstGlitches removed
 
         function masterAnimationLoop() {
             if (parallaxCtxBg) drawParallaxBackground();
@@ -574,10 +469,9 @@ document.addEventListener('DOMContentLoaded', () => {
             userDetails, fullBioText, mainContentContainer, allMatrixChars,
             resizeTerminalElement, defaultTerminalSize,
             getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation,
-            // burstGlitch is NOT passed to command context as the command is removed
+            // burstGlitch removed from context
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
-
 
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
