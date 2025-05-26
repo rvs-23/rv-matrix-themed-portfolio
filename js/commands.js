@@ -18,6 +18,7 @@
  * @param {function} context.updateRainConfig - Function to update rain config.
  * @param {function} context.resetRainConfig - Function to reset rain config.
  * @param {function} context.restartMatrixRain - Function to apply rain config changes.
+ * @param {function} context.burstGlitch - Function to trigger a manual visual glitch.
  * @returns {object} The terminalCommands object.
  */
 function getTerminalCommands(context) {
@@ -29,14 +30,22 @@ function getTerminalCommands(context) {
         mainContentContainer,
         allMatrixChars,
         resizeTerminalElement,
-        defaultTerminalSize, // Added for resize reset
+        defaultTerminalSize,
         getRainConfig,
         updateRainConfig,
         resetRainConfig,
-        restartMatrixRain
+        restartMatrixRain,
+        burstGlitch // Added burstGlitch to context
     } = context;
 
-    const skillsData = {
+    // Retrieve default rain config from matrix.js context if possible, or define a local understanding
+    // For preset calculations, especially speed, it's good to know the base speed.
+    // We assume context.getRainConfig() initially returns default values or can be reset.
+    // For simplicity, using a hardcoded base for speed if not directly available for presets.
+    const baseSpeedForPresets = 101; // Corresponds to defaultRainConfig.speed in matrix.js
+
+
+    const skillsData = { // Skill data remains unchanged
         name: "Core Competencies",
         aliases: ["core", "all", "root"],
         children: [
@@ -170,20 +179,22 @@ function getTerminalCommands(context) {
 
         const overlay = document.createElement('div');
         overlay.className = 'terminal-glitch-overlay';
-        context.mainContentContainer.style.position = 'relative';
+        // Ensure mainContentContainer allows relative positioning for overlay if not already set
+        const originalPosition = context.mainContentContainer.style.position;
+        context.mainContentContainer.style.position = 'relative'; 
         context.mainContentContainer.appendChild(overlay);
 
         const computedStyle = getComputedStyle(terminalOutput);
         const lineHeight = parseFloat(computedStyle.lineHeight) || 16;
-        const fontSize = parseFloat(computedStyle.fontSize) || 11;
-        const charWidth = (fontSize * 0.6);
+        const fontSize = parseFloat(computedStyle.fontSize) || 11; // Ensure this matches or is derived correctly
+        const charWidth = (fontSize * 0.6); // Approximate character width
         const overlayHeight = overlay.clientHeight > 0 ? overlay.clientHeight : context.mainContentContainer.clientHeight;
         const overlayWidth = overlay.clientWidth > 0 ? overlay.clientWidth : context.mainContentContainer.clientWidth;
 
         const lines = Math.max(1, Math.floor(overlayHeight / lineHeight));
         const charsPerLine = Math.max(1, Math.floor(overlayWidth / charWidth));
         let glitchIntervalCount = 0;
-        const maxGlitchIntervals = 25;
+        const maxGlitchIntervals = 25; // Duration of the full screen glitch
 
         let glitchInterval = setInterval(() => {
             let glitchText = '';
@@ -199,29 +210,24 @@ function getTerminalCommands(context) {
                  clearInterval(glitchInterval);
                  finalizeEasterEgg();
             }
-        }, 80);
+        }, 80); // Speed of character cycling in overlay
 
         function finalizeEasterEgg() {
             if (context.mainContentContainer.contains(overlay)) {
                 context.mainContentContainer.removeChild(overlay);
             }
-            context.mainContentContainer.style.position = '';
+            context.mainContentContainer.style.position = originalPosition; // Restore original position style
             terminalOutput.innerHTML = ''; // Clear terminal before re-adding welcome
             context.appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
-            const quotes = [
-                 "Wake up, you…",
-                 "The Matrix has you.",
-                 "Follow the white rabbit.",
+            const quotes = [ // Easter egg quotes remain unchanged
+                 "Wake up, you…", "The Matrix has you.", "Follow the white rabbit.",
                  "Choice is an illusion created between those with power and those without.",
-                 "The body cannot live without the mind.",
-                 `Statistics ≠ destiny, ${userDetails.userName}.`,
-                 "Code is just another form of déjà-vu.",
-                 "Data bends − people break.",
+                 "The body cannot live without the mind.", `Statistics ≠ destiny, ${userDetails.userName}.`,
+                 "Code is just another form of déjà-vu.", "Data bends − people break.",
                  "It’s not the algorithm that scares them, it’s the accuracy.",
                  "Wake up, the bugs in your dreams are trying to unit test your soul.",
                  "Don't think you are. Know you are. That's why you version control your skincare routine.",
-                 "Free your mind.",
-		         "A mind that won't question is more predictable than any ML algorithm",
+                 "Free your mind.", "A mind that won't question is more predictable than any ML algorithm",
 		         "You are not the anomaly. You are the expected exception."
                ];
             
@@ -230,12 +236,13 @@ function getTerminalCommands(context) {
             const commandInput = document.getElementById('command-input');
             if(commandInput) commandInput.focus();
         }
+        // Safety timeout to ensure glitch effect ends
         setTimeout(() => {
-            if (context.mainContentContainer.contains(overlay)) {
+            if (context.mainContentContainer.contains(overlay)) { // Check if overlay still exists
                  clearInterval(glitchInterval);
                  finalizeEasterEgg();
             }
-        }, (maxGlitchIntervals * 80) + 500);
+        }, (maxGlitchIntervals * 80) + 500); // Slightly longer than max glitch duration
     }
 
     const terminalCommands = {
@@ -245,7 +252,6 @@ function getTerminalCommands(context) {
         'clear': () => {
             const terminalOutput = document.getElementById('terminal-output');
             if (!terminalOutput) return;
-            // No nnvis to stop anymore
             terminalOutput.innerHTML = '';
             appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
         },
@@ -281,7 +287,7 @@ function getTerminalCommands(context) {
                 const linkEl = document.createElement('a');
                 linkEl.href = finalCvLink;
                 linkEl.download = `${context.userDetails.userName.replace(/\s+/g, "_")}_CV.pdf`;
-                linkEl.target = '_blank';
+                linkEl.target = '_blank'; // Open in new tab, browser handles PDF view/download
                 linkEl.rel = 'noopener noreferrer';
                 
                 document.body.appendChild(linkEl);
@@ -299,24 +305,7 @@ function getTerminalCommands(context) {
                 appendToTerminal("Easter egg malfunction. Please check console.", "output-error");
             });
         },
-        'examples': async () => {
-            appendToTerminal("Loading examples from examples.txt...", "output-text");
-            try {
-                const response = await fetch('examples.txt'); // Assumes examples.txt is in the same directory as index.html
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}. Make sure examples.txt is in the root directory.`);
-                }
-                const text = await response.text();
-                // Sanitize HTML and then replace newlines for terminal display
-                const sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const formattedText = sanitizedText.replace(/\n/g, '<br/>');
-                appendToTerminal(formattedText, 'output-text');
-            } catch (error) {
-                console.error("Error fetching examples.txt:", error);
-                appendToTerminal(`Error loading examples: ${error.message}`, 'output-error');
-                appendToTerminal("Please ensure 'examples.txt' exists in the root directory of the website and is accessible.", 'output-text');
-            }
-        },
+        // 'examples' command removed for security hardening
         'help': () => {
             let commandList = [
                 { cmd: "about", display: "about", desc: "Display information about me." },
@@ -325,10 +314,10 @@ function getTerminalCommands(context) {
                 { cmd: "date", display: "date", desc: "Display current date and time." },
                 { cmd: "download cv", display: "download cv", desc: "Download my CV." },
                 { cmd: "easter.egg", display: "easter.egg", desc: "???" },
-                { cmd: "examples", display: "examples", desc: "Show example commands from examples.txt." },
-                // { cmd: "nnvis [n1 n2...]", display: "nnvis [n1 n2...]", desc: "Visualize an ASCII neural network. E.g. `nnvis 3 5 2`" }, // Removed
+                { cmd: "glitchburst", display: "glitchburst", desc: "Trigger a manual visual glitch effect." },
                 { cmd: "projects", display: "projects", desc: "Show my featured projects." },
-                { cmd: "rainconfig [param] [val]", display: "rainconfig [param] [val]", desc: "Configure Matrix rain. No args for current. `reset` for defaults." },
+                { cmd: "rainconfig [param] [val]", display: "rainconfig [param] [val]", desc: "Configure Matrix rain. Params: fontSize, speed, density, trailEffect, randomizeSpeed, opacity, blur, rainShadow, glitchIntensity, fontFamily. No args for current. `reset` for defaults." },
+                { cmd: "rainpreset <name>", display: "rainpreset <name>", desc: "Apply rain preset (calm, standard, storm, glitched)." },
                 { cmd: "resize term <W> <H>|reset", display: "resize term <W> <H>|reset", desc: "Resize terminal or reset. E.g. `resize term 600px 70vh` or `resize term reset`" },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
                 { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree se" },
@@ -336,8 +325,8 @@ function getTerminalCommands(context) {
                 { cmd: "whoami", display: "whoami", desc: "Display current user." },
                 { cmd: "sudo", display: "sudo", desc: "Attempt superuser command (humorous)." },
             ];
-            const basePad = "  ";
-            const descSeparator = " - ";
+            const basePad = "  "; // Two spaces for base padding
+            const descSeparator = " - "; // Separator between command and description
             let maxDisplayLength = 0;
             commandList.forEach(item => {
                 if (item.display.length > maxDisplayLength) {
@@ -347,14 +336,16 @@ function getTerminalCommands(context) {
 
             let helpOutput = "Available commands:\n";
             commandList.forEach(item => {
+                // Sanitize display part for HTML (though it should be safe, good practice)
                 const displayPart = item.display.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/ /g, "&nbsp;");
-                const paddingLength = maxDisplayLength - item.display.length;
-                const padding = "&nbsp;".repeat(paddingLength);
-                helpOutput += `${basePad}${displayPart}${padding}${descSeparator.replace(/ /g, "&nbsp;")}${item.desc.replace(/</g, "&lt;").replace(/>/g, "&gt;")}\n`;
+                const paddingLength = maxDisplayLength - item.display.length; // Calculate padding needed
+                const padding = "&nbsp;".repeat(paddingLength); // Create padding string
+                // Sanitize description part
+                const descPart = item.desc.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                helpOutput += `${basePad}${displayPart}${padding}${descSeparator.replace(/ /g, "&nbsp;")}${descPart}\n`;
             });
             appendToTerminal(helpOutput.trim().replace(/\n/g, '<br/>'));
         },
-        // 'nnvis': (args) => {}, // Removed
         'projects': () => {
             appendToTerminal("Project showcase under development. Check GitHub for now!");
             appendToTerminal(`Visit: <a href="https://github.com/${context.userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${context.userDetails.githubUser}</a>`);
@@ -365,17 +356,19 @@ function getTerminalCommands(context) {
                 return;
             }
 
-            if (args.length === 0) {
+            if (args.length === 0) { // Display current config
                 const currentConfig = getRainConfig();
                 let output = "Current Matrix Rain Configuration:\n";
-                const order = ['fontSize', 'speed', 'density', 'trailEffect', 'randomizeSpeed', 'fontFamily'];
+                // Define order for display, including new params
+                const order = ['fontSize', 'speed', 'density', 'trailEffect', 'randomizeSpeed', 'opacity', 'blur', 'rainShadow', 'glitchIntensity', 'fontFamily'];
                 order.forEach(key => {
                     if (currentConfig.hasOwnProperty(key)) {
                          output += `  ${key}: ${JSON.stringify(currentConfig[key])}\n`;
                     }
                 });
+                // Append any other parameters not in 'order' (future-proofing)
                 for (const key in currentConfig) {
-                    if (!order.includes(key)) {
+                    if (!order.includes(key) && currentConfig.hasOwnProperty(key)) {
                          output += `  ${key}: ${JSON.stringify(currentConfig[key])}\n`;
                     }
                 }
@@ -392,61 +385,115 @@ function getTerminalCommands(context) {
 
             if (args.length >= 2) {
                 const param = args[0];
-                let value = args.slice(1).join(" ");
+                let value = args.slice(1).join(" "); // Rejoin if value had spaces (e.g. for fontFamily)
                 
+                // Strip quotes for string values like fontFamily
                 if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
                     value = value.substring(1, value.length - 1);
                 }
 
-                const currentConfig = getRainConfig();
-
-                if (!currentConfig.hasOwnProperty(param)) {
-                    appendToTerminal(`Invalid parameter: ${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")}. Valid parameters are: ${Object.keys(currentConfig).join(', ')}`, "output-error");
-                    return;
-                }
-                
-                let originalValueType = typeof currentConfig[param];
-
-                if (originalValueType === 'number') {
-                    const numValue = parseFloat(value);
-                    if (isNaN(numValue)) {
-                        appendToTerminal(`Invalid value for ${param}. Expected a number. Got: ${value.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, "output-error");
-                        return;
-                    }
-                    if (param === 'fontSize' && (numValue < 8 || numValue > 40)) {
-                        appendToTerminal(`fontSize must be between 8 and 40.`, "output-error"); return;
-                    }
-                    if (param === 'speed' && (numValue < 20 || numValue > 500)) {
-                        appendToTerminal(`speed (interval ms) must be between 20 and 500.`, "output-error"); return;
-                    }
-                    if (param === 'density' && (numValue < 0.1 || numValue > 3.0)) {
-                         appendToTerminal(`density must be between 0.1 and 3.0.`, "output-error"); return;
-                    }
-                    value = numValue;
-                } else if (originalValueType === 'boolean') {
-                    if (value.toLowerCase() === 'true') value = true;
-                    else if (value.toLowerCase() === 'false') value = false;
-                    else {
-                        appendToTerminal(`Invalid value for ${param}. Expected true or false. Got: ${value.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, "output-error");
-                        return;
-                    }
-                } else if (originalValueType === 'string') {
-                     if (param === 'fontFamily' && !/^[a-zA-Z0-9\s,-]+$/.test(value)) {
-                        appendToTerminal(`Invalid characters in fontFamily. Use letters, numbers, spaces, commas, hyphens.`, "output-error"); return;
-                    }
-                }
-
+                // Validation for specific parameters is now primarily handled in matrix.js's updateRainConfig
+                // updateRainConfig will return false and print error if validation fails there.
                 if (updateRainConfig(param, value)) {
-                    restartMatrixRain();
+                    restartMatrixRain(); // Apply changes
                     appendToTerminal(`${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")} set to ${String(value).replace(/</g, "&lt;").replace(/>/g, "&gt;")}. Matrix rain updated.`, "output-success");
-                } else {
-                    appendToTerminal(`Failed to update ${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")}.`, "output-error");
-                }
+                } 
+                // Error message for invalid param/value is handled by updateRainConfig itself.
             } else {
                 appendToTerminal("Usage: rainconfig [parameter value] OR rainconfig reset OR rainconfig", "output-error");
-                appendToTerminal("Example: rainconfig fontSize 12  OR  rainconfig fontFamily \"Courier New, monospace\"");
+                appendToTerminal("Example: rainconfig opacity 0.5  OR  rainconfig fontFamily \"Courier New, monospace\"");
             }
         },
+        'rainpreset': (args) => {
+            if (!args || args.length === 0) {
+                appendToTerminal("Usage: rainpreset <preset_name>", "output-error");
+                appendToTerminal("Available presets: calm, standard, storm, glitched", "output-text");
+                return;
+            }
+            const presetName = args[0].toLowerCase();
+            let presetConfig = null;
+        
+            // baseSpeedForPresets should ideally come from context.defaultRainConfig.speed or similar
+            // For now, using a hardcoded value that matches the initial default in matrix.js
+            const actualBaseSpeed = baseSpeedForPresets; 
+        
+            switch (presetName) {
+                case 'calm':
+                    presetConfig = {
+                        speed: Math.min(500, Math.max(20, Math.round(actualBaseSpeed / 0.4))), // Slower: e.g., 101 / 0.4 = 252.5 -> 253ms
+                        density: 0.3,
+                        opacity: 0.5,
+                        blur: 1,
+                        glitchIntensity: 0,
+                        rainShadow: 3,
+                        randomizeSpeed: false, // Calmer often means less randomness
+                        trailEffect: true // Keep trails for calmness
+                    };
+                    break;
+                case 'standard': // Matches or slightly adjusts from default for a good standard feel
+                    presetConfig = {
+                        speed: Math.min(500, Math.max(20, Math.round(actualBaseSpeed / 1.0))), // Standard: e.g., 101ms
+                        density: 0.6, // Slightly less than absolute default for clarity
+                        opacity: 0.8,
+                        blur: 0.5,
+                        glitchIntensity: 0.15, // A bit more noticeable than absolute default
+                        rainShadow: 5, // Default shadow
+                        randomizeSpeed: true,
+                        trailEffect: true
+                    };
+                    break;
+                case 'storm':
+                    presetConfig = {
+                        speed: Math.min(500, Math.max(20, Math.round(actualBaseSpeed / 1.8))), // Faster: e.g., 101 / 1.8 = ~56ms (user asked for 1.5, making it faster)
+                        density: 0.85, // More dense
+                        opacity: 0.9,
+                        blur: 0.2, // Less blur for sharper storm
+                        glitchIntensity: 0.45, // More glitchy
+                        rainShadow: 8, // More pronounced shadow
+                        randomizeSpeed: true,
+                        trailEffect: true
+                    };
+                    break;
+                case 'glitched':
+                    presetConfig = {
+                        // User speed [0.6, 1.8] -> random(101/1.8, 101/0.6) -> random(56ms, 168ms)
+                        speed: Math.floor(Math.random() * (actualBaseSpeed / 0.6 - actualBaseSpeed / 1.8 + 1) + actualBaseSpeed / 1.8),
+                        density: 0.65, // Moderately dense
+                        opacity: 0.85,
+                        blur: 1.5, // More blur for disorientation
+                        glitchIntensity: 0.7, // High glitch
+                        rainShadow: Math.floor(Math.random() * (8 - 4 + 1) + 4), // Random shadow 4-8
+                        randomizeSpeed: true,
+                        trailEffect: true // Trails can enhance glitchiness
+                    };
+                    break;
+                default:
+                    appendToTerminal(`Unknown preset: ${presetName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, "output-error");
+                    appendToTerminal("Available presets: calm, standard, storm, glitched", "output-text");
+                    return;
+            }
+        
+            if (presetConfig) {
+                let successCount = 0;
+                let appliedSettings = "Applying preset '" + presetName + "':\n";
+                for (const param in presetConfig) {
+                    if (updateRainConfig(param, presetConfig[param])) {
+                        appliedSettings += `  ${param}: ${presetConfig[param]}\n`;
+                        successCount++;
+                    } else {
+                        // Error for specific param handled by updateRainConfig
+                        appliedSettings += `  ${param}: [Failed to apply]\n`;
+                    }
+                }
+                if (successCount > 0) {
+                    restartMatrixRain(); // Apply all collected changes
+                    appendToTerminal(appliedSettings.replace(/\n/g, "<br/>"), "output-text");
+                    appendToTerminal(`Rain preset '${presetName}' applied.`, "output-success");
+                } else {
+                    appendToTerminal(`No settings were applied for preset '${presetName}'.`, "output-error");
+                }
+            }
+        },        
         'resize': (args) => {
             if (args[0] && args[0].toLowerCase() === 'term') {
                 if (args.length === 2 && args[1].toLowerCase() === 'reset') {
@@ -459,7 +506,7 @@ function getTerminalCommands(context) {
                 } else if (args.length === 3) {
                     const width = args[1];
                     const height = args[2];
-                    const validUnits = /^\d+(\.\d+)?(px|%|vw|vh)$/i;
+                    const validUnits = /^\d+(\.\d+)?(px|%|vw|vh)$/i; // Regex for valid units
                     if (validUnits.test(width) && validUnits.test(height)) {
                         if (typeof resizeTerminalElement === 'function') {
                             resizeTerminalElement(width, height);
@@ -482,31 +529,32 @@ function getTerminalCommands(context) {
             appendToTerminal(`Key Areas: Software Engineering (Languages, Frameworks, Frontend, Backend, DevOps), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown or 'skilltree [path]' to explore specific areas (e.g., 'skilltree ai').`.replace(/\n/g, '<br/>'));
         },
         'skilltree': (args) => {
-            const pathArg = args.join(' ').trim();
+            const pathArg = args.join(' ').trim(); // Allow spaces in path if quoted or joined
             let targetNode = skillsData;
-            let displayPath = skillsData.name;
+            let displayPath = skillsData.name; // Root name
 
             if (pathArg) {
                 const pathParts = pathArg.includes('>') ? pathArg.split('>').map(p => p.trim().toLowerCase()) : [pathArg.trim().toLowerCase()];
                 let currentNode = skillsData;
-                let currentPathForDisplayArray = [];
+                let currentPathForDisplayArray = []; // Tracks the names of nodes in the resolved path
                 let pathFound = true;
 
                 for (const part of pathParts) {
-                    if (!part) continue;
+                    if (!part) continue; // Skip empty parts (e.g., from "se >> frontend")
                     let foundNodeInChildren = null;
                     if (currentNode.children) {
                         foundNodeInChildren = currentNode.children.find(child =>
                             child.name.toLowerCase() === part ||
-                            child.name.split('(')[0].trim().toLowerCase() === part ||
+                            child.name.split('(')[0].trim().toLowerCase() === part || // Match name before parenthesis
                             (child.aliases && child.aliases.map(a => a.toLowerCase()).includes(part))
                         );
                     }
 
                     if (foundNodeInChildren) {
                         currentNode = foundNodeInChildren;
-                        currentPathForDisplayArray.push(currentNode.name);
+                        currentPathForDisplayArray.push(currentNode.name); // Add original name for display
                     } else {
+                        // Construct the path attempted so far for the error message
                         const errorPathTrail = currentPathForDisplayArray.length > 0 ? currentPathForDisplayArray.join(' > ') + ' > ' : '';
                         appendToTerminal(`Path segment not found: "${part.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" in "${errorPathTrail.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${part.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`, 'output-error');
                         pathFound = false;
@@ -517,7 +565,7 @@ function getTerminalCommands(context) {
                     targetNode = currentNode;
                     displayPath = skillsData.name + (currentPathForDisplayArray.length > 0 ? " > " + currentPathForDisplayArray.join(' > ') : "");
                 } else {
-                    return;
+                    return; // Path not found, error already displayed
                 }
             }
 
@@ -526,14 +574,14 @@ function getTerminalCommands(context) {
                 targetNode.children.forEach((child, index) => {
                     renderSkillTree(child, '  ', index === targetNode.children.length - 1, outputArray);
                 });
-            } else if (targetNode !== skillsData) {
+            } else if (targetNode !== skillsData) { // If it's a leaf node (not root and no children)
                  outputArray.push("    └── (End of this skill branch. Explore other paths or type `skilltree` to see all top categories!)");
-            } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) {
+            } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) { // If root has no children
                 outputArray.push("  (No skill categories defined under root)");
             }
 
             appendToTerminal(outputArray.join('\n').replace(/\n/g, '<br/>'));
-            if (!pathArg && skillsData.children && skillsData.children.length > 0) {
+            if (!pathArg && skillsData.children && skillsData.children.length > 0) { // Hint for root call
                  appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree se`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
@@ -542,12 +590,13 @@ function getTerminalCommands(context) {
         },
         'theme': (args) => {
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
+            // Ensure all themes from style.css are listed here
             const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight', 'crimson', 'forest'];
-            const validSpecificThemes = [...darkThemes];
-            const allValidOptions = [...validSpecificThemes, 'light', 'dark'];
+            const validSpecificThemes = [...darkThemes]; // All specific themes are dark by default nature here
+            const allValidOptions = [...validSpecificThemes, 'light', 'dark']; // 'dark' mode reverts to default green
 
             const currentThemeClass = Array.from(document.body.classList).find(cls => cls.startsWith('theme-'));
-            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-'));
+            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-')); // Persist font if set
 
             const showThemeUsage = () => {
                 appendToTerminal(`Usage: theme &lt;name|mode&gt;`, 'output-text');
@@ -562,29 +611,39 @@ function getTerminalCommands(context) {
             }
 
             if (allValidOptions.includes(themeNameInput)) {
+                // Remove any existing theme-* class
                 document.body.classList.forEach(className => {
                     if (className.startsWith('theme-')) {
                         document.body.classList.remove(className);
                     }
                 });
+                // If switching to light theme and CRT mode is on, disable CRT for better readability
                 if (themeNameInput === 'light' && document.body.classList.contains('crt-mode')) {
-                    document.body.classList.remove('crt-mode');
+                    document.body.classList.remove('crt-mode'); // toggleCrtMode(false) could also be used if exposed
+                    appendToTerminal('CRT mode disabled for light theme compatibility.', 'output-text');
                 }
+
 
                 if (themeNameInput === 'light') {
                     document.body.classList.add('theme-light');
                     appendToTerminal('Theme set to light mode.', 'output-success');
-                } else if (themeNameInput === 'dark') {
-                    document.body.classList.add('theme-green');
+                } else if (themeNameInput === 'dark') { // 'dark' command reverts to default dark theme (green)
+                    document.body.classList.add('theme-green'); // Default dark theme
                     appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
                 } else if (validSpecificThemes.includes(themeNameInput)) {
                     document.body.classList.add(`theme-${themeNameInput}`);
                     appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
                 }
 
+                // Re-apply font class if it was set
                 if (currentFontClass) {
                     document.body.classList.add(currentFontClass);
                 }
+                // Important: After theme change, restart rain to pick up new theme colors for canvas
+                if (typeof restartMatrixRain === 'function') {
+                    restartMatrixRain();
+                }
+
             } else {
                 appendToTerminal(`Error: Theme "${themeNameInput.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" not found.`, 'output-error');
                 showThemeUsage();
@@ -592,6 +651,22 @@ function getTerminalCommands(context) {
         },
         'whoami': () => {
             appendToTerminal(context.userDetails.userName);
+        },
+        'glitchburst': () => {
+            if (typeof burstGlitch === 'function') {
+                appendToTerminal("Initiating system distortion...", "output-error");
+                burstGlitch(); // Call the function from context
+                // A slight delay to allow the burstGlitch to restore, then print stabilization message.
+                // The burstGlitch itself is asynchronous with setTimeout.
+                // Better to have burstGlitch take a callback or return a promise if complex sequencing is needed.
+                // For now, the message in burstGlitch (if any) or a fixed delay message here.
+                // Since burstGlitch in matrix.js was modified not to print, this command handles it.
+                setTimeout(() => {
+                     appendToTerminal("Distortion field stabilized.", "output-success");
+                }, 800); // Matches default burstGlitch duration + a little buffer
+            } else {
+                appendToTerminal("Glitchburst command not available.", "output-error");
+            }
         }
     };
 

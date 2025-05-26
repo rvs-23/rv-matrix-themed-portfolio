@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const parallaxCtxFg = parallaxCanvasFg ? parallaxCanvasFg.getContext('2d') : null;
     const matrixRainCanvas = document.getElementById('matrix-canvas');
     const matrixRainCtx = matrixRainCanvas ? matrixRainCanvas.getContext('2d') : null;
-    // const allCanvases = [matrixRainCanvas, parallaxCanvasBg, parallaxCanvasFg].filter(Boolean); // No longer used with nnvis removal
     const terminalOutput = document.getElementById('terminal-output');
     const commandInput = document.getElementById('command-input');
     const navCvLink = document.getElementById('nav-cv-link');
@@ -35,10 +34,17 @@ document.addEventListener('DOMContentLoaded', () => {
         speed: 101,
         density: 0.69,
         trailEffect: true,
-        randomizeSpeed: true
+        randomizeSpeed: true,
+        opacity: 0.8,
+        blur: 0,
+        rainShadow: 5,
+        glitchIntensity: 0.1
     };
     let rainConfigOptions = { ...defaultRainConfig };
     let rainAnimationIntervalId = null;
+    let burstGlitchActive = false;
+    let burstGlitchTimeoutId = null;
+    let randomBurstGlitchIntervalId = null;
 
     // --- Other Configuration Variables ---
     const gridCellSize = 50;
@@ -55,9 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
     let konamiCodeIndex = 0;
     let crtModeActive = false;
-
-    // --- ASCII Neural Network Visualization (REMOVED) ---
-    // All nnVis related variables and functions have been removed.
 
     // --- Loading Screen Logic ---
     let loaderCharInterval;
@@ -144,17 +147,116 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContentContainer.style.height = height;
         }
     }
+    
+    function burstGlitch(duration = 750, intensityMultiplier = 3) {
+        if (burstGlitchActive) return; 
+        burstGlitchActive = true;
+
+        const originalValues = {
+            glitchIntensity: rainConfigOptions.glitchIntensity,
+            speed: rainConfigOptions.speed,
+            fontSize: rainConfigOptions.fontSize,
+            blur: rainConfigOptions.blur,
+            density: rainConfigOptions.density,
+            // Note: opacity and rainShadow are not typically "boosted" in a glitch this way
+            // as they might make it less visible or overly messy.
+        };
+
+        rainConfigOptions.glitchIntensity = Math.min(1.0, originalValues.glitchIntensity * intensityMultiplier + 0.7);
+        rainConfigOptions.speed = Math.max(20, Math.round(originalValues.speed / (intensityMultiplier * 0.8)));
+        rainConfigOptions.fontSize = Math.max(8, Math.min(40, originalValues.fontSize + Math.floor(Math.random() * 8 - 4)));
+        rainConfigOptions.blur = Math.min(5, originalValues.blur + Math.random() * 1.5); // Slightly increase blur
+        rainConfigOptions.density = Math.min(3.0, Math.max(0.1, originalValues.density * 1.25)); // Slightly increase density
+
+        restartMatrixRainAnimation(); 
+
+        burstGlitchTimeoutId = setTimeout(() => {
+            rainConfigOptions.glitchIntensity = originalValues.glitchIntensity;
+            rainConfigOptions.speed = originalValues.speed;
+            rainConfigOptions.fontSize = originalValues.fontSize;
+            rainConfigOptions.blur = originalValues.blur;
+            rainConfigOptions.density = originalValues.density;
+
+            restartMatrixRainAnimation(); 
+            burstGlitchActive = false;
+        }, duration);
+    }
+
+    function startRandomBurstGlitches() {
+        if (randomBurstGlitchIntervalId) clearInterval(randomBurstGlitchIntervalId);
+
+        function triggerRandomBurst() {
+            burstGlitch(Math.random() * 500 + 500, Math.random() * 2 + 2); 
+            const nextBurstDelay = Math.random() * (120000 - 60000) + 60000; 
+            randomBurstGlitchIntervalId = setTimeout(triggerRandomBurst, nextBurstDelay);
+        }
+        const initialDelay = Math.random() * (90000 - 30000) + 30000;
+        randomBurstGlitchIntervalId = setTimeout(triggerRandomBurst, initialDelay);
+    }
 
     function getRainConfig() {
         return { ...rainConfigOptions };
     }
+
     function updateRainConfig(param, value) {
         if (rainConfigOptions.hasOwnProperty(param)) {
-            rainConfigOptions[param] = value;
+            let isValid = true;
+            let parsedValue = value;
+
+            switch (param) {
+                case 'fontSize':
+                    parsedValue = parseInt(value, 10);
+                    if (isNaN(parsedValue) || parsedValue < 8 || parsedValue > 40) isValid = false;
+                    break;
+                case 'speed':
+                    parsedValue = parseInt(value, 10);
+                    if (isNaN(parsedValue) || parsedValue < 20 || parsedValue > 500) isValid = false;
+                    break;
+                case 'density':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0.1 || parsedValue > 3.0) isValid = false;
+                    break;
+                case 'opacity':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0.1 || parsedValue > 1.0) isValid = false;
+                    break;
+                case 'blur':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 5) isValid = false;
+                    break;
+                case 'rainShadow':
+                    parsedValue = parseInt(value, 10);
+                    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 10) isValid = false;
+                    break;
+                case 'glitchIntensity':
+                    parsedValue = parseFloat(value);
+                    if (isNaN(parsedValue) || parsedValue < 0.0 || parsedValue > 1.0) isValid = false;
+                    break;
+                case 'trailEffect':
+                case 'randomizeSpeed':
+                    if (String(value).toLowerCase() === 'true') parsedValue = true;
+                    else if (String(value).toLowerCase() === 'false') parsedValue = false;
+                    else isValid = false;
+                    break;
+                case 'fontFamily':
+                    if (!/^[a-zA-Z0-9\s,-]+$/.test(value)) isValid = false;
+                    break;
+                default:
+                    break; 
+            }
+
+            if (!isValid && terminalOutput) { 
+                appendToTerminal(`Invalid value for ${param}. Please check range or type.`, 'output-error');
+                return false;
+            }
+            
+            rainConfigOptions[param] = parsedValue;
             return true;
         }
+        if (terminalOutput) appendToTerminal(`Unknown rain config parameter: ${param}`, 'output-error');
         return false;
     }
+
     function resetRainConfig() {
         rainConfigOptions = { ...defaultRainConfig };
     }
@@ -171,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function globalKeydownHandler(e) {
-        const key = e.key.toLowerCase();
+        const key = e.key.toLowerCase(); 
         if (e.target === commandInput || e.target.tagName === 'A') {
             if (key === 'escape' && document.activeElement === commandInput) {
                  commandInput.blur();
@@ -185,14 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleCrtMode(); konamiCodeIndex = 0;
                 if (document.activeElement !== commandInput) e.preventDefault();
             }
-        } else if (key === konamiCodeSequence[0].toLowerCase() && konamiCodeIndex > 0) {
+        } else if (key === konamiCodeSequence[0].toLowerCase() && konamiCodeIndex > 0) { 
             konamiCodeIndex = 1;
         } else { konamiCodeIndex = 0; }
     }
-
-    // ASCII Neural Network Visualization Logic REMOVED
-
-    /** Main Initialization Function for Terminal and Graphics. */
+    
     function initializeTerminalAndGraphics() {
         let columns;
         const rainDrops = [];
@@ -200,7 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function setupMatrixRainDrops() {
             rainDrops.length = 0;
-            columns = Math.max(1, Math.floor((window.innerWidth / rainConfigOptions.fontSize) * rainConfigOptions.density));
+            const effectiveDensity = Math.max(0.1, rainConfigOptions.density);
+            columns = Math.max(1, Math.floor((window.innerWidth / rainConfigOptions.fontSize) * effectiveDensity));
             for (let x = 0; x < columns; x++) {
                 rainDrops[x] = {
                     y: Math.floor(Math.random() * (window.innerHeight / rainConfigOptions.fontSize)),
@@ -229,56 +329,102 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!matrixRainCtx || !matrixRainCanvas) return;
             const themeColors = getCurrentThemeColors();
 
+            // --- Step 1: Clear the canvas (Trail Effect) ---
+            // Reset filter and globalAlpha before clearing to ensure consistent background fade
+            matrixRainCtx.filter = 'none';
+            matrixRainCtx.globalAlpha = 1.0; 
+
             if (rainConfigOptions.trailEffect) {
-                matrixRainCtx.fillStyle = themeColors.trail;
+                matrixRainCtx.fillStyle = themeColors.trail; // e.g., rgba(0,0,0,0.05)
             } else {
-                matrixRainCtx.fillStyle = themeColors.background;
+                // If trailEffect is off, clear to the solid background color
+                matrixRainCtx.fillStyle = themeColors.background; 
             }
             matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
+
+            // --- Step 2: Set effects for drawing current frame's characters ---
+            matrixRainCtx.globalAlpha = rainConfigOptions.opacity; // Apply user-defined opacity for new characters
+            if (rainConfigOptions.blur > 0) {
+                matrixRainCtx.filter = `blur(${rainConfigOptions.blur}px)`;
+            } else {
+                matrixRainCtx.filter = 'none'; // Explicitly turn off blur if set to 0
+            }
+            
             matrixRainCtx.font = `bold ${rainConfigOptions.fontSize}px ${rainConfigOptions.fontFamily}`;
 
             for (let i = 0; i < rainDrops.length; i++) {
-                const text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
+                let text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
                 const drop = rainDrops[i];
+                const effectiveDensity = Math.max(0.1, rainConfigOptions.density); // Prevent division by zero or too low density
+                let xPos = i * (rainConfigOptions.fontSize / effectiveDensity);
+
+                // Apply glitchIntensity more noticeably
+                if (rainConfigOptions.glitchIntensity > 0) {
+                    // Character substitution: probability directly tied to intensity
+                    if (Math.random() < rainConfigOptions.glitchIntensity) {
+                        text = allMatrixChars[Math.floor(Math.random() * allMatrixChars.length)];
+                    }
+                    
+                    // Positional offset: more frequent and larger offset based on intensity
+                    if (Math.random() < rainConfigOptions.glitchIntensity * 0.85) { // Increased frequency
+                        // Max offset scales with intensity up to ~75% of font size at max intensity
+                        const maxOffsetMagnitude = rainConfigOptions.fontSize * (0.2 + rainConfigOptions.glitchIntensity * 0.55); 
+                        xPos += (Math.random() - 0.5) * 2 * maxOffsetMagnitude; // Randomly positive or negative
+                    }
+                }
+
                 if (drop.isLeading) {
                     matrixRainCtx.fillStyle = themeColors.glow;
-                    matrixRainCtx.shadowColor = themeColors.glow;
-                    matrixRainCtx.shadowBlur = 10;
+                    matrixRainCtx.shadowColor = themeColors.glow; // Consider if this glow should be semi-transparent
+                    matrixRainCtx.shadowBlur = rainConfigOptions.rainShadow; 
                     matrixRainCtx.shadowOffsetX = 0;
                     matrixRainCtx.shadowOffsetY = 0;
-                    drop.isLeading = false;
+                    drop.isLeading = false; 
                 } else {
                     matrixRainCtx.fillStyle = themeColors.primary;
-                    matrixRainCtx.shadowBlur = 0;
+                    matrixRainCtx.shadowBlur = 0; 
+                    matrixRainCtx.shadowColor = 'transparent'; 
                 }
-                matrixRainCtx.fillText(text, i * rainConfigOptions.fontSize / rainConfigOptions.density, drop.y * rainConfigOptions.fontSize);
+                matrixRainCtx.fillText(text, xPos, drop.y * rainConfigOptions.fontSize);
+                
                 const currentDropSpeed = 1 + (rainConfigOptions.randomizeSpeed ? drop.speedOffset : 0);
                 drop.y += currentDropSpeed;
+                
                 if (drop.y * rainConfigOptions.fontSize > matrixRainCanvas.height && Math.random() > 0.975) {
                     drop.y = 0;
-                    drop.isLeading = true;
-                    if(rainConfigOptions.randomizeSpeed) {
+                    drop.isLeading = true; 
+                    if(rainConfigOptions.randomizeSpeed) { 
                         drop.speedOffset = (Math.random() - 0.5) * 0.5;
                     }
                 }
             }
+            
+            // --- Step 3: Reset canvas context state ---
             matrixRainCtx.shadowBlur = 0;
             matrixRainCtx.shadowColor = 'transparent';
+            matrixRainCtx.filter = 'none';
+            matrixRainCtx.globalAlpha = 1.0; 
         }
+
 
         function restartMatrixRainAnimation() {
             if (rainAnimationIntervalId) clearInterval(rainAnimationIntervalId);
             if (matrixRainCtx) {
-                resizeMatrixRainCanvases();
+                if (matrixRainCanvas.width !== window.innerWidth || matrixRainCanvas.height !== window.innerHeight) {
+                    resizeMatrixRainCanvases(); 
+                } else {
+                    setupMatrixRainDrops(); 
+                }
                 rainAnimationIntervalId = setInterval(drawMatrixRain, rainConfigOptions.speed);
             }
         }
+        
 
         function drawParallaxBackground() {
             if (!parallaxCtxBg || !parallaxCanvasBg) return;
             parallaxCtxBg.clearRect(0, 0, parallaxCanvasBg.width, parallaxCanvasBg.height);
             const themeColors = getCurrentThemeColors();
-            parallaxCtxBg.strokeStyle = themeColors.primary + '1A';
+            parallaxCtxBg.strokeStyle = themeColors.primary + '1A'; 
             parallaxCtxBg.lineWidth = 0.5;
             const offsetX = (mouseX / window.innerWidth - 0.5) * gridCellSize * 0.15;
             const offsetY = (mouseY / window.innerHeight - 0.5) * gridCellSize * 0.15;
@@ -306,10 +452,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!parallaxCtxFg || !parallaxCanvasFg) return;
             parallaxCtxFg.clearRect(0, 0, parallaxCanvasFg.width, parallaxCanvasFg.height);
             const themeColors = getCurrentThemeColors();
-            const currentTermFont = getCurrentFontFamily();
+            const currentTermFont = getCurrentFontFamily(); 
             fgParallaxSymbols.forEach(s => {
                 parallaxCtxFg.font = `${s.size}px ${currentTermFont}`;
-                parallaxCtxFg.fillStyle = themeColors.primary + '55';
+                parallaxCtxFg.fillStyle = themeColors.primary + '55'; 
                 const targetX = s.x - (mouseX - parallaxCanvasFg.width / 2) * s.parallaxFactor;
                 const targetY = s.y - (mouseY - parallaxCanvasFg.height / 2) * s.parallaxFactor;
                 s.x += s.vx + (targetX - s.x) * 0.01; s.y += s.vy + (targetY - s.y) * 0.01;
@@ -320,7 +466,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         resizeOtherCanvases();
-        restartMatrixRainAnimation();
+        restartMatrixRainAnimation(); 
+        startRandomBurstGlitches(); 
+
 
         function masterAnimationLoop() {
             if (parallaxCtxBg) drawParallaxBackground();
@@ -347,17 +495,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
 
         const plainNameArt = `<span class="ascii-name">${userDetails.userName.toUpperCase()}</span>`;
-        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\nType 'examples' to load examples from examples.txt.\n---------------------------------------------------`;
+        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n---------------------------------------------------`;
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
         const commandHandlerContext = {
             appendToTerminal, fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
             userDetails, fullBioText, mainContentContainer, allMatrixChars,
-            // startAsciiNnVis, stopAsciiNnVis, // Removed
-            resizeTerminalElement, defaultTerminalSize, // Added defaultTerminalSize
-            getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation
+            resizeTerminalElement, defaultTerminalSize,
+            getRainConfig, updateRainConfig, resetRainConfig, restartMatrixRain: restartMatrixRainAnimation,
+            burstGlitch 
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
+
 
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
@@ -381,9 +530,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (currentPart) parts.push(currentPart);
                         const commandName = parts[0] ? parts[0].toLowerCase() : "";
                         const args = parts.slice(1);
+                        
                         const commandFunc = terminalCommands[commandName];
                         if (typeof commandFunc === 'function') {
-                            const result = commandFunc(args);
+                            const result = commandFunc(args); 
                             if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
                                 result.catch(err => { console.error("Error executing async command:", commandName, err); appendToTerminal(`Async Command Error: ${err.message || 'Unknown error'}`, 'output-error'); });
                             }
@@ -404,12 +554,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else { historyIndex = commandHistory.length; commandInput.value = ''; }
                     setTimeout(() => commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length), 0);
                 } else if (e.key === 'Tab') {
-                     e.preventDefault();
+                     e.preventDefault(); 
                 }
             });
             if(mainContentContainer) {
                 mainContentContainer.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') {
+                    if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') { 
                         if(commandInput) commandInput.focus();
                     }
                 });
@@ -424,8 +574,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (terminalOutput) displayInitialWelcomeMessage();
 
         window.addEventListener('resize', () => {
-            resizeOtherCanvases();
-            restartMatrixRainAnimation();
+            resizeOtherCanvases(); 
+            resizeMatrixRainCanvases(); 
+            // restartMatrixRainAnimation(); // May not be needed if resizeMatrixRainCanvases handles setup & interval continues
         });
         document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         document.addEventListener('keydown', globalKeydownHandler);
