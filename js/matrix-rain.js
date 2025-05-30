@@ -86,26 +86,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     class Stream {
-        constructor(colIndex) { this.col = colIndex; this.reset(); }
+        constructor(colIndex) {
+            this.col = colIndex;
+            this.dy  = 1 + Math.random() * 0.15; // 1–1.15 rows per tick
+            this.reset();
+        }
+
         reset() {
-            this.layer = randInt(CFG.layers);
+            this.layer   = randInt(CFG.layers);
             this.opacity = CFG.layerOp[this.layer];
-            this.del = Math.random() < CFG.delChance;
-            this.len = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
+            this.del     = Math.random() < CFG.delChance;
+            this.len     = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
             this.headGlow = CFG.headGlowMin + randInt(CFG.headGlowMax - CFG.headGlowMin + 1);
-            this.head = -randInt(Math.floor(this.len)); // Ensure integer for head
-            this.buf = Array.from({ length: ROWS }, randChar);
+
+            // Start as far as one full screen above viewport
+            this.head = -randInt(ROWS + this.len);
+
+            this.buf  = Array.from({ length: ROWS }, randChar);
             this.tick = 0;
         }
+
         step() {
-            this.head++;
+            this.head += this.dy;                  // ← use dy
             if (this.head >= 0 && this.head < ROWS) this.buf[this.head] = randChar();
+
             if (++this.tick >= CFG.trailMutate) {
-                this.tick = 0;
-                for (let r = 0; r < ROWS; r++) if (Math.random() < 0.15) this.buf[r] = randChar();
+            this.tick = 0;
+            for (let r = 0; r < ROWS; r++)
+                if (Math.random() < 0.15) this.buf[r] = randChar();
             }
-            if (this.head > ROWS) this.reset();
-        }
+
+            if (this.head > ROWS) this.reset();    // continuous flow
+         }
         draw() {
             if (!matrixRainCtx) return;
             const x = this.col * colW;
