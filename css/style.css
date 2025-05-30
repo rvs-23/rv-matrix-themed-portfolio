@@ -146,8 +146,6 @@ body.theme-goldenglitch {
 }
 
 
-/* Light theme removed */
-
 body.font-fira { --font-mono-current: var(--font-stack-fira); }
 
 /* General Body Styling */
@@ -162,7 +160,7 @@ body {
     overflow: hidden;
 }
 
-/* Loading Screen (remains the same) */
+/* Loading Screen */
 #loading-screen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: #000;
@@ -276,7 +274,7 @@ body {
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-/* Minimal Navigation Bar (remains the same) */
+/* Minimal Navigation Bar */
 .minimal-nav {
     position: fixed; bottom: 0; left: 0; width: 100%;
     background-color: transparent; padding: 0.5rem 0.8rem;
@@ -308,7 +306,7 @@ body {
 }
 .nav-icon:hover .nav-label { opacity: 1; visibility: visible; bottom: 135%; }
 
-/* Terminal Glitch Overlay (remains the same) */
+/* Terminal Glitch Overlay*/
 .terminal-glitch-overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -322,7 +320,7 @@ body {
     opacity: 0.95; padding: inherit; box-sizing: border-box;
 }
 
-/* CRT Mode (remains the same) */
+/* CRT Mode */
 body.crt-mode {
     animation: crt-flicker 0.15s infinite, crt-scanline 5s linear infinite;
     filter: contrast(1.15) brightness(0.95) sepia(0.2) hue-rotate(-15deg) blur(0.3px);
@@ -348,14 +346,6 @@ body.crt-mode #matrix-canvas { /* No change to matrix-canvas filters from CRT ne
 }
 @keyframes crt-scanline {
     0% { background-position-y: 0; } 100% { background-position-y: -200px; }
-}
-
-/* ASCII Neural Network Visualization (remains the same) */
-.ascii-nn-vis {
-    font-family: var(--font-mono-current);
-    line-height: 1.2; white-space: pre; overflow-x: auto;
-    color: var(--primary-color); text-shadow: 0 0 5px var(--text-shadow-color);
-    padding: 0.5em 0; margin-bottom: 0.5em;
 }
 
 /* Responsive Adjustments */
