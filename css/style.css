@@ -29,6 +29,16 @@
     --font-mono-current: var(--font-stack-fira);
 }
 
+@font-face {
+    font-family: "MatrixA";
+    src: url("../assets/matrix.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "MatrixB";
+    src: url("../assets/matrix-resurrection.ttf") format("truetype");
+}
+
 /* --- THEMES --- */
 /* (Other themes remain the same) */
 body.theme-cyan {
