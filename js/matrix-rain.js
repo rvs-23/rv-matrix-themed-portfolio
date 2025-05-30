@@ -161,38 +161,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     class Stream {
-        constructor(colIndex) {
-            this.col = colIndex;
-            this.dy  = 1 + Math.random() * 0.15; // 1–1.15 rows per tick
-            this.reset();
-        }
-
+        constructor(colIndex) { this.col = colIndex; this.reset(); }
         reset() {
-            this.layer   = randInt(CFG.layers);
-            this.opacity = CFG.layerOp[this.layer];
-            this.del     = Math.random() < CFG.delChance;
-            this.len     = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
+            this.layer = randInt(CFG.layers);
+            // Ensure layerOp has enough entries, fallback if not
+            this.opacity = CFG.layerOp[this.layer] !== undefined ? CFG.layerOp[this.layer] : (CFG.layerOp.length > 0 ? CFG.layerOp[CFG.layerOp.length-1] : 1);
+
+            this.del = Math.random() < CFG.delChance;
+            this.len = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
             this.headGlow = CFG.headGlowMin + randInt(CFG.headGlowMax - CFG.headGlowMin + 1);
-
-            // Start as far as one full screen above viewport
-            this.head = -randInt(ROWS + this.len);
-
-            this.buf  = Array.from({ length: ROWS }, randChar);
+            this.head = -randInt(Math.floor(this.len));
+            this.buf = Array.from({ length: ROWS }, randChar);
             this.tick = 0;
         }
-
         step() {
-            this.head += this.dy;                  // ← use dy
+            this.head++;
             if (this.head >= 0 && this.head < ROWS) this.buf[this.head] = randChar();
-
             if (++this.tick >= CFG.trailMutate) {
-            this.tick = 0;
-            for (let r = 0; r < ROWS; r++)
-                if (Math.random() < 0.15) this.buf[r] = randChar();
+                this.tick = 0;
+                for (let r = 0; r < ROWS; r++) if (Math.random() < 0.15) this.buf[r] = randChar();
             }
-
-            if (this.head > ROWS) this.reset();    // continuous flow
-         }
+            if (this.head > ROWS) this.reset();
+        }
         draw() {
             if (!matrixRainCtx) return;
             const x = this.col * colW;
@@ -212,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 matrixRainCtx.globalAlpha = alpha;
                 matrixRainCtx.fillStyle = colour;
                 matrixRainCtx.shadowBlur = blur;
-                // FillText can be slow, ensure valid coordinates
                 if (x >= 0 && (r * CFG.font * CFG.lineH) >=0) {
                     matrixRainCtx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
                 }
@@ -225,11 +214,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         matrixRainCtx.shadowBlur = 0;
         matrixRainCtx.globalAlpha = CFG.fade;
-        matrixRainCtx.fillStyle = getCurrentThemeColors().background; // Use theme background for fade
+        matrixRainCtx.fillStyle = getCurrentThemeColors().background;
         matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
 
-        matrixRainCtx.globalAlpha = 1; // Reset globalAlpha for drawing streams
-         if (matrixRainCtx && CFG.headCol) { // Ensure shadowColor for head glow
+        matrixRainCtx.globalAlpha = 1;
+         if (matrixRainCtx && CFG.headCol) {
              matrixRainCtx.shadowColor = CFG.headCol;
         }
         for (const s of streams) { s.step(); s.draw(); }
@@ -241,9 +230,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rainAnimationRequestID) {
             clearTimeout(rainAnimationRequestID);
         }
-        updateRainColorsFromTheme(); // Ensure colors are set before first draw
-        resizeRainCanvasAndStreams(); // Initial setup
-        rainTick(); // Start the loop
+        updateRainColorsFromTheme();
+        resizeRainCanvasAndStreams();
+        rainTick();
     }
     // --- End of New Matrix Rain Logic ---
 
@@ -260,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     let currentLoadingMsgIndex = 0;
 
-    function animateLoaderMatrixChars() {
+    function animateLoaderMatrixChars() { /* ... (same as before) ... */
         if (!matrixLoaderCharsEl) return;
         let text = '';
         const lines = 4; const charsPerLine = 28;
@@ -270,16 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         matrixLoaderCharsEl.textContent = text;
     }
-
-    function updateLoadingStatusMessage() {
+    function updateLoadingStatusMessage() { /* ... (same as before) ... */
         if (!decryptStatusEl) return;
         if (currentLoadingMsgIndex < loadingMessages.length) {
             decryptStatusEl.textContent = loadingMessages[currentLoadingMsgIndex];
             currentLoadingMsgIndex++;
         }
     }
-
-    const handleWindowLoad = () => {
+    const handleWindowLoad = () => { /* ... (same as before) ... */
         if (loadingScreen) {
             if (loaderCharInterval) clearInterval(loaderCharInterval);
             if (statusCyclingInterval) clearInterval(statusCyclingInterval);
@@ -295,14 +282,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+    if (loadingScreen && !loadingScreen.classList.contains('hidden')) { /* ... (same as before) ... */
         loaderCharInterval = setInterval(animateLoaderMatrixChars, 120);
         animateLoaderMatrixChars(); updateLoadingStatusMessage();
         statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
     }
     window.onload = handleWindowLoad;
 
-    function appendToTerminal(htmlContent, type = 'output-text') {
+    function appendToTerminal(htmlContent, type = 'output-text') { /* ... (same as before) ... */
         if (!terminalOutput) return null;
         const lineDiv = document.createElement('div');
         lineDiv.classList.add(type);
@@ -312,13 +299,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return lineDiv;
     }
 
-    function getCurrentThemeColors() {
+    function getCurrentThemeColors() { /* ... (same as before, uses DEFAULT_CFG for fallback) ... */
         if (typeof getComputedStyle !== 'undefined' && document.body) {
             const styles = getComputedStyle(document.body);
             return {
                 primary: styles.getPropertyValue('--primary-color').trim() || DEFAULT_CFG.baseCol,
-                // secondary: styles.getPropertyValue('--secondary-color').trim() || '#00FFFF', // Not directly used by new rain
-                // trail: styles.getPropertyValue('--matrix-rain-trail-color').trim() || 'rgba(0,0,0,0.05)', // New rain uses fade
                 glow: styles.getPropertyValue('--matrix-rain-glow-color').trim() || DEFAULT_CFG.headCol,
                 background: styles.getPropertyValue('--background-color').trim() || '#000',
             };
@@ -326,54 +311,56 @@ document.addEventListener('DOMContentLoaded', () => {
         return { primary: DEFAULT_CFG.baseCol, glow: DEFAULT_CFG.headCol, background: '#000' };
     }
     
-    function updateRainColorsFromTheme() {
+    function updateRainColorsFromTheme() { /* ... (same as before) ... */
         const themeColors = getCurrentThemeColors();
         CFG.baseCol = themeColors.primary;
         CFG.headCol = themeColors.glow;
-        // CFG.fade is not directly a color, but background for fade is set in rainTick
-         if (matrixRainCtx && CFG.headCol) { // Update shadow color for glow
+         if (matrixRainCtx && CFG.headCol) {
             matrixRainCtx.shadowColor = CFG.headCol;
         }
     }
-
-
-    function resizeTerminalElement(width, height) {
+    function resizeTerminalElement(width, height) { /* ... (same as before) ... */
         if (mainContentContainer) {
             mainContentContainer.style.width = width;
             mainContentContainer.style.height = height;
         }
     }
 
-    // Interface for commands.js to interact with new rain CFG
+    // --- Rain Configuration Update Logic (Called by commands.js) ---
     function getRainConfigForCommand() {
-        // Return a copy to prevent direct modification from outside, though CFG is global here
-        return { ...CFG };
+        return { ...CFG }; // Return a copy
     }
 
-    function updateRainConfigFromCommand(param, value) {
-        const MAPPINGS = { // Maps command-friendly names to CFG keys if different, and provides validation/parsing
+    /**
+     * Updates a single rain configuration parameter.
+     * @param {string} param - The friendly name of the parameter to update.
+     * @param {*} value - The new value for the parameter.
+     * @param {object|null} applyingPresetContext - The full preset object if multiple settings are being applied.
+     * @returns {boolean} True if successful, false otherwise.
+     */
+    function updateRainConfigFromCommand(param, value, applyingPresetContext = null) {
+        const MAPPINGS = {
             speed: { key: 'speed', type: 'int', min: 10, max: 500 },
             fontSize: { key: 'font', type: 'int', min: 8, max: 40 },
             lineHeight: { key: 'lineH', type: 'float', min: 0.5, max: 2.0 },
             density: { key: 'density', type: 'float', min: 0.1, max: 2.0 },
             minTrail: { key: 'minTrail', type: 'int', min: 1, max: 100 },
-            maxTrail: { key: 'maxTrail', type: 'int', min: 1, max: 100 }, // Should be >= minTrail
+            maxTrail: { key: 'maxTrail', type: 'int', min: 1, max: 100 },
             headGlowMin: { key: 'headGlowMin', type: 'int', min: 0, max: 20 },
-            headGlowMax: { key: 'headGlowMax', type: 'int', min: 0, max: 20 }, // Should be >= headGlowMin
-            glowBlur: { key: 'blur', type: 'int', min: 0, max: 20 }, // Renamed from CFG.blur to avoid confusion
+            headGlowMax: { key: 'headGlowMax', type: 'int', min: 0, max: 20 },
+            glowBlur: { key: 'blur', type: 'int', min: 0, max: 20 },
             trailMutationSpeed: { key: 'trailMutate', type: 'int', min: 10, max: 1000 },
             fadeSpeed: { key: 'fade', type: 'float', min: 0.01, max: 1.0 },
             decayRate: { key: 'decayBase', type: 'float', min: 0.7, max: 0.99 },
-            // baseColor: { key: 'baseCol', type: 'string_color' }, // Theming handles colors
-            // headColor: { key: 'headCol', type: 'string_color' }, // Theming handles colors
-            fontFamily: {key: 'fontFamily', type: 'string_font'}, // Keep if you want to allow font changes
-            layers: {key: 'layers', type: 'int', min: 1, max: 5},
-            eraserChance: {key: 'delChance', type: 'float', min: 0, max: 1}
+            fontFamily: { key: 'fontFamily', type: 'string_font' },
+            layers: { key: 'layers', type: 'int', min: 1, max: 10 },
+            layerOp: { key: 'layerOp', type: 'array_float', ele_min: 0, ele_max: 1 }, // min/max for array elements
+            eraserChance: { key: 'delChance', type: 'float', min: 0, max: 1 }
         };
 
         const setting = MAPPINGS[param];
         if (!setting) {
-            if(terminalOutput) appendToTerminal(`Unknown rain config parameter: ${param}`, 'output-error');
+            if(terminalOutput) appendToTerminal(`Error: Unknown rain config parameter '${param}'.`, 'output-error');
             return false;
         }
 
@@ -383,52 +370,81 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (setting.type) {
             case 'int':
                 parsedValue = parseInt(value, 10);
-                if (isNaN(parsedValue) || parsedValue < setting.min || parsedValue > setting.max) isValid = false;
+                if (isNaN(parsedValue) || (setting.min !== undefined && parsedValue < setting.min) || (setting.max !== undefined && parsedValue > setting.max)) isValid = false;
                 break;
             case 'float':
                 parsedValue = parseFloat(value);
-                if (isNaN(parsedValue) || parsedValue < setting.min || parsedValue > setting.max) isValid = false;
+                if (isNaN(parsedValue) || (setting.min !== undefined && parsedValue < setting.min) || (setting.max !== undefined && parsedValue > setting.max)) isValid = false;
                 break;
-            case 'string_font': // Basic validation for font family string
+            case 'string_font':
                 parsedValue = String(value).trim();
-                 // Example: Allow "MatrixA, MatrixB, monospace" or "Courier New, monospace"
                 if (!/^[a-zA-Z0-9\s,-]+$/.test(parsedValue)) {
                     isValid = false;
-                    if(terminalOutput) appendToTerminal(`Invalid font family format. Use letters, numbers, spaces, commas, hyphens.`, 'output-error');
+                    if(terminalOutput) appendToTerminal(`Error: Invalid font family format for '${param}'. Use letters, numbers, spaces, commas, hyphens.`, 'output-error');
                 }
                 break;
-            // 'string_color' case removed as colors are handled by themes primarily.
-            default: // For other string types or direct assignment
-                parsedValue = String(value);
+            case 'array_float':
+                parsedValue = value; // Value from preset should be an array
+                if (!Array.isArray(parsedValue)) {
+                    isValid = false;
+                    if(terminalOutput) appendToTerminal(`Error: Invalid type for '${param}'. Expected an array. Received: ${typeof value}`, 'output-error');
+                    break;
+                }
+                if (setting.key === 'layerOp' && parsedValue.length !== (applyingPresetContext?.layers ?? CFG.layers)) {
+                    const targetLayers = applyingPresetContext?.layers ?? CFG.layers;
+                    if(terminalOutput) appendToTerminal(`Error: For '${param}', array length (${parsedValue.length}) must match 'layers' count (${targetLayers}). Ensure 'layers' is set appropriately in the preset.`, 'output-error');
+                    isValid = false;
+                    break;
+                }
+                for (const item of parsedValue) {
+                    if (typeof item !== 'number' || item < (setting.ele_min || 0) || item > (setting.ele_max || 1)) {
+                        isValid = false;
+                        if(terminalOutput) appendToTerminal(`Error: Invalid item '${item}' in array for '${param}'. Must be number between ${setting.ele_min || 0}-${setting.ele_max || 1}.`, 'output-error');
+                        break;
+                    }
+                }
+                break;
+            default:
+                parsedValue = String(value); // Should not happen for known types
                 break;
         }
         
-        if (setting.key === 'maxTrail' && parsedValue < CFG.minTrail) {
-            appendToTerminal(`Error: maxTrail (${parsedValue}) cannot be less than minTrail (${CFG.minTrail}).`, 'output-error');
-            isValid = false;
-        }
-        if (setting.key === 'minTrail' && parsedValue > CFG.maxTrail) {
-            appendToTerminal(`Error: minTrail (${parsedValue}) cannot be greater than maxTrail (${CFG.maxTrail}).`, 'output-error');
-            isValid = false;
-        }
-         if (setting.key === 'headGlowMax' && parsedValue < CFG.headGlowMin) {
-            appendToTerminal(`Error: headGlowMax (${parsedValue}) cannot be less than headGlowMin (${CFG.headGlowMin}).`, 'output-error');
-            isValid = false;
-        }
-        if (setting.key === 'headGlowMin' && parsedValue > CFG.headGlowMax) {
-            appendToTerminal(`Error: headGlowMin (${parsedValue}) cannot be greater than headGlowMax (${CFG.headGlowMax}).`, 'output-error');
-            isValid = false;
-        }
-
-
-        if (!isValid && terminalOutput) {
-            appendToTerminal(`Invalid value for ${param}. Please check range or type. Min: ${setting.min}, Max: ${setting.max}`, 'output-error');
+        if (!isValid) {
+            if(terminalOutput && !MAPPINGS[param].type.startsWith('array')) { // Array errors are more specific
+                appendToTerminal(`Error: Invalid value for '${param}'. Value: '${value}', Min: ${setting.min}, Max: ${setting.max}.`, 'output-error');
+            }
             return false;
         }
 
+        // Context-aware validation for interdependent parameters
+        if (setting.key === 'minTrail' || setting.key === 'maxTrail' || setting.key === 'headGlowMin' || setting.key === 'headGlowMax') {
+            let minT = (setting.key === 'minTrail') ? parsedValue : (applyingPresetContext?.minTrail ?? CFG.minTrail);
+            let maxT = (setting.key === 'maxTrail') ? parsedValue : (applyingPresetContext?.maxTrail ?? CFG.maxTrail);
+            let minHG = (setting.key === 'headGlowMin') ? parsedValue : (applyingPresetContext?.headGlowMin ?? CFG.headGlowMin);
+            let maxHG = (setting.key === 'headGlowMax') ? parsedValue : (applyingPresetContext?.headGlowMax ?? CFG.headGlowMax);
+
+            // Convert context values to numbers if they came from the preset object
+            minT = parseFloat(minT); maxT = parseFloat(maxT);
+            minHG = parseFloat(minHG); maxHG = parseFloat(maxHG);
+
+            if (setting.key === 'minTrail' && minT > maxT) {
+                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${minT}) cannot be greater than effective maxTrail (${maxT}).`, 'output-error'); return false;
+            }
+            if (setting.key === 'maxTrail' && maxT < minT) {
+                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${maxT}) cannot be less than effective minTrail (${minT}).`, 'output-error'); return false;
+            }
+            if (setting.key === 'headGlowMin' && minHG > maxHG) {
+                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${minHG}) cannot be greater than effective headGlowMax (${maxHG}).`, 'output-error'); return false;
+            }
+            if (setting.key === 'headGlowMax' && maxHG < minHG) {
+                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${maxHG}) cannot be less than effective headGlowMin (${minHG}).`, 'output-error'); return false;
+            }
+        }
+
         CFG[setting.key] = parsedValue;
-        // If font size or family changes, a full resize of canvas and streams is good.
-        if (setting.key === 'font' || setting.key === 'fontFamily' || setting.key === 'density' || setting.key === 'lineH') {
+        
+        // If critical display parameters change, resize canvas and reinitialize streams
+        if (setting.key === 'font' || setting.key === 'fontFamily' || setting.key === 'density' || setting.key === 'lineH' || setting.key === 'layers') {
             resizeRainCanvasAndStreams();
         }
         return true;
@@ -436,24 +452,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resetRainConfigToDefaults() {
         CFG = { ...DEFAULT_CFG };
-        updateRainColorsFromTheme(); // Re-apply theme colors over default CFG colors
-        resizeRainCanvasAndStreams(); // Apply changes like font size, density
+        updateRainColorsFromTheme();
+        resizeRainCanvasAndStreams();
     }
     
     function restartRainAfterThemeChange() {
         updateRainColorsFromTheme();
-        // No need to fully stop/start the rainTick loop if only colors change,
-        // but if font or density were part of theme, resizeRainCanvasAndStreams() would be needed.
-        // For now, assume themes primarily change colors reflected in CFG.baseCol/headCol.
-        // The rainTick will pick up new CFG values.
-        // If font size or density changes with theme, then:
-        // resizeRainCanvasAndStreams();
+        // If themes were to change font/density, this would be needed:
+        // resizeRainCanvasAndStreams(); 
     }
 
-
-    let fullWelcomeMessageStringGlobal = '';
-
-    function toggleCrtMode(activate) {
+    let fullWelcomeMessageStringGlobal = ''; /* ... (same as before) ... */
+    function toggleCrtMode(activate) { /* ... (same as before) ... */
         crtModeActive = typeof activate === 'boolean' ? activate : !crtModeActive;
         document.body.classList.toggle('crt-mode', crtModeActive);
         if (typeof activate === 'boolean' && terminalOutput) {
@@ -461,9 +471,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (commandInput) commandInput.focus();
     }
-
-    function globalKeydownHandler(e) {
-        const key = e.key; // Case sensitive for 'b', 'a' in Konami
+    function globalKeydownHandler(e) { /* ... (same as before) ... */
+        const key = e.key; 
         if (e.target === commandInput || e.target.tagName === 'A') {
             if (key === 'Escape' && document.activeElement === commandInput) {
                 commandInput.blur();
@@ -482,10 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { konamiCodeIndex = 0; }
     }
 
+    // --- INITIALIZATION ---
     function initializeTerminalAndGraphics() {
-        startRainAnimation(); // Start the new rain animation
+        startRainAnimation();
 
-        const userDetails = {
+        const userDetails = { /* ... (same as before) ... */
             userName: "Rishav Sharma", userTitle: "Software Engineer / Data Scientist",
             githubUser: "rvs-23", linkedinUser: "rishav-sharma-23rvs", mediumUser: "rvs",
             emailAddress: "23rishavsharma@gmail.com",
@@ -504,18 +514,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n---------------------------------------------------`;
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
+        // Context for commands.js
         const commandHandlerContext = {
             appendToTerminal, fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
             userDetails, fullBioText, mainContentContainer, allMatrixChars: allMatrixCharsGlobal,
             resizeTerminalElement, defaultTerminalSize,
-            getRainConfig: getRainConfigForCommand, // Updated function
-            updateRainConfig: updateRainConfigFromCommand, // Updated function
-            resetRainConfig: resetRainConfigToDefaults, // Updated function
-            restartMatrixRain: restartRainAfterThemeChange, // For theme changes
+            getRainConfig: getRainConfigForCommand,
+            updateRainConfig: updateRainConfigFromCommand, // For presets to call
+            resetRainConfig: resetRainConfigToDefaults,
+            restartMatrixRain: restartRainAfterThemeChange,
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext); // From commands.js
 
-        if (commandInput) {
+        // Command input handling (same as before)
+        if (commandInput) { /* ... (same as before, no changes to this block) ... */
             commandInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     if (commandInput.disabled) return;
@@ -573,7 +585,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function displayInitialWelcomeMessage() {
+
+        function displayInitialWelcomeMessage() { /* ... (same as before) ... */
             if (terminalOutput) appendToTerminal(fullWelcomeMessageStringGlobal.replace(/\n/g, '<br/>'), 'output-welcome');
             if (commandInput) commandInput.focus();
         }
@@ -581,9 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (terminalOutput) displayInitialWelcomeMessage();
 
         window.addEventListener('resize', () => {
-             resizeRainCanvasAndStreams(); // Important for new rain
+             resizeRainCanvasAndStreams();
         });
-        // Mouse move listener for parallax removed
         document.addEventListener('keydown', globalKeydownHandler);
     }
 });
