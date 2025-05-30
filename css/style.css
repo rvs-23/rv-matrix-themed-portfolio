@@ -19,14 +19,17 @@
     --nav-label-bg: rgba(0, 255, 0, 0.15);
     --loader-text-color: #0F0;
     --loader-spinner-color: #0F0;
-    --matrix-rain-trail-color: rgba(0, 0, 0, 0.05); /* Default trail opacity */
-    --matrix-rain-glow-color: #9FFF9F;
+    --matrix-rain-trail-color: rgba(0, 0, 0, 0.05); /* New rain uses CFG.fade for trail appearance */
+    --matrix-rain-glow-color: #9FFF9F; /* Used to set CFG.headCol */
     --footer-height: 3.5rem;
 
     /* Font Families */
     --font-stack-inter: 'Inter', sans-serif;
     --font-stack-fira: 'Fira Code', monospace;
     --font-mono-current: var(--font-stack-fira);
+
+    /* Terminal Font Size Control */
+    --terminal-font-size: 11px; /* Default terminal font size */
 }
 
 @font-face {
@@ -39,8 +42,10 @@
     src: url("../assets/matrix-resurrection.ttf") format("truetype");
 }
 
+
 /* --- THEMES --- */
-/* (Other themes remain the same) */
+/* Default Green (implicitly from :root) */
+
 body.theme-cyan {
     --primary-color: #0FF; --secondary-color: #0F0; --text-shadow-color: rgba(0, 255, 255, 0.7);
     --border-color: rgba(0, 255, 255, 0.6); --hover-color: #5FFFFF; --hover-shadow-color: rgba(95, 255, 255, 0.9);
@@ -48,7 +53,7 @@ body.theme-cyan {
     --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8); --nav-icon-color: #0FF;
     --nav-icon-hover-color: #5FFFFF; --nav-label-bg: rgba(0, 255, 255, 0.15);
     --loader-text-color: #0FF; --loader-spinner-color: #0FF; --matrix-rain-glow-color: #AFFFFF;
-    --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
+    --background-color: #000505; --terminal-background-color: rgba(0, 20, 20, 0.88);
 }
 body.theme-amber {
     --primary-color: #FFBF00; --secondary-color: #FFD700; --text-shadow-color: rgba(255, 191, 0, 0.7);
@@ -57,7 +62,7 @@ body.theme-amber {
     --scrollbar-thumb-hover-color: rgba(255, 191, 0, 0.8); --nav-icon-color: #FFBF00;
     --nav-icon-hover-color: #FFD700; --nav-label-bg: rgba(255, 191, 0, 0.15);
     --loader-text-color: #FFBF00; --loader-spinner-color: #FFBF00; --matrix-rain-glow-color: #FFDDA0;
-    --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
+    --background-color: #0a0600; --terminal-background-color: rgba(25, 15, 0, 0.88);
 }
 body.theme-purple {
     --primary-color: #C000C0; --secondary-color: #DA70D6; --text-shadow-color: rgba(192, 0, 192, 0.7);
@@ -66,7 +71,7 @@ body.theme-purple {
     --scrollbar-thumb-hover-color: rgba(192, 0, 192, 0.8); --nav-icon-color: #C000C0;
     --nav-icon-hover-color: #EE82EE; --nav-label-bg: rgba(192, 0, 192, 0.15);
     --loader-text-color: #C000C0; --loader-spinner-color: #C000C0; --matrix-rain-glow-color: #ECA0EC;
-    --background-color: #000; --terminal-background-color: rgba(17, 24, 39, 0.88); --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
+    --background-color: #080008; --terminal-background-color: rgba(20, 0, 20, 0.88);
 }
 body.theme-twilight {
     --primary-color: #e6a0c4; --secondary-color: #9b84ec; --background-color: #0a061a;
@@ -76,17 +81,6 @@ body.theme-twilight {
     --scrollbar-thumb-hover-color: rgba(230, 160, 196, 0.7); --nav-icon-color: #e6a0c4;
     --nav-icon-hover-color: #ee82ee; --nav-label-bg: rgba(230, 160, 196, 0.15);
     --loader-text-color: #e6a0c4; --loader-spinner-color: #e6a0c4; --matrix-rain-glow-color: #f0c0e0;
-    --matrix-rain-trail-color: rgba(10, 6, 26, 0.07);
-}
-body.theme-light {
-    --primary-color: #2c3e50; --secondary-color: #3498db; --background-color: #ecf0f1;
-    --terminal-background-color: rgba(255, 255, 255, 0.92); --text-shadow-color: rgba(44, 62, 80, 0.2);
-    --border-color: rgba(44, 62, 80, 0.3); --hover-color: #2980b9; --hover-shadow-color: rgba(41, 128, 185, 0.4);
-    --scrollbar-track-color: rgba(44, 62, 80, 0.05); --scrollbar-thumb-color: rgba(44, 62, 80, 0.3);
-    --scrollbar-thumb-hover-color: rgba(44, 62, 80, 0.5); --nav-icon-color: #2c3e50;
-    --nav-icon-hover-color: #3498db; --nav-label-bg: rgba(44, 62, 80, 0.1);
-    --loader-text-color: #2c3e50; --loader-spinner-color: #3498db; --matrix-rain-glow-color: #4c5f73;
-    --matrix-rain-trail-color: rgba(236, 240, 241, 0.15);
 }
 body.theme-crimson {
     --primary-color: #DC143C; --secondary-color: #FF6347; --background-color: #100000;
@@ -96,7 +90,7 @@ body.theme-crimson {
     --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7); --nav-icon-color: #DC143C;
     --nav-icon-hover-color: #FF4500; --nav-label-bg: rgba(220, 20, 60, 0.15);
     --loader-text-color: #DC143C; --loader-spinner-color: #FF6347;
-    --matrix-rain-trail-color: rgba(10, 0, 0, 0.07); --matrix-rain-glow-color: #FF8C70;
+    --matrix-rain-glow-color: #FF8C70;
 }
 body.theme-forest {
     --primary-color: #228B22; --secondary-color: #ADFF2F; --background-color: #001000;
@@ -106,8 +100,53 @@ body.theme-forest {
     --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7); --nav-icon-color: #228B22;
     --nav-icon-hover-color: #32CD32; --nav-label-bg: rgba(34, 139, 34, 0.15);
     --loader-text-color: #228B22; --loader-spinner-color: #ADFF2F;
-    --matrix-rain-trail-color: rgba(0, 10, 0, 0.07); --matrix-rain-glow-color: #98FB98;
+    --matrix-rain-glow-color: #98FB98;
 }
+
+/* New Theme 1: Electric Echo */
+body.theme-electricecho {
+    --primary-color: #00ffff; /* Cyan */
+    --secondary-color: #ff00ff; /* Magenta */
+    --background-color: #05000f; /* Very dark blue/purple */
+    --terminal-background-color: rgba(10, 5, 30, 0.9);
+    --text-shadow-color: rgba(0, 255, 255, 0.7);
+    --border-color: rgba(0, 200, 200, 0.6);
+    --hover-color: #ff00ff;
+    --hover-shadow-color: rgba(255, 0, 255, 0.9);
+    --scrollbar-track-color: rgba(0, 255, 255, 0.1);
+    --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
+    --scrollbar-thumb-hover-color: #ff00ff;
+    --nav-icon-color: #00ffff;
+    --nav-icon-hover-color: #ff00ff;
+    --nav-label-bg: rgba(0, 255, 255, 0.15);
+    --loader-text-color: #00ffff;
+    --loader-spinner-color: #ff00ff;
+    --matrix-rain-glow-color: #ffffff; /* White glow for contrast */
+}
+
+/* New Theme 2: Golden Glitch */
+body.theme-goldenglitch {
+    --primary-color: #FFD700; /* Gold */
+    --secondary-color: #FF4500; /* OrangeRed for glitchy accents */
+    --background-color: #1a0e00; /* Very dark brown */
+    --terminal-background-color: rgba(40, 20, 0, 0.9);
+    --text-shadow-color: rgba(255, 215, 0, 0.6);
+    --border-color: rgba(255, 165, 0, 0.6); /* Orange border */
+    --hover-color: #FF4500;
+    --hover-shadow-color: rgba(255, 69, 0, 0.8);
+    --scrollbar-track-color: rgba(255, 215, 0, 0.1);
+    --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
+    --scrollbar-thumb-hover-color: #FF4500;
+    --nav-icon-color: #FFD700;
+    --nav-icon-hover-color: #FF4500;
+    --nav-label-bg: rgba(255, 215, 0, 0.15);
+    --loader-text-color: #FFD700;
+    --loader-spinner-color: #FF4500;
+    --matrix-rain-glow-color: #FFFACD; /* LemonChiffon for a softer gold glow */
+}
+
+
+/* Light theme removed */
 
 body.font-fira { --font-mono-current: var(--font-stack-fira); }
 
@@ -144,27 +183,24 @@ body {
 .spinner { margin-top: 1.2rem; width: 35px; height: 35px; border: 3px solid rgba(0,0,0,0.1); border-left-color: var(--loader-spinner-color); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 8px var(--loader-spinner-color); transition: border-left-color 0.3s ease, box-shadow 0.3s ease; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Canvas Layers (remains the same) */
-#matrix-canvas, #parallax-canvas-bg, #parallax-canvas-fg { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-#parallax-canvas-bg { z-index: 1; }
-#parallax-canvas-fg { z-index: 2; }
-#matrix-canvas { z-index: 3; }
+/* Canvas Layers (matrix-canvas styling unchanged, parallax specific styles can be removed if any) */
+#matrix-canvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+/* Parallax canvas IDs #parallax-canvas-bg, #parallax-canvas-fg are removed from HTML, so their specific CSS can be removed if they existed beyond this generic one */
 
 /* Content Container & Terminal */
 .content-container {
     position: relative; z-index: 10;
     color: var(--primary-color);
     font-family: var(--font-mono-current);
-    font-size: 11px;
+    font-size: var(--terminal-font-size); /* Use CSS variable */
     text-shadow: 0 0 8px var(--text-shadow-color);
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 0;
     padding: 1rem;
-    /* Default dimensions: width 55vw, height 50vh */
     width: 55vw;
     height: 50vh;
-    max-width: 90vw; /* Prevent it from becoming too wide on very large screens */
-    max-height: 90vh; /* Prevent it from becoming too tall */
+    max-width: 90vw;
+    max-height: 90vh;
     background-color: var(--terminal-background-color);
     border-radius: 0.4rem;
     box-shadow: 0 8px 16px -4px var(--text-shadow-color), 0 3px 7px -2px var(--text-shadow-color);
@@ -172,7 +208,7 @@ body {
     box-sizing: border-box;
     overflow: hidden;
     display: flex; flex-direction: column;
-    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease;
+    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease, font-size 0.3s ease; /* Added font-size transition */
 }
 
 #terminal-output {
@@ -189,7 +225,8 @@ body {
 #command-input {
     background-color: transparent !important; border: none !important; outline: none !important;
     color: var(--primary-color) !important; font-family: var(--font-mono-current) !important;
-    font-size: 1em !important; flex-grow: 1;
+    font-size: 1em !important; /* Inherits from .content-container which uses var(--terminal-font-size) */
+    flex-grow: 1;
     caret-color: var(--primary-color);
     transition: color 0.3s ease, caret-color 0.3s ease;
     -webkit-appearance: none; -moz-appearance: none; appearance: none;
@@ -206,7 +243,7 @@ body {
 /* Animations & Effects */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes glitch-hover-effect { /* Duration increased by 15% (0.25s * 1.15 = 0.2875s) */
+@keyframes glitch-hover-effect {
     0%, 100% { transform: translateX(0) skewX(0); opacity: 1; text-shadow: 0 0 8px var(--hover-shadow-color); }
     20% { transform: translateX(-2px) skewX(-3deg); opacity: 0.85; text-shadow: 1px 0px var(--hover-shadow-color), -1px 0px var(--secondary-color); }
     40% { transform: translateX(2px) skewX(3deg); opacity: 1; }
@@ -223,7 +260,7 @@ body {
 }
 .content-container a:hover, #terminal-output a:hover {
     color: var(--hover-color);
-    animation: glitch-hover-effect 0.2875s linear 3; /* Updated duration */
+    animation: glitch-hover-effect 0.2875s linear 3;
 }
 
 /* Terminal Output Types (remains the same) */
@@ -239,7 +276,7 @@ body {
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-/* Minimal Navigation Bar (remains the same, border-top already removed) */
+/* Minimal Navigation Bar (remains the same) */
 .minimal-nav {
     position: fixed; bottom: 0; left: 0; width: 100%;
     background-color: transparent; padding: 0.5rem 0.8rem;
@@ -256,7 +293,7 @@ body {
 }
 .nav-icon:hover {
     color: var(--nav-icon-hover-color);
-    animation: glitch-hover-effect 0.2875s linear 3; /* Updated duration */
+    animation: glitch-hover-effect 0.2875s linear 3;
 }
 .nav-label {
     position: absolute; bottom: 125%; left: 50%;
@@ -278,7 +315,7 @@ body {
     background-color: var(--terminal-background-color);
     color: var(--primary-color);
     font-family: var(--font-mono-current);
-    font-size: inherit;
+    font-size: inherit; /* Will inherit terminal font size */
     line-height: inherit;
     overflow: hidden; z-index: 500;
     white-space: pre-wrap; word-break: break-all;
@@ -303,7 +340,7 @@ body.crt-mode::before {
 body.crt-mode #contentContainer, body.crt-mode .minimal-nav {
     text-shadow: 0 0 7px var(--primary-color), 0 0 12px var(--primary-color);
 }
-body.crt-mode #matrix-canvas, body.crt-mode #parallax-canvas-bg, body.crt-mode #parallax-canvas-fg {
+body.crt-mode #matrix-canvas { /* No change to matrix-canvas filters from CRT needed unless desired */
     filter: saturate(0.7) brightness(0.8);
 }
 @keyframes crt-flicker {
@@ -324,24 +361,23 @@ body.crt-mode #matrix-canvas, body.crt-mode #parallax-canvas-bg, body.crt-mode #
 /* Responsive Adjustments */
 @media (max-width: 767px) {
     .content-container {
-        width: 90vw; /* Use viewport width for smaller screens */
-        height: 75vh; /* Adjust height for smaller screens */
-        font-size: 10px; /* Slightly larger for mobile readability if terminal is bigger */
+        width: 90vw;
+        height: 75vh;
+        /* font-size: var(--terminal-font-size) will still apply, consider adjusting default --terminal-font-size if needed for mobile */
         padding: 0.8rem;
         max-height: calc(100vh - var(--footer-height) - 1rem);
     }
-    #terminal-output { line-height: 1.35; } /* Adjust line height slightly */
+    #terminal-output { line-height: 1.35; }
     .ascii-name {font-size: 1em;}
-    .minimal-nav { padding: 0.4rem 0.5rem; gap: 1rem; } /* Slightly more padding/gap */
+    .minimal-nav { padding: 0.4rem 0.5rem; gap: 1rem; }
     .nav-icon { font-size: 1.1rem; }
     :root { --footer-height: 3.2rem; }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
     .content-container {
-        width: 70vw; /* Adjust for tablet */
-        height: 60vh; /* Adjust for tablet */
-        font-size: 11px;
+        width: 70vw;
+        height: 60vh;
         padding: 0.9rem;
     }
     .minimal-nav { gap: 1.2rem; }
