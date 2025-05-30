@@ -1,25 +1,3 @@
-/**
- * @file commands.js
- * Defines terminal commands, skill tree data, and related logic for the Matrix Terminal Portfolio.
- */
-
-/**
- * Defines and returns the command definitions for the terminal.
- * @param {object} context - An object containing necessary functions and data from matrix.js.
- * @param {function} context.appendToTerminal - Function to append output to the terminal.
- * @param {string} context.fullWelcomeMessageString - The full welcome message string.
- * @param {object} context.userDetails - Object containing user details like userName, cvLink, etc.
- * @param {string} context.fullBioText - The complete bio text with newlines.
- * @param {HTMLElement} context.mainContentContainer - Reference to the main terminal container.
- * @param {string} context.allMatrixChars - String of all characters for glitch effects.
- * @param {function} context.resizeTerminalElement - Function to resize the terminal.
- * @param {object} context.defaultTerminalSize - Object containing default width and height for terminal.
- * @param {function} context.getRainConfig - Function to get current rain config (includes availableFonts).
- * @param {function} context.updateRainConfig - Function to update rain config.
- * @param {function} context.resetRainConfig - Function to reset rain config.
- * @param {function} context.restartMatrixRain - Function to apply rain config changes.
- * @returns {object} The terminalCommands object.
- */
 function getTerminalCommands(context) {
     const {
         appendToTerminal,
@@ -27,32 +5,17 @@ function getTerminalCommands(context) {
         userDetails,
         fullBioText,
         mainContentContainer,
-        allMatrixChars,
+        allMatrixChars, 
         resizeTerminalElement,
         defaultTerminalSize,
-        getRainConfig,
-        updateRainConfig,
-        resetRainConfig,
-        restartMatrixRain,
+        getRainConfig,    // Used for easter egg font and potentially by presets if needed
+        updateRainConfig, // Crucial for presets
+        resetRainConfig,  // For the 'default' preset
+        restartMatrixRain, 
     } = context;
 
-    // New default rain config values (can be fetched from context.getRainConfig() if needed for base)
-    // For preset calculations, we use the new global defaults.
-    const newDefaultConfig = { // Mirrored from matrix.js for clarity in preset design
-        fontSize: 15,
-        speed: 101,
-        density: 0.69,
-        trailEffect: true,
-        randomizeSpeed: true,
-        opacity: 0.8,
-        blur: 0.25,
-        rainShadow: 2,
-        glitchIntensity: 0.1,
-        fontFamily: "Fira Code, monospace"
-    };
-
-
-    const skillsData = { // Skill data remains unchanged
+    // --- SKILLS DATA ---
+    const skillsData = { /* ... (Your existing skillsData object - keep as is) ... */
         name: "Core Competencies",
         aliases: ["core", "all", "root"],
         children: [
@@ -160,8 +123,7 @@ function getTerminalCommands(context) {
             }
         ]
     };
-
-    function renderSkillTree(node, indent = '', isLast = true, outputArray = []) {
+    function renderSkillTree(node, indent = '', isLast = true, outputArray = []) { /* ... (Your existing renderSkillTree - keep as is) ... */
         if (!node || typeof node.name === 'undefined') {
             console.error("Error in renderSkillTree: Node or node.name is undefined. Node:", node);
             outputArray.push(`${indent}${isLast ? '└── ' : '├── '}[Error: Malformed skill data]`);
@@ -178,6 +140,7 @@ function getTerminalCommands(context) {
         return outputArray;
     }
 
+    // --- EASTER EGG (Font Update) ---
     async function activateTerminalGlitchAndQuote() {
         const terminalOutput = document.getElementById('terminal-output');
         if (!terminalOutput || !context.mainContentContainer) return;
@@ -186,21 +149,29 @@ function getTerminalCommands(context) {
 
         const overlay = document.createElement('div');
         overlay.className = 'terminal-glitch-overlay';
+        
+        // --- Start Easter Egg Font Fix ---
+        // Get current rain font family from CFG to apply to glitch text
+        const currentRainConfig = context.getRainConfig ? context.getRainConfig() : {};
+        const glitchFontFamily = currentRainConfig.fontFamily || "MatrixA, MatrixB, monospace"; // Fallback
+        overlay.style.fontFamily = glitchFontFamily;
+        // --- End Easter Egg Font Fix ---
+
         const originalPosition = context.mainContentContainer.style.position;
-        context.mainContentContainer.style.position = 'relative'; 
+        context.mainContentContainer.style.position = 'relative';
         context.mainContentContainer.appendChild(overlay);
 
         const computedStyle = getComputedStyle(terminalOutput);
         const lineHeight = parseFloat(computedStyle.lineHeight) || 16;
-        const fontSize = parseFloat(computedStyle.fontSize) || 11; 
-        const charWidth = (fontSize * 0.6); 
+        const glitchFontSize = parseFloat(computedStyle.fontSize) || parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--terminal-font-size')) || 11;
+        const charWidth = (glitchFontSize * 0.6);
         const overlayHeight = overlay.clientHeight > 0 ? overlay.clientHeight : context.mainContentContainer.clientHeight;
         const overlayWidth = overlay.clientWidth > 0 ? overlay.clientWidth : context.mainContentContainer.clientWidth;
 
         const lines = Math.max(1, Math.floor(overlayHeight / lineHeight));
         const charsPerLine = Math.max(1, Math.floor(overlayWidth / charWidth));
         let glitchIntervalCount = 0;
-        const maxGlitchIntervals = 25; 
+        const maxGlitchIntervals = 25;
 
         let glitchInterval = setInterval(() => {
             let glitchText = '';
@@ -210,25 +181,25 @@ function getTerminalCommands(context) {
                 }
                 glitchText += '\n';
             }
-            overlay.textContent = glitchText;
+            overlay.textContent = glitchText; // Characters will now render with TTF via overlay style
             glitchIntervalCount++;
             if (glitchIntervalCount >= maxGlitchIntervals) {
                  clearInterval(glitchInterval);
                  finalizeEasterEgg();
             }
-        }, 80); 
+        }, 80);
 
-        function finalizeEasterEgg() {
+        function finalizeEasterEgg() { /* ... (rest of finalizeEasterEgg same as before) ... */
             if (context.mainContentContainer.contains(overlay)) {
                 context.mainContentContainer.removeChild(overlay);
             }
-            context.mainContentContainer.style.position = originalPosition; 
-            terminalOutput.innerHTML = ''; 
+            context.mainContentContainer.style.position = originalPosition;
+            terminalOutput.innerHTML = '';
             context.appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
-            const quotes = [ 
+            const quotes = [
                  "Wake up, you…", "The Matrix has you.", "Follow the white rabbit.",
                  "Choice is an illusion created between those with power and those without.",
-                 "The body cannot live without the mind.", `Statistics ≠ destiny, ${userDetails.userName}.`,
+                 "The body cannot live without the mind.", `Statistics ≠ destiny, ${context.userDetails.userName}.`,
                  "Code is just another form of déjà-vu.", "Data bends − people break.",
                  "It’s not the algorithm that scares them, it’s the accuracy.",
                  "Wake up, the bugs in your dreams are trying to unit test your soul.",
@@ -236,70 +207,135 @@ function getTerminalCommands(context) {
                  "Free your mind.", "A mind that won't question is more predictable than any ML algorithm",
 		         "You are not the anomaly. You are the expected exception."
                ];
-            
+
 	        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             context.appendToTerminal(`\n\n<span style="font-size: 1.1em; text-align: center; display: block; padding: 1em 0;">"${randomQuote}"</span>\n\n`, 'output-success');
             const commandInput = document.getElementById('command-input');
             if(commandInput) commandInput.focus();
         }
         setTimeout(() => {
-            if (context.mainContentContainer.contains(overlay)) { 
+            if (context.mainContentContainer.contains(overlay)) {
                  clearInterval(glitchInterval);
                  finalizeEasterEgg();
             }
-        }, (maxGlitchIntervals * 80) + 500); 
+        }, (maxGlitchIntervals * 80) + 500);
     }
 
-    const terminalCommands = {
-        'about': () => {
-            appendToTerminal(context.fullBioText.replace(/\n/g, '<br/>'));
+    // --- RAIN PRESETS DEFINITIONS (using friendly names from MAPPINGS in matrix.js) ---
+    const rainPresets = {
+        'default': { // Special case: calls reset function
+            description: "Resets rain to its original default configuration.",
+            action: () => {
+                if (typeof context.resetRainConfig === 'function') {
+                    context.resetRainConfig();
+                    return "Rain configuration reset to defaults.";
+                }
+                return "Error: Reset function not available.";
+            }
         },
+        'comet': {
+            description: "Fewer, long, bright-headed streams with slow fades.",
+            config: { // Uses friendly names from MAPPINGS in matrix.js
+                speed: 50, fontSize: 20, density: 0.35,
+                minTrail: 60, maxTrail: 90,       // Ensure maxTrail is applied/considered first by update logic
+                headGlowMin: 7, headGlowMax: 13,  // Ensure headGlowMax is applied/considered first
+                glowBlur: 7,
+                fadeSpeed: 0.07, decayRate: 0.965, trailMutationSpeed: 220,
+                layers: 4, eraserChance: 0.02,
+                fontFamily: "MatrixA, MatrixB, monospace" // Example, can be omitted to use current
+            }
+        },
+        'storm': {
+            description: "Very fast, dense, and chaotic code rain with quick fades.",
+            config: {
+                speed: 30, fontSize: 15, density: 1.15, lineHeight: 0.85,
+                minTrail: 10, maxTrail: 25,
+                headGlowMin: 2, headGlowMax: 4,
+                glowBlur: 2,
+                fadeSpeed: 0.28, decayRate: 0.87, trailMutationSpeed: 35,
+                layers: 2, eraserChance: 0.1
+            }
+        },
+        'whisper': {
+            description: "Subtle, dense, micro-rain with very slow character churn.",
+            config: {
+                speed: 110, fontSize: 12, lineHeight: 0.8, density: 0.95,
+                minTrail: 30, maxTrail: 50,
+                headGlowMin: 1, headGlowMax: 2,
+                glowBlur: 1,
+                fadeSpeed: 0.09, decayRate: 0.94, trailMutationSpeed: 280,
+                fontFamily: "MatrixA, monospace", 
+                layers: 3, eraserChance: 0.01
+            }
+        },
+        'pulse': {
+            description: "Layered rain with prominent erasing streams creating dynamic gaps.",
+            config: {
+                speed: 85, fontSize: 18, density: 0.5,
+                minTrail: 20, maxTrail: 35,      // Fixed: min <= max
+                headGlowMin: 3, headGlowMax: 5,   // Fixed: min <= max
+                glowBlur: 4,
+                fadeSpeed: 0.17, decayRate: 0.91, trailMutationSpeed: 160,
+                layers: 5, 
+                layerOp: [1, 0.8, 0.6, 0.35, 0.15], // Must match 'layers: 5'
+                eraserChance: 0.18
+            }
+        },
+        'ancient': {
+            description: "Larger, slower, more persistent glyphs with a classic feel.",
+            config: {
+                speed: 140, fontSize: 23, density: 0.45,
+                minTrail: 40, maxTrail: 70,
+                headGlowMin: 2, headGlowMax: 5,
+                glowBlur: 3,
+                fadeSpeed: 0.05, decayRate: 0.95, trailMutationSpeed: 300,
+                layers: 3, eraserChance: 0.03,
+                fontFamily: "MatrixA, MatrixB, monospace" // Different emphasis
+            }
+        }
+    };
+
+    // --- TERMINAL COMMANDS ---
+    const terminalCommands = {
+        // ... (about, clear, contact, date, download, easter.egg - keep as is) ...
+        'about': () => appendToTerminal(fullBioText.replace(/\n/g, '<br/>')),
         'clear': () => {
             const terminalOutput = document.getElementById('terminal-output');
-            if (!terminalOutput) return;
-            terminalOutput.innerHTML = '';
-            appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
+            if (terminalOutput) terminalOutput.innerHTML = '';
+            appendToTerminal(fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
         },
         'contact': () => {
-            let contactDetails = `Email: <a href="mailto:${context.userDetails.emailAddress}">${context.userDetails.emailAddress}</a>\nLinkedIn: <a href="https://www.linkedin.com/in/${context.userDetails.linkedinUser}" target="_blank" rel="noopener noreferrer">${context.userDetails.linkedinUser}</a>\nGitHub: <a href="https://github.com/${context.userDetails.githubUser}" target="_blank" rel="noopener noreferrer">${context.userDetails.githubUser}</a>`;
-            if (context.userDetails.mediumUser) {
-                contactDetails += `\nMedium: <a href="https://medium.com/@${context.userDetails.mediumUser}" target="_blank" rel="noopener noreferrer">@${context.userDetails.mediumUser}</a>`;
+            let contactDetails = `Email: <a href="mailto:${userDetails.emailAddress}">${userDetails.emailAddress}</a>\nLinkedIn: <a href="https://www.linkedin.com/in/${userDetails.linkedinUser}" target="_blank" rel="noopener noreferrer">${userDetails.linkedinUser}</a>\nGitHub: <a href="https://github.com/${userDetails.githubUser}" target="_blank" rel="noopener noreferrer">${userDetails.githubUser}</a>`;
+            if (userDetails.mediumUser) {
+                contactDetails += `\nMedium: <a href="https://medium.com/@${userDetails.mediumUser}" target="_blank" rel="noopener noreferrer">@${userDetails.mediumUser}</a>`;
             }
             appendToTerminal(contactDetails.replace(/\n/g, '<br/>'));
         },
-        'date': () => {
-            appendToTerminal(new Date().toLocaleString());
-        },
+        'date': () => appendToTerminal(new Date().toLocaleString()),
         'download': (args) => {
             if (args[0] && args[0].toLowerCase() === 'cv') {
-                if (!context.userDetails.cvLink || context.userDetails.cvLink === "path/to/your/resume.pdf") {
-                    appendToTerminal("CV link not configured or is a placeholder.", 'output-error'); return;
+                if (!userDetails.cvLink || userDetails.cvLink === "path/to/your/resume.pdf") {
+                    return appendToTerminal("CV link not configured or is a placeholder.", 'output-error');
                 }
                 appendToTerminal(`Attempting to prepare CV for viewing/download...`);
-
-                let finalCvLink = context.userDetails.cvLink;
+                let finalCvLink = userDetails.cvLink;
                 const gDriveRegex = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\//;
-                const match = context.userDetails.cvLink.match(gDriveRegex);
-
+                const match = userDetails.cvLink.match(gDriveRegex);
                 if (match && match[1]) {
-                    const fileId = match[1];
-                    finalCvLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+                    finalCvLink = `https://drive.google.com/uc?export=download&id=${match[1]}`;
                     appendToTerminal(`Using Google Drive direct download link format.`);
                 } else {
                     appendToTerminal(`Using provided link directly. Behavior depends on link type.`);
                 }
-
                 const linkEl = document.createElement('a');
                 linkEl.href = finalCvLink;
-                linkEl.download = `${context.userDetails.userName.replace(/\s+/g, "_")}_CV.pdf`;
-                linkEl.target = '_blank'; 
+                linkEl.download = `${userDetails.userName.replace(/\s+/g, "_")}_CV.pdf`;
+                linkEl.target = '_blank';
                 linkEl.rel = 'noopener noreferrer';
-                
                 document.body.appendChild(linkEl);
                 linkEl.click();
                 document.body.removeChild(linkEl);
                 appendToTerminal(`If your browser blocked the pop-up or download didn't start, check your browser settings. You can also use the CV link in the navigation bar.`, 'output-text');
-
             } else {
                 appendToTerminal(`Usage: download cv`, 'output-error');
             }
@@ -311,6 +347,7 @@ function getTerminalCommands(context) {
             });
         },
         'help': () => {
+            const presetNames = Object.keys(rainPresets).map(p => p.replace(/</g, "&lt;").replace(/>/g, "&gt;")).join(', ');
             let commandList = [
                 { cmd: "about", display: "about", desc: "Display information about me." },
                 { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
@@ -319,174 +356,104 @@ function getTerminalCommands(context) {
                 { cmd: "download cv", display: "download cv", desc: "Download my CV." },
                 { cmd: "easter.egg", display: "easter.egg", desc: "???" },
                 { cmd: "projects", display: "projects", desc: "Show my featured projects." },
-                { cmd: "rainconfig [param] [val]", display: "rainconfig [param] [val]", desc: "Configure Matrix rain. Params: fontSize, speed, density, trailEffect, randomizeSpeed, opacity, blur, rainShadow, glitchIntensity, fontFamily. No args for current. `reset` for defaults." }, // rainDirection removed from help
-                { cmd: "rainpreset <name>", display: "rainpreset <name>", desc: "Apply rain preset (calm, standard, storm, glitched)." },
-                { cmd: "resize term <W> <H>|reset", display: "resize term <W> <H>|reset", desc: "Resize terminal or reset. E.g. `resize term 600px 70vh` or `resize term reset`" },
+                { cmd: "rainpreset <name>", display: "rainpreset <name>", desc: `Apply rain preset. Available: ${presetNames}.` },
+                { cmd: "resize term <W> <H>|reset", display: "resize term <W> <H>|reset", desc: "Resize terminal. E.g. `resize term 60vw 70vh` or `reset`." },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
-                { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., skilltree se" },
-                { cmd: "theme [name|mode]", display: "theme [name|mode]", desc: "Themes: amber, cyan, green, purple, twilight, crimson, forest, light, dark." },
+                { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., `skilltree se`." },
+                { cmd: "termtext <size>", display: "termtext <size>", desc: "Set terminal font size. E.g., `termtext 12px`, `small`, `medium`, `large`." },
+                { cmd: "theme <name>", display: "theme <name>", desc: "Themes: amber, cyan, green, purple, twilight, crimson, forest, electricecho, goldenglitch, dark (default green)." },
                 { cmd: "whoami", display: "whoami", desc: "Display current user." },
                 { cmd: "sudo", display: "sudo", desc: "Attempt superuser command (humorous)." },
             ];
-            const basePad = "  "; 
-            const descSeparator = " - "; 
+            const basePad = "  ";
+            const descSeparator = " - ";
             let maxDisplayLength = 0;
-            commandList.forEach(item => {
-                if (item.display.length > maxDisplayLength) {
-                    maxDisplayLength = item.display.length;
-                }
-            });
-
+            commandList.forEach(item => { if (item.display.length > maxDisplayLength) maxDisplayLength = item.display.length; });
             let helpOutput = "Available commands:\n";
             commandList.forEach(item => {
                 const displayPart = item.display.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/ /g, "&nbsp;");
-                const paddingLength = maxDisplayLength - item.display.length; 
-                const padding = "&nbsp;".repeat(paddingLength); 
+                const padding = "&nbsp;".repeat(maxDisplayLength - item.display.length);
                 const descPart = item.desc.replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 helpOutput += `${basePad}${displayPart}${padding}${descSeparator.replace(/ /g, "&nbsp;")}${descPart}\n`;
             });
             appendToTerminal(helpOutput.trim().replace(/\n/g, '<br/>'));
         },
-        'projects': () => {
+        'projects': () => { /* ... (same as before) ... */
             appendToTerminal("Project showcase under development. Check GitHub for now!");
-            appendToTerminal(`Visit: <a href="https://github.com/${context.userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${context.userDetails.githubUser}</a>`);
-        },
-        'rainconfig': (args) => {
-            if (!getRainConfig || !updateRainConfig || !resetRainConfig || !restartMatrixRain) {
-                appendToTerminal("Rain configuration module not available.", "output-error");
-                return;
-            }
-            const currentFullConfig = getRainConfig(); 
-
-            if (args.length === 0) { 
-                let output = "Current Matrix Rain Configuration:\n";
-                const order = ['fontSize', 'speed', 'density', 'trailEffect', 'randomizeSpeed', 'opacity', 'blur', 'rainShadow', 'glitchIntensity', 'fontFamily']; // rainDirection removed
-                order.forEach(key => {
-                    if (currentFullConfig.hasOwnProperty(key) && key !== 'availableFonts') { 
-                         output += `  ${key}: ${JSON.stringify(currentFullConfig[key])}\n`;
-                    }
-                });
-                for (const key in currentFullConfig) {
-                    if (!order.includes(key) && currentFullConfig.hasOwnProperty(key) && key !== 'availableFonts') {
-                         output += `  ${key}: ${JSON.stringify(currentFullConfig[key])}\n`;
-                    }
-                }
-                output += "\nAvailable Fonts for 'fontFamily' (ensure they are loaded in your browser/CSS):\n";
-                currentFullConfig.availableFonts.forEach(font => {
-                    output += `  - "${font}"\n`;
-                });
-                // Rain direction options removed from output
-
-                appendToTerminal(output.replace(/\n/g, "<br/>"));
-                return;
-            }
-
-            if (args[0].toLowerCase() === 'reset') {
-                resetRainConfig();
-                restartMatrixRain();
-                appendToTerminal("Matrix rain configuration reset to defaults.", "output-success");
-                return;
-            }
-
-            if (args.length >= 2) {
-                const param = args[0];
-                let value = args.slice(1).join(" "); 
-                
-                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-                    value = value.substring(1, value.length - 1);
-                }
-                
-                // rainDirection specific logic removed here, updateRainConfig will handle unknown params if any slip through
-
-                if (updateRainConfig(param, value)) {
-                    restartMatrixRain(); 
-                    appendToTerminal(`${param.replace(/</g, "&lt;").replace(/>/g, "&gt;")} set to ${String(value).replace(/</g, "&lt;").replace(/>/g, "&gt;")}. Matrix rain updated.`, "output-success");
-                } 
-            } else {
-                appendToTerminal("Usage: rainconfig [parameter value] OR rainconfig reset OR rainconfig", "output-error");
-                appendToTerminal("Example: rainconfig opacity 0.5 OR rainconfig fontFamily \"Courier New, monospace\"");
-            }
+            appendToTerminal(`Visit: <a href="https://github.com/${userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${userDetails.githubUser}</a>`);
         },
         'rainpreset': (args) => {
             if (!args || args.length === 0) {
                 appendToTerminal("Usage: rainpreset <preset_name>", "output-error");
-                appendToTerminal("Available presets: calm, standard, storm, glitched", "output-text");
+                appendToTerminal(`Available presets: ${Object.keys(rainPresets).map(p => p.replace(/</g, "&lt;").replace(/>/g, "&gt;")).join(', ')}`, "output-text");
                 return;
             }
             const presetName = args[0].toLowerCase();
-            let presetConfig = null;
-        
-            const baseSpeed = newDefaultConfig.speed; 
-        
-            switch (presetName) {
-                case 'calm':
-                    presetConfig = {
-                        speed: Math.min(500, Math.max(20, Math.round(baseSpeed / 0.4))), 
-                        density: 0.3, opacity: 0.5, blur: 1, glitchIntensity: 0,
-                        rainShadow: 3, randomizeSpeed: false, trailEffect: true,
-                        // fontSize and fontFamily will use current global defaults unless specified here
-                    };
-                    break;
-                case 'standard': // Adjusted to match classic Matrix rain look
-                    presetConfig = {
-                        speed: 90, // Slightly faster than default
-                        density: 0.75, // Denser
-                        opacity: 0.85, // Slightly more opaque
-                        blur: 0.1, // Very slight blur for softness, but still sharp
-                        glitchIntensity: 0.08, // Very subtle glitches
-                        rainShadow: 3, // A bit more glow
-                        randomizeSpeed: true, 
-                        trailEffect: true,
-                        fontFamily: "Fira Code, monospace", // Explicitly classic font
-                        fontSize: 15, // Explicitly standard size
-                    };
-                    break;
-                case 'storm':
-                    presetConfig = {
-                        speed: Math.min(500, Math.max(20, Math.round(baseSpeed / 1.8))), 
-                        density: 0.85, opacity: 0.9, blur: 0.15, glitchIntensity: 0.35, 
-                        rainShadow: 8, randomizeSpeed: true, trailEffect: true,
-                    };
-                    break;
-                case 'glitched':
-                    presetConfig = {
-                        speed: Math.floor(Math.random() * (baseSpeed / 0.6 - baseSpeed / 1.8 + 1) + baseSpeed / 1.8),
-                        density: 0.65, opacity: 0.85, blur: 1.0, glitchIntensity: 0.7, 
-                        rainShadow: Math.floor(Math.random() * (8 - 4 + 1) + 4), 
-                        randomizeSpeed: true, trailEffect: true,
-                    };
-                    break;
-                default:
-                    appendToTerminal(`Unknown preset: ${presetName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, "output-error");
-                    appendToTerminal("Available presets: calm, standard, storm, glitched", "output-text");
-                    return;
+            const presetData = rainPresets[presetName];
+
+            if (!presetData) {
+                appendToTerminal(`Unknown preset: '${presetName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}'. Type 'help' for options.`, "output-error");
+                return;
             }
-        
-            if (presetConfig) {
+
+            if (presetName === 'default' && typeof presetData.action === 'function') {
+                const message = presetData.action(); // Calls resetRainConfig() via context
+                appendToTerminal(message, "output-success");
+            } else if (presetData.config && typeof context.updateRainConfig === 'function') {
+                appendToTerminal(`Applying preset '${presetName}'... (${presetData.description || ''})`, "output-text");
+                
                 let successCount = 0;
-                let appliedSettings = "Applying preset '" + presetName + "':\n";
-                // Apply all settings from the preset, overriding current ones
-                for (const param in presetConfig) {
-                    if (updateRainConfig(param, presetConfig[param])) {
-                        appliedSettings += `  ${param}: ${presetConfig[param]}\n`;
-                        successCount++;
-                    } else {
-                        appliedSettings += `  ${param}: [Failed to apply]\n`;
+                let errorCount = 0;
+                
+                // Define an order for applying settings to help with dependencies
+                // Max values first, then min values, then others.
+                const applyOrder = [
+                    'layers', // Apply layers first if layerOp depends on it
+                    'maxTrail', 'headGlowMax', 
+                    'minTrail', 'headGlowMin', 
+                ];
+                const appliedParams = new Set();
+
+                // Apply ordered parameters first
+                for (const param of applyOrder) {
+                    if (presetData.config.hasOwnProperty(param)) {
+                        if (context.updateRainConfig(param, presetData.config[param], presetData.config)) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                            // Error message is handled by updateRainConfig
+                        }
+                        appliedParams.add(param);
                     }
                 }
-                // For params not in preset, they retain their current values (or could be reset to default if desired)
-                // For now, only preset values are changed.
 
-                if (successCount > 0) {
-                    restartMatrixRain(); 
-                    appendToTerminal(appliedSettings.replace(/\n/g, "<br/>"), "output-text");
-                    appendToTerminal(`Rain preset '${presetName}' applied.`, "output-success");
-                } else {
-                    appendToTerminal(`No settings were applied for preset '${presetName}'.`, "output-error");
+                // Apply remaining parameters
+                for (const param in presetData.config) {
+                    if (!appliedParams.has(param)) {
+                         // Pass the full preset config as the third argument for context-aware validation
+                        if (context.updateRainConfig(param, presetData.config[param], presetData.config)) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                            // Error message is handled by updateRainConfig
+                        }
+                    }
                 }
+
+                if (successCount > 0 && errorCount === 0) {
+                    appendToTerminal(`Rain preset '${presetName}' applied successfully.`, "output-success");
+                } else if (successCount > 0 && errorCount > 0) {
+                    appendToTerminal(`Rain preset '${presetName}' partially applied with ${errorCount} error(s). Check messages above.`, "output-warning");
+                } else if (errorCount > 0) {
+                    appendToTerminal(`Failed to apply preset '${presetName}' due to ${errorCount} error(s).`, "output-error");
+                } else {
+                     appendToTerminal(`Preset '${presetName}' processed, but no settings were changed (or all failed silently).`, "output-text"); // Should not happen if validation works
+                }
+            } else {
+                 appendToTerminal(`Preset '${presetName}' is misconfigured or the update function is unavailable.`, "output-error");
             }
-        },        
-        'resize': (args) => {
+        },
+        'resize': (args) => { /* ... (same as before) ... */
             if (args[0] && args[0].toLowerCase() === 'term') {
                 if (args.length === 2 && args[1].toLowerCase() === 'reset') {
                     if (typeof resizeTerminalElement === 'function' && defaultTerminalSize) {
@@ -498,7 +465,7 @@ function getTerminalCommands(context) {
                 } else if (args.length === 3) {
                     const width = args[1];
                     const height = args[2];
-                    const validUnits = /^\d+(\.\d+)?(px|%|vw|vh)$/i; 
+                    const validUnits = /^\d+(\.\d+)?(px|%|vw|vh)$/i;
                     if (validUnits.test(width) && validUnits.test(height)) {
                         if (typeof resizeTerminalElement === 'function') {
                             resizeTerminalElement(width, height);
@@ -517,34 +484,34 @@ function getTerminalCommands(context) {
                 appendToTerminal('Usage: resize term &lt;width&gt; &lt;height&gt; OR resize term reset', 'output-error');
             }
         },
-        'skills': () => {
+        'skills': () => { /* ... (same as before) ... */
             appendToTerminal(`Key Areas: Software Engineering (Languages, Frameworks, Frontend, Backend, DevOps), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown or 'skilltree [path]' to explore specific areas (e.g., 'skilltree ai').`.replace(/\n/g, '<br/>'));
         },
-        'skilltree': (args) => {
-            const pathArg = args.join(' ').trim(); 
+        'skilltree': (args) => { /* ... (same as before) ... */
+            const pathArg = args.join(' ').trim();
             let targetNode = skillsData;
-            let displayPath = skillsData.name; 
+            let displayPath = skillsData.name;
 
             if (pathArg) {
                 const pathParts = pathArg.includes('>') ? pathArg.split('>').map(p => p.trim().toLowerCase()) : [pathArg.trim().toLowerCase()];
                 let currentNode = skillsData;
-                let currentPathForDisplayArray = []; 
+                let currentPathForDisplayArray = [];
                 let pathFound = true;
 
                 for (const part of pathParts) {
-                    if (!part) continue; 
+                    if (!part) continue;
                     let foundNodeInChildren = null;
                     if (currentNode.children) {
                         foundNodeInChildren = currentNode.children.find(child =>
                             child.name.toLowerCase() === part ||
-                            child.name.split('(')[0].trim().toLowerCase() === part || 
+                            child.name.split('(')[0].trim().toLowerCase() === part ||
                             (child.aliases && child.aliases.map(a => a.toLowerCase()).includes(part))
                         );
                     }
 
                     if (foundNodeInChildren) {
                         currentNode = foundNodeInChildren;
-                        currentPathForDisplayArray.push(currentNode.name); 
+                        currentPathForDisplayArray.push(currentNode.name);
                     } else {
                         const errorPathTrail = currentPathForDisplayArray.length > 0 ? currentPathForDisplayArray.join(' > ') + ' > ' : '';
                         appendToTerminal(`Path segment not found: "${part.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" in "${errorPathTrail.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${part.replace(/</g, "&lt;").replace(/>/g, "&gt;")}"`, 'output-error');
@@ -556,7 +523,7 @@ function getTerminalCommands(context) {
                     targetNode = currentNode;
                     displayPath = skillsData.name + (currentPathForDisplayArray.length > 0 ? " > " + currentPathForDisplayArray.join(' > ') : "");
                 } else {
-                    return; 
+                    return;
                 }
             }
 
@@ -565,33 +532,60 @@ function getTerminalCommands(context) {
                 targetNode.children.forEach((child, index) => {
                     renderSkillTree(child, '  ', index === targetNode.children.length - 1, outputArray);
                 });
-            } else if (targetNode !== skillsData) { 
+            } else if (targetNode !== skillsData) {
                  outputArray.push("    └── (End of this skill branch. Explore other paths or type `skilltree` to see all top categories!)");
-            } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) { 
+            } else if (targetNode === skillsData && (!targetNode.children || targetNode.children.length === 0 )) {
                 outputArray.push("  (No skill categories defined under root)");
             }
 
             appendToTerminal(outputArray.join('\n').replace(/\n/g, '<br/>'));
-            if (!pathArg && skillsData.children && skillsData.children.length > 0) { 
+            if (!pathArg && skillsData.children && skillsData.children.length > 0) {
                  appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree se`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
-        'sudo': (args) => {
-            appendToTerminal(`Access Denied. User '${context.userDetails.userName}' is not authorized to use 'sudo'. This incident will be logged (not really).`, 'output-error');
+        'sudo': (args) => { /* ... (same as before) ... */
+            appendToTerminal(`Access Denied. User '${userDetails.userName}' is not authorized to use 'sudo'. This incident will be logged (not really).`, 'output-error');
         },
-        'theme': (args) => {
+        'termtext': (args) => { /* ... (same as before, from previous turn's full code) ... */
+            if (!args || args.length === 0) {
+                appendToTerminal('Usage: termtext <size>', 'output-error');
+                appendToTerminal('Examples: termtext 12px, termtext small, termtext medium, termtext large', 'output-text');
+                const currentSize = getComputedStyle(document.documentElement).getPropertyValue('--terminal-font-size');
+                appendToTerminal(`Current terminal font size: ${currentSize || 'default (11px)'}`, 'output-text');
+                return;
+            }
+            const inputSize = args[0].toLowerCase();
+            let newSize = '';
+
+            if (inputSize === 'small') newSize = '9px';
+            else if (inputSize === 'medium') newSize = '11px'; 
+            else if (inputSize === 'large') newSize = '14px';
+            else if (/^\d+(\.\d+)?px$/i.test(inputSize) || /^\d+(\.\d+)?em$/i.test(inputSize) || /^\d+(\.\d+)?rem$/i.test(inputSize)) {
+                const sizeValue = parseFloat(inputSize);
+                if (inputSize.endsWith('px') && (sizeValue < 6 || sizeValue > 24)) {
+                     appendToTerminal('Pixel size out of reasonable range (6px-24px).', 'output-error'); return;
+                }
+                newSize = inputSize;
+            } else {
+                appendToTerminal('Invalid size. Use "small", "medium", "large", or a value like "10px", "1.2em".', 'output-error');
+                return;
+            }
+
+            document.documentElement.style.setProperty('--terminal-font-size', newSize);
+            appendToTerminal(`Terminal font size set to ${newSize}.`, 'output-success');
+        },
+        'theme': (args) => { /* ... (same as before, from previous turn's full code) ... */
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
-            const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight', 'crimson', 'forest'];
-            const validSpecificThemes = [...darkThemes]; 
-            const allValidOptions = [...validSpecificThemes, 'light', 'dark']; 
+            const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight', 'crimson', 'forest', 'electricecho', 'goldenglitch'];
+            const validSpecificThemes = [...darkThemes];
+            const allValidOptions = [...validSpecificThemes, 'dark']; 
 
             const currentThemeClass = Array.from(document.body.classList).find(cls => cls.startsWith('theme-'));
-            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-')); 
+            const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-'));
 
             const showThemeUsage = () => {
-                appendToTerminal(`Usage: theme &lt;name|mode&gt;`, 'output-text');
-                appendToTerminal(`Available themes: ${validSpecificThemes.sort().join(', ')}`);
-                appendToTerminal(`Available modes: light, dark (dark mode defaults to 'green' theme).`);
+                appendToTerminal(`Usage: theme &lt;name&gt;`, 'output-text');
+                appendToTerminal(`Available themes: ${validSpecificThemes.sort().join(', ')}, dark (default green).`);
                 appendToTerminal(`Current theme: ${currentThemeClass ? currentThemeClass.replace('theme-','') : 'green'}`);
             };
 
@@ -606,17 +600,9 @@ function getTerminalCommands(context) {
                         document.body.classList.remove(className);
                     }
                 });
-                if (themeNameInput === 'light' && document.body.classList.contains('crt-mode')) {
-                    document.body.classList.remove('crt-mode'); 
-                    appendToTerminal('CRT mode disabled for light theme compatibility.', 'output-text');
-                }
-
-
-                if (themeNameInput === 'light') {
-                    document.body.classList.add('theme-light');
-                    appendToTerminal('Theme set to light mode.', 'output-success');
-                } else if (themeNameInput === 'dark') { 
-                    document.body.classList.add('theme-green'); 
+                
+                if (themeNameInput === 'dark') {
+                    document.body.classList.add('theme-green');
                     appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
                 } else if (validSpecificThemes.includes(themeNameInput)) {
                     document.body.classList.add(`theme-${themeNameInput}`);
@@ -626,7 +612,7 @@ function getTerminalCommands(context) {
                 if (currentFontClass) {
                     document.body.classList.add(currentFontClass);
                 }
-                if (typeof restartMatrixRain === 'function') {
+                if (typeof restartMatrixRain === 'function') { 
                     restartMatrixRain();
                 }
 
@@ -635,8 +621,8 @@ function getTerminalCommands(context) {
                 showThemeUsage();
             }
         },
-        'whoami': () => {
-            appendToTerminal(context.userDetails.userName);
+        'whoami': () => { /* ... (same as before) ... */
+            appendToTerminal(userDetails.userName);
         }
     };
 
