@@ -18,27 +18,102 @@ document.addEventListener('DOMContentLoaded', () => {
     const navMediumLink = document.getElementById('nav-medium-link');
 
     const defaultTerminalSize = {
-        width: '55vw',
-        height: '50vh'
+        width: '45vw',
+        height: '40vh'
     };
 
     // --- All Matrix Chars (for Easter Egg, etc.) ---
     const allMatrixCharsGlobal = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
 
-    // --- New Matrix Rain Configuration & Logic ---
+    /**
+     * MATRIX-RAIN CONFIG PARAMETERS
+     * ──────────────────────────────
+     *
+     * speed: time gap (ms) between frames
+     *     30  : very fast animation, CPU-heavier
+     *     120 : leisurely drip, lighter load
+     *
+     * font: glyph size in pixels (sets column width)
+     *     12  : dense “micro” rain
+     *     28  : huge billboard-style characters
+     *
+     * lineH: line-height factor (row spacing)
+     *     0.8 : rows overlap slightly, tighter curtain
+     *     1.2 : airy spacing, individual glyphs isolated
+     *
+     * density: fraction of columns that are active rain
+     *     0.50 : half the screen sprinkled with streams
+     *     1.20 : over-populate – columns can overlap
+     *
+     * minTrail: shortest possible stream length (rows)
+     *     5   : stubby drips that vanish quickly
+     *     30  : longer ribbons before fading
+     *
+     * maxTrail: longest possible stream length (rows)
+     *     40  : moderate tails
+     *     90  : epic, screen-filling streaks
+     *
+     * headGlowMin: minimum glowing-head length (rows)
+     *     1 : single bright leader
+     *     4 : small flare at stream front
+     *
+     * headGlowMax: maximum glowing-head length (rows)
+     *     3 : always compact glow
+     *     10: occasional comet-like flare
+     *
+     * blur: max shadow-blur radius for glowing glyphs (px)
+     *     0  : crisp neon
+     *     15 : soft blooming glow
+     *
+     * trailMutate: frames between random glyph swaps inside a trail
+     *     30  : jittery, high “code” churn
+     *     300 : almost static tails
+     *
+     * fade: alpha of black overlay painted each frame
+     *     0.05 : persistent trails, slow fade-out
+     *     0.40 : quick dissolve, airy rain
+     *
+     * decayBase: exponential per-glyph brightness falloff (0.7–0.99)
+     *     0.85 : steep fade down the column
+     *     0.97 : gentle, lingering glow
+     *
+     * baseCol: regular glyph colour
+     *     \"#0aff0a\" : classic Matrix green
+     *     \"#00dfff\" : bright cyan variant
+     *
+     * headCol: colour of glowing head glyphs
+     *     \"#c8ffc8\" : pale green highlight
+     *     \"#ffffff\" : stark white leaders
+     *
+     * fontFamily: font stack used to render glyphs
+     *     \"MatrixA, MatrixB, monospace\" : custom glyph fonts
+     *     \"Courier New, monospace\"      : fallback terminal look
+     *
+     * layers: number of depth planes for parallax opacity
+     *     1 : flat, uniform rain
+     *     5 : multi-layered depth illusion
+     *
+     * layerOp: array giving base opacity per depth layer (front → back)
+     *     [1,0.7,0.5] : subtle dimming with distance
+     *     [1,0.5,0.25,0.1] : pronounced foreground vs. background
+     *
+     * delChance: probability (0–1) a column is an invisible “eraser” stream
+     *     0.00 : no deletion, constant brightness
+     *     0.10 : frequent vanishing columns for dynamic gaps
+     */
     const DEFAULT_CFG = {
-        speed: 60, // Adjusted from new code's 50 to be slightly less demanding, original: 50
-        font: 15,  // Adjusted from new code's 21, original: 21
-        lineH: 0.9,
-        density: 0.85, // Adjusted from new code's 1.1, original: 1.1
-        minTrail: 15, // Adjusted, original: 20
-        maxTrail: 40, // Adjusted, original: 69
-        headGlowMin: 2,
+        speed: 90, 
+        font: 19,  
+        lineH: 1,
+        density: 0.95,
+        minTrail: 11, 
+        maxTrail: 69,
+        headGlowMin: 1,
         headGlowMax: 7,
-        blur: 5, 
+        blur: 15, 
         trailMutate: 150,
-        fade: 0.15, // Adjusted from new code's 0.25, original: 0.25
-        decayBase: 0.92, // Adjusted, original: 0.9
+        fade: 0.15,
+        decayBase: 0.92,
         baseCol: "#0aff0a",
         headCol: "#c8ffc8",
         fontFamily: "MatrixA, MatrixB, monospace", // Uses new fonts
