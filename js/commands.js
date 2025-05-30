@@ -15,7 +15,7 @@ function getTerminalCommands(context) {
     } = context;
 
     // --- SKILLS DATA ---
-    const skillsData = { /* ... (Your existing skillsData object - keep as is) ... */
+    const skillsData = {
         name: "Core Competencies",
         aliases: ["core", "all", "root"],
         children: [
@@ -123,7 +123,7 @@ function getTerminalCommands(context) {
             }
         ]
     };
-    function renderSkillTree(node, indent = '', isLast = true, outputArray = []) { /* ... (Your existing renderSkillTree - keep as is) ... */
+    function renderSkillTree(node, indent = '', isLast = true, outputArray = []) {
         if (!node || typeof node.name === 'undefined') {
             console.error("Error in renderSkillTree: Node or node.name is undefined. Node:", node);
             outputArray.push(`${indent}${isLast ? '└── ' : '├── '}[Error: Malformed skill data]`);
@@ -150,12 +150,10 @@ function getTerminalCommands(context) {
         const overlay = document.createElement('div');
         overlay.className = 'terminal-glitch-overlay';
         
-        // --- Start Easter Egg Font Fix ---
         // Get current rain font family from CFG to apply to glitch text
         const currentRainConfig = context.getRainConfig ? context.getRainConfig() : {};
         const glitchFontFamily = currentRainConfig.fontFamily || "MatrixA, MatrixB, monospace"; // Fallback
         overlay.style.fontFamily = glitchFontFamily;
-        // --- End Easter Egg Font Fix ---
 
         const originalPosition = context.mainContentContainer.style.position;
         context.mainContentContainer.style.position = 'relative';

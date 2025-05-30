@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- All Matrix Chars (for Easter Egg, etc.) ---
-    const allMatrixCharsGlobal = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
+    const allMatrixCharsGlobal = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンFUKZVRC0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
 
     /**
      * MATRIX-RAIN CONFIG PARAMETERS
@@ -234,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resizeRainCanvasAndStreams();
         rainTick();
     }
-    // --- End of New Matrix Rain Logic ---
 
     const commandHistory = [];
     let historyIndex = commandHistory.length;
@@ -249,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     let currentLoadingMsgIndex = 0;
 
-    function animateLoaderMatrixChars() { /* ... (same as before) ... */
+    function animateLoaderMatrixChars() { 
         if (!matrixLoaderCharsEl) return;
         let text = '';
         const lines = 4; const charsPerLine = 28;
@@ -266,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentLoadingMsgIndex++;
         }
     }
-    const handleWindowLoad = () => { /* ... (same as before) ... */
+    const handleWindowLoad = () => {
         if (loadingScreen) {
             if (loaderCharInterval) clearInterval(loaderCharInterval);
             if (statusCyclingInterval) clearInterval(statusCyclingInterval);
@@ -282,14 +281,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    if (loadingScreen && !loadingScreen.classList.contains('hidden')) { /* ... (same as before) ... */
+    if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
         loaderCharInterval = setInterval(animateLoaderMatrixChars, 120);
         animateLoaderMatrixChars(); updateLoadingStatusMessage();
         statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
     }
     window.onload = handleWindowLoad;
 
-    function appendToTerminal(htmlContent, type = 'output-text') { /* ... (same as before) ... */
+    function appendToTerminal(htmlContent, type = 'output-text') {
         if (!terminalOutput) return null;
         const lineDiv = document.createElement('div');
         lineDiv.classList.add(type);
@@ -311,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { primary: DEFAULT_CFG.baseCol, glow: DEFAULT_CFG.headCol, background: '#000' };
     }
     
-    function updateRainColorsFromTheme() { /* ... (same as before) ... */
+    function updateRainColorsFromTheme() {
         const themeColors = getCurrentThemeColors();
         CFG.baseCol = themeColors.primary;
         CFG.headCol = themeColors.glow;
@@ -319,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             matrixRainCtx.shadowColor = CFG.headCol;
         }
     }
-    function resizeTerminalElement(width, height) { /* ... (same as before) ... */
+    function resizeTerminalElement(width, height) {
         if (mainContentContainer) {
             mainContentContainer.style.width = width;
             mainContentContainer.style.height = height;
@@ -462,8 +461,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // resizeRainCanvasAndStreams(); 
     }
 
-    let fullWelcomeMessageStringGlobal = ''; /* ... (same as before) ... */
-    function toggleCrtMode(activate) { /* ... (same as before) ... */
+    let fullWelcomeMessageStringGlobal = '';
+    function toggleCrtMode(activate) {
         crtModeActive = typeof activate === 'boolean' ? activate : !crtModeActive;
         document.body.classList.toggle('crt-mode', crtModeActive);
         if (typeof activate === 'boolean' && terminalOutput) {
@@ -471,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (commandInput) commandInput.focus();
     }
-    function globalKeydownHandler(e) { /* ... (same as before) ... */
+    function globalKeydownHandler(e) {
         const key = e.key; 
         if (e.target === commandInput || e.target.tagName === 'A') {
             if (key === 'Escape' && document.activeElement === commandInput) {
@@ -586,7 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
-        function displayInitialWelcomeMessage() { /* ... (same as before) ... */
+        function displayInitialWelcomeMessage() {
             if (terminalOutput) appendToTerminal(fullWelcomeMessageStringGlobal.replace(/\n/g, '<br/>'), 'output-welcome');
             if (commandInput) commandInput.focus();
         }
