@@ -4,7 +4,7 @@
   "children": [
     {
       "name": "Software Engineering",
-      "aliases": ["se", "swe", "software"],
+      "aliases": ["se", "swe", "software", "programming"],
       "children": [
         {
           "name": "Languages & Frameworks",
@@ -26,7 +26,7 @@
               "name": "TypeScript",
               "aliases": ["ts"],
               "children": [
-                { "name": "Node.js" },
+                { "name": "Node.js" }
               ]
             },
             {
@@ -42,7 +42,7 @@
               "aliases": ["spark"],
               "children": [
                 { "name": "PySpark" },
-                { "name": "Spark SQL" },
+                { "name": "Spark SQL" }
               ]
             }
           ]
@@ -68,7 +68,7 @@
           "aliases": ["dl"],
           "children": [
             { "name": "Neural Networks" },
-            { "name": "PyTorch" },
+            { "name": "PyTorch" }
           ]
         },
         {
@@ -76,7 +76,7 @@
           "aliases": ["genai"],
           "children": [
             { "name": "LLMs (Large Language Models)" },
-            { "name": "RAG (Retrieval Augmented Generation)" },
+            { "name": "RAG (Retrieval Augmented Generation)" }
           ]
         },
         {
@@ -128,7 +128,7 @@
           "aliases": ["or"],
           "children": [
             { "name": "Linear Programming" },
-            { "name": "Integer Programming" },
+            { "name": "Integer Programming" }
           ]
         }
       ]
@@ -189,7 +189,7 @@
       "aliases": ["certs"],
       "children": [
         { "name": "Stanford: NLP with Deep Learning" },
-        { "name": "Palantir Foundry: Data Engineering" },
+        { "name": "Palantir Foundry: Data Engineering" }
       ]
     }
   ]

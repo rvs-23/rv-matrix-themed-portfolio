@@ -308,8 +308,8 @@ body {
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 1;
     padding: 1rem;
-    width: 40vw;
-    height: 35vh;
+    width: 52vw;
+    height: 42vh;
     max-width: 90vw;
     max-height: 90vh;
     background-color: rgba(var(--terminal-base-r), var(--terminal-base-g), var(--terminal-base-b), var(--terminal-opacity));
@@ -414,7 +414,7 @@ body {
 .prompt-arrow {
     color: var(--primary-color);
     transition: color 0.3s ease;
-    margin-right: 0.7em;
+    margin-right: 0.6em;
     font-weight: bold;
     animation: blinkPrompt 1.5s infinite;
 }
@@ -427,7 +427,7 @@ body {
     }
 
     50% {
-        opacity: 0.6;
+        opacity: 0.69;
     }
 }
 
@@ -439,7 +439,7 @@ body {
     font-family: var(--font-mono-current) !important;
     font-size: 1em !important;
     flex-grow: 1;
-    caret-color: var(--secondary-color);
+    caret-color: var(--primary-color);
     transition: color 0.3s ease, caret-color 0.3s ease;
     -webkit-appearance: none;
     -moz-appearance: none;
