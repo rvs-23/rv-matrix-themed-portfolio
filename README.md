@@ -3,14 +3,13 @@
 
 ## 1. Project Overview
 
-This project is a unique, Matrix-themed personal portfolio website designed to showcase skills and projects in an interactive, terminal-based interface. It aims to provide a memorable and engaging user experience, distinct from traditional portfolio layouts.
+This project is a my personal, Matrix-themed personal portfolio website designed to showcase skills / projects and general information about me in an interactive, terminal-based interface. It aims to provide a memorable and engaging user experience, distinct from traditional portfolio layouts.
 
 **Key Features:**
 
 * **Interactive Terminal:** A fully functional terminal interface where users can type commands to navigate sections (About, Skills, Projects, Contact), change themes, and discover easter eggs.
 * **Matrix Rain Animation:** A dynamic, falling green character animation in the background, reminiscent of the iconic Matrix digital rain.
-* **Parallax Background Effects:** Subtle parallax effects on background grid and symbol layers that respond to mouse movement, adding depth.
-* **Theming:** Customizable color themes (including light/dark modes) for the terminal and overall aesthetic.
+* **Theming:** Customizable color themes for the terminal and overall aesthetic.
 * **Skill Tree Explorer:** An interactive command (`skilltree`) to navigate a detailed hierarchy of technical skills.
 * **Responsive Design:** Adapts to various screen sizes, ensuring usability on desktop and mobile devices.
 * **Loading Animation:** A themed loading sequence to enhance the initial immersion.
@@ -19,7 +18,7 @@ This project is a unique, Matrix-themed personal portfolio website designed to s
 
 ### 2.1. Architecture
 
-The portfolio is a client-side single-page application built with vanilla HTML, CSS, and JavaScript.
+The portfolio is a client-side single-page application built with vanilla HTML, CSS, and JS.
 
 **Core Components:**
 
@@ -37,7 +36,6 @@ The portfolio is a client-side single-page application built with vanilla HTML, 
     * **`renderSkillTree` Function**: A recursive helper function to format and display the `skillsData` in an ASCII tree style.
     * **`activateTerminalGlitchAndQuote` Function**: Handles the logic for the `easter.egg` command's visual glitch and quote display.
 
-For a more detailed breakdown of component interactions and future scalability notes, please refer to [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### 2.2. Tech Stack
 
@@ -50,9 +48,6 @@ For a more detailed breakdown of component interactions and future scalability n
     * Tailwind CSS (v3.x via CDN for utility classes, primarily in `index.html`).
 * **Graphics:**
     * HTML5 Canvas 2D API (for Matrix rain and parallax effects).
-* **Fonts & Icons:**
-    * Google Fonts (Fira Code, Inter) via CDN.
-    * Font Awesome (v6.x via CDN for icons).
 * **Development Environment:**
     * A modern web browser with developer tools.
     * A simple HTTP server for local development (e.g., Live Server extension in VS Code, Python's `http.server`).
@@ -60,10 +55,6 @@ For a more detailed breakdown of component interactions and future scalability n
 ### 2.3. Dependencies
 
 This project primarily uses vanilla JavaScript and relies on CDN-hosted libraries for styling and icons. There are no `npm` package dependencies or a build step required for the core functionality.
-
-* **Tailwind CSS:** `https://cdn.tailwindcss.com`
-* **Font Awesome:** `https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css`
-* **Google Fonts:** `https://fonts.googleapis.com/...` (specific URL in `index.html`)
 
 ### 2.4. Environment Variables
 
@@ -225,3 +216,6 @@ The following commands are available in the terminal. Type a command and press E
 ## 6. License
 This project is licensed under the MIT License.
 
+Code and Planning credits: <br>
+[Rezmason](https://github.com/Rezmason/matrix/tree/master) <br>
+[Matrix Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/)
