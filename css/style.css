@@ -439,7 +439,7 @@ body {
     font-family: var(--font-mono-current) !important;
     font-size: 1em !important;
     flex-grow: 1;
-    caret-color: var(--secondary-color);
+    caret-color: var(--primary-color);
     transition: color 0.3s ease, caret-color 0.3s ease;
     -webkit-appearance: none;
     -moz-appearance: none;
