@@ -1,0 +1,196 @@
+{
+  "name": "Core Competencies",
+  "aliases": ["core", "all", "root"],
+  "children": [
+    {
+      "name": "Software Engineering",
+      "aliases": ["se", "swe", "software"],
+      "children": [
+        {
+          "name": "Languages & Frameworks",
+          "aliases": ["lang", "frameworks"],
+          "children": [
+            {
+              "name": "Python",
+              "aliases": ["py"],
+              "children": [
+                { "name": "NumPy" },
+                { "name": "Pandas" },
+                { "name": "Scikit-Learn" },
+                { "name": "Matplotlib" },
+                { "name": "Jupyter Notebook" },
+                { "name": "Virtualenv / venv" }
+              ]
+            },
+            {
+              "name": "TypeScript",
+              "aliases": ["ts"],
+              "children": [
+                { "name": "Node.js" },
+              ]
+            },
+            {
+              "name": "SQL",
+              "children": [
+                { "name": "PostgreSQL" },
+                { "name": "MySQL" },
+                { "name": "SQLite" }
+              ]
+            },
+            {
+              "name": "Apache Spark",
+              "aliases": ["spark"],
+              "children": [
+                { "name": "PySpark" },
+                { "name": "Spark SQL" },
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Artificial Intelligence & Machine Learning",
+      "aliases": ["ai", "ml"],
+      "children": [
+        {
+          "name": "Core Machine Learning",
+          "aliases": ["coreml"],
+          "children": [
+            { "name": "Regression" },
+            { "name": "Classification" },
+            { "name": "Clustering" },
+            { "name": "Dimensionality Reduction" }
+          ]
+        },
+        {
+          "name": "Deep Learning Basics",
+          "aliases": ["dl"],
+          "children": [
+            { "name": "Neural Networks" },
+            { "name": "PyTorch" },
+          ]
+        },
+        {
+          "name": "Generative AI",
+          "aliases": ["genai"],
+          "children": [
+            { "name": "LLMs (Large Language Models)" },
+            { "name": "RAG (Retrieval Augmented Generation)" },
+          ]
+        },
+        {
+          "name": "NLP Basics",
+          "aliases": ["nlp"],
+          "children": [
+            { "name": "Text Preprocessing" },
+            { "name": "Tokenization" },
+            { "name": "spaCy" },
+            { "name": "NLTK" }
+          ]
+        },
+        {
+          "name": "Explainable AI",
+          "aliases": ["xai"],
+          "children": [
+            { "name": "SHAP" },
+            { "name": "LIME" },
+            { "name": "Interpretable Models" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Data Science & Analysis",
+      "aliases": ["ds", "analysis", "datasci"],
+      "children": [
+        {
+          "name": "Statistical Foundations",
+          "aliases": ["stats"],
+          "children": [
+            { "name": "Descriptive & Inferential Statistics" },
+            { "name": "Hypothesis Testing" },
+            { "name": "Probability Theory" }
+          ]
+        },
+        {
+          "name": "Data Visualization",
+          "aliases": ["viz"],
+          "children": [
+            { "name": "Matplotlib" },
+            { "name": "Seaborn" },
+            { "name": "Plotly" },
+            { "name": "Streamlit" }
+          ]
+        },
+        {
+          "name": "Operational Research",
+          "aliases": ["or"],
+          "children": [
+            { "name": "Linear Programming" },
+            { "name": "Integer Programming" },
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Platforms & Tools",
+      "aliases": ["platforms", "tools"],
+      "children": [
+        {
+          "name": "Palantir Foundry",
+          "aliases": ["foundry"],
+          "children": [
+            { "name": "Workshop" },
+            { "name": "Ontology" },
+            { "name": "Pipeline Builder" },
+            { "name": "Code Repo" },
+            { "name": "AIP Suite" },
+            { "name": "Contour" }
+          ]
+        },
+        {
+          "name": "REST APIs",
+          "children": [
+            { "name": "Flask" },
+            { "name": "FastAPI" }
+          ]
+        },
+        {
+          "name": "Git",
+          "children": [
+            { "name": "GitHub" },
+            { "name": "Branching & Merging" }
+          ]
+        },
+        {
+          "name": "Docker & Containers",
+          "aliases": ["docker"],
+          "children": [
+            { "name": "Docker Compose" },
+            { "name": "Kubernetes (Basics)" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Teaching Experience",
+      "aliases": ["teaching", "instruction"],
+      "children": [
+        { "name": "Curriculum Development" },
+        { "name": "Lecture & Workshop Delivery" },
+        { "name": "Online Course Creation" },
+        { "name": "Mentorship & Coaching" },
+        { "name": "Toastmasters (Public Speaking)" }
+      ]
+    },
+    {
+      "name": "Certifications",
+      "aliases": ["certs"],
+      "children": [
+        { "name": "Stanford: NLP with Deep Learning" },
+        { "name": "Palantir Foundry: Data Engineering" },
+      ]
+    }
+  ]
+}
