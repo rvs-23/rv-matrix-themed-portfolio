@@ -1,5 +1,5 @@
 /**
- * @file matrix.js
+ * @file matrix-rain.js
  * Core logic for the Matrix Terminal Portfolio.
  * Handles DOM setup, loading screen, new Matrix rain animation, terminal I/O,
  * and overall page initialization.
@@ -10,113 +10,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const matrixLoaderCharsEl = document.getElementById('matrix-loader-chars');
     const decryptStatusEl = document.getElementById('decrypt-status');
     const mainContentContainer = document.getElementById('contentContainer');
-    const matrixRainCanvas = document.getElementById('matrix-canvas'); // Uses existing ID
+    const matrixRainCanvas = document.getElementById('matrix-canvas');
     const matrixRainCtx = matrixRainCanvas ? matrixRainCanvas.getContext('2d') : null;
     const terminalOutput = document.getElementById('terminal-output');
     const commandInput = document.getElementById('command-input');
     const navCvLink = document.getElementById('nav-cv-link');
     const navMediumLink = document.getElementById('nav-medium-link');
 
+    // UPDATED default terminal size
     const defaultTerminalSize = {
-        width: '45vw',
-        height: '40vh'
+        width: '40vw',
+        height: '35vh'
     };
 
-    // --- All Matrix Chars (for Easter Egg, etc.) ---
     const allMatrixCharsGlobal = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンFUKZVRC0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
 
-    /**
-     * MATRIX-RAIN CONFIG PARAMETERS
-     * ──────────────────────────────
-     *
-     * speed: time gap (ms) between frames
-     *     30  : very fast animation, CPU-heavier
-     *     120 : leisurely drip, lighter load
-     *
-     * font: glyph size in pixels (sets column width)
-     *     12  : dense “micro” rain
-     *     28  : huge billboard-style characters
-     *
-     * lineH: line-height factor (row spacing)
-     *     0.8 : rows overlap slightly, tighter curtain
-     *     1.2 : airy spacing, individual glyphs isolated
-     *
-     * density: fraction of columns that are active rain
-     *     0.50 : half the screen sprinkled with streams
-     *     1.20 : over-populate – columns can overlap
-     *
-     * minTrail: shortest possible stream length (rows)
-     *     5   : stubby drips that vanish quickly
-     *     30  : longer ribbons before fading
-     *
-     * maxTrail: longest possible stream length (rows)
-     *     40  : moderate tails
-     *     90  : epic, screen-filling streaks
-     *
-     * headGlowMin: minimum glowing-head length (rows)
-     *     1 : single bright leader
-     *     4 : small flare at stream front
-     *
-     * headGlowMax: maximum glowing-head length (rows)
-     *     3 : always compact glow
-     *     10: occasional comet-like flare
-     *
-     * blur: max shadow-blur radius for glowing glyphs (px)
-     *     0  : crisp neon
-     *     15 : soft blooming glow
-     *
-     * trailMutate: frames between random glyph swaps inside a trail
-     *     30  : jittery, high “code” churn
-     *     300 : almost static tails
-     *
-     * fade: alpha of black overlay painted each frame
-     *     0.05 : persistent trails, slow fade-out
-     *     0.40 : quick dissolve, airy rain
-     *
-     * decayBase: exponential per-glyph brightness falloff (0.7–0.99)
-     *     0.85 : steep fade down the column
-     *     0.97 : gentle, lingering glow
-     *
-     * baseCol: regular glyph colour
-     *     \"#0aff0a\" : classic Matrix green
-     *     \"#00dfff\" : bright cyan variant
-     *
-     * headCol: colour of glowing head glyphs
-     *     \"#c8ffc8\" : pale green highlight
-     *     \"#ffffff\" : stark white leaders
-     *
-     * fontFamily: font stack used to render glyphs
-     *     \"MatrixA, MatrixB, monospace\" : custom glyph fonts
-     *     \"Courier New, monospace\"      : fallback terminal look
-     *
-     * layers: number of depth planes for parallax opacity
-     *     1 : flat, uniform rain
-     *     5 : multi-layered depth illusion
-     *
-     * layerOp: array giving base opacity per depth layer (front → back)
-     *     [1,0.7,0.5] : subtle dimming with distance
-     *     [1,0.5,0.25,0.1] : pronounced foreground vs. background
-     *
-     * delChance: probability (0–1) a column is an invisible “eraser” stream
-     *     0.00 : no deletion, constant brightness
-     *     0.10 : frequent vanishing columns for dynamic gaps
-     */
     const DEFAULT_CFG = {
-        speed: 90, 
-        font: 19,  
+        speed: 90,
+        font: 19,
         lineH: 1,
         density: 0.95,
-        minTrail: 11, 
+        minTrail: 11,
         maxTrail: 69,
         headGlowMin: 1,
         headGlowMax: 7,
-        blur: 15, 
+        blur: 15,
         trailMutate: 150,
         fade: 0.15,
         decayBase: 0.92,
         baseCol: "#0aff0a",
         headCol: "#c8ffc8",
-        fontFamily: "MatrixA, MatrixB, monospace", // Uses new fonts
+        fontFamily: "MatrixA, MatrixB, monospace",
         layers: 3,
         layerOp: [1, 0.7, 0.5],
         delChance: 0.04
@@ -147,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         matrixRainCtx.font = `${CFG.font}px ${CFG.fontFamily}`;
         matrixRainCtx.textBaseline = "top";
-        colW = CFG.font; // monospaced assumption
+        colW = CFG.font;
         TOTAL_COLS = Math.floor(innerWidth / colW);
         ROWS = Math.floor(innerHeight / (CFG.font * CFG.lineH));
 
@@ -155,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ACTIVE_COL_INDICES = shuffle([...Array(TOTAL_COLS).keys()]).slice(0, targetActiveCols);
 
         streams = ACTIVE_COL_INDICES.map(index => new Stream(index));
-        if (matrixRainCtx && CFG.headCol) { // Ensure shadowColor is set after CFG might be updated
+        if (matrixRainCtx && CFG.headCol) {
              matrixRainCtx.shadowColor = CFG.headCol;
         }
     }
@@ -164,9 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         constructor(colIndex) { this.col = colIndex; this.reset(); }
         reset() {
             this.layer = randInt(CFG.layers);
-            // Ensure layerOp has enough entries, fallback if not
             this.opacity = CFG.layerOp[this.layer] !== undefined ? CFG.layerOp[this.layer] : (CFG.layerOp.length > 0 ? CFG.layerOp[CFG.layerOp.length-1] : 1);
-
             this.del = Math.random() < CFG.delChance;
             this.len = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
             this.headGlow = CFG.headGlowMin + randInt(CFG.headGlowMax - CFG.headGlowMin + 1);
@@ -211,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function rainTick() {
         if (!matrixRainCtx || !matrixRainCanvas) return;
-        
+
         matrixRainCtx.shadowBlur = 0;
         matrixRainCtx.globalAlpha = CFG.fade;
         matrixRainCtx.fillStyle = getCurrentThemeColors().background;
@@ -240,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
     let konamiCodeIndex = 0;
     let crtModeActive = false;
+    let terminalVisible = true; // NEW: State for terminal visibility
     let loaderCharInterval;
     let statusCyclingInterval;
     const loadingMessages = [
@@ -248,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     let currentLoadingMsgIndex = 0;
 
-    function animateLoaderMatrixChars() { 
+    function animateLoaderMatrixChars() {
         if (!matrixLoaderCharsEl) return;
         let text = '';
         const lines = 4; const charsPerLine = 28;
@@ -258,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         matrixLoaderCharsEl.textContent = text;
     }
-    function updateLoadingStatusMessage() { /* ... (same as before) ... */
+    function updateLoadingStatusMessage() {
         if (!decryptStatusEl) return;
         if (currentLoadingMsgIndex < loadingMessages.length) {
             decryptStatusEl.textContent = loadingMessages[currentLoadingMsgIndex];
@@ -272,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (decryptStatusEl) decryptStatusEl.textContent = loadingMessages[loadingMessages.length - 1] || "SYSTEM ONLINE.";
             setTimeout(() => {
                 if (loadingScreen) loadingScreen.classList.add('hidden');
-                if (mainContentContainer) mainContentContainer.style.opacity = '1';
+                if (mainContentContainer) mainContentContainer.style.opacity = '1'; // Will be visible by default
                 initializeTerminalAndGraphics();
             }, 600);
         } else {
@@ -298,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return lineDiv;
     }
 
-    function getCurrentThemeColors() { /* ... (same as before, uses DEFAULT_CFG for fallback) ... */
+    function getCurrentThemeColors() {
         if (typeof getComputedStyle !== 'undefined' && document.body) {
             const styles = getComputedStyle(document.body);
             return {
@@ -309,13 +232,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return { primary: DEFAULT_CFG.baseCol, glow: DEFAULT_CFG.headCol, background: '#000' };
     }
-    
+
     function updateRainColorsFromTheme() {
         const themeColors = getCurrentThemeColors();
         CFG.baseCol = themeColors.primary;
         CFG.headCol = themeColors.glow;
          if (matrixRainCtx && CFG.headCol) {
             matrixRainCtx.shadowColor = CFG.headCol;
+        }
+        // Update --primary-color-rgb for prompt line border
+        if (document.body) {
+            const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
+            const rgbMatch = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(primaryColor);
+            if (rgbMatch) {
+                const r = parseInt(rgbMatch[1], 16);
+                const g = parseInt(rgbMatch[2], 16);
+                const b = parseInt(rgbMatch[3], 16);
+                document.documentElement.style.setProperty('--primary-color-rgb', `${r}, ${g}, ${b}`);
+            } else {
+                 // Fallback for non-hex primary colors if necessary, or default to green
+                const namedColorMatch = primaryColor.toLowerCase(); // e.g. 'green'
+                if (namedColorMatch === 'green') document.documentElement.style.setProperty('--primary-color-rgb', `0, 255, 0`);
+                // Add other named color translations if used, or a default
+                else document.documentElement.style.setProperty('--primary-color-rgb', `0, 255, 0`);
+            }
         }
     }
     function resizeTerminalElement(width, height) {
@@ -325,18 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Rain Configuration Update Logic (Called by commands.js) ---
     function getRainConfigForCommand() {
-        return { ...CFG }; // Return a copy
+        return { ...CFG };
     }
 
-    /**
-     * Updates a single rain configuration parameter.
-     * @param {string} param - The friendly name of the parameter to update.
-     * @param {*} value - The new value for the parameter.
-     * @param {object|null} applyingPresetContext - The full preset object if multiple settings are being applied.
-     * @returns {boolean} True if successful, false otherwise.
-     */
     function updateRainConfigFromCommand(param, value, applyingPresetContext = null) {
         const MAPPINGS = {
             speed: { key: 'speed', type: 'int', min: 10, max: 500 },
@@ -353,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
             decayRate: { key: 'decayBase', type: 'float', min: 0.7, max: 0.99 },
             fontFamily: { key: 'fontFamily', type: 'string_font' },
             layers: { key: 'layers', type: 'int', min: 1, max: 10 },
-            layerOp: { key: 'layerOp', type: 'array_float', ele_min: 0, ele_max: 1 }, // min/max for array elements
+            layerOp: { key: 'layerOp', type: 'array_float', ele_min: 0, ele_max: 1 },
             eraserChance: { key: 'delChance', type: 'float', min: 0, max: 1 }
         };
 
@@ -383,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             case 'array_float':
-                parsedValue = value; // Value from preset should be an array
+                parsedValue = value;
                 if (!Array.isArray(parsedValue)) {
                     isValid = false;
                     if(terminalOutput) appendToTerminal(`Error: Invalid type for '${param}'. Expected an array. Received: ${typeof value}`, 'output-error');
@@ -404,25 +336,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             default:
-                parsedValue = String(value); // Should not happen for known types
+                parsedValue = String(value);
                 break;
         }
-        
+
         if (!isValid) {
-            if(terminalOutput && !MAPPINGS[param].type.startsWith('array')) { // Array errors are more specific
+            if(terminalOutput && !MAPPINGS[param].type.startsWith('array')) {
                 appendToTerminal(`Error: Invalid value for '${param}'. Value: '${value}', Min: ${setting.min}, Max: ${setting.max}.`, 'output-error');
             }
             return false;
         }
 
-        // Context-aware validation for interdependent parameters
         if (setting.key === 'minTrail' || setting.key === 'maxTrail' || setting.key === 'headGlowMin' || setting.key === 'headGlowMax') {
             let minT = (setting.key === 'minTrail') ? parsedValue : (applyingPresetContext?.minTrail ?? CFG.minTrail);
             let maxT = (setting.key === 'maxTrail') ? parsedValue : (applyingPresetContext?.maxTrail ?? CFG.maxTrail);
             let minHG = (setting.key === 'headGlowMin') ? parsedValue : (applyingPresetContext?.headGlowMin ?? CFG.headGlowMin);
             let maxHG = (setting.key === 'headGlowMax') ? parsedValue : (applyingPresetContext?.headGlowMax ?? CFG.headGlowMax);
 
-            // Convert context values to numbers if they came from the preset object
             minT = parseFloat(minT); maxT = parseFloat(maxT);
             minHG = parseFloat(minHG); maxHG = parseFloat(maxHG);
 
@@ -441,8 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         CFG[setting.key] = parsedValue;
-        
-        // If critical display parameters change, resize canvas and reinitialize streams
+
         if (setting.key === 'font' || setting.key === 'fontFamily' || setting.key === 'density' || setting.key === 'lineH' || setting.key === 'layers') {
             resizeRainCanvasAndStreams();
         }
@@ -454,11 +383,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateRainColorsFromTheme();
         resizeRainCanvasAndStreams();
     }
-    
+
     function restartRainAfterThemeChange() {
         updateRainColorsFromTheme();
-        // If themes were to change font/density, this would be needed:
-        // resizeRainCanvasAndStreams(); 
     }
 
     let fullWelcomeMessageStringGlobal = '';
@@ -468,16 +395,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof activate === 'boolean' && terminalOutput) {
             appendToTerminal(`Analog Channel Override: CRT Mode ${crtModeActive ? 'Engaged' : 'Disengaged'}. Frequency aligned.`, 'output-success');
         }
-        if (commandInput) commandInput.focus();
+        if (commandInput && terminalVisible) commandInput.focus();
     }
+
+    // NEW: Function to toggle terminal visibility
+    function toggleTerminalVisibility() {
+        terminalVisible = !terminalVisible;
+        if (mainContentContainer) {
+            mainContentContainer.classList.toggle('hidden', !terminalVisible);
+        }
+        document.body.classList.toggle('terminal-hidden', !terminalVisible); // For hiding nav if needed
+
+        if (terminalVisible && commandInput) {
+            commandInput.focus();
+            if (terminalOutput) appendToTerminal("Terminal interface restored. Ctrl + \\ to hide.", "output-text");
+        } else if (terminalOutput) {
+             // Only append if terminalOutput itself is not part of the hidden container or if we want to log this action
+            // For now, let's assume this message is desired even if the terminal is about to be hidden.
+            // It will be visible when terminal is restored.
+            appendToTerminal("Terminal interface hidden. Ctrl + \\ to restore.", "output-text");
+        }
+    }
+
+
     function globalKeydownHandler(e) {
-        const key = e.key; 
+        const key = e.key;
+
+        // NEW: Ctrl + \ to toggle terminal
+        if (e.ctrlKey && key === '\\') {
+            e.preventDefault();
+            toggleTerminalVisibility();
+            return;
+        }
+
+        if (!terminalVisible && key !== 'Escape') { // Allow Escape to potentially show terminal or other global actions
+            return; // Don't process other keys if terminal is hidden
+        }
+
         if (e.target === commandInput || e.target.tagName === 'A') {
             if (key === 'Escape' && document.activeElement === commandInput) {
                 commandInput.blur();
             }
             return;
         }
+
 
         if (key === konamiCodeSequence[konamiCodeIndex]) {
             konamiCodeIndex++;
@@ -490,11 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { konamiCodeIndex = 0; }
     }
 
-    // --- INITIALIZATION ---
     function initializeTerminalAndGraphics() {
+        updateRainColorsFromTheme(); // Initialize --primary-color-rgb
         startRainAnimation();
 
-        const userDetails = { /* ... (same as before) ... */
+        const userDetails = {
             userName: "Rishav Sharma", userTitle: "Software Engineer / Data Scientist",
             githubUser: "rvs-23", linkedinUser: "rishav-sharma-23rvs", mediumUser: "rvs",
             emailAddress: "23rishavsharma@gmail.com",
@@ -510,24 +471,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const fullBioText = `Name: ${userDetails.userName}\nTitle: ${userDetails.userTitle}\nBio: ${bioContent}\nFocus: ${focusContent}\nDigital Self: ${githubLink}`;
 
         const plainNameArt = `<span class="ascii-name">${userDetails.userName.toUpperCase()}</span>`;
-        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n---------------------------------------------------`;
+        const welcomeText = `Welcome to ${userDetails.userName}'s Terminal.\nType 'help' to see available commands.\n(Ctrl + \\ to toggle terminal visibility)\n---------------------------------------------------`;
         fullWelcomeMessageStringGlobal = `${plainNameArt}\n${welcomeText}`;
 
-        // Context for commands.js
         const commandHandlerContext = {
             appendToTerminal, fullWelcomeMessageString: fullWelcomeMessageStringGlobal,
             userDetails, fullBioText, mainContentContainer, allMatrixChars: allMatrixCharsGlobal,
             resizeTerminalElement, defaultTerminalSize,
             getRainConfig: getRainConfigForCommand,
-            updateRainConfig: updateRainConfigFromCommand, // For presets to call
+            updateRainConfig: updateRainConfigFromCommand,
             resetRainConfig: resetRainConfigToDefaults,
             restartMatrixRain: restartRainAfterThemeChange,
+            toggleTerminal: toggleTerminalVisibility // Expose toggle function
         };
-        const terminalCommands = getTerminalCommands(commandHandlerContext); // From commands.js
+        const terminalCommands = getTerminalCommands(commandHandlerContext);
 
-        // Command input handling (same as before)
-        if (commandInput) { /* ... (same as before, no changes to this block) ... */
+        if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
+                if (!terminalVisible) return; // Ignore input if terminal not visible
+
                 if (e.key === 'Enter') {
                     if (commandInput.disabled) return;
                     e.preventDefault(); const fullCommandText = commandInput.value.trim();
@@ -577,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (mainContentContainer) {
                 mainContentContainer.addEventListener('click', (e) => {
+                     if (!terminalVisible) return;
                     if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') {
                         if (commandInput) commandInput.focus();
                     }
@@ -587,10 +550,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function displayInitialWelcomeMessage() {
             if (terminalOutput) appendToTerminal(fullWelcomeMessageStringGlobal.replace(/\n/g, '<br/>'), 'output-welcome');
-            if (commandInput) commandInput.focus();
+            if (commandInput && terminalVisible) commandInput.focus();
         }
 
         if (terminalOutput) displayInitialWelcomeMessage();
+         // Ensure terminal is visible by default as per CSS (no 'hidden' class initially)
+        document.body.classList.remove('terminal-hidden');
+
 
         window.addEventListener('resize', () => {
              resizeRainCanvasAndStreams();

@@ -19,8 +19,8 @@
     --nav-label-bg: rgba(0, 255, 0, 0.15);
     --loader-text-color: #0F0;
     --loader-spinner-color: #0F0;
-    --matrix-rain-trail-color: rgba(0, 0, 0, 0.05); /* New rain uses CFG.fade for trail appearance */
-    --matrix-rain-glow-color: #9FFF9F; /* Used to set CFG.headCol */
+    --matrix-rain-trail-color: rgba(0, 0, 0, 0.05);
+    --matrix-rain-glow-color: #9FFF9F;
     --footer-height: 3.5rem;
 
     /* Font Families */
@@ -28,8 +28,8 @@
     --font-stack-fira: 'Fira Code', monospace;
     --font-mono-current: var(--font-stack-fira);
 
-    /* Terminal Font Size Control */
-    --terminal-font-size: 11px; /* Default terminal font size */
+    /* Terminal Font Size Control - Increased by approx 15% from 11px */
+    --terminal-font-size: 12.5px;
 }
 
 @font-face {
@@ -102,49 +102,25 @@ body.theme-forest {
     --loader-text-color: #228B22; --loader-spinner-color: #ADFF2F;
     --matrix-rain-glow-color: #98FB98;
 }
-
-/* New Theme 1: Electric Echo */
 body.theme-electricecho {
-    --primary-color: #00ffff; /* Cyan */
-    --secondary-color: #ff00ff; /* Magenta */
-    --background-color: #05000f; /* Very dark blue/purple */
-    --terminal-background-color: rgba(10, 5, 30, 0.9);
-    --text-shadow-color: rgba(0, 255, 255, 0.7);
-    --border-color: rgba(0, 200, 200, 0.6);
-    --hover-color: #ff00ff;
-    --hover-shadow-color: rgba(255, 0, 255, 0.9);
-    --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-    --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
-    --scrollbar-thumb-hover-color: #ff00ff;
-    --nav-icon-color: #00ffff;
-    --nav-icon-hover-color: #ff00ff;
-    --nav-label-bg: rgba(0, 255, 255, 0.15);
-    --loader-text-color: #00ffff;
-    --loader-spinner-color: #ff00ff;
-    --matrix-rain-glow-color: #ffffff; /* White glow for contrast */
+    --primary-color: #00ffff; --secondary-color: #ff00ff; --background-color: #05000f;
+    --terminal-background-color: rgba(10, 5, 30, 0.9); --text-shadow-color: rgba(0, 255, 255, 0.7);
+    --border-color: rgba(0, 200, 200, 0.6); --hover-color: #ff00ff; --hover-shadow-color: rgba(255, 0, 255, 0.9);
+    --scrollbar-track-color: rgba(0, 255, 255, 0.1); --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
+    --scrollbar-thumb-hover-color: #ff00ff; --nav-icon-color: #00ffff;
+    --nav-icon-hover-color: #ff00ff; --nav-label-bg: rgba(0, 255, 255, 0.15);
+    --loader-text-color: #00ffff; --loader-spinner-color: #ff00ff; --matrix-rain-glow-color: #ffffff;
 }
-
-/* New Theme 2: Golden Glitch */
 body.theme-goldenglitch {
-    --primary-color: #FFD700; /* Gold */
-    --secondary-color: #FF4500; /* OrangeRed for glitchy accents */
-    --background-color: #1a0e00; /* Very dark brown */
-    --terminal-background-color: rgba(40, 20, 0, 0.9);
-    --text-shadow-color: rgba(255, 215, 0, 0.6);
-    --border-color: rgba(255, 165, 0, 0.6); /* Orange border */
-    --hover-color: #FF4500;
-    --hover-shadow-color: rgba(255, 69, 0, 0.8);
-    --scrollbar-track-color: rgba(255, 215, 0, 0.1);
-    --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
-    --scrollbar-thumb-hover-color: #FF4500;
-    --nav-icon-color: #FFD700;
-    --nav-icon-hover-color: #FF4500;
-    --nav-label-bg: rgba(255, 215, 0, 0.15);
-    --loader-text-color: #FFD700;
-    --loader-spinner-color: #FF4500;
-    --matrix-rain-glow-color: #FFFACD; /* LemonChiffon for a softer gold glow */
+    --primary-color: #FFD700; --secondary-color: #FF4500; --background-color: #1a0e00;
+    --terminal-background-color: rgba(40, 20, 0, 0.9); --text-shadow-color: rgba(255, 215, 0, 0.6);
+    --border-color: rgba(255, 165, 0, 0.6); --hover-color: #FF4500; --hover-shadow-color: rgba(255, 69, 0, 0.8);
+    --scrollbar-track-color: rgba(255, 215, 0, 0.1); --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
+    --scrollbar-thumb-hover-color: #FF4500; --nav-icon-color: #FFD700;
+    --nav-icon-hover-color: #FF4500; --nav-label-bg: rgba(255, 215, 0, 0.15);
+    --loader-text-color: #FFD700; --loader-spinner-color: #FF4500;
+    --matrix-rain-glow-color: #FFFACD;
 }
-
 
 body.font-fira { --font-mono-current: var(--font-stack-fira); }
 
@@ -181,9 +157,8 @@ body {
 .spinner { margin-top: 1.2rem; width: 35px; height: 35px; border: 3px solid rgba(0,0,0,0.1); border-left-color: var(--loader-spinner-color); border-radius: 50%; animation: spin 1s linear infinite; box-shadow: 0 0 8px var(--loader-spinner-color); transition: border-left-color 0.3s ease, box-shadow 0.3s ease; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Canvas Layers (matrix-canvas styling unchanged, parallax specific styles can be removed if any) */
+/* Canvas Layers */
 #matrix-canvas { display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
-/* Parallax canvas IDs #parallax-canvas-bg, #parallax-canvas-fg are removed from HTML, so their specific CSS can be removed if they existed beyond this generic one */
 
 /* Content Container & Terminal */
 .content-container {
@@ -195,51 +170,99 @@ body {
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 0;
     padding: 1rem;
-    width: 55vw;
-    height: 50vh;
+    /* UPDATED default size */
+    width: 40vw;
+    height: 35vh;
     max-width: 90vw;
-    max-height: 90vh;
+    max-height: 90vh; /* Ensure it doesn't exceed viewport height */
     background-color: var(--terminal-background-color);
-    border-radius: 0.4rem;
-    box-shadow: 0 8px 16px -4px var(--text-shadow-color), 0 3px 7px -2px var(--text-shadow-color);
+    border-radius: 0.5rem; /* Slightly more rounded */
+    box-shadow: 0 10px 25px -5px var(--text-shadow-color), 0 6px 10px -4px var(--text-shadow-color); /* Enhanced shadow */
     border: 1px solid var(--border-color);
     box-sizing: border-box;
     overflow: hidden;
     display: flex; flex-direction: column;
-    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease, font-size 0.3s ease; /* Added font-size transition */
+    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease, font-size 0.3s ease, opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
 }
+
+/* NEW class for hidden terminal */
+.content-container.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95) translateY(20px); /* Optional: nice shrink/fade out effect */
+    pointer-events: none; /* Prevent interaction when hidden */
+}
+
 
 #terminal-output {
     flex-grow: 1; overflow-y: auto;
     white-space: pre-wrap; word-break: break-word;
-    line-height: 1.4; padding-right: 5px;
+    line-height: 1.5; /* Increased line height for better readability */
+    padding-right: 8px; /* Slightly more padding for scrollbar */
     position: relative;
 }
-#terminal-output > div { margin-bottom: 0.8em; }
+#terminal-output > div { margin-bottom: 0.7em; } /* Slightly reduced margin for tighter look */
 
-.prompt-line { margin-top: 1em; flex-shrink: 0; padding-bottom: 0.2em; display: flex; align-items: center; }
-.prompt-arrow { color: var(--primary-color); transition: color 0.3s ease; margin-right: 0.6em; font-weight: bold; }
+/* Slightly enhanced prompt */
+.prompt-line {
+    margin-top: 0.8em; /* Reduced top margin */
+    flex-shrink: 0;
+    padding-bottom: 0.3em; /* Adjusted padding */
+    display: flex;
+    align-items: center;
+    border-top: 1px solid rgba(var(--primary-color-rgb, 0, 255, 0), 0.1); /* Subtle top border */
+    padding-top: 0.5em;
+}
+
+/* Helper to extract RGB from var(--primary-color) for the rgba() above.
+   This part needs JS to update if theme changes dynamically to update --primary-color-rgb.
+   For now, it defaults to green. A more robust solution would involve JS updating this CSS variable.
+*/
+body.theme-green { --primary-color-rgb: 0, 255, 0; }
+body.theme-cyan { --primary-color-rgb: 0, 255, 255; }
+body.theme-amber { --primary-color-rgb: 255, 191, 0; }
+body.theme-purple { --primary-color-rgb: 192, 0, 192; }
+body.theme-twilight { --primary-color-rgb: 230, 160, 196; }
+body.theme-crimson { --primary-color-rgb: 220, 20, 60; }
+body.theme-forest { --primary-color-rgb: 34, 139, 34; }
+body.theme-electricecho { --primary-color-rgb: 0, 255, 255; }
+body.theme-goldenglitch { --primary-color-rgb: 255, 215, 0; }
+
+
+.prompt-arrow {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+    margin-right: 0.7em; /* Slightly more spacing */
+    font-weight: bold;
+    animation: blinkPrompt 1.5s infinite; /* Blinking effect for the prompt arrow */
+}
+
+@keyframes blinkPrompt {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 
 #command-input {
     background-color: transparent !important; border: none !important; outline: none !important;
     color: var(--primary-color) !important; font-family: var(--font-mono-current) !important;
-    font-size: 1em !important; /* Inherits from .content-container which uses var(--terminal-font-size) */
+    font-size: 1em !important;
     flex-grow: 1;
-    caret-color: var(--primary-color);
+    caret-color: var(--secondary-color); /* Make caret more distinct */
     transition: color 0.3s ease, caret-color 0.3s ease;
     -webkit-appearance: none; -moz-appearance: none; appearance: none;
     padding-right: 0.2em;
 }
 
-/* Scrollbar Styling (remains the same) */
-#terminal-output::-webkit-scrollbar { width: 8px; }
-#terminal-output::-webkit-scrollbar-track { background: var(--scrollbar-track-color); border-radius: 8px; transition: background 0.3s ease; }
-#terminal-output::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-color); border-radius: 8px; transition: background 0.3s ease; }
+/* Scrollbar Styling */
+#terminal-output::-webkit-scrollbar { width: 10px; } /* Slightly wider scrollbar */
+#terminal-output::-webkit-scrollbar-track { background: var(--scrollbar-track-color); border-radius: 10px; transition: background 0.3s ease; }
+#terminal-output::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-color); border-radius: 10px; border: 2px solid var(--terminal-background-color); /* Makes thumb appear inset */ transition: background 0.3s ease; }
 #terminal-output::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover-color); }
 
 
 /* Animations & Effects */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } } /* Added scale to fadeIn */
 
 @keyframes glitch-hover-effect {
     0%, 100% { transform: translateX(0) skewX(0); opacity: 1; text-shadow: 0 0 8px var(--hover-shadow-color); }
@@ -252,25 +275,30 @@ body {
 /* Link Styling */
 .content-container a, #terminal-output a {
     color: var(--secondary-color); text-decoration: none;
-    transition: color 0.1s ease, text-shadow 0.1s ease;
+    transition: color 0.1s ease, text-shadow 0.1s ease, transform 0.1s ease; /* Added transform */
     font-weight: bold; display: inline-block;
     position: relative;
+    padding-bottom: 1px; /* Space for underline effect */
+    border-bottom: 1px dashed transparent; /* Subtle underline effect base */
 }
 .content-container a:hover, #terminal-output a:hover {
     color: var(--hover-color);
     animation: glitch-hover-effect 0.2875s linear 3;
+    border-bottom-color: var(--hover-color); /* Underline on hover */
+    transform: translateY(-1px); /* Slight lift on hover */
 }
 
-/* Terminal Output Types (remains the same) */
-.output-command {}
+/* Terminal Output Types */
+.output-command { font-weight: 500; opacity: 0.85; } /* Slightly less prominent than output */
 .output-text {}
-.output-error { color: #FF4136; text-shadow: 0 0 5px rgba(255, 65, 54, 0.7); }
-.output-success { color: var(--secondary-color); text-shadow: 0 0 5px var(--secondary-color); }
+.output-error { color: #FF4136; text-shadow: 0 0 6px rgba(255, 65, 54, 0.8); font-weight: bold; } /* Bolder error */
+.output-success { color: var(--secondary-color); text-shadow: 0 0 6px var(--secondary-color); } /* Consistent with link color */
 .ascii-name {
     display: block; color: var(--primary-color);
-    text-shadow: 0 0 7px var(--text-shadow-color);
-    margin-bottom: 0.8em; font-size: 1.1em; font-weight: bold;
-    text-align: center; letter-spacing: 1px;
+    text-shadow: 0 0 9px var(--text-shadow-color); /* Enhanced shadow */
+    margin-bottom: 0.8em; font-size: 1.15em; /* Slightly larger */
+    font-weight: bold;
+    text-align: center; letter-spacing: 1.5px; /* More spacing */
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -280,8 +308,17 @@ body {
     background-color: transparent; padding: 0.5rem 0.8rem;
     display: flex; justify-content: center; align-items: center;
     gap: 1.3rem; z-index: 150;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, opacity 0.4s ease, transform 0.4s ease; /* Added transitions */
 }
+
+/* NEW: Hide nav when terminal is hidden if desired */
+body.terminal-hidden .minimal-nav {
+    opacity: 0;
+    transform: translateY(100%);
+    pointer-events: none;
+}
+
+
 .nav-icon {
     color: var(--nav-icon-color); font-size: 1.2rem;
     text-decoration: none; position: relative;
@@ -313,7 +350,7 @@ body {
     background-color: var(--terminal-background-color);
     color: var(--primary-color);
     font-family: var(--font-mono-current);
-    font-size: inherit; /* Will inherit terminal font size */
+    font-size: inherit;
     line-height: inherit;
     overflow: hidden; z-index: 500;
     white-space: pre-wrap; word-break: break-all;
@@ -338,7 +375,7 @@ body.crt-mode::before {
 body.crt-mode #contentContainer, body.crt-mode .minimal-nav {
     text-shadow: 0 0 7px var(--primary-color), 0 0 12px var(--primary-color);
 }
-body.crt-mode #matrix-canvas { /* No change to matrix-canvas filters from CRT needed unless desired */
+body.crt-mode #matrix-canvas {
     filter: saturate(0.7) brightness(0.8);
 }
 @keyframes crt-flicker {
@@ -349,26 +386,37 @@ body.crt-mode #matrix-canvas { /* No change to matrix-canvas filters from CRT ne
 }
 
 /* Responsive Adjustments */
-@media (max-width: 767px) {
+@media (max-width: 767px) { /* Mobile devices */
     .content-container {
         width: 90vw;
-        height: 75vh;
-        /* font-size: var(--terminal-font-size) will still apply, consider adjusting default --terminal-font-size if needed for mobile */
+        /* UPDATED: max-height for portrait, respecting footer and some padding */
+        max-height: calc(100vh - var(--footer-height) - 3rem); /* Adjust 3rem as needed for top/bottom space */
+        height: 65vh; /* Allow it to be reasonably tall but capped by max-height */
         padding: 0.8rem;
-        max-height: calc(100vh - var(--footer-height) - 1rem);
     }
-    #terminal-output { line-height: 1.35; }
+    #terminal-output { line-height: 1.4; } /* Slightly adjusted line height for smaller screens */
     .ascii-name {font-size: 1em;}
     .minimal-nav { padding: 0.4rem 0.5rem; gap: 1rem; }
     .nav-icon { font-size: 1.1rem; }
     :root { --footer-height: 3.2rem; }
+
+    .prompt-line {
+        padding-top: 0.4em;
+    }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1023px) { /* Tablet devices */
     .content-container {
-        width: 70vw;
-        height: 60vh;
+        width: 65vw; /* Adjusted width */
+        height: 50vh; /* Adjusted height */
         padding: 0.9rem;
     }
     .minimal-nav { gap: 1.2rem; }
+}
+
+/* Ensure that when nav is explicitly hidden, it stays hidden regardless of screen size */
+body.terminal-hidden .minimal-nav {
+    opacity: 0 !important;
+    transform: translateY(100%) !important;
+    pointer-events: none !important;
 }

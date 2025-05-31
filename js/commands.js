@@ -1,17 +1,18 @@
 function getTerminalCommands(context) {
     const {
         appendToTerminal,
-        fullWelcomeMessageString,
+        fullWelcomeMessageString, // This will be updated in matrix-rain.js to include the hint
         userDetails,
         fullBioText,
         mainContentContainer,
-        allMatrixChars, 
+        allMatrixChars,
         resizeTerminalElement,
         defaultTerminalSize,
-        getRainConfig,    // Used for easter egg font and potentially by presets if needed
-        updateRainConfig, // Crucial for presets
-        resetRainConfig,  // For the 'default' preset
-        restartMatrixRain, 
+        getRainConfig,
+        updateRainConfig,
+        resetRainConfig,
+        restartMatrixRain,
+        toggleTerminal // NEW: Function to toggle terminal visibility
     } = context;
 
     // --- SKILLS DATA ---
@@ -140,7 +141,6 @@ function getTerminalCommands(context) {
         return outputArray;
     }
 
-    // --- EASTER EGG (Font Update) ---
     async function activateTerminalGlitchAndQuote() {
         const terminalOutput = document.getElementById('terminal-output');
         if (!terminalOutput || !context.mainContentContainer) return;
@@ -149,10 +149,9 @@ function getTerminalCommands(context) {
 
         const overlay = document.createElement('div');
         overlay.className = 'terminal-glitch-overlay';
-        
-        // Get current rain font family from CFG to apply to glitch text
+
         const currentRainConfig = context.getRainConfig ? context.getRainConfig() : {};
-        const glitchFontFamily = currentRainConfig.fontFamily || "MatrixA, MatrixB, monospace"; // Fallback
+        const glitchFontFamily = currentRainConfig.fontFamily || "MatrixA, MatrixB, monospace";
         overlay.style.fontFamily = glitchFontFamily;
 
         const originalPosition = context.mainContentContainer.style.position;
@@ -161,7 +160,7 @@ function getTerminalCommands(context) {
 
         const computedStyle = getComputedStyle(terminalOutput);
         const lineHeight = parseFloat(computedStyle.lineHeight) || 16;
-        const glitchFontSize = parseFloat(computedStyle.fontSize) || parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--terminal-font-size')) || 11;
+        const glitchFontSize = parseFloat(computedStyle.fontSize) || parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--terminal-font-size')) || 12.5; // Adjusted default
         const charWidth = (glitchFontSize * 0.6);
         const overlayHeight = overlay.clientHeight > 0 ? overlay.clientHeight : context.mainContentContainer.clientHeight;
         const overlayWidth = overlay.clientWidth > 0 ? overlay.clientWidth : context.mainContentContainer.clientWidth;
@@ -179,7 +178,7 @@ function getTerminalCommands(context) {
                 }
                 glitchText += '\n';
             }
-            overlay.textContent = glitchText; // Characters will now render with TTF via overlay style
+            overlay.textContent = glitchText;
             glitchIntervalCount++;
             if (glitchIntervalCount >= maxGlitchIntervals) {
                  clearInterval(glitchInterval);
@@ -187,12 +186,13 @@ function getTerminalCommands(context) {
             }
         }, 80);
 
-        function finalizeEasterEgg() { /* ... (rest of finalizeEasterEgg same as before) ... */
+        function finalizeEasterEgg() {
             if (context.mainContentContainer.contains(overlay)) {
                 context.mainContentContainer.removeChild(overlay);
             }
             context.mainContentContainer.style.position = originalPosition;
             terminalOutput.innerHTML = '';
+            // Use the fullWelcomeMessageString from context which now includes the toggle hint
             context.appendToTerminal(context.fullWelcomeMessageString.replace(/\n/g, '<br/>'), 'output-welcome');
             const quotes = [
                  "Wake up, you…", "The Matrix has you.", "Follow the white rabbit.",
@@ -219,9 +219,8 @@ function getTerminalCommands(context) {
         }, (maxGlitchIntervals * 80) + 500);
     }
 
-    // --- RAIN PRESETS DEFINITIONS (using friendly names from MAPPINGS in matrix.js) ---
     const rainPresets = {
-        'default': { // Special case: calls reset function
+        'default': {
             description: "Resets rain to its original default configuration.",
             action: () => {
                 if (typeof context.resetRainConfig === 'function') {
@@ -233,14 +232,14 @@ function getTerminalCommands(context) {
         },
         'comet': {
             description: "Fewer, long, bright-headed streams with slow fades.",
-            config: { // Uses friendly names from MAPPINGS in matrix.js
+            config: {
                 speed: 50, fontSize: 20, density: 0.35,
-                minTrail: 60, maxTrail: 90,       // Ensure maxTrail is applied/considered first by update logic
-                headGlowMin: 7, headGlowMax: 13,  // Ensure headGlowMax is applied/considered first
+                minTrail: 60, maxTrail: 90,
+                headGlowMin: 7, headGlowMax: 13,
                 glowBlur: 7,
                 fadeSpeed: 0.07, decayRate: 0.965, trailMutationSpeed: 220,
                 layers: 4, eraserChance: 0.02,
-                fontFamily: "MatrixA, MatrixB, monospace" // Example, can be omitted to use current
+                fontFamily: "MatrixA, MatrixB, monospace"
             }
         },
         'storm': {
@@ -262,7 +261,7 @@ function getTerminalCommands(context) {
                 headGlowMin: 1, headGlowMax: 2,
                 glowBlur: 1,
                 fadeSpeed: 0.09, decayRate: 0.94, trailMutationSpeed: 280,
-                fontFamily: "MatrixA, monospace", 
+                fontFamily: "MatrixA, monospace",
                 layers: 3, eraserChance: 0.01
             }
         },
@@ -270,12 +269,12 @@ function getTerminalCommands(context) {
             description: "Layered rain with prominent erasing streams creating dynamic gaps.",
             config: {
                 speed: 85, fontSize: 18, density: 0.5,
-                minTrail: 20, maxTrail: 35,      // Fixed: min <= max
-                headGlowMin: 3, headGlowMax: 5,   // Fixed: min <= max
+                minTrail: 20, maxTrail: 35,
+                headGlowMin: 3, headGlowMax: 5,
                 glowBlur: 4,
                 fadeSpeed: 0.17, decayRate: 0.91, trailMutationSpeed: 160,
-                layers: 5, 
-                layerOp: [1, 0.8, 0.6, 0.35, 0.15], // Must match 'layers: 5'
+                layers: 5,
+                layerOp: [1, 0.8, 0.6, 0.35, 0.15],
                 eraserChance: 0.18
             }
         },
@@ -288,14 +287,12 @@ function getTerminalCommands(context) {
                 glowBlur: 3,
                 fadeSpeed: 0.05, decayRate: 0.95, trailMutationSpeed: 300,
                 layers: 3, eraserChance: 0.03,
-                fontFamily: "MatrixA, MatrixB, monospace" // Different emphasis
+                fontFamily: "MatrixA, MatrixB, monospace"
             }
         }
     };
 
-    // --- TERMINAL COMMANDS ---
     const terminalCommands = {
-        // ... (about, clear, contact, date, download, easter.egg - keep as is) ...
         'about': () => appendToTerminal(fullBioText.replace(/\n/g, '<br/>')),
         'clear': () => {
             const terminalOutput = document.getElementById('terminal-output');
@@ -358,10 +355,12 @@ function getTerminalCommands(context) {
                 { cmd: "resize term <W> <H>|reset", display: "resize term <W> <H>|reset", desc: "Resize terminal. E.g. `resize term 60vw 70vh` or `reset`." },
                 { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
                 { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., `skilltree se`." },
-                { cmd: "termtext <size>", display: "termtext <size>", desc: "Set terminal font size. E.g., `termtext 12px`, `small`, `medium`, `large`." },
-                { cmd: "theme <name>", display: "theme <name>", desc: "Themes: amber, cyan, green, purple, twilight, crimson, forest, electricecho, goldenglitch, dark (default green)." },
-                { cmd: "whoami", display: "whoami", desc: "Display current user." },
                 { cmd: "sudo", display: "sudo", desc: "Attempt superuser command (humorous)." },
+                 // UPDATED termtext description and added toggleterm
+                { cmd: "termtext <size>", display: "termtext <size>", desc: "Set terminal font size. E.g., `termtext 13px`, `small`, `default`, `large`." },
+                { cmd: "theme <name>", display: "theme <name>", desc: "Themes: amber, cyan, green, purple, twilight, crimson, forest, electricecho, goldenglitch, dark (default green)." },
+                { cmd: "toggleterm", display: "toggleterm", desc: "Hide or show the terminal window (Shortcut: Ctrl + \\)." },
+                { cmd: "whoami", display: "whoami", desc: "Display current user." },
             ];
             const basePad = "  ";
             const descSeparator = " - ";
@@ -376,7 +375,7 @@ function getTerminalCommands(context) {
             });
             appendToTerminal(helpOutput.trim().replace(/\n/g, '<br/>'));
         },
-        'projects': () => { /* ... (same as before) ... */
+        'projects': () => {
             appendToTerminal("Project showcase under development. Check GitHub for now!");
             appendToTerminal(`Visit: <a href="https://github.com/${userDetails.githubUser}" target="_blank" rel="noopener noreferrer">github.com/${userDetails.githubUser}</a>`);
         },
@@ -395,45 +394,36 @@ function getTerminalCommands(context) {
             }
 
             if (presetName === 'default' && typeof presetData.action === 'function') {
-                const message = presetData.action(); // Calls resetRainConfig() via context
+                const message = presetData.action();
                 appendToTerminal(message, "output-success");
             } else if (presetData.config && typeof context.updateRainConfig === 'function') {
                 appendToTerminal(`Applying preset '${presetName}'... (${presetData.description || ''})`, "output-text");
-                
+
                 let successCount = 0;
                 let errorCount = 0;
-                
-                // Define an order for applying settings to help with dependencies
-                // Max values first, then min values, then others.
+
                 const applyOrder = [
-                    'layers', // Apply layers first if layerOp depends on it
-                    'maxTrail', 'headGlowMax', 
-                    'minTrail', 'headGlowMin', 
+                    'layers', 'maxTrail', 'headGlowMax', 'minTrail', 'headGlowMin',
                 ];
                 const appliedParams = new Set();
 
-                // Apply ordered parameters first
                 for (const param of applyOrder) {
                     if (presetData.config.hasOwnProperty(param)) {
                         if (context.updateRainConfig(param, presetData.config[param], presetData.config)) {
                             successCount++;
                         } else {
                             errorCount++;
-                            // Error message is handled by updateRainConfig
                         }
                         appliedParams.add(param);
                     }
                 }
 
-                // Apply remaining parameters
                 for (const param in presetData.config) {
                     if (!appliedParams.has(param)) {
-                         // Pass the full preset config as the third argument for context-aware validation
                         if (context.updateRainConfig(param, presetData.config[param], presetData.config)) {
                             successCount++;
                         } else {
                             errorCount++;
-                            // Error message is handled by updateRainConfig
                         }
                     }
                 }
@@ -445,13 +435,13 @@ function getTerminalCommands(context) {
                 } else if (errorCount > 0) {
                     appendToTerminal(`Failed to apply preset '${presetName}' due to ${errorCount} error(s).`, "output-error");
                 } else {
-                     appendToTerminal(`Preset '${presetName}' processed, but no settings were changed (or all failed silently).`, "output-text"); // Should not happen if validation works
+                     appendToTerminal(`Preset '${presetName}' processed, but no settings were changed.`, "output-text");
                 }
             } else {
                  appendToTerminal(`Preset '${presetName}' is misconfigured or the update function is unavailable.`, "output-error");
             }
         },
-        'resize': (args) => { /* ... (same as before) ... */
+        'resize': (args) => {
             if (args[0] && args[0].toLowerCase() === 'term') {
                 if (args.length === 2 && args[1].toLowerCase() === 'reset') {
                     if (typeof resizeTerminalElement === 'function' && defaultTerminalSize) {
@@ -482,10 +472,10 @@ function getTerminalCommands(context) {
                 appendToTerminal('Usage: resize term &lt;width&gt; &lt;height&gt; OR resize term reset', 'output-error');
             }
         },
-        'skills': () => { /* ... (same as before) ... */
+        'skills': () => {
             appendToTerminal(`Key Areas: Software Engineering (Languages, Frameworks, Frontend, Backend, DevOps), AI/ML (Regression, Classification, GenAI, XAI, NLP/DL Basics), Data Science & Analysis (Stats, Viz, OR), Platforms & Tools (Palantir Foundry, REST APIs, Git).\nType 'skilltree' for a detailed breakdown or 'skilltree [path]' to explore specific areas (e.g., 'skilltree ai').`.replace(/\n/g, '<br/>'));
         },
-        'skilltree': (args) => { /* ... (same as before) ... */
+        'skilltree': (args) => {
             const pathArg = args.join(' ').trim();
             let targetNode = skillsData;
             let displayPath = skillsData.name;
@@ -541,42 +531,45 @@ function getTerminalCommands(context) {
                  appendToTerminal("Hint: Navigate deeper using aliases (e.g., `skilltree se`) or full paths (e.g., `skilltree \"AI & ML > GenAI\"`).", "output-text");
             }
         },
-        'sudo': (args) => { /* ... (same as before) ... */
+        'sudo': (args) => {
             appendToTerminal(`Access Denied. User '${userDetails.userName}' is not authorized to use 'sudo'. This incident will be logged (not really).`, 'output-error');
         },
-        'termtext': (args) => { /* ... (same as before, from previous turn's full code) ... */
+        'termtext': (args) => {
             if (!args || args.length === 0) {
-                appendToTerminal('Usage: termtext <size>', 'output-error');
-                appendToTerminal('Examples: termtext 12px, termtext small, termtext medium, termtext large', 'output-text');
+                appendToTerminal('Usage: termtext &lt;size&gt;', 'output-error');
+                // UPDATED presets in help text
+                appendToTerminal('Examples: termtext 13px, termtext small, termtext default, termtext large', 'output-text');
                 const currentSize = getComputedStyle(document.documentElement).getPropertyValue('--terminal-font-size');
-                appendToTerminal(`Current terminal font size: ${currentSize || 'default (11px)'}`, 'output-text');
+                appendToTerminal(`Current terminal font size: ${currentSize || 'default (12.5px)'}`, 'output-text');
                 return;
             }
             const inputSize = args[0].toLowerCase();
             let newSize = '';
 
-            if (inputSize === 'small') newSize = '9px';
-            else if (inputSize === 'medium') newSize = '11px'; 
-            else if (inputSize === 'large') newSize = '14px';
+            // UPDATED presets to reflect new base size of 12.5px
+            if (inputSize === 'small') newSize = '10.5px'; // Approx 15% smaller than new default
+            else if (inputSize === 'default') newSize = '12.5px'; // New default size
+            else if (inputSize === 'large') newSize = '15px';  // Approx 15% larger than new default
             else if (/^\d+(\.\d+)?px$/i.test(inputSize) || /^\d+(\.\d+)?em$/i.test(inputSize) || /^\d+(\.\d+)?rem$/i.test(inputSize)) {
                 const sizeValue = parseFloat(inputSize);
-                if (inputSize.endsWith('px') && (sizeValue < 6 || sizeValue > 24)) {
-                     appendToTerminal('Pixel size out of reasonable range (6px-24px).', 'output-error'); return;
+                // Adjusted reasonable range for px
+                if (inputSize.endsWith('px') && (sizeValue < 7 || sizeValue > 28)) {
+                     appendToTerminal('Pixel size out of reasonable range (7px-28px).', 'output-error'); return;
                 }
                 newSize = inputSize;
             } else {
-                appendToTerminal('Invalid size. Use "small", "medium", "large", or a value like "10px", "1.2em".', 'output-error');
+                appendToTerminal('Invalid size. Use "small", "default", "large", or a value like "10px", "1.2em".', 'output-error');
                 return;
             }
 
             document.documentElement.style.setProperty('--terminal-font-size', newSize);
             appendToTerminal(`Terminal font size set to ${newSize}.`, 'output-success');
         },
-        'theme': (args) => { /* ... (same as before, from previous turn's full code) ... */
+        'theme': (args) => {
             const themeNameInput = args[0] ? args[0].toLowerCase() : null;
             const darkThemes = ['amber', 'cyan', 'green', 'purple', 'twilight', 'crimson', 'forest', 'electricecho', 'goldenglitch'];
             const validSpecificThemes = [...darkThemes];
-            const allValidOptions = [...validSpecificThemes, 'dark']; 
+            const allValidOptions = [...validSpecificThemes, 'dark'];
 
             const currentThemeClass = Array.from(document.body.classList).find(cls => cls.startsWith('theme-'));
             const currentFontClass = Array.from(document.body.classList).find(cls => cls.startsWith('font-'));
@@ -598,20 +591,20 @@ function getTerminalCommands(context) {
                         document.body.classList.remove(className);
                     }
                 });
-                
+
                 if (themeNameInput === 'dark') {
-                    document.body.classList.add('theme-green');
+                    document.body.classList.add('theme-green'); // Default dark is green
                     appendToTerminal('Theme set to dark mode (default: green).', 'output-success');
                 } else if (validSpecificThemes.includes(themeNameInput)) {
                     document.body.classList.add(`theme-${themeNameInput}`);
                     appendToTerminal(`Theme set to ${themeNameInput}.`, 'output-success');
                 }
 
-                if (currentFontClass) {
+                if (currentFontClass) { // Re-apply font class if it was there
                     document.body.classList.add(currentFontClass);
                 }
-                if (typeof restartMatrixRain === 'function') { 
-                    restartMatrixRain();
+                if (typeof restartMatrixRain === 'function') {
+                    restartMatrixRain(); // This now calls updateRainColorsFromTheme internally
                 }
 
             } else {
@@ -619,7 +612,16 @@ function getTerminalCommands(context) {
                 showThemeUsage();
             }
         },
-        'whoami': () => { /* ... (same as before) ... */
+        // NEW command to toggle terminal
+        'toggleterm': () => {
+            if (typeof toggleTerminal === 'function') {
+                toggleTerminal();
+                // Message is handled within toggleTerminalVisibility in matrix-rain.js
+            } else {
+                appendToTerminal("Error: Terminal toggle functionality is not available.", "output-error");
+            }
+        },
+        'whoami': () => {
             appendToTerminal(userDetails.userName);
         }
     };
