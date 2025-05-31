@@ -1,0 +1,73 @@
+{
+  "name": "Hobbies & Interests",
+  "aliases": ["passions", "leisure"],
+  "children": [
+    {
+      "name": "Music",
+      "aliases": ["tunes", "sound"],
+      "children": [
+        {
+          "name": "Guitar",
+          "children": [
+            { "name": "Learning & Practice (e.g., FrontRow, Theory)" },
+            { "name": "Playing Songs" },
+            { "name": "Exploring Music Theory" }
+          ]
+        },
+        {
+          "name": "John Mayer",
+          "children": [
+            { "name": "Listening (Discography, Live Shows)" },
+            { "name": "Watching Interviews & Performances (Current Mood)" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Comedy",
+      "children": [
+        { "name": "Learning Stand-up (e.g., BKR Frontrow course)" }
+      ]
+    },
+    {
+      "name": "Cognitive & Strategy",
+      "children": [
+        { "name": "Chess" },
+        {
+          "name": "Geography",
+          "children": [
+            { "name": "GeoGuessr" },
+            { "name": "Learning about Countries" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Health & Fitness",
+      "aliases": ["wellbeing"],
+      "children": [
+        { "name": "Workout Routines (e.g., Athlean X)" },
+        { "name": "Swimming" }
+      ]
+    },
+    {
+      "name": "Food",
+      "aliases": ["cuisine", "gastronomy"],
+      "children": [
+        { "name": "Exploring Cuisines & Restaurants" }
+      ]
+    },
+    {
+      "name": "Public Speaking",
+      "children": [
+        { "name": "Toastmasters" }
+      ]
+    },
+    {
+      "name": "Entertainment",
+      "children": [
+        { "name": "Watchlist (Movies & TV Shows)" }
+      ]
+    }
+  ]
+}
