@@ -308,8 +308,8 @@ body {
     animation: fadeIn 1.5s ease-out forwards;
     opacity: 1;
     padding: 1rem;
-    width: 40vw;
-    height: 35vh;
+    width: 52vw;
+    height: 42vh;
     max-width: 90vw;
     max-height: 90vh;
     background-color: rgba(var(--terminal-base-r), var(--terminal-base-g), var(--terminal-base-b), var(--terminal-opacity));
