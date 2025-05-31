@@ -559,7 +559,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                         historyIndex = commandHistory.length;
                         const sanitizedCommandDisplay = fullCommandText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                        appendToTerminal(`<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`, 'output-command-wrapper');
+                        appendToTerminal(`<div><span class="prompt-arrow"></span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`, 'output-command-wrapper');
+                        
                         const parts = []; let inQuotes = false; let currentPart = "";
                         for (let i = 0; i < fullCommandText.length; i++) {
                             const char = fullCommandText[i];
