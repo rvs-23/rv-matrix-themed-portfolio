@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const defaultTerminalSize = {
         width: '50vw',
-        height: '35vh'
+        height: '40vh'
     };
     // NEW: Store the initial opacity set in CSS :root
     const initialTerminalOpacity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--terminal-opacity').trim()) || 0.88;
