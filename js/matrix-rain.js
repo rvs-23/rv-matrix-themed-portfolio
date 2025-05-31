@@ -17,11 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const navCvLink = document.getElementById('nav-cv-link');
     const navMediumLink = document.getElementById('nav-medium-link');
 
-    // UPDATED default terminal size
     const defaultTerminalSize = {
-        width: '40vw',
+        width: '50vw',
         height: '35vh'
     };
+    // NEW: Store the initial opacity set in CSS :root
+    const initialTerminalOpacity = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--terminal-opacity').trim()) || 0.88;
+
 
     const allMatrixCharsGlobal = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンFUKZVRC0123456789!?@#$%^&*()[]{};:\'"<>,./\\|';
 
@@ -38,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
         trailMutate: 150,
         fade: 0.15,
         decayBase: 0.92,
-        baseCol: "#0aff0a",
-        headCol: "#c8ffc8",
+        baseCol: "#0aff0a", // Will be overridden by theme on init
+        headCol: "#c8ffc8", // Will be overridden by theme on init
         fontFamily: "MatrixA, MatrixB, monospace",
         layers: 3,
         layerOp: [1, 0.7, 0.5],
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let CFG = { ...DEFAULT_CFG };
 
     const GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ" +
-                   "0123456789" + "CKUVFRZ" + "*|:=<>-_";
+        "0123456789" + "CKUVFRZ" + "*|:=<>-_";
 
     let TOTAL_COLS, ACTIVE_COL_INDICES = [], streams = [], ROWS, colW;
     let rainAnimationRequestID;
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         streams = ACTIVE_COL_INDICES.map(index => new Stream(index));
         if (matrixRainCtx && CFG.headCol) {
-             matrixRainCtx.shadowColor = CFG.headCol;
+            matrixRainCtx.shadowColor = CFG.headCol;
         }
     }
 
@@ -88,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         constructor(colIndex) { this.col = colIndex; this.reset(); }
         reset() {
             this.layer = randInt(CFG.layers);
-            this.opacity = CFG.layerOp[this.layer] !== undefined ? CFG.layerOp[this.layer] : (CFG.layerOp.length > 0 ? CFG.layerOp[CFG.layerOp.length-1] : 1);
+            this.opacity = CFG.layerOp[this.layer] !== undefined ? CFG.layerOp[this.layer] : (CFG.layerOp.length > 0 ? CFG.layerOp[CFG.layerOp.length - 1] : 1);
             this.del = Math.random() < CFG.delChance;
             this.len = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
             this.headGlow = CFG.headGlowMin + randInt(CFG.headGlowMax - CFG.headGlowMin + 1);
@@ -124,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 matrixRainCtx.globalAlpha = alpha;
                 matrixRainCtx.fillStyle = colour;
                 matrixRainCtx.shadowBlur = blur;
-                if (x >= 0 && (r * CFG.font * CFG.lineH) >=0) {
+                if (x >= 0 && (r * CFG.font * CFG.lineH) >= 0) {
                     matrixRainCtx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
                 }
             }
@@ -136,23 +138,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         matrixRainCtx.shadowBlur = 0;
         matrixRainCtx.globalAlpha = CFG.fade;
-        matrixRainCtx.fillStyle = getCurrentThemeColors().background;
+        matrixRainCtx.fillStyle = getCurrentThemeColors().background; // Reads --background-color
         matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
 
         matrixRainCtx.globalAlpha = 1;
-         if (matrixRainCtx && CFG.headCol) {
-             matrixRainCtx.shadowColor = CFG.headCol;
+        if (matrixRainCtx && CFG.headCol) {
+            matrixRainCtx.shadowColor = CFG.headCol;
         }
         for (const s of streams) { s.step(); s.draw(); }
 
         rainAnimationRequestID = setTimeout(rainTick, CFG.speed);
     }
 
+    /**
+     * @function startRainAnimation
+     * @description Clears any existing rain animation, updates colors from the current theme,
+     * resizes canvas and streams, and starts the rain animation loop.
+     */
     function startRainAnimation() {
         if (rainAnimationRequestID) {
             clearTimeout(rainAnimationRequestID);
         }
-        updateRainColorsFromTheme();
+        updateRainColorsFromTheme(); // Sets rain colors and --primary-color-rgb
         resizeRainCanvasAndStreams();
         rainTick();
     }
@@ -162,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const konamiCodeSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
     let konamiCodeIndex = 0;
     let crtModeActive = false;
-    let terminalVisible = true; // NEW: State for terminal visibility
+    let terminalVisible = true;
     let loaderCharInterval;
     let statusCyclingInterval;
     const loadingMessages = [
@@ -195,11 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (decryptStatusEl) decryptStatusEl.textContent = loadingMessages[loadingMessages.length - 1] || "SYSTEM ONLINE.";
             setTimeout(() => {
                 if (loadingScreen) loadingScreen.classList.add('hidden');
-                if (mainContentContainer) mainContentContainer.style.opacity = '1'; // Will be visible by default
+                // mainContentContainer opacity is 1 by default in CSS, hidden class controls visibility
                 initializeTerminalAndGraphics();
             }, 600);
         } else {
-            if (mainContentContainer) mainContentContainer.style.opacity = '1';
             initializeTerminalAndGraphics();
         }
     };
@@ -211,7 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.onload = handleWindowLoad;
 
-    function appendToTerminal(htmlContent, type = 'output-text') {
+    /**
+     * @function appendToTerminal
+     * @description Appends HTML content to the terminal output area.
+     * @param {string} htmlContent - The HTML string to append.
+     * @param {string} [type='output-text'] - A class name to add to the line's div for styling.
+     * @returns {HTMLElement|null} The appended div element or null if terminalOutput is not found.
+     */
+    function appendToTerminal(htmlContent, type = 'output-text-wrapper') {
         if (!terminalOutput) return null;
         const lineDiv = document.createElement('div');
         lineDiv.classList.add(type);
@@ -221,6 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return lineDiv;
     }
 
+    /**
+     * @function getCurrentThemeColors
+     * @description Retrieves current theme colors (primary, glow, background) from CSS custom properties.
+     * @returns {object} An object containing primary, glow, and background color strings.
+     */
     function getCurrentThemeColors() {
         if (typeof getComputedStyle !== 'undefined' && document.body) {
             const styles = getComputedStyle(document.body);
@@ -228,36 +246,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 primary: styles.getPropertyValue('--primary-color').trim() || DEFAULT_CFG.baseCol,
                 glow: styles.getPropertyValue('--matrix-rain-glow-color').trim() || DEFAULT_CFG.headCol,
                 background: styles.getPropertyValue('--background-color').trim() || '#000',
+                // Terminal background is now rgba(var(--terminal-base-r), var(--terminal-base-g), var(--terminal-base-b), var(--terminal-opacity))
+                // No need to read it directly here for rain, but good to be aware.
             };
         }
         return { primary: DEFAULT_CFG.baseCol, glow: DEFAULT_CFG.headCol, background: '#000' };
     }
 
+    /**
+     * @function updateRainColorsFromTheme
+     * @description Updates Matrix rain colors (CFG.baseCol, CFG.headCol) and the --primary-color-rgb
+     * CSS variable based on the current theme's CSS custom properties.
+     */
     function updateRainColorsFromTheme() {
         const themeColors = getCurrentThemeColors();
         CFG.baseCol = themeColors.primary;
         CFG.headCol = themeColors.glow;
-         if (matrixRainCtx && CFG.headCol) {
+        if (matrixRainCtx && CFG.headCol) {
             matrixRainCtx.shadowColor = CFG.headCol;
         }
-        // Update --primary-color-rgb for prompt line border
+
+        // Update --primary-color-rgb for prompt line border and other potential uses
         if (document.body) {
-            const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
-            const rgbMatch = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(primaryColor);
+            const primaryColorValue = getComputedStyle(document.body).getPropertyValue('--primary-color').trim();
+            // Try to parse as hex
+            let rgbMatch = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(primaryColorValue);
             if (rgbMatch) {
                 const r = parseInt(rgbMatch[1], 16);
                 const g = parseInt(rgbMatch[2], 16);
                 const b = parseInt(rgbMatch[3], 16);
                 document.documentElement.style.setProperty('--primary-color-rgb', `${r}, ${g}, ${b}`);
             } else {
-                 // Fallback for non-hex primary colors if necessary, or default to green
-                const namedColorMatch = primaryColor.toLowerCase(); // e.g. 'green'
-                if (namedColorMatch === 'green') document.documentElement.style.setProperty('--primary-color-rgb', `0, 255, 0`);
-                // Add other named color translations if used, or a default
-                else document.documentElement.style.setProperty('--primary-color-rgb', `0, 255, 0`);
+                // Try to parse as rgb() or rgba()
+                rgbMatch = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/i.exec(primaryColorValue);
+                if (rgbMatch) {
+                    document.documentElement.style.setProperty('--primary-color-rgb', `${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}`);
+                } else {
+                    // Fallback for named colors or if parsing fails (default to green)
+                    // This could be expanded if more named colors are used directly for --primary-color
+                    console.warn(`Could not parse --primary-color ('${primaryColorValue}') to RGB. Defaulting --primary-color-rgb.`);
+                    document.documentElement.style.setProperty('--primary-color-rgb', `0, 255, 0`); // Default to green
+                }
             }
         }
     }
+
+    /**
+     * @function resizeTerminalElement
+     * @description Resizes the main content container (terminal).
+     * @param {string} width - The new width (e.g., '50vw', '600px').
+     * @param {string} height - The new height (e.g., '40vh', '400px').
+     */
     function resizeTerminalElement(width, height) {
         if (mainContentContainer) {
             mainContentContainer.style.width = width;
@@ -291,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const setting = MAPPINGS[param];
         if (!setting) {
-            if(terminalOutput) appendToTerminal(`Error: Unknown rain config parameter '${param}'.`, 'output-error');
+            if (terminalOutput) appendToTerminal(`<div class="output-error">Error: Unknown rain config parameter '${param}'.</div>`, 'output-error-wrapper');
             return false;
         }
 
@@ -311,26 +350,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 parsedValue = String(value).trim();
                 if (!/^[a-zA-Z0-9\s,-]+$/.test(parsedValue)) {
                     isValid = false;
-                    if(terminalOutput) appendToTerminal(`Error: Invalid font family format for '${param}'. Use letters, numbers, spaces, commas, hyphens.`, 'output-error');
+                    if (terminalOutput) appendToTerminal(`<div class="output-error">Error: Invalid font family format for '${param}'. Use letters, numbers, spaces, commas, hyphens.</div>`, 'output-error-wrapper');
                 }
                 break;
             case 'array_float':
                 parsedValue = value;
                 if (!Array.isArray(parsedValue)) {
                     isValid = false;
-                    if(terminalOutput) appendToTerminal(`Error: Invalid type for '${param}'. Expected an array. Received: ${typeof value}`, 'output-error');
+                    if (terminalOutput) appendToTerminal(`<div class="output-error">Error: Invalid type for '${param}'. Expected an array. Received: ${typeof value}</div>`, 'output-error-wrapper');
                     break;
                 }
                 if (setting.key === 'layerOp' && parsedValue.length !== (applyingPresetContext?.layers ?? CFG.layers)) {
                     const targetLayers = applyingPresetContext?.layers ?? CFG.layers;
-                    if(terminalOutput) appendToTerminal(`Error: For '${param}', array length (${parsedValue.length}) must match 'layers' count (${targetLayers}). Ensure 'layers' is set appropriately in the preset.`, 'output-error');
+                    if (terminalOutput) appendToTerminal(`<div class="output-error">Error: For '${param}', array length (${parsedValue.length}) must match 'layers' count (${targetLayers}). Ensure 'layers' is set appropriately in the preset.</div>`, 'output-error-wrapper');
                     isValid = false;
                     break;
                 }
                 for (const item of parsedValue) {
                     if (typeof item !== 'number' || item < (setting.ele_min || 0) || item > (setting.ele_max || 1)) {
                         isValid = false;
-                        if(terminalOutput) appendToTerminal(`Error: Invalid item '${item}' in array for '${param}'. Must be number between ${setting.ele_min || 0}-${setting.ele_max || 1}.`, 'output-error');
+                        if (terminalOutput) appendToTerminal(`<div class="output-error">Error: Invalid item '${item}' in array for '${param}'. Must be number between ${setting.ele_min || 0}-${setting.ele_max || 1}.</div>`, 'output-error-wrapper');
                         break;
                     }
                 }
@@ -341,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!isValid) {
-            if(terminalOutput && !MAPPINGS[param].type.startsWith('array')) {
-                appendToTerminal(`Error: Invalid value for '${param}'. Value: '${value}', Min: ${setting.min}, Max: ${setting.max}.`, 'output-error');
+            if (terminalOutput && !MAPPINGS[param].type.startsWith('array')) {
+                appendToTerminal(`<div class="output-error">Error: Invalid value for '${param}'. Value: '${value}', Min: ${setting.min}, Max: ${setting.max}.</div>`, 'output-error-wrapper');
             }
             return false;
         }
@@ -357,16 +396,16 @@ document.addEventListener('DOMContentLoaded', () => {
             minHG = parseFloat(minHG); maxHG = parseFloat(maxHG);
 
             if (setting.key === 'minTrail' && minT > maxT) {
-                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${minT}) cannot be greater than effective maxTrail (${maxT}).`, 'output-error'); return false;
+                if (terminalOutput) appendToTerminal(`<div class="output-error">Validation Error: '${param}' (${minT}) cannot be greater than effective maxTrail (${maxT}).</div>`, 'output-error-wrapper'); return false;
             }
             if (setting.key === 'maxTrail' && maxT < minT) {
-                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${maxT}) cannot be less than effective minTrail (${minT}).`, 'output-error'); return false;
+                if (terminalOutput) appendToTerminal(`<div class="output-error">Validation Error: '${param}' (${maxT}) cannot be less than effective minTrail (${minT}).</div>`, 'output-error-wrapper'); return false;
             }
             if (setting.key === 'headGlowMin' && minHG > maxHG) {
-                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${minHG}) cannot be greater than effective headGlowMax (${maxHG}).`, 'output-error'); return false;
+                if (terminalOutput) appendToTerminal(`<div class="output-error">Validation Error: '${param}' (${minHG}) cannot be greater than effective headGlowMax (${maxHG}).</div>`, 'output-error-wrapper'); return false;
             }
             if (setting.key === 'headGlowMax' && maxHG < minHG) {
-                if(terminalOutput) appendToTerminal(`Validation Error: '${param}' (${maxHG}) cannot be less than effective headGlowMin (${minHG}).`, 'output-error'); return false;
+                if (terminalOutput) appendToTerminal(`<div class="output-error">Validation Error: '${param}' (${maxHG}) cannot be less than effective headGlowMin (${minHG}).</div>`, 'output-error-wrapper'); return false;
             }
         }
 
@@ -378,14 +417,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    /**
+     * @function resetRainConfigToDefaults
+     * @description Resets the Matrix rain configuration to its default values and updates the display.
+     */
     function resetRainConfigToDefaults() {
         CFG = { ...DEFAULT_CFG };
-        updateRainColorsFromTheme();
+        updateRainColorsFromTheme(); // This is important to get the default theme's rain colors
         resizeRainCanvasAndStreams();
     }
 
+    /**
+     * @function restartRainAfterThemeChange
+     * @description Updates rain colors based on the current theme. Called when the theme changes.
+     * This ensures the rain color variables (CFG.baseCol, CFG.headCol) and --primary-color-rgb are current.
+     */
     function restartRainAfterThemeChange() {
         updateRainColorsFromTheme();
+        // No need to resizeRainCanvasAndStreams unless density/font specific to theme changes,
+        // which is not the current setup. CFG colors are updated and rainTick will use them.
     }
 
     let fullWelcomeMessageStringGlobal = '';
@@ -393,27 +443,28 @@ document.addEventListener('DOMContentLoaded', () => {
         crtModeActive = typeof activate === 'boolean' ? activate : !crtModeActive;
         document.body.classList.toggle('crt-mode', crtModeActive);
         if (typeof activate === 'boolean' && terminalOutput) {
-            appendToTerminal(`Analog Channel Override: CRT Mode ${crtModeActive ? 'Engaged' : 'Disengaged'}. Frequency aligned.`, 'output-success');
+            appendToTerminal(`<div class="output-success">Analog Channel Override: CRT Mode ${crtModeActive ? 'Engaged' : 'Disengaged'}. Frequency aligned.</div>`, 'output-success-wrapper');
         }
         if (commandInput && terminalVisible) commandInput.focus();
     }
 
-    // NEW: Function to toggle terminal visibility
     function toggleTerminalVisibility() {
         terminalVisible = !terminalVisible;
         if (mainContentContainer) {
             mainContentContainer.classList.toggle('hidden', !terminalVisible);
         }
-        document.body.classList.toggle('terminal-hidden', !terminalVisible); // For hiding nav if needed
+        document.body.classList.toggle('terminal-hidden', !terminalVisible);
 
         if (terminalVisible && commandInput) {
             commandInput.focus();
-            if (terminalOutput) appendToTerminal("Terminal interface restored. Ctrl + \\ to hide.", "output-text");
-        } else if (terminalOutput) {
-             // Only append if terminalOutput itself is not part of the hidden container or if we want to log this action
-            // For now, let's assume this message is desired even if the terminal is about to be hidden.
-            // It will be visible when terminal is restored.
-            appendToTerminal("Terminal interface hidden. Ctrl + \\ to restore.", "output-text");
+            // Check if the last message was the "hidden" message to avoid spamming "restored"
+            const lastMessageElement = terminalOutput.lastChild;
+            if (!lastMessageElement || !lastMessageElement.textContent.includes("Terminal interface hidden")) {
+                appendToTerminal(`<div>Terminal interface restored. Ctrl + \\ to hide.</div>`, 'output-text-wrapper');
+            }
+        } else if (!terminalVisible && terminalOutput) {
+            // The message will appear when the terminal is restored.
+            appendToTerminal(`<div>Terminal interface hidden. Ctrl + \\ to restore.</div>`, 'output-text-wrapper');
         }
     }
 
@@ -421,15 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function globalKeydownHandler(e) {
         const key = e.key;
 
-        // NEW: Ctrl + \ to toggle terminal
-        if (e.ctrlKey && key === '\\') {
+        if (e.ctrlKey && (key === '\\' || key === '|')) { // Also allow Ctrl + | for some keyboards
             e.preventDefault();
             toggleTerminalVisibility();
             return;
         }
 
-        if (!terminalVisible && key !== 'Escape') { // Allow Escape to potentially show terminal or other global actions
-            return; // Don't process other keys if terminal is hidden
+        if (!terminalVisible && key !== 'Escape') {
+            return;
         }
 
         if (e.target === commandInput || e.target.tagName === 'A') {
@@ -451,8 +501,27 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { konamiCodeIndex = 0; }
     }
 
+    /**
+     * @function initializeTerminalAndGraphics
+     * @description Main initialization function. Sets up user details, rain animation,
+     * terminal commands, event listeners, and displays the initial welcome message.
+     */
     function initializeTerminalAndGraphics() {
-        updateRainColorsFromTheme(); // Initialize --primary-color-rgb
+        // Set initial theme colors for rain and --primary-color-rgb
+        // The 'theme-green' class is on body by default in HTML
+        // so these CSS variables should be available.
+        document.documentElement.style.setProperty('--terminal-opacity', String(initialTerminalOpacity));
+        const initialTheme = Array.from(document.body.classList).find(cls => cls.startsWith('theme-')) || 'theme-green';
+        document.body.classList.add(initialTheme); // Ensure it's there
+        // Manually set base RGB for default theme (green) if not already set by CSS cascade
+        if (!getComputedStyle(document.documentElement).getPropertyValue('--terminal-base-r')) {
+            document.documentElement.style.setProperty('--terminal-base-r', '17');
+            document.documentElement.style.setProperty('--terminal-base-g', '24');
+            document.documentElement.style.setProperty('--terminal-base-b', '39');
+        }
+
+
+        updateRainColorsFromTheme(); // Initialize rain colors and --primary-color-rgb
         startRainAnimation();
 
         const userDetails = {
@@ -482,13 +551,14 @@ document.addEventListener('DOMContentLoaded', () => {
             updateRainConfig: updateRainConfigFromCommand,
             resetRainConfig: resetRainConfigToDefaults,
             restartMatrixRain: restartRainAfterThemeChange,
-            toggleTerminal: toggleTerminalVisibility // Expose toggle function
+            toggleTerminal: toggleTerminalVisibility,
+            initialTerminalOpacity // Pass initial opacity for reset in termopacity command
         };
         const terminalCommands = getTerminalCommands(commandHandlerContext);
 
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
-                if (!terminalVisible) return; // Ignore input if terminal not visible
+                if (!terminalVisible) return;
 
                 if (e.key === 'Enter') {
                     if (commandInput.disabled) return;
@@ -499,7 +569,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         historyIndex = commandHistory.length;
                         const sanitizedCommandDisplay = fullCommandText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                        appendToTerminal(`<span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span>`);
+                        // Append command with a generic wrapper for consistency, actual content is styled by output-command
+                        appendToTerminal(`<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`, 'output-command-wrapper');
                         const parts = []; let inQuotes = false; let currentPart = "";
                         for (let i = 0; i < fullCommandText.length; i++) {
                             const char = fullCommandText[i];
@@ -515,11 +586,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (typeof commandFunc === 'function') {
                             const result = commandFunc(args);
                             if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
-                                result.catch(err => { console.error("Error executing async command:", commandName, err); appendToTerminal(`Async Command Error: ${err.message || 'Unknown error'}`, 'output-error'); });
+                                result.catch(err => {
+                                    console.error("Error executing async command:", commandName, err);
+                                    appendToTerminal(`<div class="output-error">Async Command Error: ${err.message || 'Unknown error'}</div>`, 'output-error-wrapper');
+                                });
                             }
                         } else if (commandName) {
-                            appendToTerminal(`Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`, 'output-error');
-                            appendToTerminal(`Type 'help' for a list of available commands.`);
+                            appendToTerminal(`<div class="output-error">Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`, 'output-error-wrapper');
+                            appendToTerminal(`<div>Type 'help' for a list of available commands.</div>`, 'output-text-wrapper');
                         }
                     }
                     commandInput.value = ''; if (terminalOutput) terminalOutput.scrollTop = terminalOutput.scrollHeight;
@@ -539,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             if (mainContentContainer) {
                 mainContentContainer.addEventListener('click', (e) => {
-                     if (!terminalVisible) return;
+                    if (!terminalVisible) return;
                     if (e.target.tagName !== 'A' && e.target.tagName !== 'INPUT') {
                         if (commandInput) commandInput.focus();
                     }
@@ -549,17 +623,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         function displayInitialWelcomeMessage() {
-            if (terminalOutput) appendToTerminal(fullWelcomeMessageStringGlobal.replace(/\n/g, '<br/>'), 'output-welcome');
+            if (terminalOutput) {
+                // The welcome message string already contains <br/> where newlines were.
+                // The appendToTerminal function now expects full HTML for the content.
+                appendToTerminal(fullWelcomeMessageStringGlobal.replace(/\n/g, '<br/>'), 'output-welcome-wrapper');
+            }
             if (commandInput && terminalVisible) commandInput.focus();
         }
 
         if (terminalOutput) displayInitialWelcomeMessage();
-         // Ensure terminal is visible by default as per CSS (no 'hidden' class initially)
         document.body.classList.remove('terminal-hidden');
 
 
         window.addEventListener('resize', () => {
-             resizeRainCanvasAndStreams();
+            resizeRainCanvasAndStreams();
         });
         document.addEventListener('keydown', globalKeydownHandler);
     }
