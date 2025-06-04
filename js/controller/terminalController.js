@@ -187,26 +187,50 @@ export function getDefaultTerminalSize() {
 
 export function toggleTerminalVisibility() {
     terminalVisible = !terminalVisible;
-    if (mainContentContainerEl) {
-        mainContentContainerEl.classList.toggle('hidden', !terminalVisible);
-    }
-    document.body.classList.toggle('terminal-hidden', !terminalVisible);
 
-    if (terminalVisible && commandInputEl) {
+    // Clear any existing animation/state classes to prevent conflicts
+    mainContentContainerEl.classList.remove('is-appearing', 'is-hiding');
+
+    if (!terminalVisible) { // ---- HIDING ----
+        mainContentContainerEl.classList.add('is-hiding');
+        document.body.classList.add('terminal-hidden'); // For nav bar, etc.
+
+        // Listen for the end of the fade-out animation
+        mainContentContainerEl.addEventListener('animationend', function handleHideAnimationEnd() {
+            mainContentContainerEl.classList.add('hidden'); // Truly hide it (display: none)
+            mainContentContainerEl.classList.remove('is-hiding'); // Clean up animation class
+            mainContentContainerEl.removeEventListener('animationend', handleHideAnimationEnd); // Clean up listener
+        }, { once: true }); // Ensure listener runs only once
+
+        if (terminalOutputEl) {
+            appendToTerminal(`<div>Terminal interface hidden. Ctrl + \\ to restore.</div>`);
+        }
+
+    } else { // ---- SHOWING ----
+        // Prepare for appearance: remove 'hidden' and ensure correct display type
+        mainContentContainerEl.classList.remove('hidden');
+        mainContentContainerEl.style.display = 'flex'; // Or your default for .content-container
+
+        mainContentContainerEl.classList.add('is-appearing');
+        document.body.classList.remove('terminal-hidden');
+
+        // Clean up 'is-appearing' after animation completes
+        mainContentContainerEl.addEventListener('animationend', function handleShowAnimationEnd() {
+            mainContentContainerEl.classList.remove('is-appearing');
+            mainContentContainerEl.removeEventListener('animationend', handleShowAnimationEnd);
+        }, { once: true });
+
         setTimeout(() => {
-            commandInputEl.focus();
-            // Optionally, move cursor to end of input if there's any text (though usually empty)
-            // commandInputEl.setSelectionRange(commandInputEl.value.length, commandInputEl.value.length);
-        }, 0); // A 0ms timeout defers execution until after the current call stack clears
+            if (commandInputEl) commandInputEl.focus();
+        }, 50); // Small delay for focus after animation starts
 
-        // Check if the last message indicates it was hidden, to avoid spamming "restored"
         const lastMessageElement = terminalOutputEl ? terminalOutputEl.lastChild : null;
         const lastMessageText = lastMessageElement ? lastMessageElement.textContent : "";
-        if (!lastMessageText || !lastMessageText.includes("Terminal interface hidden")) {
-            appendToTerminal(`<div>Terminal interface restored. Ctrl + \\ to hide.</div>`);
+        if (!lastMessageText || (!lastMessageText.includes("Terminal interface hidden") && !lastMessageText.includes("Terminal interface restored"))) {
+            if (terminalOutputEl) {
+                appendToTerminal(`<div>Terminal interface restored. Ctrl + \\ to hide.</div>`);
+            }
         }
-    } else if (!terminalVisible && terminalOutputEl) {
-        appendToTerminal(`<div>Terminal interface hidden. Ctrl + \\ to restore.</div>`);
     }
 }
 
