@@ -1,0 +1,78 @@
+
+# Mac OS specific files
+# These files are created by macOS Finder and other system processes.
+# They are specific to your local machine and should not be versioned.
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.Spotlight-V100
+.Trashes
+
+# IDE / Editor specific files
+# Configuration files and workspace settings for common editors.
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Log files
+# General log files that might be generated during development or by tools.
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+# Files that store runtime data or caches.
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+# These are typically very large and should be installed by package managers.
+node_modules/
+jspm_packages/
+bower_components/
+
+# Build output & distribution folders
+# Compiled files, bundled assets, and distribution builds.
+dist/
+build/
+out/
+public/build/ # Example for some frameworks like Laravel Mix or Vite default
+target/ # Common for Java/Scala projects, but can appear with some JS tools
+.parcel-cache/
+.svelte-kit/
+.next/
+.nuxt/
+coverage/ # Test coverage reports
+
+# Environment variables
+# These files often contain sensitive credentials or environment-specific settings.
+# A .env.example (or similar) should be committed instead.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Temporary files
+# Various temporary files created by tools or OS.
+*.tmp
+*.swp
+*~
+*.bak
+*.patch
