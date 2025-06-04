@@ -707,3 +707,55 @@ body.crt-mode #matrix-canvas {
     gap: 1.2rem;
   }
 }
+
+/* Man Page Specific Styling */
+.output-manpage-container {
+  /* This class wraps the entire man page output for potential top-level styling */
+}
+
+.output-manpage-wrapper {
+  padding: 0.5em 0.2em; /* Adjusted padding */
+  font-family: var(--font-mono-current); /* Ensure monospace */
+  line-height: 1.4;
+}
+
+.output-manpage-header {
+  font-weight: bold;
+  color: var(
+    --primary-color
+  ); /* Or var(--secondary-color) for more distinction */
+  margin-top: 0.8em;
+  margin-bottom: 0.3em;
+  text-transform: uppercase;
+}
+
+.output-manpage-header:first-child {
+  margin-top: 0;
+}
+
+.output-manpage-section-body {
+  padding-left: 1em;
+  white-space: pre-wrap; /* Preserve formatting like newlines from JSON */
+}
+
+/* Specifically style NAME and SYNOPSIS to be less indented, more traditional */
+.output-manpage-wrapper .output-manpage-header + .output-manpage-section-body {
+  /* Default padding-left: 1em is good for most sections */
+}
+
+.output-manpage-wrapper
+  .output-manpage-header[innerHTML="NAME"]
+  + .output-manpage-section-body,
+.output-manpage-wrapper
+  .output-manpage-header[innerHTML="SYNOPSIS"]
+  + .output-manpage-section-body {
+  padding-left: 0.5em; /* Less indent for these */
+}
+
+.output-manpage-example {
+  padding-left: 1.5em; /* More indent for examples */
+  margin-bottom: 0.4em;
+  white-space: pre-wrap;
+  font-style: italic;
+  color: var(--secondary-color); /* Make examples stand out a bit */
+}
