@@ -24,7 +24,6 @@ export default function helpCommand(args, context) {
     "retroarcade",
     "reloaded",
     "voidblue",
-    "synthwavegrid",
   ]
     .sort()
     .join(", ");
@@ -49,6 +48,12 @@ export default function helpCommand(args, context) {
       display: "hobbies",
       desc: "List my hobbies and interests.",
     },
+    {
+      cmd: "man <command>",
+      display: "man <command>",
+      desc: "Show detailed manual for a command.",
+    },
+
     {
       cmd: "rainpreset <name>",
       display: "rainpreset <name>",

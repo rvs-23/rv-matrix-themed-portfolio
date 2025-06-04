@@ -12,6 +12,7 @@ import downloadCvCommand from "./download.js";
 import easterEggCommand from "./easter.egg.js";
 import helpCommand from "./help.js";
 import hobbiesCommand from "./hobbies.js";
+import manCommand from "./man.js";
 import rainPresetCommand from "./rainpreset.js";
 import resizeTermCommand from "./resize.js";
 import skillsCommand from "./skills.js";
@@ -22,7 +23,6 @@ import termTextCommand from "./termtext.js";
 import themeCommand from "./theme.js";
 import toggleTermCommand from "./toggleterm.js";
 import whoamiCommand from "./whoami.js";
-// ... import other command modules as you create them
 
 /**
  * Assembles all command functions into a single object.
@@ -39,6 +39,7 @@ export function getAllCommands() {
     "easter.egg": easterEggCommand,
     help: helpCommand,
     hobbies: hobbiesCommand,
+    man: manCommand,
     rainpreset: rainPresetCommand,
     resize: resizeTermCommand, // Note: command is 'resize term', handled in resize.js
     skills: skillsCommand,
@@ -49,7 +50,6 @@ export function getAllCommands() {
     theme: themeCommand,
     toggleterm: toggleTermCommand,
     whoami: whoamiCommand,
-    // ... add other commands here
   };
 }
 
