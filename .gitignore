@@ -80,6 +80,7 @@ coverage/
 .vitest/             
 vitest.config.js     
 .vscode-test/        
+eslint.config.mjs
 
 # TypeScript (if used) [OPTIONAL]
 *.tsbuildinfo
@@ -95,3 +96,5 @@ pnpm-lock.yaml
 
 # misc
 *.tgz                 # Packaged modules
+package-lock.json
+
