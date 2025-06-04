@@ -1,13 +1,12 @@
 /* ==========================================================================
-   Global Variables and Theming
+   Global Variables and Default Theming (Green)
    ========================================================================== */
 :root {
+    /* Default Theme: Matrix Green (acts as fallback if no theme class or variable is overridden) */
     --primary-color: #0F0;
-    /* Default: Matrix Green */
     --primary-color-rgb: 0, 255, 0;
-    /* Default RGB for primary */
     --secondary-color: #00FFFF;
-    --background-color: #000;
+    --background-color: #000; /* Global default background */
     --terminal-base-r: 17;
     --terminal-base-g: 24;
     --terminal-base-b: 39;
@@ -20,16 +19,18 @@
     --scrollbar-thumb-color: rgba(0, 255, 0, 0.5);
     --scrollbar-thumb-hover-color: rgba(0, 255, 0, 0.8);
     --nav-icon-color: #0F0;
-    --nav-icon-hover-color: #33FF33;
+    --nav-icon-hover-color: #33FF33; /* Fallback if a theme doesn't set it */
     --nav-label-bg: rgba(0, 255, 0, 0.15);
     --loader-text-color: #0F0;
     --loader-spinner-color: #0F0;
-    --matrix-rain-glow-color: #9FFF9F;
+    --matrix-rain-glow-color: #9FFF9F; /* Default glow for rain */
+
+    /* Structural/Layout Variables (not theme-dependent) */
     --footer-height: 3.5rem;
     --font-stack-inter: 'Inter', sans-serif;
     --font-stack-fira: 'Fira Code', monospace;
-    --font-mono-current: var(--font-stack-fira);
-    --terminal-font-size: 12.5px;
+    --font-mono-current: var(--font-stack-fira); /* Can be overridden by themes if needed, but usually global */
+    --terminal-font-size: 12.5px; /* Can be overridden by themes or JS */
 }
 
 @font-face {
@@ -42,171 +43,13 @@
     src: url("../assets/matrix-resurrection.ttf") format("truetype");
 }
 
-/* --- THEMES --- */
-body.theme-green {
-    --primary-color: #0F0;
-    --primary-color-rgb: 0, 255, 0;
-    --secondary-color: #00FFFF;
-    --text-shadow-color: rgba(0, 255, 0, 0.7);
-    --border-color: rgba(0, 255, 0, 0.6);
-    --hover-color: #33FF33;
-    --nav-icon-color: #0F0;
-    --matrix-rain-glow-color: #9FFF9F;
-    --terminal-base-r: 17;
-    --terminal-base-g: 24;
-    --terminal-base-b: 39;
-}
-
-body.theme-cyan {
-    --primary-color: #0FF;
-    --primary-color-rgb: 0, 255, 255;
-    --secondary-color: #0F0;
-    --text-shadow-color: rgba(0, 255, 255, 0.7);
-    --border-color: rgba(0, 255, 255, 0.6);
-    --hover-color: #5FFFFF;
-    --nav-icon-color: #0FF;
-    --matrix-rain-glow-color: #AFFFFF;
-    --background-color: #000505;
-    --terminal-base-r: 0;
-    --terminal-base-g: 20;
-    --terminal-base-b: 20;
-    --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-    --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
-    --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8);
-}
-
-body.theme-amber {
-    --primary-color: #FFBF00;
-    --primary-color-rgb: 255, 191, 0;
-    --secondary-color: #FFD700;
-    --text-shadow-color: rgba(255, 191, 0, 0.7);
-    --border-color: rgba(255, 191, 0, 0.6);
-    --hover-color: #FFD700;
-    --nav-icon-color: #FFBF00;
-    --matrix-rain-glow-color: #FFDDA0;
-    --background-color: #0a0600;
-    --terminal-base-r: 25;
-    --terminal-base-g: 15;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(255, 191, 0, 0.1);
-    --scrollbar-thumb-color: rgba(255, 191, 0, 0.5);
-    --scrollbar-thumb-hover-color: rgba(255, 191, 0, 0.8);
-}
-
-body.theme-purple {
-    --primary-color: #C000C0;
-    --primary-color-rgb: 192, 0, 192;
-    --secondary-color: #DA70D6;
-    --text-shadow-color: rgba(192, 0, 192, 0.7);
-    --border-color: rgba(192, 0, 192, 0.6);
-    --hover-color: #EE82EE;
-    --nav-icon-color: #C000C0;
-    --matrix-rain-glow-color: #ECA0EC;
-    --background-color: #080008;
-    --terminal-base-r: 20;
-    --terminal-base-g: 0;
-    --terminal-base-b: 20;
-    --scrollbar-track-color: rgba(192, 0, 192, 0.1);
-    --scrollbar-thumb-color: rgba(192, 0, 192, 0.5);
-    --scrollbar-thumb-hover-color: rgba(192, 0, 192, 0.8);
-}
-
-body.theme-twilight {
-    --primary-color: #e6a0c4;
-    --primary-color-rgb: 230, 160, 196;
-    --secondary-color: #9b84ec;
-    --text-shadow-color: rgba(230, 160, 196, 0.6);
-    --border-color: rgba(230, 160, 196, 0.5);
-    --hover-color: #ee82ee;
-    --nav-icon-color: #e6a0c4;
-    --matrix-rain-glow-color: #f0c0e0;
-    --background-color: #0a061a;
-    --terminal-base-r: 20;
-    --terminal-base-g: 10;
-    --terminal-base-b: 40;
-    --scrollbar-track-color: rgba(230, 160, 196, 0.1);
-    --scrollbar-thumb-color: rgba(230, 160, 196, 0.4);
-    /* Slightly adjusted alpha for lighter theme */
-    --scrollbar-thumb-hover-color: rgba(230, 160, 196, 0.7);
-}
-
-body.theme-crimson {
-    --primary-color: #DC143C;
-    --primary-color-rgb: 220, 20, 60;
-    --secondary-color: #FF6347;
-    --text-shadow-color: rgba(220, 20, 60, 0.6);
-    --border-color: rgba(220, 20, 60, 0.5);
-    --hover-color: #FF4500;
-    --nav-icon-color: #DC143C;
-    --matrix-rain-glow-color: #FF8C70;
-    --background-color: #100000;
-    --terminal-base-r: 20;
-    --terminal-base-g: 0;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(220, 20, 60, 0.1);
-    --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
-    --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7);
-}
-
-body.theme-forest {
-    --primary-color: #228B22;
-    --primary-color-rgb: 34, 139, 34;
-    --secondary-color: #ADFF2F;
-    --text-shadow-color: rgba(34, 139, 34, 0.6);
-    --border-color: rgba(34, 139, 34, 0.5);
-    --hover-color: #32CD32;
-    --nav-icon-color: #228B22;
-    --matrix-rain-glow-color: #98FB98;
-    --background-color: #001000;
-    --terminal-base-r: 0;
-    --terminal-base-g: 20;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(34, 139, 34, 0.1);
-    --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
-    --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7);
-}
-
-body.theme-electricecho {
-    --primary-color: #00ffff;
-    --primary-color-rgb: 0, 255, 255;
-    --secondary-color: #ff00ff;
-    --text-shadow-color: rgba(0, 255, 255, 0.7);
-    --border-color: rgba(0, 200, 200, 0.6);
-    --hover-color: #ff00ff;
-    --nav-icon-color: #00ffff;
-    --matrix-rain-glow-color: #ffffff;
-    --background-color: #05000f;
-    --terminal-base-r: 10;
-    --terminal-base-g: 5;
-    --terminal-base-b: 30;
-    --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-    --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
-    --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8);
-}
-
-body.theme-goldenglitch {
-    --primary-color: #FFD700;
-    --primary-color-rgb: 255, 215, 0;
-    --secondary-color: #FF4500;
-    --text-shadow-color: rgba(255, 215, 0, 0.6);
-    --border-color: rgba(255, 165, 0, 0.6);
-    --hover-color: #FF4500;
-    --nav-icon-color: #FFD700;
-    --matrix-rain-glow-color: #FFFACD;
-    --background-color: #1a0e00;
-    --terminal-base-r: 40;
-    --terminal-base-g: 20;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(255, 215, 0, 0.1);
-    --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
-    --scrollbar-thumb-hover-color: rgba(255, 215, 0, 0.8);
-}
+/* --- THEME BLOCKS HAVE BEEN MOVED TO themes.css --- */
 
 /* General Body Styling */
 body {
     font-family: var(--font-stack-inter);
-    background-color: var(--background-color);
-    color: var(--primary-color);
+    background-color: var(--background-color); /* Uses theme-specific or default bg color */
+    color: var(--primary-color); /* Uses theme-specific or default primary color */
     margin: 0;
     padding: 0 0 var(--footer-height) 0;
     box-sizing: border-box;
@@ -216,7 +59,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.3s ease, background-color 0.3s ease;
+    transition: color 0.3s ease, background-color 0.3s ease; /* For body element transitions */
     overflow: hidden;
 }
 
@@ -227,13 +70,13 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #000;
+    background-color: #000; /* Fallback, consider var(--background-color) if themes should affect it */
     z-index: 200;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--loader-text-color);
+    color: var(--loader-text-color); /* Uses themed loader text color */
     font-family: var(--font-mono-current);
     opacity: 1;
     transition: opacity 0.7s ease-out, visibility 0.7s ease-out;
@@ -271,8 +114,8 @@ body {
     margin-top: 1.2rem;
     width: 35px;
     height: 35px;
-    border: 3px solid rgba(0, 0, 0, 0.1);
-    border-left-color: var(--loader-spinner-color);
+    border: 3px solid rgba(0, 0, 0, 0.1); /* Consider theming this border base */
+    border-left-color: var(--loader-spinner-color); /* Uses themed spinner color */
     border-radius: 50%;
     animation: spin 1s linear infinite;
     box-shadow: 0 0 8px var(--loader-spinner-color);
@@ -293,20 +136,31 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 3;
+    z-index: 3; /* Ensure it's behind content but above body bg */
 }
 
 /* Content Container & Terminal */
+@keyframes contentFadeInAppear { /* Renamed from original fadeIn to be specific for this use */
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .content-container {
-    /* ... (background-color uses new vars, other styles same) ... */
     position: relative;
     z-index: 10;
     color: var(--primary-color);
     font-family: var(--font-mono-current);
     font-size: var(--terminal-font-size);
     text-shadow: 0 0 8px var(--text-shadow-color);
-    animation: fadeIn 1.5s ease-out forwards;
-    opacity: 1;
+    /* Initial load animation - applied if JS doesn't override opacity immediately */
+    /* animation: contentFadeInAppear 1.5s ease-out forwards; */ /* Can be removed if JS handles initial opacity */
+    opacity: 1; /* Default shown state, JS might set to 0 then animate */
     padding: 1rem;
     width: 52vw;
     height: 42vh;
@@ -317,17 +171,38 @@ body {
     box-shadow: 0 10px 25px -5px var(--text-shadow-color), 0 6px 10px -4px var(--text-shadow-color);
     border: 1px solid var(--border-color);
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: hidden; /* Important for scrollbars within #terminal-output */
     display: flex;
     flex-direction: column;
-    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, height 0.3s ease, font-size 0.3s ease, opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+    /* Default transitions for properties like color, shadow, size. Opacity/transform handled by specific classes. */
+    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease, 
+                border-color 0.3s ease, box-shadow 0.3s ease, 
+                width 0.3s ease, height 0.3s ease, font-size 0.3s ease;
 }
 
+/* General hidden state - applied by JS initially if needed, or for no-JS fallback */
 .content-container.hidden {
+    display: none !important; /* Ensures it's truly not taking space */
     opacity: 0;
     visibility: hidden;
-    transform: scale(0.95) translateY(20px);
     pointer-events: none;
+}
+
+/* Class for immediate hiding via JavaScript */
+.content-container.is-hidden-immediately {
+    opacity: 0 !important;
+    transform: scale(0.95) translateY(20px) !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: none !important; /* No transition for immediate effect */
+    display: none !important;
+}
+
+/* Class to trigger the fade-in animation when showing */
+.content-container.is-appearing {
+    display: flex !important; /* Ensure correct display type */
+    visibility: visible !important;
+    animation: contentFadeInAppear 0.4s ease-out forwards;
 }
 
 
@@ -337,12 +212,11 @@ body {
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.4;
-    /* Reduced significantly */
-    padding-right: 8px;
-    position: relative;
+    padding-right: 8px; /* For scrollbar spacing */
+    position: relative; /* For potential absolute positioned children if any */
 }
 
-#terminal-output>div {
+#terminal-output > div { /* Spacing for output lines */
     margin-bottom: 0.5em;
 }
 
@@ -367,7 +241,7 @@ body {
 }
 
 .output-line {
-    margin-bottom: 0.15;
+    margin-bottom: 0.15em; /* Reduced from 0.15 for tighter packing if needed */
     padding-left: 0.5em;
 }
 
@@ -376,19 +250,18 @@ body {
     color: var(--secondary-color);
     margin-right: 0.5em;
     display: inline-block;
-    min-width: 70px;
+    min-width: 70px; /* Ensures alignment */
 }
 
 .output-skills-category {
     margin-top: 0.2em;
-    /* Reduced */
     font-weight: bold;
     color: var(--primary-color);
 }
 
 .output-skills-list {
     padding-left: 1.5em;
-    list-style-type: none;
+    list-style-type: none; /* Custom markers used */
 }
 
 .output-skills-list li::before {
@@ -397,18 +270,14 @@ body {
     margin-right: 0.3em;
 }
 
-/* END OF AGGRESSIVE SPACING REDUCTION */
-
-
 .prompt-line {
-    /* ... (no changes from previous good state) ... */
     margin-top: 0.8em;
     flex-shrink: 0;
-    padding-bottom: 0.3em;
+    padding-bottom: 0.3em; /* Space below input */
     display: flex;
     align-items: center;
-    border-top: 1px solid rgba(var(--primary-color-rgb, 0, 255, 0), 0.15);
-    padding-top: 0.6em;
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.15); /* Use themed RGB */
+    padding-top: 0.6em; /* Space above input */
 }
 
 .prompt-arrow {
@@ -420,15 +289,8 @@ body {
 }
 
 @keyframes blinkPrompt {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.69;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.69; }
 }
 
 #command-input {
@@ -437,7 +299,7 @@ body {
     outline: none !important;
     color: var(--primary-color) !important;
     font-family: var(--font-mono-current) !important;
-    font-size: 1em !important;
+    font-size: 1em !important; /* Relative to parent .content-container */
     flex-grow: 1;
     caret-color: var(--primary-color);
     transition: color 0.3s ease, caret-color 0.3s ease;
@@ -447,107 +309,83 @@ body {
     padding-right: 0.2em;
 }
 
+/* Scrollbar styling for terminal output */
 #terminal-output::-webkit-scrollbar {
     width: 10px;
 }
 
 #terminal-output::-webkit-scrollbar-track {
-    background: var(--scrollbar-track-color);
+    background: var(--scrollbar-track-color); /* Themed */
     border-radius: 10px;
 }
 
 #terminal-output::-webkit-scrollbar-thumb {
-    /* ... (no changes, uses dynamic bg for border) ... */
-    background: var(--scrollbar-thumb-color);
+    background: var(--scrollbar-thumb-color); /* Themed */
     border-radius: 10px;
+    /* Border using terminal background color for "inset" look */
     border: 2px solid rgba(var(--terminal-base-r), var(--terminal-base-g), var(--terminal-base-b), var(--terminal-opacity));
 }
 
 #terminal-output::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover-color);
+    background: var(--scrollbar-thumb-hover-color); /* Themed */
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
-    }
+/* Keyframes for initial fade-in of content (if used) */
+/* @keyframes fadeIn was original name, changed to contentFadeInAppear above */
 
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
 
+/* Icon hover effect */
 @keyframes glitch-hover-effect {
-
-    0%,
-    100% {
-        transform: translateX(0) skewX(0);
-        opacity: 1;
-        text-shadow: 0 0 8px var(--hover-shadow-color);
-    }
-
-    20% {
-        transform: translateX(-2px) skewX(-3deg);
-        opacity: 0.85;
-        text-shadow: 1px 0px var(--hover-shadow-color), -1px 0px var(--secondary-color);
-    }
-
-    40% {
-        transform: translateX(2px) skewX(3deg);
-        opacity: 1;
-    }
-
-    60% {
-        transform: translateX(-1px) skewX(-2deg);
-        opacity: 0.85;
-        text-shadow: -1px 0px var(--hover-shadow-color), 1px 0px var(--secondary-color);
-    }
-
-    80% {
-        transform: translateX(1px) skewX(2deg);
-        opacity: 1;
-    }
+    0%, 100% { transform: translateX(0) skewX(0); opacity: 1; text-shadow: 0 0 8px var(--hover-shadow-color); }
+    20% { transform: translateX(-2px) skewX(-3deg); opacity: 0.85; text-shadow: 1px 0px var(--hover-shadow-color), -1px 0px var(--secondary-color); }
+    40% { transform: translateX(2px) skewX(3deg); opacity: 1; }
+    60% { transform: translateX(-1px) skewX(-2deg); opacity: 0.85; text-shadow: -1px 0px var(--hover-shadow-color), 1px 0px var(--secondary-color); }
+    80% { transform: translateX(1px) skewX(2deg); opacity: 1; }
 }
 
+/* Links in terminal */
 .content-container a,
 #terminal-output a {
     color: var(--secondary-color);
-    text-decoration: none;
+    text-decoration: none; /* Or underline if preferred */
     transition: color 0.1s ease, text-shadow 0.1s ease, transform 0.1s ease;
     font-weight: bold;
-    display: inline-block;
+    display: inline-block; /* Allows transform */
     position: relative;
     padding-bottom: 1px;
-    border-bottom: 1px dashed transparent;
+    border-bottom: 1px dashed transparent; /* Subtle underline effect on hover */
 }
 
 .content-container a:hover,
 #terminal-output a:hover {
     color: var(--hover-color);
-    animation: glitch-hover-effect 0.5s linear 3;
+    animation: glitch-hover-effect 0.2s linear infinite; /* Faster, continuous */
     border-bottom-color: var(--hover-color);
-    transform: translateY(-1px);
+    transform: translateY(-1px); /* Slight lift */
 }
 
+/* Output message styling */
 .output-command {
-    font-weight: 500;
+    font-weight: 500; /* Or normal */
     opacity: 0.85;
 }
 
-.output-text {}
+.output-text { /* General text, inherits from .content-container */ }
 
-/* No specific style, inherits general */
 .output-error {
-    color: #FF4136;
+    color: #FF4136; /* Standard error red, could be themed too */
     text-shadow: 0 0 6px rgba(255, 65, 54, 0.8);
     font-weight: bold;
 }
 
 .output-success {
-    color: var(--secondary-color);
+    color: var(--secondary-color); /* Themed success color */
     text-shadow: 0 0 6px var(--secondary-color);
+}
+
+.output-text-small { /* For hints etc. */
+    font-size: 0.9em;
+    opacity: 0.8;
 }
 
 .ascii-name {
@@ -561,40 +399,42 @@ body {
     letter-spacing: 1.5px;
 }
 
+/* Minimal Navigation Bar */
 .minimal-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: transparent;
+    background-color: transparent; /* Let body background show through */
     padding: 0.5rem 0.8rem;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 1.3rem;
     z-index: 150;
-    transition: border-color 0.3s ease, opacity 0.4s ease, transform 0.4s ease;
+    transition: opacity 0.4s ease, transform 0.4s ease; /* For hiding with terminal */
 }
 
+/* Hides nav when terminal is hidden via JS adding class to body */
 body.terminal-hidden .minimal-nav {
-    opacity: 0;
-    transform: translateY(100%);
-    pointer-events: none;
+    opacity: 0 !important; /* Ensure it hides */
+    transform: translateY(100%) !important;
+    pointer-events: none !important;
 }
 
 .nav-icon {
-    color: var(--nav-icon-color);
+    color: var(--nav-icon-color); /* Themed */
     font-size: 1.2rem;
     text-decoration: none;
-    position: relative;
+    position: relative; /* For label positioning */
     transition: color 0.1s ease, transform 0.1s ease;
     display: inline-block;
     padding: 0.2em;
 }
 
 .nav-icon:hover {
-    color: var(--nav-icon-hover-color);
-    animation: glitch-hover-effect 0.5s linear 3;
+    color: var(--nav-icon-hover-color); /* Themed */
+    animation: glitch-hover-effect 0.2s linear infinite; /* Faster, continuous */
 }
 
 .nav-label {
@@ -602,8 +442,8 @@ body.terminal-hidden .minimal-nav {
     bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--nav-label-bg);
-    color: var(--nav-icon-hover-color);
+    background-color: var(--nav-label-bg); /* Themed */
+    color: var(--nav-icon-hover-color); /* Match icon hover color */
     padding: 0.25rem 0.5rem;
     border-radius: 3px;
     font-size: 0.65rem;
@@ -618,39 +458,39 @@ body.terminal-hidden .minimal-nav {
 .nav-icon:hover .nav-label {
     opacity: 1;
     visibility: visible;
-    bottom: 135%;
+    bottom: 135%; /* Pop up a bit more */
 }
 
+/* Terminal Glitch Overlay (for easter egg) */
 .terminal-glitch-overlay {
-    /* ... (uses dynamic bg vars) ... */
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(var(--terminal-base-r), var(--terminal-base-g), var(--terminal-base-b), var(--terminal-opacity));
+    background-color: rgba(var(--terminal-base-r), var(--terminal-base-g), var(--terminal-base-b), var(--terminal-opacity)); /* Match terminal bg */
     color: var(--primary-color);
-    font-family: var(--font-mono-current);
-    font-size: inherit;
-    line-height: inherit;
+    font-family: var(--font-mono-current); /* Match terminal font */
+    font-size: inherit; /* Match terminal font size */
+    line-height: inherit; /* Match terminal line height */
     overflow: hidden;
-    z-index: 500;
+    z-index: 500; /* Above terminal content */
     white-space: pre-wrap;
     word-break: break-all;
-    opacity: 0.95;
-    padding: inherit;
+    opacity: 0.95; /* Slightly transparent */
+    padding: inherit; /* Match terminal padding if any on the main container */
     box-sizing: border-box;
 }
 
-/* CRT Mode */
+/* CRT Mode Styling */
 body.crt-mode {
     animation: crt-flicker 0.15s infinite, crt-scanline 5s linear infinite;
     filter: contrast(1.15) brightness(0.95) sepia(0.2) hue-rotate(-15deg) blur(0.3px);
-    position: relative;
-    overflow: hidden;
+    position: relative; /* Needed for ::before pseudo-element */
+    overflow: hidden; /* Prevent scrollbars from filter/scanline effects */
 }
 
-body.crt-mode::before {
+body.crt-mode::before { /* Scanline overlay */
     content: "";
     position: fixed;
     top: 0;
@@ -658,59 +498,42 @@ body.crt-mode::before {
     width: 100vw;
     height: 100vh;
     background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 51%);
-    background-size: 100% 4px;
-    z-index: 250;
+    background-size: 100% 4px; /* Scanline height */
+    z-index: 250; /* Above canvas, below terminal content */
     pointer-events: none;
     opacity: 0.5;
 }
 
 body.crt-mode #contentContainer,
 body.crt-mode .minimal-nav {
+    /* Enhance text shadow for CRT glow */
     text-shadow: 0 0 7px var(--primary-color), 0 0 12px var(--primary-color);
 }
 
 body.crt-mode #matrix-canvas {
+    /* Mute canvas slightly in CRT mode */
     filter: saturate(0.7) brightness(0.8);
 }
 
 @keyframes crt-flicker {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    48% {
-        opacity: 0.95;
-    }
-
-    50% {
-        opacity: 0.93;
-    }
-
-    52% {
-        opacity: 0.95;
-    }
+    0%, 100% { opacity: 1; }
+    48% { opacity: 0.95; }
+    50% { opacity: 0.93; }
+    52% { opacity: 0.95; }
 }
 
 @keyframes crt-scanline {
-    0% {
-        background-position-y: 0;
-    }
-
-    100% {
-        background-position-y: -200px;
-    }
+    0% { background-position-y: 0; }
+    100% { background-position-y: -200px; } /* Animates scanlines moving up */
 }
 
 /* Responsive Adjustments */
 @media (max-width: 767px) {
-
-    /* ... (no changes from previous good state) ... */
     .content-container {
         width: 90vw;
-        max-height: calc(100vh - var(--footer-height) - 3rem);
-        height: 65vh;
+        /* Adjust max-height carefully to avoid overflow with virtual keyboards */
+        max-height: calc(100vh - var(--footer-height) - 2rem); /* Extra space from top/bottom */
+        height: 65vh; /* Or make it more dynamic */
         padding: 0.8rem;
     }
 
@@ -718,21 +541,20 @@ body.crt-mode #matrix-canvas {
         line-height: 1.3;
     }
 
-    /* Adjusted with main line-height */
     .ascii-name {
-        font-size: 1em;
+        font-size: 1em; /* Smaller on mobile */
     }
 
     .minimal-nav {
         padding: 0.4rem 0.5rem;
-        gap: 1rem;
+        gap: 1rem; /* Slightly less gap */
     }
 
     .nav-icon {
         font-size: 1.1rem;
     }
 
-    :root {
+    :root { /* Adjust root variables for mobile if needed, e.g., footer height */
         --footer-height: 3.2rem;
     }
 
@@ -745,20 +567,14 @@ body.crt-mode #matrix-canvas {
     }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1023px) { /* Tablet */
     .content-container {
-        width: 65vw;
-        height: 50vh;
+        width: 75vw; /* Slightly larger than original for tablets */
+        height: 55vh;
         padding: 0.9rem;
     }
 
     .minimal-nav {
         gap: 1.2rem;
     }
-}
-
-body.terminal-hidden .minimal-nav {
-    opacity: 0 !important;
-    transform: translateY(100%) !important;
-    pointer-events: none !important;
 }

@@ -1,0 +1,49 @@
+{
+  "defaultConfig": {
+    "speed": 90,
+    "font": 19,
+    "lineH": 1,
+    "density": 0.95,
+    "minTrail": 11,
+    "maxTrail": 69,
+    "headGlowMin": 1,
+    "headGlowMax": 7,
+    "blur": 15,
+    "trailMutate": 150,
+    "fade": 0.15,
+    "decayBase": 0.92,
+    "baseCol": "#0aff0a",
+    "headCol": "#c8ffc8",
+    "fontFamily": "MatrixA, MatrixB, monospace",
+    "layers": 3,
+    "layerOp": [1, 0.7, 0.5],
+    "delChance": 0.04
+  },
+  "glyphs": "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789CKUVFRZ*|:=<>-_",
+  "presets": {
+    "default": {
+      "description": "Resets rain to its original default configuration.",
+      "isReset": true
+    },
+    "comet": {
+      "description": "Fewer, long, bright-headed streams with slow fades.",
+      "config": { "speed": 50, "font": 20, "density": 0.35, "minTrail": 60, "maxTrail": 90, "headGlowMin": 7, "headGlowMax": 13, "blur": 7, "fade": 0.07, "decayBase": 0.965, "trailMutate": 220, "layers": 4, "delChance": 0.02, "fontFamily": "MatrixA, MatrixB, monospace" }
+    },
+    "storm": {
+      "description": "Very fast, dense, and chaotic code rain with quick fades.",
+      "config": { "speed": 30, "font": 15, "density": 1.15, "lineH": 0.85, "minTrail": 10, "maxTrail": 25, "headGlowMin": 2, "headGlowMax": 4, "blur": 2, "fade": 0.28, "decayBase": 0.87, "trailMutate": 35, "layers": 2, "delChance": 0.1 }
+    },
+    "whisper": {
+      "description": "Subtle, dense, micro-rain with very slow character churn.",
+      "config": { "speed": 110, "font": 12, "lineH": 0.8, "density": 0.95, "minTrail": 30, "maxTrail": 50, "headGlowMin": 1, "headGlowMax": 2, "blur": 1, "fade": 0.09, "decayBase": 0.94, "trailMutate": 280, "fontFamily": "MatrixA, monospace", "layers": 3, "delChance": 0.01 }
+    },
+    "pulse": {
+      "description": "Layered rain with prominent erasing streams creating dynamic gaps.",
+      "config": { "speed": 85, "font": 18, "density": 0.5, "minTrail": 20, "maxTrail": 35, "headGlowMin": 3, "headGlowMax": 5, "blur": 4, "fade": 0.17, "decayBase": 0.91, "trailMutate": 160, "layers": 5, "layerOp": [1, 0.8, 0.6, 0.35, 0.15], "delChance": 0.18 }
+    },
+    "ancient": {
+      "description": "Larger, slower, more persistent glyphs with a classic feel.",
+      "config": { "speed": 140, "font": 23, "density": 0.45, "minTrail": 40, "maxTrail": 70, "headGlowMin": 2, "headGlowMax": 5, "blur": 3, "fade": 0.05, "decayBase": 0.95, "trailMutate": 300, "layers": 3, "delChance": 0.03, "fontFamily": "MatrixA, MatrixB, monospace" }
+    }
+  }
+}
