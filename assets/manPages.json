@@ -4,9 +4,7 @@
     "synopsis": "about",
     "description": "The 'about' command displays comprehensive information about Rishav Sharma, including name, title, a detailed biography, main focus areas, and links to digital presence like GitHub.",
     "arguments": "None",
-    "examples": [
-      "about              - Shows the full about section."
-    ],
+    "examples": ["about              - Shows the full about section."],
     "notes": "Output is formatted into sections: IDENTIFICATION, BIO, FOCUS, DIGITAL SELF."
   },
   "help": {
@@ -14,9 +12,7 @@
     "synopsis": "help",
     "description": "Lists all recognized commands that can be used in this terminal. Each command is shown with its basic syntax and a short explanation of its function.",
     "arguments": "None",
-    "examples": [
-      "help               - Shows the command cheatsheet."
-    ],
+    "examples": ["help               - Shows the command cheatsheet."],
     "notes": "For more detailed information on a specific command, try 'man <command_name>'."
   },
   "theme": {
@@ -48,9 +44,7 @@
     "synopsis": "contact",
     "description": "Shows various channels to get in touch, including Email, LinkedIn, GitHub, and Medium (if available). Each contact method is presented as a labeled link.",
     "arguments": "None",
-    "examples": [
-      "contact            - Displays all contact information."
-    ]
+    "examples": ["contact            - Displays all contact information."]
   },
   "termopacity": {
     "name": "termopacity - Set terminal background opacity.",

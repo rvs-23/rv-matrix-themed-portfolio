@@ -5,23 +5,23 @@
  */
 
 // Import individual command handlers
-import clearCommand from './clear.js';
-import contactCommand from './contact.js';
-import dateCommand from './date.js';
-import downloadCvCommand from './download.js';
-import easterEggCommand from './easter.egg.js';
-import helpCommand from './help.js';
-import hobbiesCommand from './hobbies.js';
-import rainPresetCommand from './rainpreset.js';
-import resizeTermCommand from './resize.js';
-import skillsCommand from './skills.js';
-import skillTreeCommand from './skilltree.js';
-import sudoCommand from './sudo.js';
-import termOpacityCommand from './termopacity.js';
-import termTextCommand from './termtext.js';
-import themeCommand from './theme.js';
-import toggleTermCommand from './toggleterm.js';
-import whoamiCommand from './whoami.js';
+import clearCommand from "./clear.js";
+import contactCommand from "./contact.js";
+import dateCommand from "./date.js";
+import downloadCvCommand from "./download.js";
+import easterEggCommand from "./easter.egg.js";
+import helpCommand from "./help.js";
+import hobbiesCommand from "./hobbies.js";
+import rainPresetCommand from "./rainpreset.js";
+import resizeTermCommand from "./resize.js";
+import skillsCommand from "./skills.js";
+import skillTreeCommand from "./skilltree.js";
+import sudoCommand from "./sudo.js";
+import termOpacityCommand from "./termopacity.js";
+import termTextCommand from "./termtext.js";
+import themeCommand from "./theme.js";
+import toggleTermCommand from "./toggleterm.js";
+import whoamiCommand from "./whoami.js";
 // ... import other command modules as you create them
 
 /**
@@ -31,48 +31,65 @@ import whoamiCommand from './whoami.js';
  * @returns {object} An object mapping command names to their functions.
  */
 export function getAllCommands() {
-    return {
-        'clear': clearCommand,
-        'contact': contactCommand,
-        'date': dateCommand,
-        'download': downloadCvCommand, // Note: command is 'download cv', handled in download.js
-        'easter.egg': easterEggCommand,
-        'help': helpCommand,
-        'hobbies': hobbiesCommand,
-        'rainpreset': rainPresetCommand,
-        'resize': resizeTermCommand, // Note: command is 'resize term', handled in resize.js
-        'skills': skillsCommand,
-        'skilltree': skillTreeCommand,
-        'sudo': sudoCommand,
-        'termopacity': termOpacityCommand,
-        'termtext': termTextCommand,
-        'theme': themeCommand,
-        'toggleterm': toggleTermCommand,
-        'whoami': whoamiCommand,
-        // ... add other commands here
-    };
+  return {
+    clear: clearCommand,
+    contact: contactCommand,
+    date: dateCommand,
+    download: downloadCvCommand, // Note: command is 'download cv', handled in download.js
+    "easter.egg": easterEggCommand,
+    help: helpCommand,
+    hobbies: hobbiesCommand,
+    rainpreset: rainPresetCommand,
+    resize: resizeTermCommand, // Note: command is 'resize term', handled in resize.js
+    skills: skillsCommand,
+    skilltree: skillTreeCommand,
+    sudo: sudoCommand,
+    termopacity: termOpacityCommand,
+    termtext: termTextCommand,
+    theme: themeCommand,
+    toggleterm: toggleTermCommand,
+    whoami: whoamiCommand,
+    // ... add other commands here
+  };
 }
 
 // Utility function for rendering tree structures (skills, hobbies)
 // This can be kept here or moved to a separate utility module if it grows.
-export function renderTree(node, indent = '', isLast = true, outputArray = [], isRootCall = true) {
-    if (!node || typeof node.name === 'undefined') {
-        const errorMsg = isRootCall && !node ? "Error: Data source is not loaded or empty." : "Error: Malformed data node.";
-        console.error("Error in renderTree:", errorMsg, "Node:", node);
-        if (!Array.isArray(outputArray)) {
-            outputArray = [];
-        }
-        outputArray.push(`${indent}${isLast ? '└── ' : '├── '}[${errorMsg}]`);
-        return outputArray;
+export function renderTree(
+  node,
+  indent = "",
+  isLast = true,
+  outputArray = [],
+  isRootCall = true,
+) {
+  if (!node || typeof node.name === "undefined") {
+    const errorMsg =
+      isRootCall && !node
+        ? "Error: Data source is not loaded or empty."
+        : "Error: Malformed data node.";
+    console.error("Error in renderTree:", errorMsg, "Node:", node);
+    if (!Array.isArray(outputArray)) {
+      outputArray = [];
     }
-    const sanitizedNodeName = node.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    outputArray.push(`${indent}${isLast ? '└── ' : '├── '}${sanitizedNodeName}`);
-
-    const newIndent = indent + (isLast ? '    ' : '│   ');
-    if (node.children && node.children.length > 0) {
-        node.children.forEach((child, index) => {
-            renderTree(child, newIndent, index === node.children.length - 1, outputArray, false);
-        });
-    }
+    outputArray.push(`${indent}${isLast ? "└── " : "├── "}[${errorMsg}]`);
     return outputArray;
+  }
+  const sanitizedNodeName = node.name
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  outputArray.push(`${indent}${isLast ? "└── " : "├── "}${sanitizedNodeName}`);
+
+  const newIndent = indent + (isLast ? "    " : "│   ");
+  if (node.children && node.children.length > 0) {
+    node.children.forEach((child, index) => {
+      renderTree(
+        child,
+        newIndent,
+        index === node.children.length - 1,
+        outputArray,
+        false,
+      );
+    });
+  }
+  return outputArray;
 }

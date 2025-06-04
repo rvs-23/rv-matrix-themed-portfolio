@@ -25,9 +25,7 @@
             {
               "name": "TypeScript",
               "aliases": ["ts"],
-              "children": [
-                { "name": "Node.js" }
-              ]
+              "children": [{ "name": "Node.js" }]
             },
             {
               "name": "SQL",
@@ -40,10 +38,7 @@
             {
               "name": "Apache Spark",
               "aliases": ["spark"],
-              "children": [
-                { "name": "PySpark" },
-                { "name": "Spark SQL" }
-              ]
+              "children": [{ "name": "PySpark" }, { "name": "Spark SQL" }]
             }
           ]
         }
@@ -66,10 +61,7 @@
         {
           "name": "Deep Learning Basics",
           "aliases": ["dl"],
-          "children": [
-            { "name": "Neural Networks" },
-            { "name": "PyTorch" }
-          ]
+          "children": [{ "name": "Neural Networks" }, { "name": "PyTorch" }]
         },
         {
           "name": "Generative AI",
@@ -151,17 +143,11 @@
         },
         {
           "name": "REST APIs",
-          "children": [
-            { "name": "Flask" },
-            { "name": "FastAPI" }
-          ]
+          "children": [{ "name": "Flask" }, { "name": "FastAPI" }]
         },
         {
           "name": "Git",
-          "children": [
-            { "name": "GitHub" },
-            { "name": "Branching & Merging" }
-          ]
+          "children": [{ "name": "GitHub" }, { "name": "Branching & Merging" }]
         },
         {
           "name": "Docker & Containers",

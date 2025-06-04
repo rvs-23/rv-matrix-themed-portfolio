@@ -2,266 +2,287 @@
 
 /* --- THEMES --- */
 body.theme-green {
-    --primary-color: #0F0;
-    --primary-color-rgb: 0, 255, 0;
-    --secondary-color: #00FFFF;
-    --text-shadow-color: rgba(0, 255, 0, 0.7);
-    --border-color: rgba(0, 255, 0, 0.6);
-    --hover-color: #33FF33;
-    --hover-shadow-color: rgba(51, 255, 51, 0.9); /* Added based on :root default */
-    --nav-icon-color: #0F0;
-    --nav-label-bg: rgba(0, 255, 0, 0.15); /* Added based on :root default */
-    --loader-text-color: #0F0; /* Added based on :root default */
-    --loader-spinner-color: #0F0; /* Added based on :root default */
-    --matrix-rain-glow-color: #9FFF9F;
-    --terminal-base-r: 17;
-    --terminal-base-g: 24;
-    --terminal-base-b: 39;
-    --scrollbar-track-color: rgba(0, 255, 0, 0.1); /* Added based on :root default */
-    --scrollbar-thumb-color: rgba(0, 255, 0, 0.5); /* Added based on :root default */
-    --scrollbar-thumb-hover-color: rgba(0, 255, 0, 0.8); /* Added based on :root default */
-    --background-color: #000; /* Ensure background is explicitly set if themes change it */
+  --primary-color: #0f0;
+  --primary-color-rgb: 0, 255, 0;
+  --secondary-color: #00ffff;
+  --text-shadow-color: rgba(0, 255, 0, 0.7);
+  --border-color: rgba(0, 255, 0, 0.6);
+  --hover-color: #33ff33;
+  --hover-shadow-color: rgba(
+    51,
+    255,
+    51,
+    0.9
+  ); /* Added based on :root default */
+  --nav-icon-color: #0f0;
+  --nav-label-bg: rgba(0, 255, 0, 0.15); /* Added based on :root default */
+  --loader-text-color: #0f0; /* Added based on :root default */
+  --loader-spinner-color: #0f0; /* Added based on :root default */
+  --matrix-rain-glow-color: #9fff9f;
+  --terminal-base-r: 17;
+  --terminal-base-g: 24;
+  --terminal-base-b: 39;
+  --scrollbar-track-color: rgba(
+    0,
+    255,
+    0,
+    0.1
+  ); /* Added based on :root default */
+  --scrollbar-thumb-color: rgba(
+    0,
+    255,
+    0,
+    0.5
+  ); /* Added based on :root default */
+  --scrollbar-thumb-hover-color: rgba(
+    0,
+    255,
+    0,
+    0.8
+  ); /* Added based on :root default */
+  --background-color: #000; /* Ensure background is explicitly set if themes change it */
 }
 
 body.theme-cyan {
-    --primary-color: #0FF;
-    --primary-color-rgb: 0, 255, 255;
-    --secondary-color: #0F0;
-    --text-shadow-color: rgba(0, 255, 255, 0.7);
-    --border-color: rgba(0, 255, 255, 0.6);
-    --hover-color: #5FFFFF;
-    --hover-shadow-color: rgba(85, 255, 255, 0.9);
-    --nav-icon-color: #0FF;
-    --nav-label-bg: rgba(0, 255, 255, 0.15);
-    --loader-text-color: #0FF;
-    --loader-spinner-color: #0FF;
-    --matrix-rain-glow-color: #AFFFFF;
-    --background-color: #000505;
-    --terminal-base-r: 0;
-    --terminal-base-g: 20;
-    --terminal-base-b: 20;
-    --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-    --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
-    --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8);
+  --primary-color: #0ff;
+  --primary-color-rgb: 0, 255, 255;
+  --secondary-color: #0f0;
+  --text-shadow-color: rgba(0, 255, 255, 0.7);
+  --border-color: rgba(0, 255, 255, 0.6);
+  --hover-color: #5fffff;
+  --hover-shadow-color: rgba(85, 255, 255, 0.9);
+  --nav-icon-color: #0ff;
+  --nav-label-bg: rgba(0, 255, 255, 0.15);
+  --loader-text-color: #0ff;
+  --loader-spinner-color: #0ff;
+  --matrix-rain-glow-color: #afffff;
+  --background-color: #000505;
+  --terminal-base-r: 0;
+  --terminal-base-g: 20;
+  --terminal-base-b: 20;
+  --scrollbar-track-color: rgba(0, 255, 255, 0.1);
+  --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
+  --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8);
 }
 
 body.theme-amber {
-    --primary-color: #FFBF00;
-    --primary-color-rgb: 255, 191, 0;
-    --secondary-color: #FFD700;
-    --text-shadow-color: rgba(255, 191, 0, 0.7);
-    --border-color: rgba(255, 191, 0, 0.6);
-    --hover-color: #FFD700;
-    --hover-shadow-color: rgba(255, 215, 0, 0.9);
-    --nav-icon-color: #FFBF00;
-    --nav-label-bg: rgba(255, 191, 0, 0.15);
-    --loader-text-color: #FFBF00;
-    --loader-spinner-color: #FFBF00;
-    --matrix-rain-glow-color: #FFDDA0;
-    --background-color: #0a0600;
-    --terminal-base-r: 25;
-    --terminal-base-g: 15;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(255, 191, 0, 0.1);
-    --scrollbar-thumb-color: rgba(255, 191, 0, 0.5);
-    --scrollbar-thumb-hover-color: rgba(255, 191, 0, 0.8);
+  --primary-color: #ffbf00;
+  --primary-color-rgb: 255, 191, 0;
+  --secondary-color: #ffd700;
+  --text-shadow-color: rgba(255, 191, 0, 0.7);
+  --border-color: rgba(255, 191, 0, 0.6);
+  --hover-color: #ffd700;
+  --hover-shadow-color: rgba(255, 215, 0, 0.9);
+  --nav-icon-color: #ffbf00;
+  --nav-label-bg: rgba(255, 191, 0, 0.15);
+  --loader-text-color: #ffbf00;
+  --loader-spinner-color: #ffbf00;
+  --matrix-rain-glow-color: #ffdda0;
+  --background-color: #0a0600;
+  --terminal-base-r: 25;
+  --terminal-base-g: 15;
+  --terminal-base-b: 0;
+  --scrollbar-track-color: rgba(255, 191, 0, 0.1);
+  --scrollbar-thumb-color: rgba(255, 191, 0, 0.5);
+  --scrollbar-thumb-hover-color: rgba(255, 191, 0, 0.8);
 }
 
 body.theme-purple {
-    --primary-color: #C000C0;
-    --primary-color-rgb: 192, 0, 192;
-    --secondary-color: #DA70D6;
-    --text-shadow-color: rgba(192, 0, 192, 0.7);
-    --border-color: rgba(192, 0, 192, 0.6);
-    --hover-color: #EE82EE;
-    --hover-shadow-color: rgba(238, 130, 238, 0.9);
-    --nav-icon-color: #C000C0;
-    --nav-label-bg: rgba(192, 0, 192, 0.15);
-    --loader-text-color: #C000C0;
-    --loader-spinner-color: #C000C0;
-    --matrix-rain-glow-color: #ECA0EC;
-    --background-color: #080008;
-    --terminal-base-r: 20;
-    --terminal-base-g: 0;
-    --terminal-base-b: 20;
-    --scrollbar-track-color: rgba(192, 0, 192, 0.1);
-    --scrollbar-thumb-color: rgba(192, 0, 192, 0.5);
-    --scrollbar-thumb-hover-color: rgba(192, 0, 192, 0.8);
+  --primary-color: #c000c0;
+  --primary-color-rgb: 192, 0, 192;
+  --secondary-color: #da70d6;
+  --text-shadow-color: rgba(192, 0, 192, 0.7);
+  --border-color: rgba(192, 0, 192, 0.6);
+  --hover-color: #ee82ee;
+  --hover-shadow-color: rgba(238, 130, 238, 0.9);
+  --nav-icon-color: #c000c0;
+  --nav-label-bg: rgba(192, 0, 192, 0.15);
+  --loader-text-color: #c000c0;
+  --loader-spinner-color: #c000c0;
+  --matrix-rain-glow-color: #eca0ec;
+  --background-color: #080008;
+  --terminal-base-r: 20;
+  --terminal-base-g: 0;
+  --terminal-base-b: 20;
+  --scrollbar-track-color: rgba(192, 0, 192, 0.1);
+  --scrollbar-thumb-color: rgba(192, 0, 192, 0.5);
+  --scrollbar-thumb-hover-color: rgba(192, 0, 192, 0.8);
 }
 
 body.theme-twilight {
-    --primary-color: #e6a0c4;
-    --primary-color-rgb: 230, 160, 196;
-    --secondary-color: #9b84ec;
-    --text-shadow-color: rgba(230, 160, 196, 0.6);
-    --border-color: rgba(230, 160, 196, 0.5);
-    --hover-color: #ee82ee; /* Kept original, can be adjusted */
-    --hover-shadow-color: rgba(238, 130, 238, 0.8);
-    --nav-icon-color: #e6a0c4;
-    --nav-label-bg: rgba(230, 160, 196, 0.15);
-    --loader-text-color: #e6a0c4;
-    --loader-spinner-color: #e6a0c4;
-    --matrix-rain-glow-color: #f0c0e0;
-    --background-color: #0a061a;
-    --terminal-base-r: 20;
-    --terminal-base-g: 10;
-    --terminal-base-b: 40;
-    --scrollbar-track-color: rgba(230, 160, 196, 0.1);
-    --scrollbar-thumb-color: rgba(230, 160, 196, 0.4);
-    --scrollbar-thumb-hover-color: rgba(230, 160, 196, 0.7);
+  --primary-color: #e6a0c4;
+  --primary-color-rgb: 230, 160, 196;
+  --secondary-color: #9b84ec;
+  --text-shadow-color: rgba(230, 160, 196, 0.6);
+  --border-color: rgba(230, 160, 196, 0.5);
+  --hover-color: #ee82ee; /* Kept original, can be adjusted */
+  --hover-shadow-color: rgba(238, 130, 238, 0.8);
+  --nav-icon-color: #e6a0c4;
+  --nav-label-bg: rgba(230, 160, 196, 0.15);
+  --loader-text-color: #e6a0c4;
+  --loader-spinner-color: #e6a0c4;
+  --matrix-rain-glow-color: #f0c0e0;
+  --background-color: #0a061a;
+  --terminal-base-r: 20;
+  --terminal-base-g: 10;
+  --terminal-base-b: 40;
+  --scrollbar-track-color: rgba(230, 160, 196, 0.1);
+  --scrollbar-thumb-color: rgba(230, 160, 196, 0.4);
+  --scrollbar-thumb-hover-color: rgba(230, 160, 196, 0.7);
 }
 
 body.theme-crimson {
-    --primary-color: #DC143C;
-    --primary-color-rgb: 220, 20, 60;
-    --secondary-color: #FF6347;
-    --text-shadow-color: rgba(220, 20, 60, 0.6);
-    --border-color: rgba(220, 20, 60, 0.5);
-    --hover-color: #FF4500;
-    --hover-shadow-color: rgba(255, 69, 0, 0.8);
-    --nav-icon-color: #DC143C;
-    --nav-label-bg: rgba(220, 20, 60, 0.15);
-    --loader-text-color: #DC143C;
-    --loader-spinner-color: #DC143C;
-    --matrix-rain-glow-color: #FF8C70;
-    --background-color: #100000;
-    --terminal-base-r: 20;
-    --terminal-base-g: 0;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(220, 20, 60, 0.1);
-    --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
-    --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7);
+  --primary-color: #dc143c;
+  --primary-color-rgb: 220, 20, 60;
+  --secondary-color: #ff6347;
+  --text-shadow-color: rgba(220, 20, 60, 0.6);
+  --border-color: rgba(220, 20, 60, 0.5);
+  --hover-color: #ff4500;
+  --hover-shadow-color: rgba(255, 69, 0, 0.8);
+  --nav-icon-color: #dc143c;
+  --nav-label-bg: rgba(220, 20, 60, 0.15);
+  --loader-text-color: #dc143c;
+  --loader-spinner-color: #dc143c;
+  --matrix-rain-glow-color: #ff8c70;
+  --background-color: #100000;
+  --terminal-base-r: 20;
+  --terminal-base-g: 0;
+  --terminal-base-b: 0;
+  --scrollbar-track-color: rgba(220, 20, 60, 0.1);
+  --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
+  --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7);
 }
 
 body.theme-forest {
-    --primary-color: #228B22;
-    --primary-color-rgb: 34, 139, 34;
-    --secondary-color: #ADFF2F;
-    --text-shadow-color: rgba(34, 139, 34, 0.6);
-    --border-color: rgba(34, 139, 34, 0.5);
-    --hover-color: #32CD32;
-    --hover-shadow-color: rgba(50, 205, 50, 0.8);
-    --nav-icon-color: #228B22;
-    --nav-label-bg: rgba(34, 139, 34, 0.15);
-    --loader-text-color: #228B22;
-    --loader-spinner-color: #228B22;
-    --matrix-rain-glow-color: #98FB98;
-    --background-color: #001000;
-    --terminal-base-r: 0;
-    --terminal-base-g: 20;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(34, 139, 34, 0.1);
-    --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
-    --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7);
+  --primary-color: #228b22;
+  --primary-color-rgb: 34, 139, 34;
+  --secondary-color: #adff2f;
+  --text-shadow-color: rgba(34, 139, 34, 0.6);
+  --border-color: rgba(34, 139, 34, 0.5);
+  --hover-color: #32cd32;
+  --hover-shadow-color: rgba(50, 205, 50, 0.8);
+  --nav-icon-color: #228b22;
+  --nav-label-bg: rgba(34, 139, 34, 0.15);
+  --loader-text-color: #228b22;
+  --loader-spinner-color: #228b22;
+  --matrix-rain-glow-color: #98fb98;
+  --background-color: #001000;
+  --terminal-base-r: 0;
+  --terminal-base-g: 20;
+  --terminal-base-b: 0;
+  --scrollbar-track-color: rgba(34, 139, 34, 0.1);
+  --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
+  --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7);
 }
 
 body.theme-goldenglitch {
-    --primary-color: #FFD700; /* Gold */
-    --primary-color-rgb: 255, 215, 0;
-    --secondary-color: #FF4500; /* OrangeRed for glitchy accents */
-    --text-shadow-color: rgba(255, 215, 0, 0.6);
-    --border-color: rgba(255, 165, 0, 0.6); /* Orange */
-    --hover-color: #FF6347; /* Tomato - slightly different for hover */
-    --hover-shadow-color: rgba(255, 99, 71, 0.8);
-    --nav-icon-color: #FFD700;
-    --nav-label-bg: rgba(255, 215, 0, 0.15);
-    --loader-text-color: #FFD700;
-    --loader-spinner-color: #FFD700;
-    --matrix-rain-glow-color: #FFFACD; /* LemonChiffon - softer glow */
-    --background-color: #1a0e00; /* Very dark brown/orange */
-    --terminal-base-r: 40;
-    --terminal-base-g: 20;
-    --terminal-base-b: 0;
-    --scrollbar-track-color: rgba(255, 215, 0, 0.1);
-    --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
-    --scrollbar-thumb-hover-color: rgba(255, 215, 0, 0.8);
+  --primary-color: #ffd700; /* Gold */
+  --primary-color-rgb: 255, 215, 0;
+  --secondary-color: #ff4500; /* OrangeRed for glitchy accents */
+  --text-shadow-color: rgba(255, 215, 0, 0.6);
+  --border-color: rgba(255, 165, 0, 0.6); /* Orange */
+  --hover-color: #ff6347; /* Tomato - slightly different for hover */
+  --hover-shadow-color: rgba(255, 99, 71, 0.8);
+  --nav-icon-color: #ffd700;
+  --nav-label-bg: rgba(255, 215, 0, 0.15);
+  --loader-text-color: #ffd700;
+  --loader-spinner-color: #ffd700;
+  --matrix-rain-glow-color: #fffacd; /* LemonChiffon - softer glow */
+  --background-color: #1a0e00; /* Very dark brown/orange */
+  --terminal-base-r: 40;
+  --terminal-base-g: 20;
+  --terminal-base-b: 0;
+  --scrollbar-track-color: rgba(255, 215, 0, 0.1);
+  --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
+  --scrollbar-thumb-hover-color: rgba(255, 215, 0, 0.8);
 }
 
 body.theme-retroarcade {
-    --primary-color: #ff00ff; /* Magenta */
-    --primary-color-rgb: 255, 0, 255;
-    --secondary-color: #00ffff; /* Cyan */
-    --text-shadow-color: rgba(255, 0, 255, 0.6);
-    --border-color: rgba(0, 255, 255, 0.7);
-    --hover-color: #f8f8f2; /* Off-white for hover text */
-    --hover-shadow-color: rgba(0, 255, 255, 0.9);
-    --nav-icon-color: #ff00ff;
-    --nav-label-bg: rgba(0, 255, 255, 0.2);
-    --loader-text-color: #ff00ff;
-    --loader-spinner-color: #00ffff;
-    --matrix-rain-glow-color: #f8f8f2; /* White glow for rain */
-    --background-color: #28004d; /* Deep purple */
-    --terminal-base-r: 28;   /* Darker purple for terminal bg */
-    --terminal-base-g: 0;
-    --terminal-base-b: 51;
-    --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-    --scrollbar-thumb-color: rgba(255, 0, 255, 0.6);
-    --scrollbar-thumb-hover-color: rgba(255, 0, 255, 0.9);
+  --primary-color: #ff00ff; /* Magenta */
+  --primary-color-rgb: 255, 0, 255;
+  --secondary-color: #00ffff; /* Cyan */
+  --text-shadow-color: rgba(255, 0, 255, 0.6);
+  --border-color: rgba(0, 255, 255, 0.7);
+  --hover-color: #f8f8f2; /* Off-white for hover text */
+  --hover-shadow-color: rgba(0, 255, 255, 0.9);
+  --nav-icon-color: #ff00ff;
+  --nav-label-bg: rgba(0, 255, 255, 0.2);
+  --loader-text-color: #ff00ff;
+  --loader-spinner-color: #00ffff;
+  --matrix-rain-glow-color: #f8f8f2; /* White glow for rain */
+  --background-color: #28004d; /* Deep purple */
+  --terminal-base-r: 28; /* Darker purple for terminal bg */
+  --terminal-base-g: 0;
+  --terminal-base-b: 51;
+  --scrollbar-track-color: rgba(0, 255, 255, 0.1);
+  --scrollbar-thumb-color: rgba(255, 0, 255, 0.6);
+  --scrollbar-thumb-hover-color: rgba(255, 0, 255, 0.9);
 }
 
 /* === REVISED THEME === */
-body.theme-reloaded { /* More distinct from standard green */
-    --primary-color: #4CAF50; /* A more 'modern' desaturated green */
-    --primary-color-rgb: 76, 175, 80;
-    --secondary-color: #E0E0E0; /* Light grey, almost white, for high contrast */
-    --text-shadow-color: rgba(76, 175, 80, 0.5);
-    --border-color: rgba(100, 100, 100, 0.4); /* Neutral grey border */
-    --hover-color: #B0BEC5; /* Blue Grey for hover */
-    --hover-shadow-color: rgba(176, 190, 197, 0.7);
-    --nav-icon-color: #4CAF50;
-    --nav-label-bg: rgba(76, 175, 80, 0.15);
-    --loader-text-color: #4CAF50;
-    --loader-spinner-color: #E0E0E0;
-    --matrix-rain-glow-color: #F5F5F5; /* Bright, clean white/very light grey glow */
-    --background-color: #0a0a0a; /* Very, very dark grey, almost black */
-    --terminal-base-r: 25;   /* rgb(25, 28, 25) - Dark, slightly green-tinted grey */
-    --terminal-base-g: 28;
-    --terminal-base-b: 25;
-    --scrollbar-track-color: rgba(76, 175, 80, 0.1);
-    --scrollbar-thumb-color: rgba(120, 120, 120, 0.5); /* Grey scrollbar */
-    --scrollbar-thumb-hover-color: rgba(150, 150, 150, 0.7);
+body.theme-reloaded {
+  /* More distinct from standard green */
+  --primary-color: #4caf50; /* A more 'modern' desaturated green */
+  --primary-color-rgb: 76, 175, 80;
+  --secondary-color: #e0e0e0; /* Light grey, almost white, for high contrast */
+  --text-shadow-color: rgba(76, 175, 80, 0.5);
+  --border-color: rgba(100, 100, 100, 0.4); /* Neutral grey border */
+  --hover-color: #b0bec5; /* Blue Grey for hover */
+  --hover-shadow-color: rgba(176, 190, 197, 0.7);
+  --nav-icon-color: #4caf50;
+  --nav-label-bg: rgba(76, 175, 80, 0.15);
+  --loader-text-color: #4caf50;
+  --loader-spinner-color: #e0e0e0;
+  --matrix-rain-glow-color: #f5f5f5; /* Bright, clean white/very light grey glow */
+  --background-color: #0a0a0a; /* Very, very dark grey, almost black */
+  --terminal-base-r: 25; /* rgb(25, 28, 25) - Dark, slightly green-tinted grey */
+  --terminal-base-g: 28;
+  --terminal-base-b: 25;
+  --scrollbar-track-color: rgba(76, 175, 80, 0.1);
+  --scrollbar-thumb-color: rgba(120, 120, 120, 0.5); /* Grey scrollbar */
+  --scrollbar-thumb-hover-color: rgba(150, 150, 150, 0.7);
 }
 
 body.theme-synthwavegrid {
-    --primary-color: #FF4081; /* Hot Pink / Magenta */
-    --primary-color-rgb: 255, 64, 129;
-    --secondary-color: #00E5FF; /* Bright Electric Cyan */
-    --text-shadow-color: rgba(0, 229, 255, 0.5); /* Cyan shadow for pink text */
-    --border-color: rgba(255, 64, 129, 0.6);
-    --hover-color: #FFD600; /* Bright Yellow for hover */
-    --hover-shadow-color: rgba(255, 214, 0, 0.7);
-    --nav-icon-color: #FF4081;
-    --nav-label-bg: rgba(0, 229, 255, 0.2);
-    --loader-text-color: #FF4081;
-    --loader-spinner-color: #00E5FF;
-    --matrix-rain-glow-color: #FFFFFF; /* Clean White glow */
-    --background-color: #1A0D2E; /* Deep Indigo/Dark Purple */
-    --terminal-base-r: 35;   /* rgb(35, 20, 60) - Darker Indigo */
-    --terminal-base-g: 20;
-    --terminal-base-b: 60;
-    --scrollbar-track-color: rgba(0, 229, 255, 0.1);
-    --scrollbar-thumb-color: rgba(255, 64, 129, 0.6);
-    --scrollbar-thumb-hover-color: rgba(255, 64, 129, 0.9);
+  --primary-color: #ff4081; /* Hot Pink / Magenta */
+  --primary-color-rgb: 255, 64, 129;
+  --secondary-color: #00e5ff; /* Bright Electric Cyan */
+  --text-shadow-color: rgba(0, 229, 255, 0.5); /* Cyan shadow for pink text */
+  --border-color: rgba(255, 64, 129, 0.6);
+  --hover-color: #ffd600; /* Bright Yellow for hover */
+  --hover-shadow-color: rgba(255, 214, 0, 0.7);
+  --nav-icon-color: #ff4081;
+  --nav-label-bg: rgba(0, 229, 255, 0.2);
+  --loader-text-color: #ff4081;
+  --loader-spinner-color: #00e5ff;
+  --matrix-rain-glow-color: #ffffff; /* Clean White glow */
+  --background-color: #1a0d2e; /* Deep Indigo/Dark Purple */
+  --terminal-base-r: 35; /* rgb(35, 20, 60) - Darker Indigo */
+  --terminal-base-g: 20;
+  --terminal-base-b: 60;
+  --scrollbar-track-color: rgba(0, 229, 255, 0.1);
+  --scrollbar-thumb-color: rgba(255, 64, 129, 0.6);
+  --scrollbar-thumb-hover-color: rgba(255, 64, 129, 0.9);
 }
 
 body.theme-voidblue {
-    --primary-color: #90CAF9; /* Light Steel Blue */
-    --primary-color-rgb: 144, 202, 249;
-    --secondary-color: #80DEEA; /* Lighter Cyan/Aqua */
-    --text-shadow-color: rgba(128, 222, 234, 0.4);
-    --border-color: rgba(66, 165, 245, 0.5); /* Brighter Blue border */
-    --hover-color: #E3F2FD; /* Very Light Blue, almost white */
-    --hover-shadow-color: rgba(227, 242, 253, 0.7);
-    --nav-icon-color: #90CAF9;
-    --nav-label-bg: rgba(128, 222, 234, 0.15);
-    --loader-text-color: #90CAF9;
-    --loader-spinner-color: #80DEEA;
-    --matrix-rain-glow-color: #FFFFFF; /* White glow for clarity */
-    --background-color: #0D1B2A; /* Very Dark Desaturated Blue (almost black) */
-    --terminal-base-r: 23;   /* rgb(23, 37, 50) - Deep dark blue */
-    --terminal-base-g: 37;
-    --terminal-base-b: 50;
-    --scrollbar-track-color: rgba(66, 165, 245, 0.1);
-    --scrollbar-thumb-color: rgba(100, 181, 246, 0.6); /* Blue scrollbar */
-    --scrollbar-thumb-hover-color: rgba(144, 202, 249, 0.8);
+  --primary-color: #90caf9; /* Light Steel Blue */
+  --primary-color-rgb: 144, 202, 249;
+  --secondary-color: #80deea; /* Lighter Cyan/Aqua */
+  --text-shadow-color: rgba(128, 222, 234, 0.4);
+  --border-color: rgba(66, 165, 245, 0.5); /* Brighter Blue border */
+  --hover-color: #e3f2fd; /* Very Light Blue, almost white */
+  --hover-shadow-color: rgba(227, 242, 253, 0.7);
+  --nav-icon-color: #90caf9;
+  --nav-label-bg: rgba(128, 222, 234, 0.15);
+  --loader-text-color: #90caf9;
+  --loader-spinner-color: #80deea;
+  --matrix-rain-glow-color: #ffffff; /* White glow for clarity */
+  --background-color: #0d1b2a; /* Very Dark Desaturated Blue (almost black) */
+  --terminal-base-r: 23; /* rgb(23, 37, 50) - Deep dark blue */
+  --terminal-base-g: 37;
+  --terminal-base-b: 50;
+  --scrollbar-track-color: rgba(66, 165, 245, 0.1);
+  --scrollbar-thumb-color: rgba(100, 181, 246, 0.6); /* Blue scrollbar */
+  --scrollbar-thumb-hover-color: rgba(144, 202, 249, 0.8);
 }

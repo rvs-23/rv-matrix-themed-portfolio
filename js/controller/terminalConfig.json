@@ -12,5 +12,16 @@
     "SYSTEM INTERFACE INITIALIZING...",
     "WELCOME TO THE GRID, USER."
   ],
-  "konamiCodeSequence": ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"]
+  "konamiCodeSequence": [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight",
+    "b",
+    "a"
+  ]
 }
