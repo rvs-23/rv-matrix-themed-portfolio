@@ -2,55 +2,76 @@
 
 ## 1. Project Overview
 
-Welcome to my personal portfolio, reimagined as a Matrix-themed interactive terminal. This project serves as a unique showcase of my skills, projects, and professional background, presented through an retro-futuristic interface. It departs from traditional portfolio layouts to offer a memorable user experience.
+Welcome to my personal portfolio, reimagined as a Matrix-themed interactive terminal. This project serves as a showcase of my skills, and professional background, presented through a retro-futuristic interface. It departs from traditional portfolio layouts to offer a memorable user experience. This was purely built out of personal interest & an ever-_green_ love for The Matrix.
 
 **Key Features:**
 
-- **Interactive Terminal Interface:** Navigate through portfolio sections (About, Skills, Contact, etc.) using familiar command-line inputs.
-- **Dynamic Matrix Rain Animation:** Features the iconic falling green character animation as a persistent background, built with HTML5 Canvas.
-- **Customizable Theming:** Alter the visual aesthetics of the terminal and effects using various color themes and opacity controls.
+- **Interactive Terminal Interface:** Navigate through portfolio sections (WhoAmI, Skills, Contact, etc.) using familiar command-line inputs.
+- **Dynamic Matrix Rain Animation:** Features the iconic falling character animation as a persistent background, built with HTML5 Canvas and customizable through presets.
+- **Customizable Theming:** Alter the visual aesthetics of the terminal and effects using various color themes (`theme` command) and opacity controls (`termopacity` command).
 - **Skill Tree Explorer:** Interactively explore a detailed hierarchy of technical skills using the `skilltree` command.
 - **Responsive Design:** Adapts to various screen sizes for usability on desktop, tablet, and mobile devices.
-- **Immersive Loading Sequence:** A themed loading animation enhances the initial user engagement.
-- **Accessibility Considerations:** Includes features like keyboard navigation and theme options to improve user experience for a wider audience.
+- **Immersive Loading Sequence:** A themed loading animation enhances initial user engagement.
+- **Keyboard Shortcuts:** Includes `Ctrl + \` to toggle terminal visibility and a Konami code easter egg for a CRT visual effect.
+- **Comprehensive Command Set:** Offers a range of commands for navigation, customization, and information retrieval, complete with a `man` (manual) system.
 
 ## 2. Technical Documentation
 
 ### 2.1. Project Structure & Key Components
 
-This portfolio is a client-side single-page application built with vanilla HTML5, CSS3, and JavaScript (ES6+).
+This portfolio is a client-side single-page application built with vanilla HTML5, CSS3, and JavaScript (ES6+ modules). The architecture emphasizes modularity and configurability, achieved through significant refactoring.
 
-- **`index.html`**: The main HTML file that structures the page, loads stylesheets, scripts, and defines the core layout for the terminal and canvas elements.
-- **`css/style.css`**: Contains all custom styling for the application, including layout, terminal appearance, animations, responsive design, and theme definitions (primarily using CSS custom properties).
-- **`js/matrix-rain.js`**: Manages the core client-side logic. This includes:
-  - **DOM Initialization:** Setting up references to key HTML elements.
-  - **Loading Screen Management:** Controlling the initial "decryption" animation and transition.
-  - **Matrix Rain Animation:** Driving the HTML5 Canvas-based digital rain effect, including character generation, rendering, and behavior.
-  - **Terminal I/O & State:** Handling command input, processing, history, and managing terminal visibility state.
-  - **Global Event Listeners:** Managing window resize events, keyboard shortcuts (e.g., for terminal toggle, Konami code).
-  - **Core Initialization (`initializeTerminalAndGraphics`):** Orchestrating the setup of all visual and interactive components.
-- **`js/commands.js`**: Defines the logic and output for all available terminal commands (e.g., `about`, `skills`, `theme`, `termopacity`).
-  - **Command Definitions:** Each command is a function that typically interacts with the `appendToTerminal` function (passed via context from `matrix-rain.js`) to display its output.
-  - **Skills Data Management:** Includes the `skillsData` object defining the skill tree structure and the `renderSkillTree` helper function for its display.
-  - **Easter Egg Logic:** Contains functionality for specific interactive surprises.
+- **`index.html`**: The main HTML file. Structures the page, loads stylesheets, JavaScript modules, and defines the core layout for the terminal, canvas, and navigation elements.
+- **`css/`**:
+  - **`style.css`**: Contains global CSS custom variables (defaulting to the "green" theme), `@font-face` declarations, general styles for layout, components (terminal, navigation, loading screen), animations (keyframes for fades, glitches), and responsive media queries.
+  - **`themes.css`**: Dedicated file for all theme-specific CSS rules (e.g., `body.theme-cyan { ... }`), allowing themes to override default styles.
+- **`js/`**:
+  - **`main.js`**: The primary entry point of the application.
+    - Handles the `DOMContentLoaded` event.
+    - Orchestrates loading of all data (configurations and assets) via `dataLoader.js`.
+    - Initializes all core modules: loader screen, rain configuration, terminal controller, shortcuts, and the rain engine.
+    - Assembles and provides the `commandContext` object to the command system.
+    - Sets up global event listeners (e.g., window resize for rain canvas).
+  - **`controller/`**: Modules responsible for managing specific aspects of the UI and application state.
+    - **`dataLoader.js`**: Asynchronously fetches all necessary JSON files (configurations and assets like skills, hobbies, man pages) using the `fetch` API, with error handling and fallbacks.
+    - **`loaderScreen.js`**: Manages the initial loading screen animation and its lifecycle.
+    - **`terminalController.js`**: Handles all DOM interactions for the terminal (input, output, history), manages terminal state (visibility, opacity, font size, themes), processes commands, and displays the welcome message.
+    - **`shortcuts.js`**: Manages global keyboard shortcuts like the Konami code (for CRT mode) and `Ctrl + \` (to toggle terminal visibility).
+    - **`userConfig.json`**: Configuration for user-specific details (name, bio, links). (Data file)
+    - **`terminalConfig.json`**: Configuration for terminal behavior (default size, opacity, global charsets, loading messages). (Data file)
+  - **`rain/`**: Modules dedicated to the Matrix rain animation.
+    - **`config.js`**: Manages the active configuration for the rain effect, loaded from `rainConfig.json`. Provides functions to get/update rain parameters.
+    - **`engine.js`**: Contains the core logic for rendering and animating the Matrix rain on the HTML5 canvas, including the `Stream` class and animation loop.
+    - **`rainConfig.json`**: Configuration for rain animation defaults, glyphs, and presets for the `rainpreset` command. (Data file)
+  - **`commands/`**: Modules for individual terminal commands.
+    - **`0_index.js`**: Central registry for all terminal commands. Imports individual command modules and exports `getAllCommands()`. Includes shared utilities like `renderTree`.
+    - **`*.js` (e.g., `help.js`, `theme.js`, `skills.js`)**: Each file defines a specific terminal command, exporting a function that takes arguments and the `commandContext`.
+- **`assets/`**: Static assets.
+  - **`*.json` (e.g., `skills.json`, `hobbies.json`, `manPages.json`)**: Data files used by various commands.
+  - **`*.ttf`, `favicon.png`**: Font files and site icon.
+  - **`refactor.md`**: Document detailing an earlier codebase refactoring from a Monolith (meta-document).
+- **`README.md`**: This file.
+- **`package.json`**: Project metadata, scripts (lint, format), and development dependencies. Core functionality does not rely on Node.js runtime dependencies.
 
 ### 2.2. Tech Stack
 
-- **Languages:** HTML5, CSS3, JavaScript (ES6+)
+- **Languages:** HTML5, CSS3, JavaScript (ES6+ modules)
 - **Styling:**
   - Vanilla CSS with extensive use of CSS Custom Properties for dynamic theming.
-  - Tailwind CSS (v3.x via CDN, primarily for utility classes in `index.html`).
   - Font Awesome (via CDN for icons).
+  - (Tailwind CSS utility classes are minimally used in `index.html` for some structural layout, but components are primarily styled with custom CSS).
 - **Graphics & Animation:**
   - HTML5 Canvas 2D API (for the Matrix digital rain effect).
   - CSS Animations and Transitions.
-- **Development Environment:**
-  - Standard web browser with developer tools.
-  - Local HTTP server for development (e.g., Live Server extension in VS Code, Python's `http.server`).
+- **Development Tools (Dev Dependencies):**
+  - ESLint (for JavaScript linting).
+  - Prettier (for code formatting).
 
 ### 2.3. Dependencies
 
-This project is self-contained regarding its core functionality, relying on vanilla JavaScript. External dependencies are limited to:
+- **Runtime:** The project's core functionality relies on vanilla JavaScript and is self-contained. External runtime dependencies are limited to:
+  - Font Awesome (CDN) for icons.
+  - Google Fonts (CDN) for "Fira Code" and "Inter".
 
 ### 2.4. Environment Variables
 
@@ -69,10 +90,8 @@ This is a static website and does not require a complex build or server-side set
 ### 3.2. Local Development
 
 1.  **Obtain the Files:**
-
     - Clone the repository (if using Git): `git clone <repository-url>` and navigate into the folder: `cd <repository-folder>`.
     - Alternatively, download and extract the project files to a local directory.
-
 2.  **Open in Browser:**
     - **Directly:** You can often open the `index.html` file directly in your web browser.
     - **Using a Local Server (Recommended):** To avoid potential issues with `file:///` paths and ensure proper behavior for all features:
@@ -90,125 +109,95 @@ This is a static website and does not require a complex build or server-side set
 Deploying this portfolio involves hosting static files (`.html`, `.css`, `.js`, assets).
 
 1.  Ensure all file paths within `index.html` (for CSS, JS, and assets) are relative and correct.
-2.  Upload the entire project folder to a static web hosting provider. Common choices include:
+2.  Upload the entire project folder to a static web hosting provider (e.g., GitHub Pages, Vercel, Netlify, AWS S3).
 
-    - GitHub Pages
-    - Vercel
-    - AWS S3 (with static website hosting enabled)
-    - Firebase Hosting
-    - etc.
+## 4. Contribution Guide
 
-    Most of these platforms offer straightforward deployment via Git integration or drag-and-drop.
-
-### 3.4. Troubleshooting Common Setup Errors
-
-- **Canvas Rendering Issues (No Animations):**
-  - Open the browser's developer console (usually F12) and check for JavaScript errors. Errors in `matrix-rain.js` can prevent canvas initialization.
-  - Ensure your browser has JavaScript enabled and supports HTML5 Canvas.
-- **Styling Issues (Page Looks Unstyled):**
-  - Confirm the link to `css/style.css` is correct in `index.html`.
-  - Check the developer console for errors related to loading the CSS file or CDN links (Tailwind, Font Awesome).
-  - Clear your browser cache thoroughly (hard refresh: Ctrl+Shift+R or Cmd+Shift+R) to ensure you're not viewing an outdated version.
-- **Terminal Commands Not Working:**
-  - Check the developer console for JavaScript errors, particularly in `js/commands.js` (command definitions) or `js/matrix-rain.js` (command input handling).
-
-## 4. Contribution Guide (If Applicable)
-
-While this is a personal portfolio, maintaining good coding practices is beneficial. If contributions were to be considered:
+While this is a personal portfolio, maintaining good coding practices is beneficial (note to self).
 
 ### 4.1. Code Style Conventions
 
 - **JavaScript:**
-  - Adhere to a consistent style (e.g., ESLint with a common configuration like Airbnb or StandardJS, Prettier for formatting).
-  - Utilize JSDoc for documenting functions, especially complex logic or public APIs.
-  - Prefer `const` and `let` over `var`.
-  - Employ clear, descriptive names for variables and functions.
+  - Follows standard ESLint rules and Prettier for formatting.
+  - JSDoc comments are used for documenting functions.
+  - `const` and `let` are preferred over `var`.
+  - Clear, descriptive names for variables and functions.
 - **CSS:**
-  - Organize CSS logically (e.g., global styles, layout, components, themes).
-  - Leverage CSS Custom Properties for theming and maintainability.
-  - Comment complex selectors or non-obvious styling choices.
+  - Organized logically (globals, layout, components, themes).
+  - Extensive use of CSS Custom Properties.
 - **HTML:**
-  - Write semantic and accessible HTML.
-  - Ensure proper indentation and readability.
+  - Semantic and accessible HTML.
 
 ### 4.2. Branching Strategy (Git Workflow Example)
 
-A simple Gitflow-like strategy is recommended:
-
-- **`main`:** This branch should always reflect the latest stable, deployed version.
-- **`develop`:** This branch serves as the primary integration branch for ongoing development. New features are merged here first.
-- **Feature Branches (`feature/<feature-name>`):** Create new branches from `develop` for each new feature or significant change (e.g., `feature/new-command-xyz`).
-- **Pull Requests (PRs):** Once a feature is complete, create a PR from the feature branch into `develop`. PRs should ideally be reviewed before merging.
-- **Releases:** When `develop` is stable and ready for a new release, merge it into `main` and consider tagging the release (e.g., `v1.1.0`).
+- **`main`:** Latest stable, deployed version.
+- **Feature Branches (`feature/<feature-name>`):** Branched from `develop` for new features.
+- **Pull Requests (PRs):** From feature branches into `develop`, ideally reviewed.
 
 ### 4.3. Testing Protocols
 
-- **Manual Testing:** Thoroughly test all commands, theme changes, opacity adjustments, animations, and responsiveness across different browsers (Chrome, Firefox, Safari, Edge) and devices (desktop, tablet, mobile).
-- **End-to-End (E2E) Tests (Future Consideration):** Tools like Cypress or Playwright could simulate user interactions for verifying complete flows, although this might be overkill for a personal portfolio unless significant new interactive features are added.
+- **Manual Testing:** Thoroughly test all commands, theme changes, opacity adjustments, rain presets, animations, and responsiveness across different browsers and devices.
+- Use browser developer tools for debugging and performance checks.
 
 ## 5. User Guide
 
 ### 5.1. Terminal Command Cheatsheet
 
-The following commands are available in the terminal. Type a command and press Enter.
+The following commands are available in the terminal. Type a command and press Enter. For detailed info, use `man <command_name>`.
 
-| Command                      | Description                                                                                                               |
-| :--------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
-| `about`                      | Display detailed information about me.                                                                                    |
-| `clear`                      | Clear the terminal output (retains the welcome message).                                                                  |
-| `contact`                    | Show contact information (Email, LinkedIn, GitHub, Medium).                                                               |
-| `date`                       | Display the current local date and time.                                                                                  |
-| `download cv`                | Initiate download of my CV.                                                                                               |
-| `easter.egg`                 | ??? (Triggers a hidden terminal glitch animation and a Matrix-related quote).                                             |
-| `help`                       | Display this list of available commands.                                                                                  |
-| `rainpreset <name>`          | Apply a predefined visual preset to the Matrix rain animation. Use `help` to see available preset names.                  |
-| `resize term <W> <H>\|reset` | Resize terminal dimensions. E.g., `resize term 60vw 70vh` or `resize term reset`.                                         |
-| `skills`                     | List a summary of my key skills.                                                                                          |
-| `skilltree [path]`           | Interactively explore the detailed skill tree. E.g., `skilltree ai` or `skilltree "se > lang"`.                           |
-| `sudo`                       | Attempt a superuser command (humorous denial).                                                                            |
-| `termopacity <value>`        | Set terminal background opacity. `<value>` can be 0-100 (e.g., `75`) or 0.0-1.0 (e.g., `0.75`). `reset` restores default. |
-| `termtext <size>`            | Set terminal font size. E.g., `termtext 13px`, `small`, `default`, `large`.                                               |
-| `theme <name>`               | Change terminal theme. Use `help` to see available theme names (e.g., `amber`, `cyan`, `dark`).                           |
-| `toggleterm`                 | Hide or show the terminal window. Shortcut: `Ctrl + \` (Backslash).                                                       |
-| `whoami`                     | Display the current user's name.                                                                                          |
+| Command                        | Description                                                                                                                                                    |
+| :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `whoami`                       | Display operator identification and detailed profile.                                                                                                          |
+| `clear`                        | Clear terminal output (retains welcome message).                                                                                                               |
+| `contact`                      | Show contact information (Email, LinkedIn, GitHub, Medium).                                                                                                    |
+| `date [timezone_alias]`        | Display date/time. Optional: `utc`, `est`, `ist`, etc.                                                                                                         |
+| `download cv`                  | Initiate download of my CV.                                                                                                                                    |
+| `easter.egg`                   | ??? (Triggers a hidden terminal glitch animation and a Matrix-related quote).                                                                                  |
+| `help`                         | Display this list of available commands.                                                                                                                       |
+| `hobbies`                      | List my hobbies and interests.                                                                                                                                 |
+| `man <command>`                | Show detailed manual for a command.                                                                                                                            |
+| `rainpreset <name>`            | Apply rain preset. Available: `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`.                                                                      |
+| `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh` or `reset`.                                                                                                     |
+| `skills`                       | List my key skills (summary).                                                                                                                                  |
+| `skilltree [path]`             | Explore skills. E.g., `skilltree se` or `skilltree ai > genai`.                                                                                                |
+| `sudo <command>`               | Attempt superuser command (humorous denial).                                                                                                                   |
+| `termopacity <value> \| reset` | Set terminal background opacity (0-100 or 0.0-1.0).                                                                                                            |
+| `termtext <size>`              | Set terminal font size. E.g., `13px`, `small`, `default`, `large`.                                                                                             |
+| `theme <name>`                 | Themes: `amber`, `crimson`, `cyan`, `forest`, `goldenglitch`, `green` (default), `purple`, `reloaded`, `retroarcade`, `synthwavegrid`, `twilight`, `voidblue`. |
+| `toggleterm`                   | Hide or show the terminal window (Shortcut: `Ctrl + \`).                                                                                                       |
 
-_Note: For `skilltree` paths containing spaces, enclose the path in double quotes._
+_Note: For `skilltree` paths containing spaces, enclose the path in double quotes if the alias is not used._
 
 ### 5.2. Customization Options
 
-- **Themes:** Use the `theme <name>` command to change the visual style. Available themes include `amber`, `cyan`, `green` (default), `purple`, `twilight`, `crimson`, `forest`, `electricecho`, `goldenglitch`. The `dark` option reverts to the default green theme.
-- **Terminal Opacity:** Use `termopacity <value>` to adjust the terminal background's transparency (e.g., `termopacity 80`).
-- **Terminal Font Size:** Use `termtext <size>` to change the font size of the terminal text (e.g., `termtext large`, `termtext 12px`).
-- **Terminal Visibility:** Use `toggleterm` or `Ctrl + \` to show/hide the terminal window.
-- **CRT Effect:** Trigger the Konami code (`Up, Up, Down, Down, Left, Right, Left, Right, B, A`) for a CRT monitor visual effect.
+- **Themes:** Use `theme <name>` (see list above).
+- **Terminal Opacity:** Use `termopacity <value>` (e.g., `termopacity 80` or `termopacity 0.8`). `termopacity reset` restores default.
+- **Terminal Font Size:** Use `termtext <size>` (e.g., `termtext large`, `termtext 12px`).
+- **Terminal Visibility:** Use `toggleterm` or `Ctrl + \`.
+- **Rain Animation Presets:** Use `rainpreset <name>` to change the style of the background Matrix rain.
+- **CRT Effect (Easter Egg):** Trigger the Konami code (`ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`) for a CRT monitor visual effect. Toggle on/off.
 
 ### 5.3. Accessibility Notes
 
 - **Keyboard Navigation:**
-  - The terminal input field is focusable and supports standard keyboard input.
-  - Command history is navigable using the Up and Down arrow keys.
-  - Links in terminal output and the navigation bar are standard `<a>` tags, accessible via Tab and Enter keys.
-- **Screen Reader Support:**
-  - Content is primarily text-based.
-  - ARIA labels (`aria-label`) are used on navigation icons for better screen reader context.
-  - The dynamic nature of terminal output might pose challenges; future enhancements could explore ARIA live regions for better announcements.
+  - Terminal input is focusable; command history via Up/Down arrows.
+  - Links are standard `<a>` tags, accessible via Tab/Enter.
 - **Visuals & Contrast:**
-  - The Matrix rain animation is decorative; core information is text-based.
-  - Multiple theme options are provided, some offering different contrast levels.
+  - Matrix rain is decorative. Multiple theme options offer different contrast levels.
 - **Animation Control:**
-  - The terminal visibility can be toggled (`toggleterm` or `Ctrl + \`), effectively hiding the main content container if animations within it are distracting. A global "disable all animations" toggle is not currently implemented but could be a future enhancement.
+  - Terminal visibility can be toggled (`toggleterm`, `Ctrl + \`). A global "disable all animations" is not currently implemented.
 
 ## 6. License & Credits
 
-## This project is licensed under the **MIT License**. See the `LICENSE` file for more details (if one is included in your project structure, otherwise, you can add a simple MIT License text).
+This project is licensed under the **MIT License**.
 
 **AI Assistance Disclaimer:**
 
-Approximately 90% of the code in this project (JavaScript, CSS, HTML structure) was developed with the significant assistance of Google's Gemini and OpenAI's GPT o3 series. Human(Rv) guidance was provided for the overall design, feature requests, integration, and iterative refinement.
+A significant portion of the code in this project (JavaScript, CSS, HTML structure) was developed with the assistance of AI models like Google's Gemini and OpenAI's o-series. Human guidance by myself (rvs-23) was provided for the overall design, feature requests, integration, iterative refinement, and the extensive refactoring effort documented in `refactor.md`.
 
-**Code & Inspiration Credits:**
+**Code & Implementation Inspiration Credits:**
 
-- Initial inspiration + structural ideas from [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
+- Initial inspiration and structural ideas from [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
 - Matrix Rain Analysis: [Carl Newton's Digital Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/).
 
 ---
