@@ -62,7 +62,9 @@
     "synopsis": "hobbies",
     "description": "Displays a summary of the portfolio owner's hobbies and interests, categorized for easy reading.",
     "arguments": "None",
-    "examples": ["hobbies            - Shows the list of hobbies and interests."],
+    "examples": [
+      "hobbies            - Shows the list of hobbies and interests."
+    ],
     "notes": "Data is sourced from 'assets/hobbies.json'."
   },
   "man": {
@@ -167,7 +169,9 @@
     "synopsis": "toggleterm",
     "description": "Toggles the visibility of the main terminal window. Uses a fade animation for showing and hiding.",
     "arguments": "None",
-    "examples": ["toggleterm         - Hides the terminal if visible, shows it if hidden."],
+    "examples": [
+      "toggleterm         - Hides the terminal if visible, shows it if hidden."
+    ],
     "notes": "Shortcut: Ctrl + \\ (Backslash)."
   }
 }
