@@ -1,71 +1,173 @@
 {
-  "about": {
-    "name": "about - Display detailed information about the user/portfolio owner.",
-    "synopsis": "about",
-    "description": "The 'about' command displays comprehensive information about Rishav Sharma, including name, title, a detailed biography, main focus areas, and links to digital presence like GitHub.",
+  "whoami": {
+    "name": "whoami - Display operator identification and profile.",
+    "synopsis": "whoami",
+    "description": "Displays comprehensive information about the portfolio owner, including name, title, a detailed biography, main focus areas, and links to key online presences (e.g., GitHub, LinkedIn, Email). This command consolidates all personal and professional introductory details.",
     "arguments": "None",
-    "examples": ["about              - Shows the full about section."],
-    "notes": "Output is formatted into sections: IDENTIFICATION, BIO, FOCUS, DIGITAL SELF."
+    "examples": ["whoami              - Shows the full user profile."],
+    "notes": "Output is formatted into sections: IDENTIFICATION, PROFILE BRIEF, PRIMARY DIRECTIVES, NETWORK ACCESS."
+  },
+  "clear": {
+    "name": "clear - Clear terminal output.",
+    "synopsis": "clear",
+    "description": "Clears all output from the terminal screen, except for the initial welcome message which is redisplayed.",
+    "arguments": "None",
+    "examples": ["clear              - Clears the terminal screen."]
+  },
+  "contact": {
+    "name": "contact - Display contact information.",
+    "synopsis": "contact",
+    "description": "Shows various channels to get in touch. Each contact method is presented as a labeled, clickable link.",
+    "arguments": "None",
+    "examples": ["contact            - Displays all contact information."],
+    "notes": "Includes Email, LinkedIn, GitHub, and Medium (if configured)."
+  },
+  "date": {
+    "name": "date - Display current date and time.",
+    "synopsis": "date [timezone_alias]",
+    "description": "Shows the current local date and time. If a [timezone_alias] is provided (e.g., 'utc', 'est', 'ist'), it displays the date and time for that specified timezone.",
+    "arguments": "[timezone_alias]: Optional. A short alias for a timezone (e.g., utc, est, pst, ist, gmt, jst).",
+    "examples": [
+      "date               - Shows current local date and time.",
+      "date utc           - Shows current Coordinated Universal Time.",
+      "date ist           - Shows current Indian Standard Time."
+    ],
+    "notes": "Run 'date' without arguments for a hint on available aliases. Supports common timezone aliases and attempts to resolve IANA timezone names."
+  },
+  "download": {
+    "name": "download - Download specified files.",
+    "synopsis": "download cv",
+    "description": "Initiates the download of a specified file. Currently supports downloading the user's Curriculum Vitae (CV).",
+    "arguments": "cv: Specifies that the Curriculum Vitae should be downloaded.",
+    "examples": ["download cv        - Attempts to download the CV."],
+    "notes": "The CV link is configured by the portfolio owner. Browser pop-up blockers might interfere; the navigation bar also contains a CV link."
+  },
+  "easter.egg": {
+    "name": "easter.egg - ???",
+    "synopsis": "easter.egg",
+    "description": "Triggers a special visual sequence and displays a thematic quote. A hidden surprise for the curious.",
+    "arguments": "None",
+    "examples": ["easter.egg         - Activates the sequence."]
   },
   "help": {
-    "name": "help - Display a list of available commands and their brief descriptions.",
+    "name": "help - Display a list of available commands.",
     "synopsis": "help",
     "description": "Lists all recognized commands that can be used in this terminal. Each command is shown with its basic syntax and a short explanation of its function.",
     "arguments": "None",
-    "examples": ["help               - Shows the command cheatsheet."],
-    "notes": "For more detailed information on a specific command, try 'man <command_name>'."
+    "examples": ["help               - Shows this command cheatsheet."],
+    "notes": "For more detailed information on a specific command, use 'man <command_name>'."
   },
-  "theme": {
-    "name": "theme - Change or display terminal color schemes.",
-    "synopsis": "theme [theme_name]",
-    "description": "Switches the visual theme of the terminal and Matrix rain animation. Themes affect colors of text, backgrounds, UI elements, and the rain itself. Executing 'theme' without arguments lists available themes and the current theme.",
-    "arguments": "[theme_name]: Optional. The name of the theme to apply. If omitted, current and available themes are listed.",
+  "hobbies": {
+    "name": "hobbies - List hobbies and interests.",
+    "synopsis": "hobbies",
+    "description": "Displays a summary of the portfolio owner's hobbies and interests, categorized for easy reading.",
+    "arguments": "None",
+    "examples": ["hobbies            - Shows the list of hobbies and interests."],
+    "notes": "Data is sourced from 'assets/hobbies.json'."
+  },
+  "man": {
+    "name": "man - Display manual pages for commands.",
+    "synopsis": "man <command_name>",
+    "description": "Shows the detailed manual page for a specified command, including its name, synopsis, description, arguments, examples, and any relevant notes. If no command is specified, or if the command is not found, it provides usage instructions and lists available man pages.",
+    "arguments": "<command_name>: The name of the command for which to display the manual.",
     "examples": [
-      "theme cyan         - Switches to the cyan theme.",
-      "theme              - Shows current and available themes."
+      "man theme          - Shows the manual for the 'theme' command.",
+      "man skilltree      - Shows the manual for the 'skilltree' command."
     ],
-    "available_themes": "amber, cyan, green (default), purple, twilight, crimson, forest, electricecho, goldenglitch, dark (reverts to green)."
+    "notes": "Manual pages are sourced from 'assets/manPages.json'."
+  },
+  "rainpreset": {
+    "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
+    "synopsis": "rainpreset <preset_name>",
+    "description": "Changes multiple Matrix rain parameters at once by applying a named preset (e.g., 'comet', 'storm', 'default'). Use 'rainpreset' without arguments or with an invalid preset name to see available presets from 'js/rain/rainConfig.json'.",
+    "arguments": "<preset_name>: The name of the preset to apply.",
+    "examples": [
+      "rainpreset comet   - Applies the 'comet' rain preset.",
+      "rainpreset default - Resets rain to its default configuration."
+    ],
+    "notes": "Available presets are defined in 'js/rain/rainConfig.json'. The 'default' preset resets to original values."
+  },
+  "resize": {
+    "name": "resize - Resize the terminal window.",
+    "synopsis": "resize term <width> <height> | resize term reset",
+    "description": "Adjusts the dimensions of the terminal window. Width and height can be specified using valid CSS units (px, %, vw, vh, em, rem). The 'reset' option restores the terminal to its default configured size.",
+    "arguments": "term <width> <height>: Specifies the new width and height.\nterm reset: Resets to default size.",
+    "examples": [
+      "resize term 60vw 70vh - Sets terminal to 60% viewport width and 70% viewport height.",
+      "resize term 800px 600px - Sets terminal to 800 pixels wide and 600 pixels high.",
+      "resize term reset    - Resets terminal to default size."
+    ]
+  },
+  "skills": {
+    "name": "skills - List a summary of key skills.",
+    "synopsis": "skills",
+    "description": "Displays a summarized list of the portfolio owner's key skills, categorized for overview. For a more detailed exploration, use the 'skilltree' command.",
+    "arguments": "None",
+    "examples": ["skills             - Shows the summary of key skills."],
+    "notes": "Data is sourced from 'assets/skills.json'. Hints for 'skilltree' command are provided."
   },
   "skilltree": {
     "name": "skilltree - Interactively explore a detailed hierarchy of technical skills.",
     "synopsis": "skilltree [path]",
-    "description": "Displays a tree-like structure of skills. Can be used without arguments to show top-level categories or with a path to navigate to specific skill areas. Paths can be specified using skill names or their aliases.",
-    "arguments": "[path]: Optional. A path to a specific skill category (e.g., 'se', 'ai > genai'). Use quotes for paths with spaces, like '\"Artificial Intelligence & Machine Learning > Core Machine Learning\"'.",
+    "description": "Displays a tree-like structure of skills. Can be used without arguments to show top-level categories or with a path to navigate to specific skill areas. Paths are specified using skill names or their defined aliases (e.g., 'se' for Software Engineering).",
+    "arguments": "[path]: Optional. A path to a specific skill category (e.g., 'se', 'ai > genai'). Use quotes for paths with spaces, like 'skilltree \"Artificial Intelligence & Machine Learning > Core Machine Learning\"'. Aliases are preferred for brevity.",
     "examples": [
       "skilltree          - Shows all top-level skill categories.",
       "skilltree se       - Shows skills under Software Engineering.",
       "skilltree ai > genai - Shows skills under Generative AI within AI.",
       "skilltree \"Data Science & Analysis\" - Shows skills under Data Science."
     ],
-    "notes": "Use aliases for shorter navigation (e.g., 'se' for 'Software Engineering')."
+    "notes": "Refer to 'assets/skills.json' for defined names and aliases. The tree is rendered using a visual hierarchy."
   },
-  "contact": {
-    "name": "contact - Display contact information.",
-    "synopsis": "contact",
-    "description": "Shows various channels to get in touch, including Email, LinkedIn, GitHub, and Medium (if available). Each contact method is presented as a labeled link.",
-    "arguments": "None",
-    "examples": ["contact            - Displays all contact information."]
+  "sudo": {
+    "name": "sudo - Attempt a superuser command.",
+    "synopsis": "sudo <any_command>",
+    "description": "A humorous command. Attempts to execute a command with superuser privileges, which will always be denied in this simulated terminal environment.",
+    "arguments": "<any_command>: Any command string you wish to 'attempt' with sudo.",
+    "examples": ["sudo reboot        - Attempts to reboot (will be denied)."],
+    "notes": "This command is for thematic effect only."
   },
   "termopacity": {
     "name": "termopacity - Set terminal background opacity.",
-    "synopsis": "termopacity <value> | reset",
-    "description": "Adjusts the transparency of the terminal background. Accepts numerical values or 'reset'.",
-    "arguments": "<value>: A number between 0-100 (for percentage, e.g., 75) or 0.0-1.0 (for decimal, e.g., 0.75).\nreset: Restores the terminal opacity to its default value.",
+    "synopsis": "termopacity <value> | termopacity reset",
+    "description": "Adjusts the transparency of the terminal background. Value can be a percentage (0-100) or a decimal (0.0-1.0). 'reset' restores to default.",
+    "arguments": "<value>: A number (e.g., 75 or 0.75).\nreset: Restores default opacity.",
     "examples": [
       "termopacity 85     - Sets opacity to 85%.",
       "termopacity 0.5    - Sets opacity to 50%.",
       "termopacity reset  - Resets to default opacity."
     ]
   },
-  "rainpreset": {
-    "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
-    "synopsis": "rainpreset <preset_name>",
-    "description": "Changes multiple Matrix rain parameters at once by applying a named preset. Use 'rainpreset' without arguments or an invalid preset name to see available presets.",
-    "arguments": "<preset_name>: The name of the preset to apply (e.g., 'comet', 'storm', 'default').",
+  "termtext": {
+    "name": "termtext - Set terminal font size.",
+    "synopsis": "termtext <size>",
+    "description": "Changes the font size of the terminal text. Accepts predefined keywords ('small', 'default', 'large') or specific CSS size values (e.g., '13px', '1.1em').",
+    "arguments": "<size>: Predefined size (small, default, large) or CSS value (e.g., '13px').",
     "examples": [
-      "rainpreset comet   - Applies the 'comet' rain preset.",
-      "rainpreset default - Resets rain to its default configuration."
+      "termtext large      - Sets font size to large.",
+      "termtext 11px       - Sets font size to 11 pixels.",
+      "termtext default   - Resets font size to default."
+    ]
+  },
+  "theme": {
+    "name": "theme - Change or display terminal color schemes.",
+    "synopsis": "theme [theme_name]",
+    "description": "Switches the visual theme of the terminal and Matrix rain animation. Affects text, backgrounds, UI elements, and rain colors. Running 'theme' without arguments lists available themes and the current one.",
+    "arguments": "[theme_name]: Optional. The name of the theme to apply. If omitted, current and available themes are listed.",
+    "examples": [
+      "theme cyan         - Switches to the cyan theme.",
+      "theme reloaded     - Switches to the reloaded theme.",
+      "theme              - Shows current and available themes."
     ],
-    "notes": "Available presets include: default, comet, storm, whisper, pulse, ancient. Check 'help' or an invalid 'rainpreset' call for the most current list from the system."
+    "available_themes": "amber, crimson, cyan, forest, goldenglitch, green (default), purple, reloaded, retroarcade, synthwavegrid, twilight, voidblue. (Sorted list)",
+    "notes": "Theme changes also update the Matrix rain colors for a cohesive look."
+  },
+  "toggleterm": {
+    "name": "toggleterm - Hide or show the terminal window.",
+    "synopsis": "toggleterm",
+    "description": "Toggles the visibility of the main terminal window. Uses a fade animation for showing and hiding.",
+    "arguments": "None",
+    "examples": ["toggleterm         - Hides the terminal if visible, shows it if hidden."],
+    "notes": "Shortcut: Ctrl + \\ (Backslash)."
   }
 }
