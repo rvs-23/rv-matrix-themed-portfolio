@@ -16,6 +16,12 @@ let fullWelcomeMsg = "Welcome!"; // Fallback
 let registeredCommands = {};
 let getCommandContextFunction = () => ({});
 
+// --- Autocomplete State Variables ---
+let availableCommandsForAutocomplete = [];
+let lastAutocompletePrefix = ""; // Stores the input prefix for current suggestions
+let autocompleteSuggestions = []; // Stores current list of matching suggestions
+let autocompleteIndex = 0; // Index for cycling through suggestions
+
 export function initializeTerminalController(
   config,
   commands,
@@ -30,8 +36,11 @@ export function initializeTerminalController(
   initialTermOpacityConfig =
     config.terminalConfig.initialTerminalOpacity || initialTermOpacityConfig;
   userDetailsConfig = config.userConfig || userDetailsConfig;
-  registeredCommands = commands;
+  registeredCommands = commands; // Crucial for autocomplete
   getCommandContextFunction = commandContextFunc;
+
+  // Initialize available commands for autocomplete
+  availableCommandsForAutocomplete = Object.keys(registeredCommands).sort();
 
   // Setup initial styles and welcome message
   document.documentElement.style.setProperty(
@@ -60,6 +69,19 @@ export function initializeTerminalController(
 
   if (commandInputEl) {
     commandInputEl.addEventListener("keydown", handleCommandInputKeydown);
+    // Add event listener to reset autocomplete if input changes via non-keydown events (e.g. paste)
+    commandInputEl.addEventListener("input", () => {
+      if (
+        commandInputEl.value !== lastAutocompletePrefix &&
+        !commandInputEl.value.startsWith(
+          lastAutocompletePrefix.split(" ")[0] || "",
+        )
+      ) {
+        lastAutocompletePrefix = "";
+        autocompleteSuggestions = [];
+        autocompleteIndex = 0;
+      }
+    });
   }
   if (mainContentContainerEl) {
     mainContentContainerEl.addEventListener("click", (e) => {
@@ -88,11 +110,36 @@ export function appendToTerminal(htmlContent, type = "output-text-wrapper") {
 function handleCommandInputKeydown(e) {
   if (!terminalVisible) return;
 
+  if (e.key === "Tab") {
+    e.preventDefault();
+    if (commandInputEl.disabled) return;
+    handleAutocomplete();
+    return; // Prevent further processing for Tab
+  }
+
+  // Reset autocomplete state if any key other than Tab is pressed (or Enter, ArrowUp, ArrowDown if they don't use suggestions)
+  if (e.key !== "ArrowUp" && e.key !== "ArrowDown") {
+    // Keep suggestions if navigating history while suggestions are active from a previous tab
+    if (
+      commandInputEl.value !== lastAutocompletePrefix.split(" ")[0] &&
+      !autocompleteSuggestions.includes(commandInputEl.value)
+    ) {
+      lastAutocompletePrefix = "";
+      autocompleteSuggestions = [];
+      autocompleteIndex = 0;
+    }
+  }
+
   if (e.key === "Enter") {
     e.preventDefault();
     if (commandInputEl.disabled) return;
     const fullCommandText = commandInputEl.value.trim();
     commandInputEl.value = ""; // Clear input immediately
+
+    // Reset autocomplete state on Enter
+    lastAutocompletePrefix = "";
+    autocompleteSuggestions = [];
+    autocompleteIndex = 0;
 
     if (fullCommandText) {
       if (
@@ -126,6 +173,10 @@ function handleCommandInputKeydown(e) {
         0,
       );
     }
+    // Reset autocomplete if navigating history
+    lastAutocompletePrefix = "";
+    autocompleteSuggestions = [];
+    autocompleteIndex = 0;
   } else if (e.key === "ArrowDown") {
     e.preventDefault();
     if (historyIndex < commandHistory.length - 1) {
@@ -143,8 +194,163 @@ function handleCommandInputKeydown(e) {
         ),
       0,
     );
-  } else if (e.key === "Tab") {
-    e.preventDefault(); // Basic tab prevention, implement autocomplete if needed
+    // Reset autocomplete if navigating history
+    lastAutocompletePrefix = "";
+    autocompleteSuggestions = [];
+    autocompleteIndex = 0;
+  }
+  // Other keys will be handled by the 'input' event listener for resetting autocomplete if necessary
+}
+
+function handleAutocomplete() {
+  const currentFullInput = commandInputEl.value;
+  const parts = currentFullInput.split(" ");
+  const currentTypingPart =
+    parts.length > 1 && !currentFullInput.endsWith(" ")
+      ? parts.pop()
+      : parts.length === 1
+        ? parts[0]
+        : "";
+  const commandSoFar =
+    parts.length > 0 && !currentFullInput.endsWith(" ")
+      ? parts.join(" ") + (parts.length > 0 ? " " : "")
+      : currentFullInput;
+
+  // If the input is different from the last prefix used for suggestions,
+  // or if we are trying to get new argument suggestions
+  if (
+    currentFullInput !== lastAutocompletePrefix ||
+    (currentFullInput.endsWith(" ") &&
+      lastAutocompletePrefix !== currentFullInput)
+  ) {
+    autocompleteIndex = 0; // Reset index for new suggestions
+    lastAutocompletePrefix = currentFullInput; // Update the prefix
+
+    const commandNamePart = currentFullInput.split(" ")[0].toLowerCase();
+    if (
+      currentFullInput.endsWith(" ") &&
+      availableCommandsForAutocomplete.includes(commandNamePart)
+    ) {
+      // Trying to get argument suggestions for a completed command
+      const context = getCommandContextFunction();
+      autocompleteSuggestions = getArgumentSuggestions(
+        commandNamePart,
+        context,
+        currentFullInput,
+      );
+    } else if (!currentFullInput.includes(" ")) {
+      // Trying to get command name suggestions
+      autocompleteSuggestions = availableCommandsForAutocomplete.filter((cmd) =>
+        cmd.startsWith(currentFullInput.toLowerCase()),
+      );
+    } else {
+      autocompleteSuggestions = []; // No suggestions for other cases (e.g. typing second arg)
+    }
+  }
+
+  if (autocompleteSuggestions.length > 0) {
+    let suggestion;
+    if (currentFullInput.endsWith(" ") && !currentTypingPart) {
+      // Suggesting first argument
+      suggestion =
+        currentFullInput +
+        autocompleteSuggestions[
+          autocompleteIndex % autocompleteSuggestions.length
+        ];
+    } else if (!currentFullInput.includes(" ")) {
+      // Suggesting command
+      suggestion =
+        autocompleteSuggestions[
+          autocompleteIndex % autocompleteSuggestions.length
+        ];
+    } else {
+      // Suggesting argument completion (if currentTypingPart is part of an argument)
+      const baseCommand = currentFullInput.substring(
+        0,
+        currentFullInput.lastIndexOf(" ") + 1,
+      );
+      const potentialArg =
+        autocompleteSuggestions[
+          autocompleteIndex % autocompleteSuggestions.length
+        ];
+      if (potentialArg.startsWith(currentTypingPart)) {
+        suggestion = baseCommand + potentialArg;
+      } else {
+        // If current suggestions don't match the typing part, cycle to next valid one or reset
+        autocompleteIndex++;
+        if (autocompleteIndex >= autocompleteSuggestions.length)
+          autocompleteIndex = 0;
+        const nextPotentialArg =
+          autocompleteSuggestions[
+            autocompleteIndex % autocompleteSuggestions.length
+          ];
+        if (nextPotentialArg.startsWith(currentTypingPart)) {
+          suggestion = baseCommand + nextPotentialArg;
+        } else {
+          // Could not find a matching suggestion for the current typed part, maybe clear or beep
+          autocompleteSuggestions = []; // Clear suggestions
+          return;
+        }
+      }
+    }
+
+    if (suggestion) {
+      commandInputEl.value = suggestion;
+      autocompleteIndex++; // Move to next suggestion for subsequent Tab
+    }
+  } else {
+    autocompleteIndex = 0; // No suggestions, reset index
+    lastAutocompletePrefix = currentFullInput; // Still update prefix to prevent re-querying immediately
+  }
+}
+
+function getArgumentSuggestions(commandName, context, currentInput) {
+  const inputParts = currentInput.trim().split(" ");
+  switch (commandName) {
+    case "theme":
+      return [
+        "amber",
+        "cyan",
+        "green",
+        "purple",
+        "twilight",
+        "crimson",
+        "forest",
+        "goldenglitch",
+        "retroarcade",
+        "reloaded",
+        "voidblue",
+      ].sort();
+    case "rainpreset":
+      const presets =
+        context.rainOptions && context.rainOptions.getRainPresets
+          ? Object.keys(context.rainOptions.getRainPresets())
+          : [];
+      return presets.sort();
+    case "man":
+      const manPageKeys = context.manPages ? Object.keys(context.manPages) : [];
+      return manPageKeys.sort();
+    case "resize":
+      if (inputParts.length === 2 && inputParts[1] === "term") return ["reset"]; // Suggest 'reset' after 'resize term'
+      if (inputParts.length === 1) return ["term"]; // Suggest 'term' after 'resize'
+      return [];
+    case "download":
+      if (inputParts.length === 1) return ["cv"];
+      return [];
+    case "date":
+      // Assuming context.dateCommandTimezoneAliases is populated if available
+      // For this example, using a placeholder. In a real scenario, this data should be accessible.
+      const timezoneAliases = context.dateCommandTimezoneAliases || [
+        "utc",
+        "est",
+        "pst",
+        "ist",
+        "jst",
+        "gmt",
+      ];
+      return timezoneAliases.sort();
+    default:
+      return [];
   }
 }
 
@@ -455,7 +661,6 @@ export function applyTheme(themeNameInput) {
     "goldenglitch",
     "retroarcade",
     "reloaded",
-    "synthwavegrid",
     "voidblue",
   ];
 
@@ -469,7 +674,7 @@ export function applyTheme(themeNameInput) {
     );
     appendToTerminal(
       `<div>Available themes: ${validSpecificThemes.sort().join(", ")}.</div>`,
-    ); // Removed 'dark' from here
+    );
     appendToTerminal(
       `<div>Current theme: ${currentThemeClass.replace("theme-", "")}</div>`,
     );
@@ -497,8 +702,6 @@ export function applyTheme(themeNameInput) {
     );
     return true; // Theme applied successfully
   } else {
-    // The old 'dark' theme logic that reverted to green is now removed.
-    // If a theme is not in validSpecificThemes, it's considered not found.
     appendToTerminal(
       `<div class='output-error'>Error: Theme "${themeNameInput.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" not found.</div>`,
     );
