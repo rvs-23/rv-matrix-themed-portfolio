@@ -4,67 +4,106 @@
  */
 
 async function fetchJson(url, fileNameForError) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            // More specific error for rain.json
-            if (fileNameForError.includes('rain.json')) {
-                console.error(`CRITICAL ERROR: Failed to fetch ${fileNameForError}: ${response.status} ${response.statusText}. Rain presets and default rain configuration will be missing or incorrect. This will affect 'rainpreset' command and rain appearance.`);
-            } else {
-                console.warn(`Warning: Failed to fetch ${fileNameForError}: ${response.status} ${response.statusText}. Some features might not work as expected.`);
-            }
-            return null;
-        }
-        try {
-            const jsonData = await response.json();
-            console.log(`${fileNameForError} loaded successfully.`);
-            return jsonData;
-        } catch (e) {
-            if (fileNameForError.includes('rain.json')) {
-                 console.error(`CRITICAL ERROR: Invalid JSON in ${fileNameForError}: ${e.message}. Rain presets and defaults will be affected.`);
-            } else {
-                console.warn(`Warning: Invalid JSON in ${fileNameForError}: ${e.message}. Please check the file.`);
-            }
-            return null;
-        }
-    } catch (error) {
-         if (fileNameForError.includes('rain.json')) {
-            console.error(`CRITICAL ERROR: Network error fetching ${fileNameForError}: ${error.message}. Rain presets and defaults will be affected.`);
-        } else {
-            console.warn(`Warning: Error fetching ${fileNameForError}: ${error.message}.`);
-        }
-        return null;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      // More specific error for rain.json
+      if (fileNameForError.includes("rain.json")) {
+        console.error(
+          `CRITICAL ERROR: Failed to fetch ${fileNameForError}: ${response.status} ${response.statusText}. Rain presets and default rain configuration will be missing or incorrect. This will affect 'rainpreset' command and rain appearance.`,
+        );
+      } else {
+        console.warn(
+          `Warning: Failed to fetch ${fileNameForError}: ${response.status} ${response.statusText}. Some features might not work as expected.`,
+        );
+      }
+      return null;
     }
+    try {
+      const jsonData = await response.json();
+      console.log(`${fileNameForError} loaded successfully.`);
+      return jsonData;
+    } catch (e) {
+      if (fileNameForError.includes("rain.json")) {
+        console.error(
+          `CRITICAL ERROR: Invalid JSON in ${fileNameForError}: ${e.message}. Rain presets and defaults will be affected.`,
+        );
+      } else {
+        console.warn(
+          `Warning: Invalid JSON in ${fileNameForError}: ${e.message}. Please check the file.`,
+        );
+      }
+      return null;
+    }
+  } catch (error) {
+    if (fileNameForError.includes("rain.json")) {
+      console.error(
+        `CRITICAL ERROR: Network error fetching ${fileNameForError}: ${error.message}. Rain presets and defaults will be affected.`,
+      );
+    } else {
+      console.warn(
+        `Warning: Error fetching ${fileNameForError}: ${error.message}.`,
+      );
+    }
+    return null;
+  }
 }
 
 export async function loadAllData() {
-    const [
-        userConfig,
-        terminalConfig,
-        rainConfig, // This is the one we're concerned about for presets
-        skillsAsset,
-        hobbiesAsset,
-        manPagesAsset
-    ] = await Promise.all([
-        fetchJson('js/controller/userConfig.json', 'userConfig.json', true),
-        fetchJson('js/controller/terminalConfig.json', 'terminalConfig.json', true),
-        fetchJson('js/rain/rainConfig.json', 'rainConfig.json', true), // Critical for presets
-        fetchJson('assets/skills.json', 'skills.json (asset)'),
-        fetchJson('assets/hobbies.json', 'hobbies.json (asset)'),
-        fetchJson('assets/manPages.json', 'manPages.json (asset)')
-    ]);
+  const [
+    userConfig,
+    terminalConfig,
+    rainConfig, // This is the one we're concerned about for presets
+    skillsAsset,
+    hobbiesAsset,
+    manPagesAsset,
+  ] = await Promise.all([
+    fetchJson("js/controller/userConfig.json", "userConfig.json", true),
+    fetchJson("js/controller/terminalConfig.json", "terminalConfig.json", true),
+    fetchJson("js/rain/rainConfig.json", "rainConfig.json", true), // Critical for presets
+    fetchJson("assets/skills.json", "skills.json (asset)"),
+    fetchJson("assets/hobbies.json", "hobbies.json (asset)"),
+    fetchJson("assets/manPages.json", "manPages.json (asset)"),
+  ]);
 
-    if (!userConfig) console.error("CRITICAL WARNING: user.json (config) failed to load.");
-    if (!terminalConfig) console.error("CRITICAL WARNING: terminal.json (config) failed to load.");
-    // The specific error for rainConfig is now handled inside fetchJson if it's critical
+  if (!userConfig)
+    console.error("CRITICAL WARNING: user.json (config) failed to load.");
+  if (!terminalConfig)
+    console.error("CRITICAL WARNING: terminal.json (config) failed to load.");
+  // The specific error for rainConfig is now handled inside fetchJson if it's critical
 
-    return {
-        userConfig: userConfig || {},
-        terminalConfig: terminalConfig || {},
-        // Fallback for rainConfig ensures presets is at least an empty object if loading fails
-        rainConfig: rainConfig || { defaultConfig: { speed: 100, font: 15, baseCol: "#0F0", headCol: "#FFF", fontFamily: "monospace", layers: 1, layerOp: [1], density: 0.7, minTrail: 10, maxTrail: 30, headGlowMin: 1, headGlowMax: 5, blur: 0, trailMutate: 150, fade: 0.1, decayBase: 0.9, delChance: 0 }, glyphs: "01", presets: {} },
-        skillsData: skillsAsset || { name: "Skills (Error Loading)", children: [] },
-        hobbiesData: hobbiesAsset || { name: "Hobbies (Error Loading)", children: [] },
-        manPages: manPagesAsset || {}
-    };
+  return {
+    userConfig: userConfig || {},
+    terminalConfig: terminalConfig || {},
+    // Fallback for rainConfig ensures presets is at least an empty object if loading fails
+    rainConfig: rainConfig || {
+      defaultConfig: {
+        speed: 100,
+        font: 15,
+        baseCol: "#0F0",
+        headCol: "#FFF",
+        fontFamily: "monospace",
+        layers: 1,
+        layerOp: [1],
+        density: 0.7,
+        minTrail: 10,
+        maxTrail: 30,
+        headGlowMin: 1,
+        headGlowMax: 5,
+        blur: 0,
+        trailMutate: 150,
+        fade: 0.1,
+        decayBase: 0.9,
+        delChance: 0,
+      },
+      glyphs: "01",
+      presets: {},
+    },
+    skillsData: skillsAsset || { name: "Skills (Error Loading)", children: [] },
+    hobbiesData: hobbiesAsset || {
+      name: "Hobbies (Error Loading)",
+      children: [],
+    },
+    manPages: manPagesAsset || {},
+  };
 }

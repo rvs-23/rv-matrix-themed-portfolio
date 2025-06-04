@@ -25,9 +25,7 @@
     },
     {
       "name": "Comedy",
-      "children": [
-        { "name": "Learning Stand-up (e.g., BKR Frontrow course)" }
-      ]
+      "children": [{ "name": "Learning Stand-up (e.g., BKR Frontrow course)" }]
     },
     {
       "name": "Cognitive & Strategy",
@@ -53,21 +51,15 @@
     {
       "name": "Food",
       "aliases": ["cuisine", "gastronomy"],
-      "children": [
-        { "name": "Exploring Cuisines & Restaurants" }
-      ]
+      "children": [{ "name": "Exploring Cuisines & Restaurants" }]
     },
     {
       "name": "Public Speaking",
-      "children": [
-        { "name": "Toastmasters" }
-      ]
+      "children": [{ "name": "Toastmasters" }]
     },
     {
       "name": "Entertainment",
-      "children": [
-        { "name": "Watchlist (Movies & TV Shows)" }
-      ]
+      "children": [{ "name": "Watchlist (Movies & TV Shows)" }]
     }
   ]
 }
