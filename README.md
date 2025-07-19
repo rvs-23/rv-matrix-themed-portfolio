@@ -51,7 +51,7 @@ This portfolio is a client-side single-page application built with vanilla HTML5
   - **`*.ttf`, `favicon.png`**: Font files and site icon.
   - **`refactor.md`**: Document detailing an earlier codebase refactoring from a Monolith (meta-document).
 - **`README.md`**: This file.
-- **`package.json`**: Project metadata, scripts (lint, format), and development dependencies. Core functionality does not rely on Node.js runtime dependencies.
+- **`package.json`**: Project metadata, scripts (lint, format), and development dependencies. The portfolio itself is a static site and does not require a Node.js server to run in production.
 
 ### 2.2. Tech Stack
 
