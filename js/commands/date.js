@@ -66,7 +66,7 @@ function getFormattedDateTime(date, timeZoneIana, locale = "en-US") {
   }
   try {
     return date.toLocaleString(locale, options);
-  } catch (e) {
+  } catch {
     // Fallback if timezone is invalid for toLocaleString
     console.warn(
       `Error formatting date for timezone ${timeZoneIana}: ${e.message}`,

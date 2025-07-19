@@ -211,10 +211,6 @@ function handleAutocomplete() {
       : parts.length === 1
         ? parts[0]
         : "";
-  const commandSoFar =
-    parts.length > 0 && !currentFullInput.endsWith(" ")
-      ? parts.join(" ") + (parts.length > 0 ? " " : "")
-      : currentFullInput;
 
   // If the input is different from the last prefix used for suggestions,
   // or if we are trying to get new argument suggestions
