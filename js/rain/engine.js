@@ -134,8 +134,15 @@ export function setupRain() {
 
   streams = ACTIVE_COL_INDICES.map((index) => new Stream(index));
 
+  // The streams are created with a synchronized starting position from their
+  // reset() method. To fix the initial "batch" drop, we loop through them
+  // once and give each a widely randomized starting head position.
+  // This ensures they enter the screen at different times from frame 1.
+  for (const s of streams) {
+    s.head = -randInt(ROWS * 2); // Using ROWS * 2 provides a large, random, off-screen starting range.
+  }
+
   matrixRainCtx.shadowColor = CFG.headCol; // Initial shadow color
-  // console.log("Rain setup complete. Columns:", TOTAL_COLS, "Rows:", ROWS, "Active Streams:", streams.length);
 }
 
 function rainTick() {
