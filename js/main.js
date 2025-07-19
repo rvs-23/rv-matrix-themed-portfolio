@@ -97,30 +97,26 @@ document.addEventListener("DOMContentLoaded", async () => {
   // This replaces the original hideLoadingScreen call.
   // It waits for both the loading screen to be hidden AND for the fonts to be ready.
   Promise.all([
-    new Promise(resolve => hideLoadingScreen(resolve)), // Your existing function, wrapped in a Promise
-    document.fonts.ready // A browser promise that resolves when fonts are loaded
-  ]).then(() => {
-    // This code now runs only after both conditions are met.
-    if (document.getElementById("contentContainer")) {
-      document.getElementById("contentContainer").style.opacity = "1";
-    }
-    // Start the rain with the correct fonts already loaded and available.
-    rainEngine.startRainAnimation();
-    console.log("Application initialized successfully with fonts loaded.");
-    // For best user experience, focus the input only when everything is visible.
-    terminalController.focusInput();
-  }).catch(error => {
-    console.error("Error during final initialization step:", error);
-  });
-  // --- END OF CORRECTION ---
+    new Promise((resolve) => hideLoadingScreen(resolve)), // Your existing function, wrapped in a Promise
+    document.fonts.ready, // A browser promise that resolves when fonts are loaded
+  ])
+    .then(() => {
+      // This code now runs only after both conditions are met.
+      if (document.getElementById("contentContainer")) {
+        document.getElementById("contentContainer").style.opacity = "1";
+      }
+      // Start the rain with the correct fonts already loaded and available.
+      rainEngine.startRainAnimation();
 
-  // hideLoadingScreen(() => {
-  //   if (document.getElementById("contentContainer")) {
-  //     document.getElementById("contentContainer").style.opacity = "1";
-  //   }
-  //   rainEngine.startRainAnimation();
-  //   console.log("Application initialized successfully.");
-  // });
+      // For best user experience, focus the input only when everything is visible.
+      if (terminalController.commandInputEl) {
+        terminalController.commandInputEl.focus();
+      }
+    })
+    .catch((error) => {
+      console.error("Error during final initialization step:", error);
+    });
+  // --- END OF CORRECTION ---
 
   window.addEventListener("resize", () => {
     rainEngine.setupRain();
