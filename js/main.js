@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 2. Initialize Rain Configuration (dependent on rainConfig from allData)
   const effectiveRainConfig = allData.rainConfig || {
     defaultConfig: {
-      speed: 100,
+      speed: 125,
       font: 15,
       baseCol: "#0F0",
       headCol: "#FFF",
@@ -52,15 +52,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     glyphs: "01",
     presets: {},
   };
-  // CORRECTED CALL: Use the imported module object to call its function
+
   rainConfigModule.initializeRainConfig(effectiveRainConfig);
-  // REMOVE THE PREVIOUS DUPLICATE OR INCORRECT CALL if it existed near line 27.
 
   // 3. Prepare command context
   const commandContext = {
     userConfig: allData.userConfig,
     terminalConfig: allData.terminalConfig,
-    // rainConfig: allData.rainConfig, // Raw loaded config, not typically needed by commands directly
     skillsData: allData.skillsData,
     hobbiesData: allData.hobbiesData,
     manPages: allData.manPages,
@@ -95,13 +93,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   });
 
-  hideLoadingScreen(() => {
+  // --- START OF CORRECTION ---
+  // This replaces the original hideLoadingScreen call.
+  // It waits for both the loading screen to be hidden AND for the fonts to be ready.
+  Promise.all([
+    new Promise(resolve => hideLoadingScreen(resolve)), // Your existing function, wrapped in a Promise
+    document.fonts.ready // A browser promise that resolves when fonts are loaded
+  ]).then(() => {
+    // This code now runs only after both conditions are met.
     if (document.getElementById("contentContainer")) {
       document.getElementById("contentContainer").style.opacity = "1";
     }
+    // Start the rain with the correct fonts already loaded and available.
     rainEngine.startRainAnimation();
-    console.log("Application initialized successfully.");
+    console.log("Application initialized successfully with fonts loaded.");
+    // For best user experience, focus the input only when everything is visible.
+    terminalController.focusInput();
+  }).catch(error => {
+    console.error("Error during final initialization step:", error);
   });
+  // --- END OF CORRECTION ---
+
+  // hideLoadingScreen(() => {
+  //   if (document.getElementById("contentContainer")) {
+  //     document.getElementById("contentContainer").style.opacity = "1";
+  //   }
+  //   rainEngine.startRainAnimation();
+  //   console.log("Application initialized successfully.");
+  // });
 
   window.addEventListener("resize", () => {
     rainEngine.setupRain();
@@ -110,8 +129,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update navigation links
   const navCvLink = document.getElementById("nav-cv-link");
   const navMediumLink = document.getElementById("nav-medium-link");
-  // You'll also want to update other nav links here (LinkedIn, GitHub, Email)
-  // similar to how it was done in previous suggestions, using allData.userConfig
+  const linkedinLinkEl = document.getElementById("nav-linkedin-link");
+  const githubLinkEl = document.getElementById("nav-github-link");
+  const emailLinkEl = document.getElementById("nav-email-link");
 
   if (allData.userConfig) {
     if (navCvLink && allData.userConfig.cvLink)
@@ -124,16 +144,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         navMediumLink.style.display = "none";
       }
     }
-    // Example for other links (ensure IDs exist in index.html)
-    const linkedinLinkEl = document.getElementById("nav-linkedin-link");
     if (linkedinLinkEl && allData.userConfig.linkedinUser)
       linkedinLinkEl.href = `https://www.linkedin.com/in/${allData.userConfig.linkedinUser}`;
 
-    const githubLinkEl = document.getElementById("nav-github-link");
     if (githubLinkEl && allData.userConfig.githubUser)
       githubLinkEl.href = `https://github.com/${allData.userConfig.githubUser}`;
 
-    const emailLinkEl = document.getElementById("nav-email-link");
     if (emailLinkEl && allData.userConfig.emailAddress)
       emailLinkEl.href = `mailto:${allData.userConfig.emailAddress}`;
   }
