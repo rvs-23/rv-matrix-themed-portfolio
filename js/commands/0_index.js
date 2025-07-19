@@ -15,6 +15,7 @@ import hobbiesCommand from "./hobbies.js";
 import manCommand from "./man.js";
 import rainPresetCommand from "./rainpreset.js";
 import resizeTermCommand from "./resize.js";
+import screenshotCommand from "./screenshot.js";
 import skillsCommand from "./skills.js";
 import skillTreeCommand from "./skilltree.js";
 import sudoCommand from "./sudo.js";
@@ -42,6 +43,7 @@ export function getAllCommands() {
     man: manCommand,
     rainpreset: rainPresetCommand,
     resize: resizeTermCommand, // Note: command is 'resize term', handled in resize.js
+    screenshot: screenshotCommand,
     skills: skillsCommand,
     skilltree: skillTreeCommand,
     sudo: sudoCommand,

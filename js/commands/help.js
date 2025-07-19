@@ -95,6 +95,11 @@ export default function helpCommand(args, context) {
       display: "toggleterm",
       desc: "Hide or show the terminal window (Shortcut: Ctrl + \\).",
     },
+    {
+      cmd: "screenshot",
+      display: "screenshot",
+      desc: "Save a 1920×1080 PNG of the rain canvas.",
+    },
   ];
 
   const basePad = "  ";

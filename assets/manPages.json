@@ -100,6 +100,16 @@
       "resize term reset    - Resets terminal to default size."
     ]
   },
+  "screenshot": {
+    "name": "screenshot - Capture the Matrix rain canvas.",
+    "synopsis": "screenshot",
+    "description": "Captures a high-resolution (1920x1080) PNG image of the current state of the Matrix rain animation canvas. This command renders the animation to an off-screen buffer, so it does not capture any UI elements like the terminal or navigation icons. The animation continues running smoothly during and after the capture.",
+    "arguments": "None",
+    "examples": [
+      "screenshot         - Captures the canvas and initiates a download."
+    ],
+    "notes": "The downloaded file is automatically named 'rain_screenshot_<timestamp>.png'."
+  },
   "skills": {
     "name": "skills - List a summary of key skills.",
     "synopsis": "skills",
