@@ -47,7 +47,6 @@
   src: url("../public/matrix-resurrection.ttf") format("truetype");
 }
 
-/* --- THEME SPECIFIC BLOCKS (body.theme-xxxx) SHOULD BE IN themes.css --- */
 
 /* General Body Styling */
 body {
@@ -185,8 +184,6 @@ body {
   font-size: var(--terminal-font-size);
   text-shadow: 0 0 8px var(--text-shadow-color);
   padding: 1rem;
-  width: 52vw;
-  height: 42vh;
   max-width: 90vw;
   max-height: 90vh;
   background-color: rgba(
