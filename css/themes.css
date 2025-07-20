@@ -153,12 +153,12 @@ body.theme-terran {
 
 /* A high-contrast, ethereal theme with a glitchy accent color. */
 body.theme-ghost {
-  --primary-color: #E0E0E0;      /* Off-white */
+  --primary-color: #e0e0e0; /* Off-white */
   --primary-color-rgb: 224, 224, 224;
-  --secondary-color: #00FFFF;    /* Glitch Cyan */
-  --hover-color: #FFFFFF;
-  --matrix-rain-glow-color: #FFFFFF;
-  --background-color: #050505;    /* Near Black */
+  --secondary-color: #00ffff; /* Glitch Cyan */
+  --hover-color: #ffffff;
+  --matrix-rain-glow-color: #ffffff;
+  --background-color: #050505; /* Near Black */
   --terminal-base-r: 15;
   --terminal-base-g: 15;
   --terminal-base-b: 15;
@@ -166,12 +166,12 @@ body.theme-ghost {
 
 /* CYBERCANDY – hyper‑saturated blue & cotton‑candy pink */
 body.theme-cybercandy {
-  --primary-color: #00eaff;      /* Glitch Blue */
+  --primary-color: #00eaff; /* Glitch Blue */
   --primary-color-rgb: 0, 234, 255;
-  --secondary-color: #ff56ff;    /* Bubblegum Magenta */
+  --secondary-color: #ff56ff; /* Bubblegum Magenta */
   --hover-color: #ffb3ff;
   --matrix-rain-glow-color: #ffffff;
-  --background-color: #2b0040;   /* Arcade violet */
+  --background-color: #2b0040; /* Arcade violet */
   --terminal-base-r: 43;
   --terminal-base-g: 0;
   --terminal-base-b: 64;
@@ -179,12 +179,12 @@ body.theme-cybercandy {
 
 /* DUNES – warm desert golds under a moonlit teal sky */
 body.theme-dunes {
-  --primary-color: #d6b66a;      /* Sandstone Gold */
+  --primary-color: #d6b66a; /* Sandstone Gold */
   --primary-color-rgb: 214, 182, 106;
-  --secondary-color: #7dc7c7;    /* Cool Oasis */
+  --secondary-color: #7dc7c7; /* Cool Oasis */
   --hover-color: #ffe9a3;
   --matrix-rain-glow-color: #fff6d5;
-  --background-color: #08211f;   /* Desert night */
+  --background-color: #08211f; /* Desert night */
   --terminal-base-r: 8;
   --terminal-base-g: 33;
   --terminal-base-b: 31;
@@ -192,12 +192,12 @@ body.theme-dunes {
 
 /* QUANTUM – electric purple with spectral highlights */
 body.theme-quantum {
-  --primary-color: #b347ff;      /* Quantum Purple */
+  --primary-color: #b347ff; /* Quantum Purple */
   --primary-color-rgb: 179, 71, 255;
-  --secondary-color: #00ff9d;    /* Spectral Green */
+  --secondary-color: #00ff9d; /* Spectral Green */
   --hover-color: #e0a3ff;
   --matrix-rain-glow-color: #ffffff;
-  --background-color: #0f0020;   /* Deep Space */
+  --background-color: #0f0020; /* Deep Space */
   --terminal-base-r: 15;
   --terminal-base-g: 0;
   --terminal-base-b: 32;
@@ -205,12 +205,12 @@ body.theme-quantum {
 
 /* BLOODMOON – deep crimson with bone white accents */
 body.theme-bloodmoon {
-  --primary-color: #8b0000;      /* Dark Red */
+  --primary-color: #8b0000; /* Dark Red */
   --primary-color-rgb: 139, 0, 0;
-  --secondary-color: #f8f8ff;    /* Ghost White */
+  --secondary-color: #f8f8ff; /* Ghost White */
   --hover-color: #dc143c;
   --matrix-rain-glow-color: #ffcccc;
-  --background-color: #1a0000;   /* Blood Black */
+  --background-color: #1a0000; /* Blood Black */
   --terminal-base-r: 26;
   --terminal-base-g: 0;
   --terminal-base-b: 0;
@@ -218,12 +218,12 @@ body.theme-bloodmoon {
 
 /* ARCTIC – ice blue with aurora highlights */
 body.theme-arctic {
-  --primary-color: #87ceeb;      /* Sky Blue */
+  --primary-color: #87ceeb; /* Sky Blue */
   --primary-color-rgb: 135, 206, 235;
-  --secondary-color: #00ff7f;    /* Aurora Green */
+  --secondary-color: #00ff7f; /* Aurora Green */
   --hover-color: #b0e0e6;
   --matrix-rain-glow-color: #f0ffff;
-  --background-color: #001122;   /* Polar Night */
+  --background-color: #001122; /* Polar Night */
   --terminal-base-r: 0;
   --terminal-base-g: 17;
   --terminal-base-b: 34;
@@ -231,12 +231,12 @@ body.theme-arctic {
 
 /* NEON – hot pink cyberpunk with electric accents */
 body.theme-neon {
-  --primary-color: #ff1493;      /* Deep Pink */
+  --primary-color: #ff1493; /* Deep Pink */
   --primary-color-rgb: 255, 20, 147;
-  --secondary-color: #00ff00;    /* Electric Green */
+  --secondary-color: #00ff00; /* Electric Green */
   --hover-color: #ff69b4;
   --matrix-rain-glow-color: #ffffff;
-  --background-color: #0a0a0a;   /* True Black */
+  --background-color: #0a0a0a; /* True Black */
   --terminal-base-r: 10;
   --terminal-base-g: 10;
   --terminal-base-b: 10;
@@ -244,12 +244,12 @@ body.theme-neon {
 
 /* TOXIC – radioactive green with warning yellow */
 body.theme-toxic {
-  --primary-color: #39ff14;      /* Electric Lime */
+  --primary-color: #39ff14; /* Electric Lime */
   --primary-color-rgb: 57, 255, 20;
-  --secondary-color: #ffff00;    /* Warning Yellow */
+  --secondary-color: #ffff00; /* Warning Yellow */
   --hover-color: #7fff00;
   --matrix-rain-glow-color: #ccff99;
-  --background-color: #001100;   /* Toxic Dark */
+  --background-color: #001100; /* Toxic Dark */
   --terminal-base-r: 0;
   --terminal-base-g: 17;
   --terminal-base-b: 0;
@@ -257,12 +257,12 @@ body.theme-toxic {
 
 /* HOLOGRAM – translucent blue with silver highlights */
 body.theme-hologram {
-  --primary-color: #4169e1;      /* Royal Blue */
+  --primary-color: #4169e1; /* Royal Blue */
   --primary-color-rgb: 65, 105, 225;
-  --secondary-color: #c0c0c0;    /* Silver */
+  --secondary-color: #c0c0c0; /* Silver */
   --hover-color: #87cefa;
   --matrix-rain-glow-color: #e6f3ff;
-  --background-color: #000814;   /* Deep Navy */
+  --background-color: #000814; /* Deep Navy */
   --terminal-base-r: 0;
   --terminal-base-g: 8;
   --terminal-base-b: 20;
@@ -270,12 +270,12 @@ body.theme-hologram {
 
 /* COPPER – steampunk brass with oxidized green */
 body.theme-copper {
-  --primary-color: #b87333;      /* Copper */
+  --primary-color: #b87333; /* Copper */
   --primary-color-rgb: 184, 115, 51;
-  --secondary-color: #2e8b57;    /* Verdigris Green */
+  --secondary-color: #2e8b57; /* Verdigris Green */
   --hover-color: #cd853f;
   --matrix-rain-glow-color: #f4a460;
-  --background-color: #1c1008;   /* Bronze Black */
+  --background-color: #1c1008; /* Bronze Black */
   --terminal-base-r: 28;
   --terminal-base-g: 16;
   --terminal-base-b: 8;
@@ -283,12 +283,12 @@ body.theme-copper {
 
 /* OBSIDIAN – volcanic black with lava orange */
 body.theme-obsidian {
-  --primary-color: #696969;      /* Dim Gray */
+  --primary-color: #696969; /* Dim Gray */
   --primary-color-rgb: 105, 105, 105;
-  --secondary-color: #ff4500;    /* Orange Red */
+  --secondary-color: #ff4500; /* Orange Red */
   --hover-color: #a9a9a9;
   --matrix-rain-glow-color: #dcdcdc;
-  --background-color: #000000;   /* Pure Black */
+  --background-color: #000000; /* Pure Black */
   --terminal-base-r: 0;
   --terminal-base-g: 0;
   --terminal-base-b: 0;
@@ -296,12 +296,12 @@ body.theme-obsidian {
 
 /* VIRUS – sickly green with corrupted red glitches */
 body.theme-virus {
-  --primary-color: #adff2f;      /* Green Yellow */
+  --primary-color: #adff2f; /* Green Yellow */
   --primary-color-rgb: 173, 255, 47;
-  --secondary-color: #ff0000;    /* Red */
+  --secondary-color: #ff0000; /* Red */
   --hover-color: #9acd32;
   --matrix-rain-glow-color: #f0fff0;
-  --background-color: #0f1f0f;   /* Infection Dark */
+  --background-color: #0f1f0f; /* Infection Dark */
   --terminal-base-r: 15;
   --terminal-base-g: 31;
   --terminal-base-b: 15;
@@ -309,12 +309,12 @@ body.theme-virus {
 
 /* DEEP_SEA – bioluminescent blue with abyssal depths */
 body.theme-deepsea {
-  --primary-color: #00ced1;      /* Dark Turquoise */
+  --primary-color: #00ced1; /* Dark Turquoise */
   --primary-color-rgb: 0, 206, 209;
-  --secondary-color: #20b2aa;    /* Light Sea Green */
+  --secondary-color: #20b2aa; /* Light Sea Green */
   --hover-color: #48d1cc;
   --matrix-rain-glow-color: #afeeee;
-  --background-color: #001f3f;   /* Navy */
+  --background-color: #001f3f; /* Navy */
   --terminal-base-r: 0;
   --terminal-base-g: 31;
   --terminal-base-b: 63;
