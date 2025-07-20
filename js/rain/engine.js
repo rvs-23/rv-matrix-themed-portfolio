@@ -21,6 +21,7 @@ let TOTAL_COLS,
   ROWS,
   colW;
 let rainAnimationRequestID;
+let lastFrameTime = 0;
 
 const randInt = (n) => Math.floor(Math.random() * n);
 const randChar = () => {
@@ -61,7 +62,6 @@ class Stream {
   }
 
   step() {
-    // const CFG = getActiveRainConfig(); // CFG not used directly in step in this version
     this.head++;
     if (this.head >= 0 && this.head < ROWS) this.buf[this.head] = randChar();
 
@@ -145,43 +145,53 @@ export function setupRain() {
   matrixRainCtx.shadowColor = CFG.headCol; // Initial shadow color
 }
 
-function rainTick() {
-  if (!matrixRainCtx || !matrixRainCanvas) return;
+function rainLoop(ts) {
   const CFG = getActiveRainConfig();
-  const themeColors = getCurrentThemeColors();
+  if (ts - lastFrameTime >= CFG.speed) {
+    // honour speed budget (ms)
+    lastFrameTime = ts;
 
-  matrixRainCtx.shadowBlur = 0;
-  matrixRainCtx.globalAlpha = CFG.fade;
-  matrixRainCtx.fillStyle = themeColors.background;
-  matrixRainCtx.fillRect(0, 0, matrixRainCanvas.width, matrixRainCanvas.height);
+    const themeColors = getCurrentThemeColors();
+    matrixRainCtx.shadowBlur = 0;
+    matrixRainCtx.globalAlpha = CFG.fade;
+    matrixRainCtx.fillStyle = themeColors.background;
+    matrixRainCtx.fillRect(
+      0,
+      0,
+      matrixRainCanvas.width,
+      matrixRainCanvas.height,
+    );
 
-  matrixRainCtx.globalAlpha = 1;
-  matrixRainCtx.shadowColor = CFG.headCol; // Use headCol from (potentially theme-updated) CFG
+    matrixRainCtx.globalAlpha = 1;
+    matrixRainCtx.shadowColor = CFG.headCol;
 
-  for (const s of streams) {
-    s.step();
-    s.draw();
+    for (const s of streams) {
+      s.step();
+      s.draw();
+    }
   }
-  rainAnimationRequestID = setTimeout(rainTick, CFG.speed);
+  rainAnimationRequestID = requestAnimationFrame(rainLoop);
 }
 
-// This is the primary function to start or fully restart the rain with a new setup
 export function startRainAnimation() {
   if (rainAnimationRequestID) {
-    clearTimeout(rainAnimationRequestID);
+    cancelAnimationFrame(rainAnimationRequestID);
   }
-  updateRainColorsFromTheme(); // Sync colors with current theme first
-  setupRain(); // Perform full setup (canvas size, stream creation)
-  rainTick(); // Start the animation loop
-  console.log("Matrix rain animation started (full setup).");
+  updateRainColorsFromTheme();   // sync colours
+  setupRain();                   // build columns & streams
+  
+  /* draw *one* frame immediately to avoid “blank until first RAF” glitch */
+  const now = performance.now();
+  lastFrameTime = now - getActiveRainConfig().speed;
+  rainLoop(now);                              // renders first frame
+  rainAnimationRequestID = requestAnimationFrame(rainLoop);
 }
 
 export function stopRainAnimation() {
   if (rainAnimationRequestID) {
-    clearTimeout(rainAnimationRequestID);
+    cancelAnimationFrame(rainAnimationRequestID);
     rainAnimationRequestID = null;
   }
-  console.log("Matrix rain animation stopped.");
 }
 
 // This function is for full restart (e.g., after a preset changes structural properties)
@@ -193,14 +203,12 @@ export function restartRainAnimation() {
 // This function is called to sync rain colors with the current theme
 export function updateRainColorsFromTheme() {
   const themeColors = getCurrentThemeColors();
-  // console.log("updateRainColorsFromTheme - Fetched theme colors:", themeColors);
   setActiveRainColors(themeColors.primary, themeColors.glow); // Update active config in rain/config.js
 
   if (matrixRainCtx) {
     const currentCfg = getActiveRainConfig(); // Get the updated config
     matrixRainCtx.shadowColor = currentCfg.headCol; // Update canvas context's shadow color
   }
-  // console.log("Rain colors synced with theme.");
 }
 
 // This function refreshes rain visuals (primarily for theme color changes) without resetting streams
@@ -210,10 +218,11 @@ export function refreshRainVisuals() {
 
   // Clear any existing animation frame/timeout to avoid multiple loops
   if (rainAnimationRequestID) {
-    clearTimeout(rainAnimationRequestID);
+    cancelAnimationFrame(rainAnimationRequestID);
   }
-  // Restart the animation tick. It will pick up new colors from getActiveRainConfig()
-  // in Stream.draw() without re-running setupRain() (which resets stream positions).
-  rainTick();
-  // console.log("Matrix rain visuals refreshed.");
+
+  const now = performance.now();
+  lastFrameTime = now - getActiveRainConfig().speed;
+  rainLoop(now);                               // immediate redraw
+  rainAnimationRequestID = requestAnimationFrame(rainLoop);
 }

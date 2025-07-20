@@ -32,7 +32,7 @@ import whoamiCommand from "./whoami.js";
  * @returns {object} An object mapping command names to their functions.
  */
 export function getAllCommands() {
-  return {
+  const cmds = {
     clear: clearCommand,
     contact: contactCommand,
     date: dateCommand,
@@ -53,6 +53,8 @@ export function getAllCommands() {
     toggleterm: toggleTermCommand,
     whoami: whoamiCommand,
   };
+
+  return cmds;
 }
 
 // Utility function for rendering tree structures (skills, hobbies)
