@@ -3,21 +3,18 @@
  * Handles the 'contact' command.
  */
 export default function contactCommand(args, context) {
-  const { appendToTerminal, userConfig } = context;
-  const { emailAddress, linkedinUser, githubUser, mediumUser } = userConfig;
+  const { appendToTerminal, userConfig, config } = context;
+  const contactConfig = config.contact;
 
-  let contactHtml = `<div class="output-section-title"><i class="fas fa-address-book"></i> CONTACT CHANNELS</div>`;
-  if (emailAddress) {
-    contactHtml += `<div class="output-line"><span class="output-line-label">Email:</span> <a href="mailto:${emailAddress}">${emailAddress}</a></div>`;
-  }
-  if (linkedinUser) {
-    contactHtml += `<div class="output-line"><span class="output-line-label">LinkedIn:</span> <a href="https://www.linkedin.com/in/${linkedinUser}" target="_blank" rel="noopener noreferrer">${linkedinUser}</a></div>`;
-  }
-  if (githubUser) {
-    contactHtml += `<div class="output-line"><span class="output-line-label">GitHub:</span> <a href="https://github.com/${githubUser}" target="_blank" rel="noopener noreferrer">${githubUser}</a></div>`;
-  }
-  if (mediumUser) {
-    contactHtml += `<div class="output-line"><span class="output-line-label">Medium:</span> <a href="https://medium.com/@${mediumUser}" target="_blank" rel="noopener noreferrer">@${mediumUser}</a></div>`;
-  }
+  let contactHtml = `<div class="output-section-title"><i class="fas fa-address-book"></i> ${contactConfig.title}</div>`;
+
+  contactConfig.channels.forEach((channel) => {
+    const userValue = userConfig[channel.userKey];
+    if (userValue) {
+      const displayValue = channel.isHandle ? `@${userValue}` : userValue;
+      contactHtml += `<div class="output-line"><span class="output-line-label">${channel.label}:</span> <a href="${channel.urlPrefix}${userValue}" target="_blank" rel="noopener noreferrer">${displayValue}</a></div>`;
+    }
+  });
+
   appendToTerminal(`<div class="output-section">${contactHtml}</div>`);
 }

@@ -36,13 +36,13 @@ export function getAllCommands() {
     clear: clearCommand,
     contact: contactCommand,
     date: dateCommand,
-    download: downloadCvCommand, // Note: command is 'download cv', handled in download.js
+    download: downloadCvCommand,
     "easter.egg": easterEggCommand,
     help: helpCommand,
     hobbies: hobbiesCommand,
     man: manCommand,
     rainpreset: rainPresetCommand,
-    resize: resizeTermCommand, // Note: command is 'resize term', handled in resize.js
+    resize: resizeTermCommand,
     screenshot: screenshotCommand,
     skills: skillsCommand,
     skilltree: skillTreeCommand,

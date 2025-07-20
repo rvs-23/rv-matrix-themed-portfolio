@@ -9,18 +9,20 @@ let currentLoadingMsgIndex = 0;
 let allMatrixChars = "";
 let loadingMessages = [];
 
-export function initializeLoaderScreen(config) {
+export function initializeLoaderScreen(loaderConfig) {
+  // ++ Parameter name changed for clarity
   loadingScreenEl = document.getElementById("loading-screen");
   matrixLoaderCharsEl = document.getElementById("matrix-loader-chars");
   decryptStatusEl = document.getElementById("decrypt-status");
 
-  allMatrixChars = config.allMatrixCharsGlobal || "01"; // Fallback chars
-  loadingMessages = config.loadingMessages || ["LOADING..."]; // Fallback messages
+  // It now reads 'matrixChars' from the passed 'loaderConfig' object.
+  allMatrixChars = loaderConfig.matrixChars || "01"; // Fallback chars
+  loadingMessages = loaderConfig.messages || ["LOADING..."]; // Fallback messages
 
   if (loadingScreenEl && !loadingScreenEl.classList.contains("hidden")) {
     loaderCharInterval = setInterval(animateLoaderMatrixChars, 120);
-    animateLoaderMatrixChars(); // Initial call
-    updateLoadingStatusMessage(); // Initial call
+    animateLoaderMatrixChars();
+    updateLoadingStatusMessage();
     statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
   }
 }
@@ -44,10 +46,9 @@ function updateLoadingStatusMessage() {
     decryptStatusEl.textContent = loadingMessages[currentLoadingMsgIndex];
     currentLoadingMsgIndex++;
   } else {
-    // Optional: Keep last message or cycle
     decryptStatusEl.textContent =
       loadingMessages[loadingMessages.length - 1] || "SYSTEM ONLINE.";
-    if (statusCyclingInterval) clearInterval(statusCyclingInterval); // Stop cycling once all messages shown
+    if (statusCyclingInterval) clearInterval(statusCyclingInterval);
   }
 }
 
@@ -64,6 +65,6 @@ export function hideLoadingScreen(callback) {
       if (callback) callback();
     }, 600);
   } else {
-    if (callback) callback(); // If no loading screen, just proceed
+    if (callback) callback();
   }
 }

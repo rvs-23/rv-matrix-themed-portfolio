@@ -177,13 +177,13 @@ export function startRainAnimation() {
   if (rainAnimationRequestID) {
     cancelAnimationFrame(rainAnimationRequestID);
   }
-  updateRainColorsFromTheme();   // sync colours
-  setupRain();                   // build columns & streams
-  
+  updateRainColorsFromTheme(); // sync colours
+  setupRain(); // build columns & streams
+
   /* draw *one* frame immediately to avoid “blank until first RAF” glitch */
   const now = performance.now();
   lastFrameTime = now - getActiveRainConfig().speed;
-  rainLoop(now);                              // renders first frame
+  rainLoop(now); // renders first frame
   rainAnimationRequestID = requestAnimationFrame(rainLoop);
 }
 
@@ -223,6 +223,6 @@ export function refreshRainVisuals() {
 
   const now = performance.now();
   lastFrameTime = now - getActiveRainConfig().speed;
-  rainLoop(now);                               // immediate redraw
+  rainLoop(now); // immediate redraw
   rainAnimationRequestID = requestAnimationFrame(rainLoop);
 }

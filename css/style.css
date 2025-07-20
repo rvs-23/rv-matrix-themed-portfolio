@@ -31,27 +31,27 @@
 
   /* Structural/Layout Variables (not theme-dependent) */
   --footer-height: 3.5rem;
-  --font-stack-inter: "Inter", sans-serif;
-  --font-stack-fira: "Fira Code", monospace;
+  --font-stack-inter: var(--font-stack-sans-serif, sans-serif);
+  --font-stack-fira: var(--font-stack-monospace, monospace);
   --font-mono-current: var(--font-stack-fira);
   --terminal-font-size: 12.5px;
 }
 
 @font-face {
   font-family: "MatrixA";
-  src: url("../assets/matrix.ttf") format("truetype");
+  src: url("../public/matrix.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "MatrixB";
-  src: url("../assets/matrix-resurrection.ttf") format("truetype");
+  src: url("../public/matrix-resurrection.ttf") format("truetype");
 }
 
 /* --- THEME SPECIFIC BLOCKS (body.theme-xxxx) SHOULD BE IN themes.css --- */
 
 /* General Body Styling */
 body {
-  font-family: var(--font-stack-inter);
+  font-family: var(--font-stack-sans-serif);
   background-color: var(--background-color);
   color: var(--primary-color);
   margin: 0;
