@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     skillsData: allData.skillsData,
     hobbiesData: allData.hobbiesData,
     manPages: allData.manPages,
+    easterEggQuotes: allData.easterEggData.quotes,
     appendToTerminal: terminalController.appendToTerminal,
     terminalController: terminalController,
     rainEngine: rainEngine,

@@ -53,17 +53,19 @@ export async function loadAllData() {
   const [
     userConfig,
     terminalConfig,
-    rainConfig, // This is the one we're concerned about for presets
+    rainConfig, 
     skillsAsset,
     hobbiesAsset,
     manPagesAsset,
+    easterEggAsset
   ] = await Promise.all([
     fetchJson("js/controller/userConfig.json", "userConfig.json", true),
     fetchJson("js/controller/terminalConfig.json", "terminalConfig.json", true),
     fetchJson("js/rain/rainConfig.json", "rainConfig.json", true), // Critical for presets
-    fetchJson("assets/skills.json", "skills.json (asset)"),
-    fetchJson("assets/hobbies.json", "hobbies.json (asset)"),
-    fetchJson("assets/manPages.json", "manPages.json (asset)"),
+    fetchJson("config/skills.json", "skills.json (config)"),
+    fetchJson("config/hobbies.json", "hobbies.json (config)"),
+    fetchJson("config/manPages.json", "manPages.json (config)"),
+    fetchJson("config/easterEgg.json", "easterEgg.json (config)"),
   ]);
 
   if (!userConfig)
@@ -105,5 +107,6 @@ export async function loadAllData() {
       children: [],
     },
     manPages: manPagesAsset || {},
+    easterEggData: easterEggAsset || { quotes: [] },
   };
 }
