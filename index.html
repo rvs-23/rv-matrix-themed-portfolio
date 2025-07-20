@@ -4,30 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rv's Matrix Terminal Portfolio</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/themes.css" />
-    <link rel="icon" href="assets/favicon.png" type="image/png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;700&display=swap" rel="stylesheet"/>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/themes.css" />
+    
+    <link rel="icon" href="/favicon/rv-matrix-style-favicon-1.png" type="image/png" />
   </head>
+
   <body class="theme-green">
     <div id="loading-screen">
       <div class="loading-content">
-        <div class="loading-text" id="decrypt-line1">
-          ..SYNCHRONIZING NEO’S ALGORITHM..
-        </div>
-        <div class="loading-text" id="decrypt-line2">
-          ..LOADING ARTIFICIAL CONSCIOUSNESS...
-        </div>
-        <div class="loading-text" id="decrypt-status">
-          ..USER AUTHORIZED: PROCEED BEYOND THE CODE...
-        </div>
+        <div class="loading-text" id="decrypt-status">INITIALIZING...</div>
         <div class="loading-text matrix-chars" id="matrix-loader-chars"></div>
         <div class="spinner"></div>
       </div>
@@ -36,37 +31,19 @@
     <canvas id="matrix-canvas"></canvas>
 
     <div id="contentContainer" class="content-container">
-      <pre id="terminal-output" class="leading-relaxed"></pre>
-      <div class="prompt-line flex items-center">
-        <span class="prompt-arrow mr-2">$</span>
-        <input
-          type="text"
-          id="command-input"
-          class="command-input flex-grow"
-          autocomplete="off"
-          spellcheck="false"
-        />
+      <pre id="terminal-output"></pre>
+      <div class="prompt-line">
+        <span class="prompt-arrow">$</span>
+        <input type="text" id="command-input" autocomplete="off" spellcheck="false"/>
       </div>
     </div>
 
     <nav class="minimal-nav">
-      <a
-        href="#"
-        target="_blank"
-        class="nav-icon"
-        id="nav-linkedin-link"
-        aria-label="LinkedIn"
-      >
+      <a href="#" target="_blank" class="nav-icon" id="nav-linkedin-link" aria-label="LinkedIn">
         <i class="fab fa-linkedin-in"></i>
         <span class="nav-label">LinkedIn</span>
       </a>
-      <a
-        href="#"
-        target="_blank"
-        class="nav-icon"
-        id="nav-github-link"
-        aria-label="GitHub"
-      >
+      <a href="#" target="_blank" class="nav-icon" id="nav-github-link" aria-label="GitHub">
         <i class="fab fa-github"></i>
         <span class="nav-label">GitHub</span>
       </a>
@@ -74,29 +51,16 @@
         <i class="fas fa-envelope"></i>
         <span class="nav-label">Email</span>
       </a>
-      <a
-        href="#"
-        target="_blank"
-        class="nav-icon"
-        id="nav-medium-link"
-        aria-label="Medium"
-        style="display: none"
-      >
+      <a href="#" target="_blank" class="nav-icon" id="nav-medium-link" aria-label="Medium" style="display: none">
         <i class="fab fa-medium-m"></i>
         <span class="nav-label">Medium</span>
       </a>
-      <a
-        href="#"
-        target="_blank"
-        class="nav-icon"
-        id="nav-cv-link"
-        aria-label="Download CV"
-      >
+      <a href="#" target="_blank" class="nav-icon" id="nav-cv-link" aria-label="Download CV">
         <i class="fas fa-file-arrow-down"></i>
         <span class="nav-label">CV</span>
       </a>
     </nav>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="/js/main.js"></script>
   </body>
 </html>
