@@ -4,6 +4,7 @@
  */
 
 let terminalOutputEl, commandInputEl, mainContentContainerEl;
+let currentTerminalSize = {};
 let commandHistory = [];
 let historyIndex = 0;
 let terminalVisible = true;
@@ -29,7 +30,7 @@ export function focusInput() {
 }
 
 export function initializeTerminalController(
-  config, // This parameter is the 'allData' object from main.js
+  config,
   commands,
   commandContextFunc,
 ) {
@@ -37,14 +38,11 @@ export function initializeTerminalController(
   commandInputEl = document.getElementById("command-input");
   mainContentContainerEl = document.getElementById("contentContainer");
 
-  // --- CORRECTED PATHS ---
-  // Use the new, correct paths to access the configuration
-  defaultTerminalSizeConfig =
-    config.config.terminal.defaultSize || defaultTerminalSizeConfig;
-  initialTermOpacityConfig =
-    config.config.terminal.initialOpacity || initialTermOpacityConfig;
+  const termConfig = config.config.terminal;
+  defaultTerminalSizeConfig = termConfig.defaultSize || defaultTerminalSizeConfig;
+  currentTerminalSize = { ...defaultTerminalSizeConfig }; // Initialize with default
+  initialTermOpacityConfig = termConfig.initialOpacity || initialTermOpacityConfig;
   userDetailsConfig = config.config.user || userDetailsConfig;
-  // --- END OF CORRECTIONS ---
 
   registeredCommands = commands; // Crucial for autocomplete
   getCommandContextFunction = commandContextFunc;
@@ -448,6 +446,9 @@ export function resizeTerminalElement(width, height) {
   if (mainContentContainerEl) {
     mainContentContainerEl.style.width = width;
     mainContentContainerEl.style.height = height;
+
+    currentTerminalSize = { width, height };
+
     appendToTerminal(
       `<div class='output-success'>Terminal resized to ${width} width, ${height} height.</div>`,
     );
@@ -457,6 +458,15 @@ export function resizeTerminalElement(width, height) {
     );
   }
 }
+
+export function reapplyTerminalSize() {
+  if (mainContentContainerEl && currentTerminalSize.width && currentTerminalSize.height) {
+    mainContentContainerEl.style.width = currentTerminalSize.width;
+    mainContentContainerEl.style.height = currentTerminalSize.height;
+  }
+}
+
+
 export function getDefaultTerminalSize() {
   return { ...defaultTerminalSizeConfig };
 }
