@@ -52,13 +52,19 @@ async function fetchJson(url, fileNameForError) {
 }
 
 export async function loadAllData() {
-  const [rainConfig, skillsAsset, hobbiesAsset, manPagesAsset] =
-    await Promise.all([
-      fetchJson("config/rain.json", "rain.json", true),
-      fetchJson("config/content/skills.json", "skills.json (config)"),
-      fetchJson("config/content/hobbies.json", "hobbies.json (config)"),
-      fetchJson("config/content/manPages.json", "manPages.json (config)"),
-    ]);
+  // This ensures the path is always correct in both development and production.
+  const baseUrl = import.meta.env.BASE_URL;
+  const [
+    rainConfig,
+    skillsAsset,
+    hobbiesAsset,
+    manPagesAsset,
+  ] = await Promise.all([
+    fetchJson(`${baseUrl}config/rain.json`),
+    fetchJson(`${baseUrl}config/content/skills.json`),
+    fetchJson(`${baseUrl}config/content/hobbies.json`),
+    fetchJson(`${baseUrl}config/content/manPages.json`),
+  ]);
 
   return {
     config,
