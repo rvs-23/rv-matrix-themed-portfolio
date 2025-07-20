@@ -267,20 +267,33 @@ export const help = {
   ],
   availableThemes: [
     "amber",
-    "cyan",
-    "green",
-    "purple",
-    "twilight",
+    "arctic",
+    "bloodmoon",
+    "copper",
     "crimson",
+    "cyan",
+    "cybercandy",
+    "deepsea",
+    "dunes",
     "forest",
-    "goldenglitch",
-    "retroarcade",
+    "ghost",
+    "green",
+    "hologram",
+    "inferno",
+    "neon",
+    "obsidian",
+    "purple",
+    "quantum",
     "reloaded",
-    "voidblue",
+    "retroarcade",
+    "synthwavegrid",
+    "terran",
+    "toxic",
+    "virus",
   ],
 };
 
-// -- COMMAND: RAINPRESET --
+
 export const rainpreset = {
   messages: {
     usage: "Usage: rainpreset &lt;preset_name&gt;",

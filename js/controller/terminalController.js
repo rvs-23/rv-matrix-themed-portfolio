@@ -700,20 +700,8 @@ export function updatePrimaryColorRGB() {
 }
 
 export function applyTheme(themeNameInput) {
-  // Define your valid themes here.
-  const validSpecificThemes = [
-    "amber",
-    "cyan",
-    "green",
-    "purple",
-    "twilight",
-    "crimson",
-    "forest",
-    "goldenglitch",
-    "retroarcade",
-    "reloaded",
-    "voidblue",
-  ];
+  const context = getCommandContextFunction();
+  const validSpecificThemes = context.config.help.availableThemes;
 
   const showThemeUsage = () => {
     const currentThemeClass =

@@ -1,288 +1,321 @@
 /* css/themes.css */
 
-/* --- THEMES --- */
+/* OPTIMIZATION: Base rule for all themes.
+  This selector targets any body tag with a class containing "theme-".
+  It automatically sets derived colors (like shadows, scrollbars, etc.)
+  based on the core colors defined in each specific theme below.
+  This drastically reduces code repetition.
+*/
+body[class*="theme-"] {
+  --text-shadow-color: rgba(var(--primary-color-rgb), 0.7);
+  --border-color: rgba(var(--primary-color-rgb), 0.6);
+  --hover-shadow-color: rgba(var(--primary-color-rgb), 0.9);
+  --nav-icon-color: var(--primary-color);
+  --nav-label-bg: rgba(var(--primary-color-rgb), 0.15);
+  --loader-text-color: var(--primary-color);
+  --loader-spinner-color: var(--primary-color);
+  --scrollbar-track-color: rgba(var(--primary-color-rgb), 0.1);
+  --scrollbar-thumb-color: rgba(var(--primary-color-rgb), 0.5);
+  --scrollbar-thumb-hover-color: rgba(var(--primary-color-rgb), 0.8);
+}
+
 body.theme-green {
   --primary-color: #0f0;
   --primary-color-rgb: 0, 255, 0;
   --secondary-color: #00ffff;
-  --text-shadow-color: rgba(0, 255, 0, 0.7);
-  --border-color: rgba(0, 255, 0, 0.6);
   --hover-color: #33ff33;
-  --hover-shadow-color: rgba(
-    51,
-    255,
-    51,
-    0.9
-  ); /* Added based on :root default */
-  --nav-icon-color: #0f0;
-  --nav-label-bg: rgba(0, 255, 0, 0.15); /* Added based on :root default */
-  --loader-text-color: #0f0; /* Added based on :root default */
-  --loader-spinner-color: #0f0; /* Added based on :root default */
   --matrix-rain-glow-color: #9fff9f;
+  --background-color: #000;
   --terminal-base-r: 17;
   --terminal-base-g: 24;
   --terminal-base-b: 39;
-  --scrollbar-track-color: rgba(
-    0,
-    255,
-    0,
-    0.1
-  ); /* Added based on :root default */
-  --scrollbar-thumb-color: rgba(
-    0,
-    255,
-    0,
-    0.5
-  ); /* Added based on :root default */
-  --scrollbar-thumb-hover-color: rgba(
-    0,
-    255,
-    0,
-    0.8
-  ); /* Added based on :root default */
-  --background-color: #000; /* Ensure background is explicitly set if themes change it */
 }
 
 body.theme-cyan {
   --primary-color: #0ff;
   --primary-color-rgb: 0, 255, 255;
   --secondary-color: #0f0;
-  --text-shadow-color: rgba(0, 255, 255, 0.7);
-  --border-color: rgba(0, 255, 255, 0.6);
   --hover-color: #5fffff;
-  --hover-shadow-color: rgba(85, 255, 255, 0.9);
-  --nav-icon-color: #0ff;
-  --nav-label-bg: rgba(0, 255, 255, 0.15);
-  --loader-text-color: #0ff;
-  --loader-spinner-color: #0ff;
   --matrix-rain-glow-color: #afffff;
   --background-color: #000505;
   --terminal-base-r: 0;
   --terminal-base-g: 20;
   --terminal-base-b: 20;
-  --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-  --scrollbar-thumb-color: rgba(0, 255, 255, 0.5);
-  --scrollbar-thumb-hover-color: rgba(0, 255, 255, 0.8);
 }
 
 body.theme-amber {
   --primary-color: #ffbf00;
   --primary-color-rgb: 255, 191, 0;
   --secondary-color: #ffd700;
-  --text-shadow-color: rgba(255, 191, 0, 0.7);
-  --border-color: rgba(255, 191, 0, 0.6);
   --hover-color: #ffd700;
-  --hover-shadow-color: rgba(255, 215, 0, 0.9);
-  --nav-icon-color: #ffbf00;
-  --nav-label-bg: rgba(255, 191, 0, 0.15);
-  --loader-text-color: #ffbf00;
-  --loader-spinner-color: #ffbf00;
   --matrix-rain-glow-color: #ffdda0;
   --background-color: #0a0600;
   --terminal-base-r: 25;
   --terminal-base-g: 15;
   --terminal-base-b: 0;
-  --scrollbar-track-color: rgba(255, 191, 0, 0.1);
-  --scrollbar-thumb-color: rgba(255, 191, 0, 0.5);
-  --scrollbar-thumb-hover-color: rgba(255, 191, 0, 0.8);
 }
 
 body.theme-purple {
   --primary-color: #c000c0;
   --primary-color-rgb: 192, 0, 192;
   --secondary-color: #da70d6;
-  --text-shadow-color: rgba(192, 0, 192, 0.7);
-  --border-color: rgba(192, 0, 192, 0.6);
   --hover-color: #ee82ee;
-  --hover-shadow-color: rgba(238, 130, 238, 0.9);
-  --nav-icon-color: #c000c0;
-  --nav-label-bg: rgba(192, 0, 192, 0.15);
-  --loader-text-color: #c000c0;
-  --loader-spinner-color: #c000c0;
   --matrix-rain-glow-color: #eca0ec;
   --background-color: #080008;
   --terminal-base-r: 20;
   --terminal-base-g: 0;
   --terminal-base-b: 20;
-  --scrollbar-track-color: rgba(192, 0, 192, 0.1);
-  --scrollbar-thumb-color: rgba(192, 0, 192, 0.5);
-  --scrollbar-thumb-hover-color: rgba(192, 0, 192, 0.8);
-}
-
-body.theme-twilight {
-  --primary-color: #e6a0c4;
-  --primary-color-rgb: 230, 160, 196;
-  --secondary-color: #9b84ec;
-  --text-shadow-color: rgba(230, 160, 196, 0.6);
-  --border-color: rgba(230, 160, 196, 0.5);
-  --hover-color: #ee82ee; /* Kept original, can be adjusted */
-  --hover-shadow-color: rgba(238, 130, 238, 0.8);
-  --nav-icon-color: #e6a0c4;
-  --nav-label-bg: rgba(230, 160, 196, 0.15);
-  --loader-text-color: #e6a0c4;
-  --loader-spinner-color: #e6a0c4;
-  --matrix-rain-glow-color: #f0c0e0;
-  --background-color: #0a061a;
-  --terminal-base-r: 20;
-  --terminal-base-g: 10;
-  --terminal-base-b: 40;
-  --scrollbar-track-color: rgba(230, 160, 196, 0.1);
-  --scrollbar-thumb-color: rgba(230, 160, 196, 0.4);
-  --scrollbar-thumb-hover-color: rgba(230, 160, 196, 0.7);
 }
 
 body.theme-crimson {
   --primary-color: #dc143c;
   --primary-color-rgb: 220, 20, 60;
   --secondary-color: #ff6347;
-  --text-shadow-color: rgba(220, 20, 60, 0.6);
-  --border-color: rgba(220, 20, 60, 0.5);
   --hover-color: #ff4500;
-  --hover-shadow-color: rgba(255, 69, 0, 0.8);
-  --nav-icon-color: #dc143c;
-  --nav-label-bg: rgba(220, 20, 60, 0.15);
-  --loader-text-color: #dc143c;
-  --loader-spinner-color: #dc143c;
   --matrix-rain-glow-color: #ff8c70;
   --background-color: #100000;
   --terminal-base-r: 20;
   --terminal-base-g: 0;
   --terminal-base-b: 0;
-  --scrollbar-track-color: rgba(220, 20, 60, 0.1);
-  --scrollbar-thumb-color: rgba(220, 20, 60, 0.4);
-  --scrollbar-thumb-hover-color: rgba(220, 20, 60, 0.7);
 }
 
 body.theme-forest {
   --primary-color: #228b22;
   --primary-color-rgb: 34, 139, 34;
   --secondary-color: #adff2f;
-  --text-shadow-color: rgba(34, 139, 34, 0.6);
-  --border-color: rgba(34, 139, 34, 0.5);
   --hover-color: #32cd32;
-  --hover-shadow-color: rgba(50, 205, 50, 0.8);
-  --nav-icon-color: #228b22;
-  --nav-label-bg: rgba(34, 139, 34, 0.15);
-  --loader-text-color: #228b22;
-  --loader-spinner-color: #228b22;
   --matrix-rain-glow-color: #98fb98;
   --background-color: #001000;
   --terminal-base-r: 0;
   --terminal-base-g: 20;
   --terminal-base-b: 0;
-  --scrollbar-track-color: rgba(34, 139, 34, 0.1);
-  --scrollbar-thumb-color: rgba(34, 139, 34, 0.4);
-  --scrollbar-thumb-hover-color: rgba(34, 139, 34, 0.7);
-}
-
-body.theme-goldenglitch {
-  --primary-color: #ffd700; /* Gold */
-  --primary-color-rgb: 255, 215, 0;
-  --secondary-color: #ff4500; /* OrangeRed for glitchy accents */
-  --text-shadow-color: rgba(255, 215, 0, 0.6);
-  --border-color: rgba(255, 165, 0, 0.6); /* Orange */
-  --hover-color: #ff6347; /* Tomato - slightly different for hover */
-  --hover-shadow-color: rgba(255, 99, 71, 0.8);
-  --nav-icon-color: #ffd700;
-  --nav-label-bg: rgba(255, 215, 0, 0.15);
-  --loader-text-color: #ffd700;
-  --loader-spinner-color: #ffd700;
-  --matrix-rain-glow-color: #fffacd; /* LemonChiffon - softer glow */
-  --background-color: #1a0e00; /* Very dark brown/orange */
-  --terminal-base-r: 40;
-  --terminal-base-g: 20;
-  --terminal-base-b: 0;
-  --scrollbar-track-color: rgba(255, 215, 0, 0.1);
-  --scrollbar-thumb-color: rgba(255, 215, 0, 0.5);
-  --scrollbar-thumb-hover-color: rgba(255, 215, 0, 0.8);
 }
 
 body.theme-retroarcade {
-  --primary-color: #ff00ff; /* Magenta */
+  --primary-color: #ff00ff;
   --primary-color-rgb: 255, 0, 255;
-  --secondary-color: #00ffff; /* Cyan */
-  --text-shadow-color: rgba(255, 0, 255, 0.6);
-  --border-color: rgba(0, 255, 255, 0.7);
-  --hover-color: #f8f8f2; /* Off-white for hover text */
-  --hover-shadow-color: rgba(0, 255, 255, 0.9);
-  --nav-icon-color: #ff00ff;
-  --nav-label-bg: rgba(0, 255, 255, 0.2);
-  --loader-text-color: #ff00ff;
-  --loader-spinner-color: #00ffff;
-  --matrix-rain-glow-color: #f8f8f2; /* White glow for rain */
-  --background-color: #28004d; /* Deep purple */
-  --terminal-base-r: 28; /* Darker purple for terminal bg */
+  --secondary-color: #00ffff;
+  --hover-color: #f8f8f2;
+  --matrix-rain-glow-color: #f8f8f2;
+  --background-color: #28004d;
+  --terminal-base-r: 28;
   --terminal-base-g: 0;
   --terminal-base-b: 51;
-  --scrollbar-track-color: rgba(0, 255, 255, 0.1);
-  --scrollbar-thumb-color: rgba(255, 0, 255, 0.6);
-  --scrollbar-thumb-hover-color: rgba(255, 0, 255, 0.9);
 }
 
-/* === REVISED THEME === */
 body.theme-reloaded {
-  /* More distinct from standard green */
-  --primary-color: #4caf50; /* A more 'modern' desaturated green */
+  --primary-color: #4caf50;
   --primary-color-rgb: 76, 175, 80;
-  --secondary-color: #e0e0e0; /* Light grey, almost white, for high contrast */
-  --text-shadow-color: rgba(76, 175, 80, 0.5);
-  --border-color: rgba(100, 100, 100, 0.4); /* Neutral grey border */
-  --hover-color: #b0bec5; /* Blue Grey for hover */
-  --hover-shadow-color: rgba(176, 190, 197, 0.7);
-  --nav-icon-color: #4caf50;
-  --nav-label-bg: rgba(76, 175, 80, 0.15);
-  --loader-text-color: #4caf50;
-  --loader-spinner-color: #e0e0e0;
-  --matrix-rain-glow-color: #f5f5f5; /* Bright, clean white/very light grey glow */
-  --background-color: #0a0a0a; /* Very, very dark grey, almost black */
-  --terminal-base-r: 25; /* rgb(25, 28, 25) - Dark, slightly green-tinted grey */
+  --secondary-color: #e0e0e0;
+  --hover-color: #b0bec5;
+  --matrix-rain-glow-color: #f5f5f5;
+  --background-color: #0a0a0a;
+  --terminal-base-r: 25;
   --terminal-base-g: 28;
   --terminal-base-b: 25;
-  --scrollbar-track-color: rgba(76, 175, 80, 0.1);
-  --scrollbar-thumb-color: rgba(120, 120, 120, 0.5); /* Grey scrollbar */
-  --scrollbar-thumb-hover-color: rgba(150, 150, 150, 0.7);
 }
 
 body.theme-synthwavegrid {
-  --primary-color: #ff4081; /* Hot Pink / Magenta */
+  --primary-color: #ff4081;
   --primary-color-rgb: 255, 64, 129;
-  --secondary-color: #00e5ff; /* Bright Electric Cyan */
-  --text-shadow-color: rgba(0, 229, 255, 0.5); /* Cyan shadow for pink text */
-  --border-color: rgba(255, 64, 129, 0.6);
-  --hover-color: #ffd600; /* Bright Yellow for hover */
-  --hover-shadow-color: rgba(255, 214, 0, 0.7);
-  --nav-icon-color: #ff4081;
-  --nav-label-bg: rgba(0, 229, 255, 0.2);
-  --loader-text-color: #ff4081;
-  --loader-spinner-color: #00e5ff;
-  --matrix-rain-glow-color: #ffffff; /* Clean White glow */
-  --background-color: #1a0d2e; /* Deep Indigo/Dark Purple */
-  --terminal-base-r: 35; /* rgb(35, 20, 60) - Darker Indigo */
+  --secondary-color: #00e5ff;
+  --hover-color: #ffd600;
+  --matrix-rain-glow-color: #ffffff;
+  --background-color: #1a0d2e;
+  --terminal-base-r: 35;
   --terminal-base-g: 20;
   --terminal-base-b: 60;
-  --scrollbar-track-color: rgba(0, 229, 255, 0.1);
-  --scrollbar-thumb-color: rgba(255, 64, 129, 0.6);
-  --scrollbar-thumb-hover-color: rgba(255, 64, 129, 0.9);
 }
 
-body.theme-voidblue {
-  --primary-color: #90caf9; /* Light Steel Blue */
-  --primary-color-rgb: 144, 202, 249;
-  --secondary-color: #80deea; /* Lighter Cyan/Aqua */
-  --text-shadow-color: rgba(128, 222, 234, 0.4);
-  --border-color: rgba(66, 165, 245, 0.5); /* Brighter Blue border */
-  --hover-color: #e3f2fd; /* Very Light Blue, almost white */
-  --hover-shadow-color: rgba(227, 242, 253, 0.7);
-  --nav-icon-color: #90caf9;
-  --nav-label-bg: rgba(128, 222, 234, 0.15);
-  --loader-text-color: #90caf9;
-  --loader-spinner-color: #80deea;
-  --matrix-rain-glow-color: #ffffff; /* White glow for clarity */
-  --background-color: #0d1b2a; /* Very Dark Desaturated Blue (almost black) */
-  --terminal-base-r: 23; /* rgb(23, 37, 50) - Deep dark blue */
-  --terminal-base-g: 37;
-  --terminal-base-b: 50;
-  --scrollbar-track-color: rgba(66, 165, 245, 0.1);
-  --scrollbar-thumb-color: rgba(100, 181, 246, 0.6); /* Blue scrollbar */
-  --scrollbar-thumb-hover-color: rgba(144, 202, 249, 0.8);
+body.theme-inferno {
+  --primary-color: #ff7900; /* Bright Orange */
+  --primary-color-rgb: 255, 121, 0;
+  --secondary-color: #ffb800; /* Fiery Yellow */
+  --hover-color: #ffd400;
+  --matrix-rain-glow-color: #fff200; /* Pale Yellow Glow */
+  --background-color: #1c0000; /* Deep Red-Black */
+  --terminal-base-r: 40;
+  --terminal-base-g: 10;
+  --terminal-base-b: 0;
+}
+
+body.theme-terran {
+  --primary-color: #a07855; /* Earthy Brown */
+  --primary-color-rgb: 160, 120, 85;
+  --secondary-color: #6a8a54; /* Leafy Green */
+  --hover-color: #d4b996; /* Sandy color */
+  --matrix-rain-glow-color: #e6dbc9;
+  --background-color: #12100e; /* Deep Earth */
+  --terminal-base-r: 30;
+  --terminal-base-g: 25;
+  --terminal-base-b: 20;
+}
+
+/* A high-contrast, ethereal theme with a glitchy accent color. */
+body.theme-ghost {
+  --primary-color: #E0E0E0;      /* Off-white */
+  --primary-color-rgb: 224, 224, 224;
+  --secondary-color: #00FFFF;    /* Glitch Cyan */
+  --hover-color: #FFFFFF;
+  --matrix-rain-glow-color: #FFFFFF;
+  --background-color: #050505;    /* Near Black */
+  --terminal-base-r: 15;
+  --terminal-base-g: 15;
+  --terminal-base-b: 15;
+}
+
+/* CYBERCANDY – hyper‑saturated blue & cotton‑candy pink */
+body.theme-cybercandy {
+  --primary-color: #00eaff;      /* Glitch Blue */
+  --primary-color-rgb: 0, 234, 255;
+  --secondary-color: #ff56ff;    /* Bubblegum Magenta */
+  --hover-color: #ffb3ff;
+  --matrix-rain-glow-color: #ffffff;
+  --background-color: #2b0040;   /* Arcade violet */
+  --terminal-base-r: 43;
+  --terminal-base-g: 0;
+  --terminal-base-b: 64;
+}
+
+/* DUNES – warm desert golds under a moonlit teal sky */
+body.theme-dunes {
+  --primary-color: #d6b66a;      /* Sandstone Gold */
+  --primary-color-rgb: 214, 182, 106;
+  --secondary-color: #7dc7c7;    /* Cool Oasis */
+  --hover-color: #ffe9a3;
+  --matrix-rain-glow-color: #fff6d5;
+  --background-color: #08211f;   /* Desert night */
+  --terminal-base-r: 8;
+  --terminal-base-g: 33;
+  --terminal-base-b: 31;
+}
+
+/* QUANTUM – electric purple with spectral highlights */
+body.theme-quantum {
+  --primary-color: #b347ff;      /* Quantum Purple */
+  --primary-color-rgb: 179, 71, 255;
+  --secondary-color: #00ff9d;    /* Spectral Green */
+  --hover-color: #e0a3ff;
+  --matrix-rain-glow-color: #ffffff;
+  --background-color: #0f0020;   /* Deep Space */
+  --terminal-base-r: 15;
+  --terminal-base-g: 0;
+  --terminal-base-b: 32;
+}
+
+/* BLOODMOON – deep crimson with bone white accents */
+body.theme-bloodmoon {
+  --primary-color: #8b0000;      /* Dark Red */
+  --primary-color-rgb: 139, 0, 0;
+  --secondary-color: #f8f8ff;    /* Ghost White */
+  --hover-color: #dc143c;
+  --matrix-rain-glow-color: #ffcccc;
+  --background-color: #1a0000;   /* Blood Black */
+  --terminal-base-r: 26;
+  --terminal-base-g: 0;
+  --terminal-base-b: 0;
+}
+
+/* ARCTIC – ice blue with aurora highlights */
+body.theme-arctic {
+  --primary-color: #87ceeb;      /* Sky Blue */
+  --primary-color-rgb: 135, 206, 235;
+  --secondary-color: #00ff7f;    /* Aurora Green */
+  --hover-color: #b0e0e6;
+  --matrix-rain-glow-color: #f0ffff;
+  --background-color: #001122;   /* Polar Night */
+  --terminal-base-r: 0;
+  --terminal-base-g: 17;
+  --terminal-base-b: 34;
+}
+
+/* NEON – hot pink cyberpunk with electric accents */
+body.theme-neon {
+  --primary-color: #ff1493;      /* Deep Pink */
+  --primary-color-rgb: 255, 20, 147;
+  --secondary-color: #00ff00;    /* Electric Green */
+  --hover-color: #ff69b4;
+  --matrix-rain-glow-color: #ffffff;
+  --background-color: #0a0a0a;   /* True Black */
+  --terminal-base-r: 10;
+  --terminal-base-g: 10;
+  --terminal-base-b: 10;
+}
+
+/* TOXIC – radioactive green with warning yellow */
+body.theme-toxic {
+  --primary-color: #39ff14;      /* Electric Lime */
+  --primary-color-rgb: 57, 255, 20;
+  --secondary-color: #ffff00;    /* Warning Yellow */
+  --hover-color: #7fff00;
+  --matrix-rain-glow-color: #ccff99;
+  --background-color: #001100;   /* Toxic Dark */
+  --terminal-base-r: 0;
+  --terminal-base-g: 17;
+  --terminal-base-b: 0;
+}
+
+/* HOLOGRAM – translucent blue with silver highlights */
+body.theme-hologram {
+  --primary-color: #4169e1;      /* Royal Blue */
+  --primary-color-rgb: 65, 105, 225;
+  --secondary-color: #c0c0c0;    /* Silver */
+  --hover-color: #87cefa;
+  --matrix-rain-glow-color: #e6f3ff;
+  --background-color: #000814;   /* Deep Navy */
+  --terminal-base-r: 0;
+  --terminal-base-g: 8;
+  --terminal-base-b: 20;
+}
+
+/* COPPER – steampunk brass with oxidized green */
+body.theme-copper {
+  --primary-color: #b87333;      /* Copper */
+  --primary-color-rgb: 184, 115, 51;
+  --secondary-color: #2e8b57;    /* Verdigris Green */
+  --hover-color: #cd853f;
+  --matrix-rain-glow-color: #f4a460;
+  --background-color: #1c1008;   /* Bronze Black */
+  --terminal-base-r: 28;
+  --terminal-base-g: 16;
+  --terminal-base-b: 8;
+}
+
+/* OBSIDIAN – volcanic black with lava orange */
+body.theme-obsidian {
+  --primary-color: #696969;      /* Dim Gray */
+  --primary-color-rgb: 105, 105, 105;
+  --secondary-color: #ff4500;    /* Orange Red */
+  --hover-color: #a9a9a9;
+  --matrix-rain-glow-color: #dcdcdc;
+  --background-color: #000000;   /* Pure Black */
+  --terminal-base-r: 0;
+  --terminal-base-g: 0;
+  --terminal-base-b: 0;
+}
+
+/* VIRUS – sickly green with corrupted red glitches */
+body.theme-virus {
+  --primary-color: #adff2f;      /* Green Yellow */
+  --primary-color-rgb: 173, 255, 47;
+  --secondary-color: #ff0000;    /* Red */
+  --hover-color: #9acd32;
+  --matrix-rain-glow-color: #f0fff0;
+  --background-color: #0f1f0f;   /* Infection Dark */
+  --terminal-base-r: 15;
+  --terminal-base-g: 31;
+  --terminal-base-b: 15;
+}
+
+/* DEEP_SEA – bioluminescent blue with abyssal depths */
+body.theme-deepsea {
+  --primary-color: #00ced1;      /* Dark Turquoise */
+  --primary-color-rgb: 0, 206, 209;
+  --secondary-color: #20b2aa;    /* Light Sea Green */
+  --hover-color: #48d1cc;
+  --matrix-rain-glow-color: #afeeee;
+  --background-color: #001f3f;   /* Navy */
+  --terminal-base-r: 0;
+  --terminal-base-g: 31;
+  --terminal-base-b: 63;
 }
