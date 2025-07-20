@@ -54,10 +54,10 @@ async function fetchJson(url, fileNameForError) {
 export async function loadAllData() {
   const [rainConfig, skillsAsset, hobbiesAsset, manPagesAsset] =
     await Promise.all([
-      fetchJson("/config/rain.json", "rain.json", true),
-      fetchJson("/config/content/skills.json", "skills.json (config)"),
-      fetchJson("/config/content/hobbies.json", "hobbies.json (config)"),
-      fetchJson("/config/content/manPages.json", "manPages.json (config)"),
+      fetchJson("config/rain.json", "rain.json", true),
+      fetchJson("config/content/skills.json", "skills.json (config)"),
+      fetchJson("config/content/hobbies.json", "hobbies.json (config)"),
+      fetchJson("config/content/manPages.json", "manPages.json (config)"),
     ]);
 
   return {
