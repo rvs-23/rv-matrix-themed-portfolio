@@ -3,7 +3,7 @@
  * Handles fetching all necessary JSON configuration and asset data.
  */
 
-import * as config from "../../public/config/index.js";
+import * as config from "../config/index.js";
 
 async function fetchJson(url, fileNameForError) {
   try {
@@ -54,17 +54,13 @@ async function fetchJson(url, fileNameForError) {
 export async function loadAllData() {
   // This ensures the path is always correct in both development and production.
   const baseUrl = import.meta.env.BASE_URL;
-  const [
-    rainConfig,
-    skillsAsset,
-    hobbiesAsset,
-    manPagesAsset,
-  ] = await Promise.all([
-    fetchJson(`${baseUrl}config/rain.json`),
-    fetchJson(`${baseUrl}config/content/skills.json`),
-    fetchJson(`${baseUrl}config/content/hobbies.json`),
-    fetchJson(`${baseUrl}config/content/manPages.json`),
-  ]);
+  const [rainConfig, skillsAsset, hobbiesAsset, manPagesAsset] =
+    await Promise.all([
+      fetchJson(`${baseUrl}config/rain.json`, "rain.json (public)"),
+      fetchJson(`${baseUrl}config/content/skills.json`, "skills.json (public)"),
+      fetchJson(`${baseUrl}config/content/hobbies.json`, "hobbies.json (public)"),
+      fetchJson(`${baseUrl}config/content/manPages.json`, "manPages.json (public)"),
+    ]);
 
   return {
     config,
