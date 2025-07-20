@@ -83,3 +83,7 @@ function globalKeydownHandler(e) {
   // If any other global shortcuts were to be added, they'd go here.
   // The Konami logic above will have already run.
 }
+
+export function isCrtModeActive() {
+  return crtModeActive;
+}

@@ -1,63 +1,65 @@
 /**
  * @file js/commands/screenshot.js
- * Handles the 'screenshot' command.
- *
- * Captures a *full‑HD* (1920 × 1080) PNG of the Matrix‑rain canvas only,
- * leaves the animation loop running, and force‑downloads the file.
+ * Handles the 'screenshot' command with resolution control and dynamic filenames.
  */
 
 export default function screenshotCommand(args, context) {
-  const { appendToTerminal } = context;
+  const { appendToTerminal, config, userConfig, rainEngine, isCrtActive, getCurrentTheme } = context;
+  const screenshotConfig = config.screenshot;
+  const messages = screenshotConfig.messages;
   const srcCanvas = document.getElementById("matrix-canvas");
 
   if (!srcCanvas) {
-    appendToTerminal(
-      "<div class='output-error'>Rain canvas not found.</div>",
-      "output-error-wrapper",
-    );
-    return;
+    return appendToTerminal("<div class='output-error'>Rain canvas not found.</div>");
   }
 
-  // Prepare an off‑screen canvas at the target resolution to avoid any
-  // write‑lock on the on‑screen canvas (which would jank the animation).
-  const TARGET_W = 1920;
-  const TARGET_H = 1080;
+  // 1. Determine Resolution
+  const resolutionArg = args[0]?.toLowerCase() || 'fhd';
+  const resolution = screenshotConfig.resolutions[resolutionArg];
+
+  if (!resolution) {
+    return appendToTerminal(`<div class='output-error'>${messages.invalid_resolution(args[0])}</div>`);
+  }
+
+  const { w: TARGET_W, h: TARGET_H } = resolution;
+
+  // 2. Build Dynamic Filename
+  const theme = getCurrentTheme();
+  const preset = rainEngine.activePresetName || 'default';
+  const crt = isCrtActive() ? 'crt' : 'nocrt';
+  const firstName = userConfig.name?.split(' ')[0];
+  const userInitials = (firstName && firstName.length >= 2)
+  ? `${firstName[0]}${firstName.slice(-1)}`.toLowerCase()
+  : (firstName?.[0] || 'u').toLowerCase();
+  const time = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, ''); // YYYYMMDDHHMMSS format
+
+  const fileName = `matrix_rain_wallpaper_${userInitials}_${preset}_${theme}_${crt}_${time}.png`;
+
+  // 3. Create and Download Image
   const offCanvas = document.createElement("canvas");
   offCanvas.width = TARGET_W;
   offCanvas.height = TARGET_H;
   const offCtx = offCanvas.getContext("2d");
-
-  // Draw the live rain canvas onto the off‑screen surface, scaling if necessary.
-  // The src canvas keeps rendering in parallel. */
   offCtx.drawImage(srcCanvas, 0, 0, TARGET_W, TARGET_H);
 
   offCanvas.toBlob((blob) => {
     if (!blob) {
-      appendToTerminal(
-        "<div class='output-error'>Screenshot failed.</div>",
-        "output-error-wrapper",
-      );
-      return;
+      return appendToTerminal("<div class='output-error'>Screenshot failed.</div>");
     }
-    // Build a safe filename: rain_screenshot_2025‑07‑19T18‑29‑55.png
-    const ts = new Date().toISOString().replace(/[:.]/g, "-");
-    const fileName = `rain_screenshot_${ts}.png`;
-
+    
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
 
-    // House‑keeping: revoke URL & remove anchor after the download fires.
     setTimeout(() => {
       URL.revokeObjectURL(link.href);
       link.remove();
     }, 4000);
 
     appendToTerminal(
-      `<div class='output-success'>Screenshot saved as ${fileName}</div>`,
-      "output-success-wrapper",
+      `<div class='output-success'>${messages.success(fileName, resolutionArg.toUpperCase())}</div>`,
     );
   }, "image/png");
 }

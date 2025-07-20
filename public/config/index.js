@@ -293,7 +293,6 @@ export const help = {
   ],
 };
 
-
 export const rainpreset = {
   messages: {
     usage: "Usage: rainpreset &lt;preset_name&gt;",
@@ -361,4 +360,17 @@ export const whoami = {
       useContact: true,
     },
   ],
+};
+
+// -- COMMAND: SCREENSHOT --
+export const screenshot = {
+  resolutions: {
+    "fhd": { "w": 1920, "h": 1080 },
+    "2k": { "w": 2560, "h": 1440 }
+  },
+  messages: {
+    usage: "Usage: screenshot [fhd | 2k]",
+    invalid_resolution: (res) => `Error: '${res}' is not a valid resolution. Use 'fhd' or '2k'.`,
+    success: (filename, res) => `Screenshot saved as ${filename} (${res})`
+  }
 };

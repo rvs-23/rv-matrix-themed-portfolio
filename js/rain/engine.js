@@ -86,6 +86,7 @@ export default class RainEngine {
     this.validationRules = rainConfig.validationRules || {};
     this.defaultConfig.fontFamily = fontConfig.matrix;
     this.activeConfig = { ...this.defaultConfig };
+    this.activePresetName = 'default';
     this.streams = [];
     this.animationId = null;
     this.lastFrameTime = 0;
@@ -168,6 +169,7 @@ export default class RainEngine {
 
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
+    this.activePresetName = 'default';
     this.start();
     return true;
   }
@@ -178,17 +180,14 @@ export default class RainEngine {
       return { success: false, message: `Unknown preset: '${presetName}'.` };
 
     if (preset.isReset) {
-      this.resetToDefaults();
-      return {
-        success: true,
-        message: "Rain configuration reset to defaults.",
-      };
+      return this.resetToDefaults(); // Changed to call the method above
     }
 
     if (preset.config) {
       Object.entries(preset.config).forEach(([param, value]) => {
         this.updateParameter(param, value, preset.config);
       });
+      this.activePresetName = presetName;
       this.start();
       return {
         success: true,

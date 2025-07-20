@@ -12,7 +12,7 @@ import {
 import RainEngine from "./rain/engine.js";
 
 import * as terminalController from "./controller/terminalController.js";
-import { initializeShortcuts } from "./controller/shortcuts.js";
+import { initializeShortcuts, isCrtModeActive } from "./controller/shortcuts.js";
 
 import { getAllCommands, renderTree } from "./commands/0_index.js";
 
@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTree: renderTree,
     mainContentContainer: document.getElementById("contentContainer"),
     allMatrixChars: allData.config.loader.matrixChars, // Correct path
+    isCrtActive: isCrtModeActive,
+    getCurrentTheme: terminalController.getCurrentThemeName,
     getFullWelcomeMessage: terminalController.getFullWelcomeMessage,
   };
 
