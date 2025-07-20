@@ -9,8 +9,8 @@ import {
   hideLoadingScreen,
 } from "./controller/loaderScreen.js";
 
-import * as rainConfigModule from "./rain/config.js";
-import * as rainEngine from "./rain/engine.js";
+import RainEngine from "./rain/engine.js";
+
 import * as terminalController from "./controller/terminalController.js";
 import { initializeShortcuts } from "./controller/shortcuts.js";
 
@@ -21,9 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const allData = await loadAllData();
   initializeLoaderScreen(allData.config.loader);
 
-  rainConfigModule.initializeRainConfig(allData.rainConfig);
+  const rainEngine = new RainEngine(allData.rainConfig, allData.config.fonts);
 
-  // ++ 2. Build the commandContext with the new config structure
   // This is the primary fix for your commands not working.
   const commandContext = {
     config: allData.config, // Pass the entire config object
@@ -34,15 +33,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     appendToTerminal: terminalController.appendToTerminal,
     terminalController: terminalController,
     rainEngine: rainEngine,
-    rainOptions: {
-      getActiveRainConfig: rainConfigModule.getActiveRainConfig,
-      getDefaultRainConfig: rainConfigModule.getDefaultRainConfig,
-      getRainPresets: rainConfigModule.getRainPresets,
-      updateRainConfigParameter: rainConfigModule.updateRainConfigParameter,
-      resetRainConfigToActiveDefaults:
-        rainConfigModule.resetRainConfigToActiveDefaults,
-      setActiveRainColorsDirectly: rainConfigModule.setActiveRainColors,
-    },
     renderTree: renderTree,
     mainContentContainer: document.getElementById("contentContainer"),
     allMatrixChars: allData.config.loader.matrixChars, // Correct path
@@ -72,8 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (document.getElementById("contentContainer")) {
         document.getElementById("contentContainer").style.opacity = "1";
       }
-      rainEngine.startRainAnimation();
-
+      rainEngine.start();
       // Use the new, safe function to focus the input
       terminalController.focusInput();
     })
@@ -91,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener(
     "resize",
     debounce(() => {
-      rainEngine.setupRain();
+      rainEngine.setup();
       terminalController.reapplyTerminalSize();
     }, 150),
   );

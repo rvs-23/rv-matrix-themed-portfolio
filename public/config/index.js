@@ -220,7 +220,7 @@ export const help = {
       cmd: "rainpreset <name>",
       display: "rainpreset <name>",
       desc: (context) =>
-        `Apply rain preset. Available: ${Object.keys(context.rainOptions.getRainPresets() || {}).join(", ")}.`,
+        `Apply rain preset. Available: ${Object.keys(context.rainEngine.presets || {}).join(", ")}.`,
     },
     {
       cmd: "resize term <W> <H>|reset",

@@ -12,11 +12,7 @@ let onCrtToggleFeedback = (isActive) => {};
 
 export function initializeShortcuts(config, onCrtToggleCb) {
   // Ensure config and config.terminalConfig exist before accessing properties
-  konamiCodeSequence =
-    (config &&
-      config.terminalConfig &&
-      config.terminalConfig.konamiCodeSequence) ||
-    [];
+  konamiCodeSequence = config?.config?.terminal?.konamiCodeSequence || [];
   commandInputElement = document.getElementById("command-input");
   onCrtToggleFeedback = onCrtToggleCb;
   document.addEventListener("keydown", globalKeydownHandler);

@@ -1,10 +1,11 @@
+/**
+ * @file js/commands/rainpreset.js
+ * Handles the 'rainpreset' command.
+ */
 export default function rainPresetCommand(args, context) {
-  // ++ Get configs from context
-  const { appendToTerminal, rainEngine, rainOptions, config } = context;
+  const { appendToTerminal, rainEngine, config } = context;
   const messages = config.rainpreset.messages;
-  const presets = rainOptions.getRainPresets
-    ? rainOptions.getRainPresets()
-    : {};
+  const presets = rainEngine.presets || {};
 
   if (!args || args.length === 0) {
     appendToTerminal(`<div class='output-error'>${messages.usage}</div>`);
@@ -20,100 +21,30 @@ export default function rainPresetCommand(args, context) {
   }
 
   const presetName = args[0].toLowerCase();
+
+  // ++ 1. Look up the preset data first
   const presetData = presets[presetName];
 
+  // ++ 2. Check if the preset exists before doing anything else
   if (!presetData) {
     return appendToTerminal(
       `<div class='output-error'>${messages.unknown_preset(presetName)}</div>`,
     );
   }
 
-  if (presetData.isReset) {
-    if (rainOptions.resetRainConfigToActiveDefaults) {
-      rainOptions.resetRainConfigToActiveDefaults();
-      appendToTerminal(
-        `<div class='output-success'>${messages.reset_success}</div>`,
-      );
-    } else {
-      appendToTerminal(
-        `<div class='output-error'>${messages.reset_fail}</div>`,
-      );
-    }
-  } else if (presetData.config) {
+  // ++ 3. If it's not a reset, print the "Applying..." message with the description
+  if (!presetData.isReset) {
     appendToTerminal(
       `<div>${messages.applying(presetName, presetData.description || "")}</div>`,
     );
-    let successCount = 0;
-    let errorCount = 0;
-    const configToApply = presetData.config;
-    const applyOrder = [
-      "layers",
-      "maxTrail",
-      "headGlowMax",
-      "minTrail",
-      "headGlowMin",
-    ];
-    const appliedParams = new Set();
-
-    for (const param of applyOrder) {
-      if (Object.prototype.hasOwnProperty.call(configToApply, param)) {
-        if (
-          rainOptions.updateRainConfigParameter?.(
-            param,
-            configToApply[param],
-            configToApply,
-          )
-        ) {
-          successCount++;
-        } else {
-          errorCount++;
-        }
-        appliedParams.add(param);
-      }
-    }
-    for (const param in configToApply) {
-      if (
-        !appliedParams.has(param) &&
-        Object.prototype.hasOwnProperty.call(configToApply, param)
-      ) {
-        if (
-          rainOptions.updateRainConfigParameter?.(
-            param,
-            configToApply[param],
-            configToApply,
-          )
-        ) {
-          successCount++;
-        } else {
-          errorCount++;
-        }
-      }
-    }
-
-    if (successCount > 0 && errorCount === 0) {
-      appendToTerminal(
-        `<div class='output-success'>${messages.apply_success(presetName)}</div>`,
-      );
-    } else if (successCount > 0 && errorCount > 0) {
-      appendToTerminal(
-        `<div class='output-warning'>${messages.apply_partial(presetName, errorCount)}</div>`,
-      );
-    } else if (errorCount > 0 && successCount === 0) {
-      appendToTerminal(
-        `<div class='output-error'>${messages.apply_fail(presetName, errorCount)}</div>`,
-      );
-    } else if (successCount === 0 && errorCount === 0) {
-      appendToTerminal(`<div>${messages.apply_no_settings(presetName)}</div>`);
-    } else {
-      appendToTerminal(
-        `<div>${messages.apply_mixed(presetName, successCount, errorCount)}</div>`,
-      );
-    }
-  } else {
-    appendToTerminal(
-      `<div class='output-error'>${messages.misconfigured(presetName)}</div>`,
-    );
   }
 
-  rainEngine?.restartRainAnimation();
+  // 4. Now, apply the preset and print the final result
+  const result = rainEngine.applyPreset(presetName);
+
+  if (result.success) {
+    appendToTerminal(`<div class='output-success'>${result.message}</div>`);
+  } else {
+    appendToTerminal(`<div class='output-error'>${result.message}</div>`);
+  }
 }
