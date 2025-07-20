@@ -68,9 +68,7 @@ function getFormattedDateTime(date, timeZoneIana, locale = "en-US") {
     return date.toLocaleString(locale, options);
   } catch {
     // Fallback if timezone is invalid for toLocaleString
-    console.warn(
-      `Error formatting date for timezone ${timeZoneIana}: ${e.message}`,
-    );
+    console.warn(`Error formatting date for timezone ${timeZoneIana}:`);
     if (timeZoneIana) {
       // Try with just UTC offset as a last resort for display if IANA failed
       try {
@@ -131,7 +129,7 @@ export default function dateCommand(args, context) {
             "output-date-wrapper",
           );
         }
-      } catch (e) {
+      } catch {
         appendToTerminal(
           `<div class="output-error">Unknown timezone alias or invalid IANA name: '${args[0]}'.</div>`,
           "output-error-wrapper",

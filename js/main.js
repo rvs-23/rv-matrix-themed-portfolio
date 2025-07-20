@@ -93,7 +93,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   });
 
-  // --- START OF CORRECTION ---
   // This replaces the original hideLoadingScreen call.
   // It waits for both the loading screen to be hidden AND for the fonts to be ready.
   Promise.all([
@@ -116,11 +115,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     .catch((error) => {
       console.error("Error during final initialization step:", error);
     });
-  // --- END OF CORRECTION ---
 
-  window.addEventListener("resize", () => {
-    rainEngine.setupRain();
-  });
+  /*  debounce resize to prevent setupRain storm */
+  const debounce = (fn, delay = 150) => {
+    let t;
+    return (...a) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...a), delay);
+    };
+  };
+  window.addEventListener(
+    "resize",
+    debounce(() => {
+      rainEngine.setupRain();
+    }, 150),
+  );
 
   // Update navigation links
   const navCvLink = document.getElementById("nav-cv-link");

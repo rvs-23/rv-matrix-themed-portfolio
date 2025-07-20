@@ -317,15 +317,18 @@ function getArgumentSuggestions(commandName, context, currentInput) {
         "reloaded",
         "voidblue",
       ].sort();
-    case "rainpreset":
+    case "rainpreset": {
       const presets =
         context.rainOptions && context.rainOptions.getRainPresets
           ? Object.keys(context.rainOptions.getRainPresets())
           : [];
       return presets.sort();
-    case "man":
+    }
+    case "man": {
       const manPageKeys = context.manPages ? Object.keys(context.manPages) : [];
       return manPageKeys.sort();
+    }
+
     case "resize":
       if (inputParts.length === 2 && inputParts[1] === "term") return ["reset"]; // Suggest 'reset' after 'resize term'
       if (inputParts.length === 1) return ["term"]; // Suggest 'term' after 'resize'
@@ -333,7 +336,7 @@ function getArgumentSuggestions(commandName, context, currentInput) {
     case "download":
       if (inputParts.length === 1) return ["cv"];
       return [];
-    case "date":
+    case "date": {
       // Assuming context.dateCommandTimezoneAliases is populated if available
       // For this example, using a placeholder. In a real scenario, this data should be accessible.
       const timezoneAliases = context.dateCommandTimezoneAliases || [
@@ -345,6 +348,7 @@ function getArgumentSuggestions(commandName, context, currentInput) {
         "gmt",
       ];
       return timezoneAliases.sort();
+    }
     default:
       return [];
   }

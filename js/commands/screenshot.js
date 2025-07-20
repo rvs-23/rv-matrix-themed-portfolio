@@ -5,6 +5,7 @@
  * Captures a *full‑HD* (1920 × 1080) PNG of the Matrix‑rain canvas only,
  * leaves the animation loop running, and force‑downloads the file.
  */
+
 export default function screenshotCommand(args, context) {
   const { appendToTerminal } = context;
   const srcCanvas = document.getElementById("matrix-canvas");
@@ -17,10 +18,8 @@ export default function screenshotCommand(args, context) {
     return;
   }
 
-  /* ---------------------------------------------------------------------
-     Prepare an off‑screen canvas at the target resolution to avoid any
-     write‑lock on the on‑screen canvas (which would jank the animation).
-  --------------------------------------------------------------------- */
+  // Prepare an off‑screen canvas at the target resolution to avoid any
+  // write‑lock on the on‑screen canvas (which would jank the animation).
   const TARGET_W = 1920;
   const TARGET_H = 1080;
   const offCanvas = document.createElement("canvas");
@@ -28,11 +27,10 @@ export default function screenshotCommand(args, context) {
   offCanvas.height = TARGET_H;
   const offCtx = offCanvas.getContext("2d");
 
-  /* Draw the live rain canvas onto the off‑screen surface, scaling if
-     necessary.  The src canvas keeps rendering in parallel. */
+  // Draw the live rain canvas onto the off‑screen surface, scaling if necessary.
+  // The src canvas keeps rendering in parallel. */
   offCtx.drawImage(srcCanvas, 0, 0, TARGET_W, TARGET_H);
 
-  /* ------------------------------------------------------------------ */
   offCanvas.toBlob((blob) => {
     if (!blob) {
       appendToTerminal(
@@ -41,7 +39,7 @@ export default function screenshotCommand(args, context) {
       );
       return;
     }
-    /* Build a safe filename: rain_screenshot_2025‑07‑19T18‑29‑55.png */
+    // Build a safe filename: rain_screenshot_2025‑07‑19T18‑29‑55.png
     const ts = new Date().toISOString().replace(/[:.]/g, "-");
     const fileName = `rain_screenshot_${ts}.png`;
 
@@ -51,7 +49,7 @@ export default function screenshotCommand(args, context) {
     document.body.appendChild(link);
     link.click();
 
-    /* House‑keeping: revoke URL & remove anchor after the download fires. */
+    // House‑keeping: revoke URL & remove anchor after the download fires.
     setTimeout(() => {
       URL.revokeObjectURL(link.href);
       link.remove();
