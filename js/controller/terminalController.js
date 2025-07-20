@@ -39,9 +39,11 @@ export function initializeTerminalController(
   mainContentContainerEl = document.getElementById("contentContainer");
 
   const termConfig = config.config.terminal;
-  defaultTerminalSizeConfig = termConfig.defaultSize || defaultTerminalSizeConfig;
+  defaultTerminalSizeConfig =
+    termConfig.defaultSize || defaultTerminalSizeConfig;
   currentTerminalSize = { ...defaultTerminalSizeConfig }; // Initialize with default
-  initialTermOpacityConfig = termConfig.initialOpacity || initialTermOpacityConfig;
+  initialTermOpacityConfig =
+    termConfig.initialOpacity || initialTermOpacityConfig;
   userDetailsConfig = config.config.user || userDetailsConfig;
 
   registeredCommands = commands; // Crucial for autocomplete
@@ -460,12 +462,15 @@ export function resizeTerminalElement(width, height) {
 }
 
 export function reapplyTerminalSize() {
-  if (mainContentContainerEl && currentTerminalSize.width && currentTerminalSize.height) {
+  if (
+    mainContentContainerEl &&
+    currentTerminalSize.width &&
+    currentTerminalSize.height
+  ) {
     mainContentContainerEl.style.width = currentTerminalSize.width;
     mainContentContainerEl.style.height = currentTerminalSize.height;
   }
 }
-
 
 export function getDefaultTerminalSize() {
   return { ...defaultTerminalSizeConfig };

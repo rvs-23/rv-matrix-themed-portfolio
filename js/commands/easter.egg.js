@@ -68,7 +68,10 @@ export default async function easterEggCommand(args, context) {
 
       const quotes = easterEggConfig.quotes;
       let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      randomQuote = randomQuote.replace("{{userName}}", userConfig.name || "User");
+      randomQuote = randomQuote.replace(
+        "{{userName}}",
+        userConfig.name || "User",
+      );
 
       appendToTerminal(
         `<div><br/><span class="output-success" style="font-size: 1.1em; text-align: center; display: block; padding: 1em 0;">"${randomQuote}"</span><br/></div>`,
@@ -96,12 +99,15 @@ export default async function easterEggCommand(args, context) {
       }
     }, easterEggConfig.glitchInterval);
 
-    setTimeout(() => {
-      if (mainContentContainer.contains(overlay)) {
-        clearInterval(glitchInterval);
-        finalizeEasterEgg();
-      }
-    }, maxGlitchIntervals * easterEggConfig.glitchInterval + 500);
+    setTimeout(
+      () => {
+        if (mainContentContainer.contains(overlay)) {
+          clearInterval(glitchInterval);
+          finalizeEasterEgg();
+        }
+      },
+      maxGlitchIntervals * easterEggConfig.glitchInterval + 500,
+    );
   } catch (err) {
     console.error("Easter egg error:", err);
     context.appendToTerminal(
