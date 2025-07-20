@@ -1,51 +1,38 @@
-/**
- * @file js/commands/whoami.js
- * Handles the 'whoami' command, displaying comprehensive user information.
- */
-
 export default function whoamiCommand(args, context) {
-  const { appendToTerminal, userConfig } = context;
-  const {
-    userName,
-    userTitle,
-    bio,
-    focus,
-    githubUser,
-    linkedinUser,
-    emailAddress,
-  } = userConfig;
+  // ++ Get configs from context
+  const { appendToTerminal, userConfig, config } = context;
+  const whoamiConfig = config.whoami;
+  const contactConfig = config.contact;
 
-  let htmlOutput = `<div class="output-section-title" style="margin-bottom: 0.5em;"><i class="fas fa-id-card"></i> OPERATOR IDENTIFICATION</div>`;
+  let htmlOutput = "";
 
-  htmlOutput += `<div class="output-line"><span class="output-line-label">Identity:</span> ${userName || "Operator Unit 734"}</div>`;
-  htmlOutput += `<div class="output-line"><span class="output-line-label">Designation:</span> ${userTitle || "System Analyst"}</div>`;
+  // ++ Build HTML from config
+  whoamiConfig.sections.forEach((section) => {
+    htmlOutput += `<div class="output-section" style="margin-top: 0.7em;">`;
+    htmlOutput += `<div class="output-section-title"><i class="fas ${section.icon}"></i> ${section.title}</div>`;
 
-  if (bio) {
-    htmlOutput += `<div class="output-section" style="margin-top: 0.7em;">
-            <div class="output-section-title"><i class="fas fa-dna"></i> PROFILE BRIEF</div>
-            <div class="output-line">${bio.replace(/\n/g, "<br/>")}</div>
-        </div>`;
-  }
-
-  if (focus) {
-    htmlOutput += `<div class="output-section" style="margin-top: 0.7em;">
-            <div class="output-section-title"><i class="fas fa-bullseye"></i> PRIMARY DIRECTIVES</div>
-            <div class="output-line">${focus.replace(/\n/g, "<br/>")}</div>
-        </div>`;
-  }
-
-  htmlOutput += `<div class="output-section" style="margin-top: 0.7em;">
-        <div class="output-section-title"><i class="fas fa-link"></i> NETWORK ACCESS</div>`;
-  if (githubUser) {
-    htmlOutput += `<div class="output-line"><span class="output-line-label">GitHub:</span> <a href="https://github.com/${githubUser}" target="_blank" rel="noopener noreferrer">${githubUser}</a></div>`;
-  }
-  if (linkedinUser) {
-    htmlOutput += `<div class="output-line"><span class="output-line-label">LinkedIn:</span> <a href="https://www.linkedin.com/in/${linkedinUser}" target="_blank" rel="noopener noreferrer">${linkedinUser}</a></div>`;
-  }
-  if (emailAddress) {
-    htmlOutput += `<div class="output-line"><span class="output-line-label">Commlink:</span> <a href="mailto:${emailAddress}">${emailAddress}</a></div>`;
-  }
-  htmlOutput += `</div>`;
+    if (section.isBlock) {
+      const blockContent = userConfig[section.userKey];
+      if (blockContent) {
+        htmlOutput += `<div class="output-line">${blockContent.replace(/\n/g, "<br/>")}</div>`;
+      }
+    } else if (section.useContact) {
+      // Reuse contact config for the network access section
+      contactConfig.channels.forEach((channel) => {
+        const userValue = userConfig[channel.userKey];
+        if (userValue) {
+          const displayValue = channel.isHandle ? `@${userValue}` : userValue;
+          htmlOutput += `<div class="output-line"><span class="output-line-label">${channel.label}:</span> <a href="${channel.urlPrefix}${userValue}" target="_blank" rel="noopener noreferrer">${displayValue}</a></div>`;
+        }
+      });
+    } else {
+      section.fields.forEach((field) => {
+        const value = userConfig[field.userKey] || field.fallback;
+        htmlOutput += `<div class="output-line"><span class="output-line-label">${field.label}:</span> ${value}</div>`;
+      });
+    }
+    htmlOutput += `</div>`;
+  });
 
   appendToTerminal(htmlOutput, "output-whoami-wrapper");
 }

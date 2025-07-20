@@ -1,97 +1,62 @@
-/**
- * @file engine.js (for rain)
- * Contains the core Matrix rain animation logic.
- */
-
-import {
-  getActiveRainConfig,
-  getRainGlyphs,
-  setActiveRainColors,
-} from "./config.js";
 import { getCurrentThemeColors } from "../controller/terminalController.js";
 
-const matrixRainCanvas = document.getElementById("matrix-canvas");
-const matrixRainCtx = matrixRainCanvas
-  ? matrixRainCanvas.getContext("2d")
-  : null;
-
-let TOTAL_COLS,
-  ACTIVE_COL_INDICES = [],
-  streams = [],
-  ROWS,
-  colW;
-let rainAnimationRequestID;
-let lastFrameTime = 0;
-
 const randInt = (n) => Math.floor(Math.random() * n);
-const randChar = () => {
-  const glyphs = getRainGlyphs();
-  if (!glyphs || glyphs.length === 0) return "X";
-  return glyphs[randInt(glyphs.length)];
-};
-
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = randInt(i + 1);
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
 
 class Stream {
-  constructor(colIndex) {
+  constructor(colIndex, rows, config, glyphs) {
     this.col = colIndex;
-    this.reset();
+    this.rows = rows;
+    this.glyphs = glyphs;
+    this.reset(config);
   }
 
-  reset() {
-    const CFG = getActiveRainConfig();
+  randChar() {
+    return this.glyphs[randInt(this.glyphs.length)];
+  }
+
+  // ++ All methods now accept the active config (CFG) as a parameter
+  reset(CFG) {
     this.layer = CFG.layers > 0 ? randInt(CFG.layers) : 0;
-    this.opacity =
-      CFG.layerOp && CFG.layerOp[this.layer] !== undefined
-        ? CFG.layerOp[this.layer]
-        : 1;
+    this.opacity = CFG.layerOp?.[this.layer] ?? 1;
     this.del = Math.random() < CFG.delChance;
     this.len = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
     this.headGlow =
       CFG.headGlowMin + randInt(CFG.headGlowMax - CFG.headGlowMin + 1);
     this.head = -randInt(Math.floor(this.len * 0.5));
-    this.buf = Array.from({ length: ROWS > 0 ? ROWS : 20 }, randChar);
+    this.buf = Array.from({ length: this.rows }, () => this.randChar());
     this.tick = 0;
-    // this.currentSpeed = CFG.speed // Not currently used, but kept for potential future use
   }
 
-  step() {
+  step(CFG) {
     this.head++;
-    if (this.head >= 0 && this.head < ROWS) this.buf[this.head] = randChar();
+    if (this.head >= 0 && this.head < this.rows)
+      this.buf[this.head] = this.randChar();
 
-    const activeCfg = getActiveRainConfig(); // Get potentially updated config for trailMutate
-    if (++this.tick >= activeCfg.trailMutate) {
+    if (++this.tick >= CFG.trailMutate) {
       this.tick = 0;
-      for (let r = 0; r < ROWS; r++)
-        if (Math.random() < 0.15 && this.buf[r]) this.buf[r] = randChar();
+      for (let r = 0; r < this.rows; r++)
+        if (Math.random() < 0.15 && this.buf[r]) this.buf[r] = this.randChar();
     }
 
-    if (this.head > ROWS + this.len * 0.3) {
-      if (Math.random() < 0.02 || this.head > ROWS + this.len) {
-        this.reset();
+    if (this.head > this.rows + this.len * 0.3) {
+      if (Math.random() < 0.02 || this.head > this.rows + this.len) {
+        this.reset(CFG);
       }
     }
   }
 
-  draw() {
-    if (!matrixRainCtx) return;
-    const CFG = getActiveRainConfig(); // Get latest config for drawing (colors etc.)
-    const x = this.col * colW;
+  draw(ctx, CFG) {
+    if (!ctx) return;
+    const x = this.col * CFG.font;
 
-    for (let r = 0; r < ROWS; r++) {
+    for (let r = 0; r < this.rows; r++) {
       const t = this.head - r;
       if (t < 0 || t >= this.len) continue;
       if (this.del && Math.random() < 0.5) continue;
 
       let alpha = Math.pow(CFG.decayBase, t) * this.opacity;
-      let colour = CFG.baseCol,
-        blur = 0;
+      let colour = CFG.baseCol;
+      let blur = 0;
 
       if (t < this.headGlow && t >= 0) {
         colour = CFG.headCol;
@@ -100,129 +65,165 @@ class Stream {
         blur = CFG.blur * (1 - t / this.headGlow);
       }
 
-      matrixRainCtx.globalAlpha = Math.max(0, alpha);
-      matrixRainCtx.fillStyle = colour;
-      matrixRainCtx.shadowBlur = Math.max(0, blur);
+      ctx.globalAlpha = Math.max(0, alpha);
+      ctx.fillStyle = colour;
+      ctx.shadowBlur = Math.max(0, blur);
 
       if (x >= 0 && r * CFG.font * CFG.lineH >= 0 && this.buf[r]) {
-        matrixRainCtx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
+        ctx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
       }
     }
   }
 }
 
-export function setupRain() {
-  if (!matrixRainCanvas || !matrixRainCtx) {
-    console.error("Rain Engine: Canvas not available for setup.");
-    return;
-  }
-  const CFG = getActiveRainConfig();
-  matrixRainCanvas.width = window.innerWidth;
-  matrixRainCanvas.height = window.innerHeight;
-  matrixRainCtx.font = `${CFG.font}px ${CFG.fontFamily}`;
-  matrixRainCtx.textBaseline = "top";
-
-  colW = CFG.font;
-  TOTAL_COLS = Math.max(1, Math.floor(innerWidth / colW));
-  ROWS = Math.max(1, Math.floor(innerHeight / (CFG.font * CFG.lineH)));
-
-  const targetActiveCols = Math.max(1, Math.floor(TOTAL_COLS * CFG.density));
-  ACTIVE_COL_INDICES = shuffle([...Array(TOTAL_COLS).keys()]).slice(
-    0,
-    targetActiveCols,
-  );
-
-  streams = ACTIVE_COL_INDICES.map((index) => new Stream(index));
-
-  // The streams are created with a synchronized starting position from their
-  // reset() method. To fix the initial "batch" drop, we loop through them
-  // once and give each a widely randomized starting head position.
-  // This ensures they enter the screen at different times from frame 1.
-  for (const s of streams) {
-    s.head = -randInt(ROWS * 2); // Using ROWS * 2 provides a large, random, off-screen starting range.
+export default class RainEngine {
+  constructor(rainConfig, fontConfig) {
+    this.canvas = document.getElementById("matrix-canvas");
+    this.ctx = this.canvas?.getContext("2d");
+    this.defaultConfig = rainConfig.defaultConfig;
+    this.glyphs = rainConfig.glyphs || "01";
+    this.presets = rainConfig.presets || {};
+    this.validationRules = rainConfig.validationRules || {};
+    this.defaultConfig.fontFamily = fontConfig.matrix;
+    this.activeConfig = { ...this.defaultConfig };
+    this.activePresetName = "default";
+    this.streams = [];
+    this.animationId = null;
+    this.lastFrameTime = 0;
   }
 
-  matrixRainCtx.shadowColor = CFG.headCol; // Initial shadow color
-}
+  // Replace the existing setup() method in js/rain/engine.js
 
-function rainLoop(ts) {
-  const CFG = getActiveRainConfig();
-  if (ts - lastFrameTime >= CFG.speed) {
-    // honour speed budget (ms)
-    lastFrameTime = ts;
+  setup() {
+    if (!this.canvas || !this.ctx) return;
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
+    this.ctx.textBaseline = "top";
 
-    const themeColors = getCurrentThemeColors();
-    matrixRainCtx.shadowBlur = 0;
-    matrixRainCtx.globalAlpha = CFG.fade;
-    matrixRainCtx.fillStyle = themeColors.background;
-    matrixRainCtx.fillRect(
-      0,
-      0,
-      matrixRainCanvas.width,
-      matrixRainCanvas.height,
+    // Instead of assuming the width, we measure a sample character ('M' is good).
+    const metrics = this.ctx.measureText("M");
+    const colW = metrics.width > 0 ? metrics.width : this.activeConfig.font; // Use measured width, with a fallback
+
+    const totalCols = Math.max(1, Math.floor(this.canvas.width / colW));
+    const rows = Math.max(
+      1,
+      Math.floor(
+        this.canvas.height / (this.activeConfig.font * this.activeConfig.lineH),
+      ),
     );
 
-    matrixRainCtx.globalAlpha = 1;
-    matrixRainCtx.shadowColor = CFG.headCol;
+    // Instead of randomly selecting a fixed number of columns,
+    // we iterate through all possible columns and give each one a chance to be active.
+    // This guarantees a much more even distribution.
+    const allColIndices = [...Array(totalCols).keys()];
+    const activeColIndices = allColIndices.filter(
+      () => Math.random() < this.activeConfig.density,
+    );
 
-    for (const s of streams) {
-      s.step();
-      s.draw();
+    this.streams = activeColIndices.map(
+      (index) => new Stream(index, rows, this.activeConfig, this.glyphs),
+    );
+
+    for (const s of this.streams) {
+      s.head = -randInt(rows * 2);
     }
   }
-  rainAnimationRequestID = requestAnimationFrame(rainLoop);
-}
 
-export function startRainAnimation() {
-  if (rainAnimationRequestID) {
-    cancelAnimationFrame(rainAnimationRequestID);
-  }
-  updateRainColorsFromTheme();   // sync colours
-  setupRain();                   // build columns & streams
-  
-  /* draw *one* frame immediately to avoid “blank until first RAF” glitch */
-  const now = performance.now();
-  lastFrameTime = now - getActiveRainConfig().speed;
-  rainLoop(now);                              // renders first frame
-  rainAnimationRequestID = requestAnimationFrame(rainLoop);
-}
+  loop(timestamp) {
+    if (timestamp - this.lastFrameTime >= this.activeConfig.speed) {
+      this.lastFrameTime = timestamp;
 
-export function stopRainAnimation() {
-  if (rainAnimationRequestID) {
-    cancelAnimationFrame(rainAnimationRequestID);
-    rainAnimationRequestID = null;
-  }
-}
+      const themeColors = getCurrentThemeColors();
+      this.ctx.shadowBlur = 0;
+      this.ctx.globalAlpha = this.activeConfig.fade;
+      this.ctx.fillStyle = themeColors.background;
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-// This function is for full restart (e.g., after a preset changes structural properties)
-export function restartRainAnimation() {
-  stopRainAnimation();
-  startRainAnimation(); // This does a full setup
-}
+      this.ctx.globalAlpha = 1;
+      this.ctx.shadowColor = this.activeConfig.headCol;
 
-// This function is called to sync rain colors with the current theme
-export function updateRainColorsFromTheme() {
-  const themeColors = getCurrentThemeColors();
-  setActiveRainColors(themeColors.primary, themeColors.glow); // Update active config in rain/config.js
-
-  if (matrixRainCtx) {
-    const currentCfg = getActiveRainConfig(); // Get the updated config
-    matrixRainCtx.shadowColor = currentCfg.headCol; // Update canvas context's shadow color
-  }
-}
-
-// This function refreshes rain visuals (primarily for theme color changes) without resetting streams
-export function refreshRainVisuals() {
-  if (!matrixRainCtx || !matrixRainCanvas) return;
-  updateRainColorsFromTheme(); // Ensure active config colors are updated from the current theme
-
-  // Clear any existing animation frame/timeout to avoid multiple loops
-  if (rainAnimationRequestID) {
-    cancelAnimationFrame(rainAnimationRequestID);
+      for (const s of this.streams) {
+        // ++ Pass the active config to the stream methods
+        s.step(this.activeConfig);
+        s.draw(this.ctx, this.activeConfig);
+      }
+    }
+    this.animationId = requestAnimationFrame(this.loop.bind(this));
   }
 
-  const now = performance.now();
-  lastFrameTime = now - getActiveRainConfig().speed;
-  rainLoop(now);                               // immediate redraw
-  rainAnimationRequestID = requestAnimationFrame(rainLoop);
+  start() {
+    this.stop();
+    this.refreshColors();
+    this.setup();
+    const now = performance.now();
+    this.lastFrameTime = now - this.activeConfig.speed;
+    this.loop(now);
+  }
+
+  stop() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+  }
+
+  resetToDefaults() {
+    this.activeConfig = { ...this.defaultConfig };
+    this.activePresetName = "default";
+    this.start();
+    return true;
+  }
+
+  applyPreset(presetName) {
+    const preset = this.presets[presetName];
+    if (!preset)
+      return { success: false, message: `Unknown preset: '${presetName}'.` };
+
+    if (preset.isReset) {
+      return this.resetToDefaults(); // Changed to call the method above
+    }
+
+    if (preset.config) {
+      Object.entries(preset.config).forEach(([param, value]) => {
+        this.updateParameter(param, value, preset.config);
+      });
+      this.activePresetName = presetName;
+      this.start();
+      return {
+        success: true,
+        message: `Preset '${presetName}' applied successfully.`,
+      };
+    }
+    return {
+      success: false,
+      message: `Preset '${presetName}' is misconfigured.`,
+    };
+  }
+
+  updateParameter(param, value) {
+    const rule = this.validationRules[param];
+    if (!rule) return false;
+
+    let parsedValue = value;
+    if (rule.type === "int") parsedValue = parseInt(value, 10);
+    if (rule.type === "float") parsedValue = parseFloat(value);
+
+    if (
+      isNaN(parsedValue) ||
+      (rule.min && parsedValue < rule.min) ||
+      (rule.max && parsedValue > rule.max)
+    ) {
+      console.warn(`Invalid value for ${param}: ${value}`);
+      return false;
+    }
+    this.activeConfig[param] = parsedValue;
+    return true;
+  }
+
+  refreshColors() {
+    const themeColors = getCurrentThemeColors();
+    this.activeConfig.baseCol = themeColors.primary;
+    this.activeConfig.headCol = themeColors.glow;
+  }
 }

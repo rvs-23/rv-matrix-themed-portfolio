@@ -12,11 +12,7 @@ let onCrtToggleFeedback = (isActive) => {};
 
 export function initializeShortcuts(config, onCrtToggleCb) {
   // Ensure config and config.terminalConfig exist before accessing properties
-  konamiCodeSequence =
-    (config &&
-      config.terminalConfig &&
-      config.terminalConfig.konamiCodeSequence) ||
-    [];
+  konamiCodeSequence = config?.config?.terminal?.konamiCodeSequence || [];
   commandInputElement = document.getElementById("command-input");
   onCrtToggleFeedback = onCrtToggleCb;
   document.addEventListener("keydown", globalKeydownHandler);
@@ -86,4 +82,8 @@ function globalKeydownHandler(e) {
   // and it wasn't Ctrl+\.
   // If any other global shortcuts were to be added, they'd go here.
   // The Konami logic above will have already run.
+}
+
+export function isCrtModeActive() {
+  return crtModeActive;
 }

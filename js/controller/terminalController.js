@@ -4,6 +4,7 @@
  */
 
 let terminalOutputEl, commandInputEl, mainContentContainerEl;
+let currentTerminalSize = {};
 let commandHistory = [];
 let historyIndex = 0;
 let terminalVisible = true;
@@ -22,6 +23,12 @@ let lastAutocompletePrefix = ""; // Stores the input prefix for current suggesti
 let autocompleteSuggestions = []; // Stores current list of matching suggestions
 let autocompleteIndex = 0; // Index for cycling through suggestions
 
+export function focusInput() {
+  if (commandInputEl) {
+    commandInputEl.focus();
+  }
+}
+
 export function initializeTerminalController(
   config,
   commands,
@@ -31,11 +38,14 @@ export function initializeTerminalController(
   commandInputEl = document.getElementById("command-input");
   mainContentContainerEl = document.getElementById("contentContainer");
 
+  const termConfig = config.config.terminal;
   defaultTerminalSizeConfig =
-    config.terminalConfig.defaultTerminalSize || defaultTerminalSizeConfig;
+    termConfig.defaultSize || defaultTerminalSizeConfig;
+  currentTerminalSize = { ...defaultTerminalSizeConfig }; // Initialize with default
   initialTermOpacityConfig =
-    config.terminalConfig.initialTerminalOpacity || initialTermOpacityConfig;
-  userDetailsConfig = config.userConfig || userDetailsConfig;
+    termConfig.initialOpacity || initialTermOpacityConfig;
+  userDetailsConfig = config.config.user || userDetailsConfig;
+
   registeredCommands = commands; // Crucial for autocomplete
   getCommandContextFunction = commandContextFunc;
 
@@ -63,8 +73,12 @@ export function initializeTerminalController(
   }
   updatePrimaryColorRGB(); // Set initial --primary-color-rgb
 
-  const plainNameArt = `<span class="ascii-name">${(userDetailsConfig.userName || "USER").toUpperCase()}</span>`;
-  const welcomeText = `Welcome to ${userDetailsConfig.userName || "User"}'s Terminal.\nType 'help' to see available commands.\n(Ctrl + \\ to toggle terminal visibility)\n---------------------------------------------------`;
+  // Apply DOM-related configs from the main config module
+  // This line was already correct
+  _applyDomConfigs(config.config);
+
+  const plainNameArt = `<span class="ascii-name">${(userDetailsConfig.name || "USER").toUpperCase()}</span>`;
+  const welcomeText = `Welcome to ${userDetailsConfig.name || "User"}'s Terminal.\nType 'help' to see available commands.\n(Ctrl + \\ to toggle terminal visibility)\n---------------------------------------------------`;
   fullWelcomeMsg = `${plainNameArt}\n${welcomeText}`;
 
   if (commandInputEl) {
@@ -94,7 +108,24 @@ export function initializeTerminalController(
 
   displayInitialWelcomeMessage();
   document.body.classList.remove("terminal-hidden"); // Ensure terminal is visible initially
+
+  reapplyTerminalSize();
+  
   if (commandInputEl) commandInputEl.focus();
+}
+
+// Helper function to apply configurations to the DOM
+function _applyDomConfigs(config) {
+  if (config.fonts) {
+    document.documentElement.style.setProperty(
+      "--font-stack-sans-serif",
+      config.fonts.sansSerif,
+    );
+    document.documentElement.style.setProperty(
+      "--font-stack-monospace",
+      config.fonts.monospace,
+    );
+  }
 }
 
 export function appendToTerminal(htmlContent, type = "output-text-wrapper") {
@@ -420,6 +451,9 @@ export function resizeTerminalElement(width, height) {
   if (mainContentContainerEl) {
     mainContentContainerEl.style.width = width;
     mainContentContainerEl.style.height = height;
+
+    currentTerminalSize = { width, height };
+
     appendToTerminal(
       `<div class='output-success'>Terminal resized to ${width} width, ${height} height.</div>`,
     );
@@ -429,6 +463,18 @@ export function resizeTerminalElement(width, height) {
     );
   }
 }
+
+export function reapplyTerminalSize() {
+  if (
+    mainContentContainerEl &&
+    currentTerminalSize.width &&
+    currentTerminalSize.height
+  ) {
+    mainContentContainerEl.style.width = currentTerminalSize.width;
+    mainContentContainerEl.style.height = currentTerminalSize.height;
+  }
+}
+
 export function getDefaultTerminalSize() {
   return { ...defaultTerminalSizeConfig };
 }
@@ -547,17 +593,25 @@ export function getInitialTerminalOpacity() {
 }
 
 export function setTerminalFontSize(sizeInput) {
+  // ++ Get config from context
+  const context = getCommandContextFunction();
+  const fontSizesConfig = context.config.terminal.fontSizes;
+
   let newSize = "";
   const inputSize = sizeInput.toLowerCase();
-  if (inputSize === "small") newSize = "10.5px";
-  else if (inputSize === "default")
-    newSize = "12.5px"; // Assuming a default from your CSS
-  else if (inputSize === "large") newSize = "15px";
-  else if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
+
+  // ++ Use config for size mapping
+  if (fontSizesConfig[inputSize]) {
+    newSize = fontSizesConfig[inputSize];
+  } else if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
     const sizeValue = parseFloat(inputSize);
-    if (inputSize.endsWith("px") && (sizeValue < 7 || sizeValue > 28)) {
+    // ++ Use config for validation
+    if (
+      inputSize.endsWith("px") &&
+      (sizeValue < fontSizesConfig.minPx || sizeValue > fontSizesConfig.maxPx)
+    ) {
       appendToTerminal(
-        "<div class='output-error'>Pixel size out of reasonable range (7px-28px).</div>",
+        `<div class='output-error'>Pixel size out of reasonable range (${fontSizesConfig.minPx}px-${fontSizesConfig.maxPx}px).</div>`,
       );
       return;
     }
@@ -649,20 +703,8 @@ export function updatePrimaryColorRGB() {
 }
 
 export function applyTheme(themeNameInput) {
-  // Define your valid themes here.
-  const validSpecificThemes = [
-    "amber",
-    "cyan",
-    "green",
-    "purple",
-    "twilight",
-    "crimson",
-    "forest",
-    "goldenglitch",
-    "retroarcade",
-    "reloaded",
-    "voidblue",
-  ];
+  const context = getCommandContextFunction();
+  const validSpecificThemes = context.config.help.availableThemes;
 
   const showThemeUsage = () => {
     const currentThemeClass =
@@ -712,4 +754,11 @@ export function applyTheme(themeNameInput) {
 
 export function getFullWelcomeMessage() {
   return fullWelcomeMsg;
+}
+
+export function getCurrentThemeName() {
+  const themeClass = Array.from(document.body.classList).find((cls) =>
+    cls.startsWith("theme-"),
+  );
+  return themeClass ? themeClass.replace("theme-", "") : "default";
 }

@@ -3,6 +3,8 @@
  * Handles fetching all necessary JSON configuration and asset data.
  */
 
+import * as config from "../config/index.js";
+
 async function fetchJson(url, fileNameForError) {
   try {
     const response = await fetch(url);
@@ -50,60 +52,21 @@ async function fetchJson(url, fileNameForError) {
 }
 
 export async function loadAllData() {
-  const [
-    userConfig,
-    terminalConfig,
-    rainConfig, // This is the one we're concerned about for presets
-    skillsAsset,
-    hobbiesAsset,
-    manPagesAsset,
-  ] = await Promise.all([
-    fetchJson("js/controller/userConfig.json", "userConfig.json", true),
-    fetchJson("js/controller/terminalConfig.json", "terminalConfig.json", true),
-    fetchJson("js/rain/rainConfig.json", "rainConfig.json", true), // Critical for presets
-    fetchJson("assets/skills.json", "skills.json (asset)"),
-    fetchJson("assets/hobbies.json", "hobbies.json (asset)"),
-    fetchJson("assets/manPages.json", "manPages.json (asset)"),
-  ]);
-
-  if (!userConfig)
-    console.error("CRITICAL WARNING: user.json (config) failed to load.");
-  if (!terminalConfig)
-    console.error("CRITICAL WARNING: terminal.json (config) failed to load.");
-  // The specific error for rainConfig is now handled inside fetchJson if it's critical
+  // This ensures the path is always correct in both development and production.
+  const baseUrl = import.meta.env.BASE_URL;
+  const [rainConfig, skillsAsset, hobbiesAsset, manPagesAsset] =
+    await Promise.all([
+      fetchJson(`${baseUrl}config/rain.json`, "rain.json (public)"),
+      fetchJson(`${baseUrl}config/content/skills.json`, "skills.json (public)"),
+      fetchJson(`${baseUrl}config/content/hobbies.json`, "hobbies.json (public)"),
+      fetchJson(`${baseUrl}config/content/manPages.json`, "manPages.json (public)"),
+    ]);
 
   return {
-    userConfig: userConfig || {},
-    terminalConfig: terminalConfig || {},
-    // Fallback for rainConfig ensures presets is at least an empty object if loading fails
-    rainConfig: rainConfig || {
-      defaultConfig: {
-        speed: 100,
-        font: 15,
-        baseCol: "#0F0",
-        headCol: "#FFF",
-        fontFamily: "monospace",
-        layers: 1,
-        layerOp: [1],
-        density: 0.7,
-        minTrail: 10,
-        maxTrail: 30,
-        headGlowMin: 1,
-        headGlowMax: 5,
-        blur: 0,
-        trailMutate: 150,
-        fade: 0.1,
-        decayBase: 0.9,
-        delChance: 0,
-      },
-      glyphs: "01",
-      presets: {},
-    },
-    skillsData: skillsAsset || { name: "Skills (Error Loading)", children: [] },
-    hobbiesData: hobbiesAsset || {
-      name: "Hobbies (Error Loading)",
-      children: [],
-    },
+    config,
+    rainConfig: rainConfig || {},
+    skillsData: skillsAsset || {},
+    hobbiesData: hobbiesAsset || {},
     manPages: manPagesAsset || {},
   };
 }
