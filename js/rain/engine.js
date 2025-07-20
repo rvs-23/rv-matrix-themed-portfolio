@@ -86,7 +86,7 @@ export default class RainEngine {
     this.validationRules = rainConfig.validationRules || {};
     this.defaultConfig.fontFamily = fontConfig.matrix;
     this.activeConfig = { ...this.defaultConfig };
-    this.activePresetName = 'default';
+    this.activePresetName = "default";
     this.streams = [];
     this.animationId = null;
     this.lastFrameTime = 0;
@@ -112,13 +112,14 @@ export default class RainEngine {
         this.canvas.height / (this.activeConfig.font * this.activeConfig.lineH),
       ),
     );
-    const targetActiveCols = Math.max(
-      1,
-      Math.floor(totalCols * this.activeConfig.density),
+
+    // Instead of randomly selecting a fixed number of columns,
+    // we iterate through all possible columns and give each one a chance to be active.
+    // This guarantees a much more even distribution.
+    const allColIndices = [...Array(totalCols).keys()];
+    const activeColIndices = allColIndices.filter(
+      () => Math.random() < this.activeConfig.density,
     );
-    const activeColIndices = [...Array(totalCols).keys()]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, targetActiveCols);
 
     this.streams = activeColIndices.map(
       (index) => new Stream(index, rows, this.activeConfig, this.glyphs),
@@ -169,7 +170,7 @@ export default class RainEngine {
 
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
-    this.activePresetName = 'default';
+    this.activePresetName = "default";
     this.start();
     return true;
   }

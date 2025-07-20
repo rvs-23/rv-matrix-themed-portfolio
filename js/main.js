@@ -12,7 +12,10 @@ import {
 import RainEngine from "./rain/engine.js";
 
 import * as terminalController from "./controller/terminalController.js";
-import { initializeShortcuts, isCrtModeActive } from "./controller/shortcuts.js";
+import {
+  initializeShortcuts,
+  isCrtModeActive,
+} from "./controller/shortcuts.js";
 
 import { getAllCommands, renderTree } from "./commands/0_index.js";
 

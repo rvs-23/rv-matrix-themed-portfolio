@@ -754,6 +754,8 @@ export function getFullWelcomeMessage() {
 }
 
 export function getCurrentThemeName() {
-  const themeClass = Array.from(document.body.classList).find(cls => cls.startsWith('theme-'));
-  return themeClass ? themeClass.replace('theme-', '') : 'default';
+  const themeClass = Array.from(document.body.classList).find((cls) =>
+    cls.startsWith("theme-"),
+  );
+  return themeClass ? themeClass.replace("theme-", "") : "default";
 }

@@ -365,12 +365,13 @@ export const whoami = {
 // -- COMMAND: SCREENSHOT --
 export const screenshot = {
   resolutions: {
-    "fhd": { "w": 1920, "h": 1080 },
-    "2k": { "w": 2560, "h": 1440 }
+    fhd: { w: 1920, h: 1080 },
+    "2k": { w: 2560, h: 1440 },
   },
   messages: {
     usage: "Usage: screenshot [fhd | 2k]",
-    invalid_resolution: (res) => `Error: '${res}' is not a valid resolution. Use 'fhd' or '2k'.`,
-    success: (filename, res) => `Screenshot saved as ${filename} (${res})`
-  }
+    invalid_resolution: (res) =>
+      `Error: '${res}' is not a valid resolution. Use 'fhd' or '2k'.`,
+    success: (filename, res) => `Screenshot saved as ${filename} (${res})`,
+  },
 };

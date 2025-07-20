@@ -1,9 +1,11 @@
 # Matrix Terminal Portfolio
 
 ## 1. Project Overview
+
 Welcome to my personal portfolio, reimagined as a Matrix-themed interactive terminal. This project departs from traditional portfolio layouts to offer a different user experience. This was purely built out of personal interest & an ever-_green_ love for The Matrix.
 
 **Key Features:**
+
 - **Interactive Terminal Interface:** Navigate through portfolio sections (WhoAmI, Skills, Contact, etc.) using familiar command-line inputs.
 - **Dynamic Matrix Rain Animation:** Features the iconic falling character animation as a persistent background, built with HTML5 Canvas and customizable through presets.
 - **Customizable Theming:** Alter the visual aesthetics of the terminal and effects using various color themes (`theme` command) and opacity controls (`termopacity` command).
@@ -17,6 +19,7 @@ Welcome to my personal portfolio, reimagined as a Matrix-themed interactive term
 ## 2. Technical Documentation
 
 ### 2.1. Project Structure & Key Components
+
 This portfolio is a client-side single-page application built with vanilla HTML5, CSS3, and JavaScript (ES6+ modules). The architecture emphasizes modularity and configurability.
 
 - **`index.html`**: The main HTML file. Structures the page, loads stylesheets, JavaScript modules, and defines the core layout.
@@ -45,6 +48,7 @@ This portfolio is a client-side single-page application built with vanilla HTML5
 - **`package.json`**: Project metadata, scripts, and development dependencies.
 
 ### 2.2. Tech Stack
+
 - **Languages:** HTML5, CSS3, JavaScript (ES6+ modules)
 - **Styling:**
   - Vanilla CSS with extensive use of CSS Custom Properties for dynamic theming.
@@ -58,42 +62,49 @@ This portfolio is a client-side single-page application built with vanilla HTML5
   - Prettier (for code formatting).
 
 ### 2.3. Dependencies
+
 - **Runtime:** The project's core functionality is self-contained. External runtime dependencies are limited to:
   - Font Awesome (CDN) for icons.
   - Google Fonts (CDN) for "Fira Code" and "Inter".
 
 ### 2.4. Environment Variables
+
 No environment variables are required as all functionality is client-side.
 
 ### 2.5. Matrix-rain parameters
-| Name           | Type / Range                     | What it controls |
-|----------------|----------------------------------|------------------|
-| `speed`        | *ms per frame* (10–500)        | Lower = faster redraws. |
-| `font`         | *px* (8–40)                    | Glyph size and column width. |
-| `lineH`        | float (0.5–2)                  | Vertical spacing multiplier. |
-| `density`      | float (0.1–2)                  | Ratio of active columns to total columns. |
-| `minTrail`     | int                              | Shortest trail length for a column. |
-| `maxTrail`     | int (≥ `minTrail`)               | Longest trail length. |
-| `headGlowMin`  | int                              | How many leading glyphs glow at minimum. |
-| `headGlowMax`  | int (≥ `headGlowMin`)            | How many leading glyphs glow at maximum. |
-| `blur`         | px                               | Canvas blur applied to glowing heads. |
-| `trailMutate`  | frames                           | After how many ticks the column mutates its characters. |
-| `fade`         | 0–1                            | Opacity subtracted each frame; higher = faster fade. |
-| `decayBase`    | 0.7–0.99                       | Per-glyph opacity multiplier along a trail; lower = quicker decay. |
-| `layers`       | int (1–10)                     | Number of parallax layers. |
-| `layerOp`      | float array (length =`layers`)   | Opacity multiplier per layer. |
-| `delChance`    | 0–1                            | Chance a glyph is skipped entirely, producing gaps. |
+
+| Name          | Type / Range                   | What it controls                                                   |
+| ------------- | ------------------------------ | ------------------------------------------------------------------ |
+| `speed`       | _ms per frame_ (10–500)        | Lower = faster redraws.                                            |
+| `font`        | _px_ (8–40)                    | Glyph size and column width.                                       |
+| `lineH`       | float (0.5–2)                  | Vertical spacing multiplier.                                       |
+| `density`     | float (0.1–2)                  | Ratio of active columns to total columns.                          |
+| `minTrail`    | int                            | Shortest trail length for a column.                                |
+| `maxTrail`    | int (≥ `minTrail`)             | Longest trail length.                                              |
+| `headGlowMin` | int                            | How many leading glyphs glow at minimum.                           |
+| `headGlowMax` | int (≥ `headGlowMin`)          | How many leading glyphs glow at maximum.                           |
+| `blur`        | px                             | Canvas blur applied to glowing heads.                              |
+| `trailMutate` | frames                         | After how many ticks the column mutates its characters.            |
+| `fade`        | 0–1                            | Opacity subtracted each frame; higher = faster fade.               |
+| `decayBase`   | 0.7–0.99                       | Per-glyph opacity multiplier along a trail; lower = quicker decay. |
+| `layers`      | int (1–10)                     | Number of parallax layers.                                         |
+| `layerOp`     | float array (length =`layers`) | Opacity multiplier per layer.                                      |
+| `delChance`   | 0–1                            | Chance a glyph is skipped entirely, producing gaps.                |
 
 ---
 
 ## 3. Installation & Setup
+
 This is a static website that uses Vite for an enhanced local development experience.
+
 ### 3.1. Prerequisites
+
 - A modern web browser.
 - Node.js and npm installed.
 - A text editor (e.g., VS Code).
 
 ### 3.2. Local Development
+
 1.  **Clone the Repository:**
     ```bash
     git clone <repository-url>
@@ -110,6 +121,7 @@ This is a static website that uses Vite for an enhanced local development experi
     This will start a local server (usually at `http://localhost:5173`) with hot-reloading.
 
 ### 3.3. Production Deployment
+
 1.  Run the build command:
     ```bash
     npm run build
@@ -120,16 +132,20 @@ This is a static website that uses Vite for an enhanced local development experi
 ---
 
 ## 4. Contribution Guide
+
 ### 4.1. Code Style Conventions
+
 - **JavaScript:** Follows standard ESLint rules and Prettier for formatting. JSDoc comments are used for documenting functions.
 - **CSS:** Organized logically (globals, layout, components, themes). Extensive use of CSS Custom Properties.
 - **HTML:** Semantic and accessible HTML.
 
 ### 4.2. Branching Strategy
+
 - **`main`:** Latest stable, deployed version.
 - **Feature Branches:** Create branches for new features or fixes and merge via Pull Requests.
 
 ### 4.3. Testing Protocols
+
 Use this checklist to ensure the portfolio is stable, functional, and visually correct before deploying.
 
 - [ ] **`help`**: Lists all current themes, including `ghost`, `abyss`, and `cyborg`.
@@ -153,37 +169,41 @@ Use this checklist to ensure the portfolio is stable, functional, and visually c
 ---
 
 ## 5. User Guide
+
 ### 5.1. Terminal Command Cheatsheet
+
 The following commands are available. For detailed info, use `man <command_name>`.
 
-| Command                        | Description                                                    |
-| :----------------------------- | :------------------------------------------------------------- |
-| `whoami`                       | Display operator identification and detailed profile.          |
-| `clear`                        | Clear terminal output.                                         |
-| `contact`                      | Show contact information.                                      |
-| `date [timezone]`        | Display date/time.                                             |
-| `download cv`                  | Initiate download of my CV.                                    |
-| `easter.egg`                   | ???                                                            |
-| `help`                         | Display this list of available commands.                       |
-| `hobbies`                      | List my hobbies and interests.                                 |
-| `man <command>`                | Show detailed manual for a command.                            |
-| `rainpreset <name>`            | Apply a new style to the background rain.                      |
-| `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh`.                |
-| `skills`                       | List my key skills (summary).                                  |
-| `skilltree [path]`             | Explore skills. E.g., `skilltree se`.                          |
-| `sudo <command>`               | Attempt superuser command (humorous).                          |
-| `termopacity <val> \| reset` | Set terminal background opacity (0-100).                       |
-| `termtext <size>`              | Set terminal font size. E.g., `large`, `12px`.                 |
-| `theme <name>`                 | Change the color scheme.                                       |
-| `toggleterm`                   | Hide or show the terminal window (`Ctrl + \`).                 |
-| `screenshot`                   | Save a PNG of the rain canvas.                                 |
+| Command                        | Description                                           |
+| :----------------------------- | :---------------------------------------------------- |
+| `whoami`                       | Display operator identification and detailed profile. |
+| `clear`                        | Clear terminal output.                                |
+| `contact`                      | Show contact information.                             |
+| `date [timezone]`              | Display date/time.                                    |
+| `download cv`                  | Initiate download of my CV.                           |
+| `easter.egg`                   | ???                                                   |
+| `help`                         | Display this list of available commands.              |
+| `hobbies`                      | List my hobbies and interests.                        |
+| `man <command>`                | Show detailed manual for a command.                   |
+| `rainpreset <name>`            | Apply a new style to the background rain.             |
+| `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh`.       |
+| `skills`                       | List my key skills (summary).                         |
+| `skilltree [path]`             | Explore skills. E.g., `skilltree se`.                 |
+| `sudo <command>`               | Attempt superuser command (humorous).                 |
+| `termopacity <val> \| reset`   | Set terminal background opacity (0-100).              |
+| `termtext <size>`              | Set terminal font size. E.g., `large`, `12px`.        |
+| `theme <name>`                 | Change the color scheme.                              |
+| `toggleterm`                   | Hide or show the terminal window (`Ctrl + \`).        |
+| `screenshot`                   | Save a PNG of the rain canvas.                        |
 
 ### 5.2. Customization Options
+
 - **Themes:** `abyss`, `amber`, `crimson`, `cyan`, `cyborg`, `forest`, `ghost`, `goldenglitch`, `green` (default), `inferno`, `purple`, `reloaded`, `retroarcade`, `synthwavegrid`, `twilight`, `voidblue`.
 - **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`.
 - **CRT Effect (Easter Egg):** `ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`.
 
 ### 5.3. Accessibility Notes
+
 - **Keyboard Navigation:** The application is fully navigable via keyboard.
 - **Visuals & Contrast:** Multiple theme options offer different contrast levels.
 - **Animation Control:** Terminal visibility can be toggled to hide the main interface.
@@ -191,6 +211,7 @@ The following commands are available. For detailed info, use `man <command_name>
 ---
 
 ## 6. License & Credits
+
 This project is licensed under the **MIT License**.
 
 **AI Assistance Disclaimer:**
