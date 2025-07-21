@@ -215,9 +215,10 @@ The following commands are available. For detailed info, use `man <command_name>
 This project is licensed under the **MIT License**.
 
 **AI Assistance Disclaimer:**
-A significant portion of the code in this project (JavaScript, CSS, HTML structure) was developed with the assistance of AI models like Google's Gemini 2.5pro and OpenAI's o3. Human guidance by myself (```rvs-23```) was provided for the overall design, feature requests, integration, iterative refinement etc.
+A significant portion of the code in this project (JavaScript, CSS, HTML structure) was developed with the assistance of AI models like Google's Gemini 2.5pro and OpenAI's o3. Human guidance by myself (`rvs-23`) was provided for the overall design, feature requests, integration, iterative refinement etc.
 
-***Code & Implementation Inspiration Credits:**
+**\*Code & Implementation Inspiration Credits:**
+
 - Initial inspiration and structural ideas from [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
 - Matrix Rain Analysis: [Carl Newton's Digital Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/).
 
