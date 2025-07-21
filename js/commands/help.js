@@ -4,7 +4,6 @@
  */
 export default function helpCommand(args, context) {
   const { appendToTerminal, config } = context;
-  // ++ Get all help data from config
   const helpConfig = config.help;
   const commandList = helpConfig.commandList;
 
