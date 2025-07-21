@@ -1,41 +1,67 @@
+/**
+ * @file js/rain/engine.js
+ * Matrix digital rain engine with sentient phrases.
+ * Fixed & improved (July 2025).
+ */
+
 import { getCurrentThemeColors } from "../controller/terminalController.js";
 
 const randInt = (n) => Math.floor(Math.random() * n);
+const randRange = (min, max) => min + randInt(max - min + 1);
 
 class Stream {
-  constructor(colIndex, rows, config, glyphs) {
+  constructor(colIndex, rows, config, glyphs, sentientPhrases = []) {
     this.col = colIndex;
     this.rows = rows;
     this.glyphs = glyphs;
+    this.sentientPhrases = sentientPhrases;
+    this.sentientChance = 0.069;
     this.reset(config);
   }
 
   randChar() {
-    return this.glyphs[randInt(this.glyphs.length)];
+    return this.glyphs.charAt(randInt(this.glyphs.length));
   }
 
-  // ++ All methods now accept the active config (CFG) as a parameter
   reset(CFG) {
     this.layer = CFG.layers > 0 ? randInt(CFG.layers) : 0;
     this.opacity = CFG.layerOp?.[this.layer] ?? 1;
     this.del = Math.random() < CFG.delChance;
-    this.len = CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail);
-    this.headGlow =
-      CFG.headGlowMin + randInt(CFG.headGlowMax - CFG.headGlowMin + 1);
+    this.len = Math.round(CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail));
+    this.headGlow = randRange(CFG.headGlowMin, CFG.headGlowMax);
     this.head = -randInt(Math.floor(this.len * 0.5));
     this.buf = Array.from({ length: this.rows }, () => this.randChar());
     this.tick = 0;
+
+    if (Math.random() < this.sentientChance && this.sentientPhrases.length) {
+      this.isSentient = true;
+      this.sentientText = this.sentientPhrases[randInt(this.sentientPhrases.length)];
+      this.sentientIndex = 0;
+      this.len = Math.max(this.len, this.sentientText.length + 5);
+    } else {
+      this.isSentient = false;
+      this.sentientText = null;
+      this.sentientIndex = 0;
+    }
   }
 
   step(CFG) {
     this.head++;
-    if (this.head >= 0 && this.head < this.rows)
-      this.buf[this.head] = this.randChar();
+    if (this.head >= 0 && this.head < this.rows) {
+      if (this.isSentient && this.sentientIndex < this.sentientText.length) {
+        this.buf[this.head] = this.sentientText[this.sentientIndex++];
+      } else {
+        this.buf[this.head] = this.randChar();
+      }
+    }
 
     if (++this.tick >= CFG.trailMutate) {
       this.tick = 0;
-      for (let r = 0; r < this.rows; r++)
-        if (Math.random() < 0.15 && this.buf[r]) this.buf[r] = this.randChar();
+      if (!this.isSentient) {
+        for (let r = 0; r < this.rows; r++) {
+          if (Math.random() < 0.15 && this.buf[r]) this.buf[r] = this.randChar();
+        }
+      }
     }
 
     if (this.head > this.rows + this.len * 0.3) {
@@ -54,22 +80,36 @@ class Stream {
       if (t < 0 || t >= this.len) continue;
       if (this.del && Math.random() < 0.5) continue;
 
-      let alpha = Math.pow(CFG.decayBase, t) * this.opacity;
-      let colour = CFG.baseCol;
+      let alpha;
+      let colour;
       let blur = 0;
 
-      if (t < this.headGlow && t >= 0) {
+      if (this.isSentient) {
         colour = CFG.headCol;
-        alpha *= 1 - (t / this.headGlow) * 0.5 + 0.2;
-        alpha = Math.min(1, alpha);
-        blur = CFG.blur * (1 - t / this.headGlow);
+        alpha = Math.pow(0.97, t) * this.opacity;
+        blur = CFG.blur * alpha * 1.5;
+        if (t === 0) {
+          colour = "#ffffff";
+          alpha = 1;
+          blur = CFG.blur * 2;
+        }
+      } else {
+        alpha = Math.pow(CFG.decayBase, t) * this.opacity;
+        colour = CFG.baseCol;
+        if (t < this.headGlow && t >= 0) {
+          colour = CFG.headCol;
+          alpha *= 1 - (t / this.headGlow) * 0.5 + 0.2;
+          blur = CFG.blur * (1 - t / this.headGlow);
+        }
       }
 
+      alpha = Math.min(1, alpha);
       ctx.globalAlpha = Math.max(0, alpha);
       ctx.fillStyle = colour;
+      ctx.shadowColor = colour;
       ctx.shadowBlur = Math.max(0, blur);
 
-      if (x >= 0 && r * CFG.font * CFG.lineH >= 0 && this.buf[r]) {
+      if (this.buf[r]) {
         ctx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
       }
     }
@@ -77,7 +117,7 @@ class Stream {
 }
 
 export default class RainEngine {
-  constructor(rainConfig, fontConfig) {
+  constructor(rainConfig, fontConfig, sentientPhrases = []) {
     this.canvas = document.getElementById("matrix-canvas");
     this.ctx = this.canvas?.getContext("2d");
     this.defaultConfig = rainConfig.defaultConfig;
@@ -90,39 +130,63 @@ export default class RainEngine {
     this.streams = [];
     this.animationId = null;
     this.lastFrameTime = 0;
+    this.sentientPhrases = sentientPhrases;
+    this.dpr = window.devicePixelRatio || 1;
+
+    this._resizeTimeout = null;
+    this._handleResize = this._handleResize.bind(this);
+    window.addEventListener("resize", this._handleResize, { passive: true });
   }
 
-  // Replace the existing setup() method in js/rain/engine.js
+  destroy() {
+    window.removeEventListener("resize", this._handleResize);
+    this.stop();
+  }
 
-  setup() {
+  _handleResize() {
+    clearTimeout(this._resizeTimeout);
+    this._resizeTimeout = setTimeout(() => this.start(), 200);
+  }
+
+  async setup() {
     if (!this.canvas || !this.ctx) return;
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready.catch(() => {});
+    }
+
+    this.canvas.width = window.innerWidth * this.dpr;
+    this.canvas.height = window.innerHeight * this.dpr;
+    this.canvas.style.width = `${window.innerWidth}px`;
+    this.canvas.style.height = `${window.innerHeight}px`;
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
     this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
     this.ctx.textBaseline = "top";
 
-    // Instead of assuming the width, we measure a sample character ('M' is good).
     const metrics = this.ctx.measureText("M");
-    const colW = metrics.width > 0 ? metrics.width : this.activeConfig.font; // Use measured width, with a fallback
+    const colW = metrics.width || this.activeConfig.font;
 
-    const totalCols = Math.max(1, Math.floor(this.canvas.width / colW));
+    const totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
     const rows = Math.max(
       1,
-      Math.floor(
-        this.canvas.height / (this.activeConfig.font * this.activeConfig.lineH),
-      ),
+      Math.floor(window.innerHeight / (this.activeConfig.font * this.activeConfig.lineH)),
     );
 
-    // Instead of randomly selecting a fixed number of columns,
-    // we iterate through all possible columns and give each one a chance to be active.
-    // This guarantees a much more even distribution.
     const allColIndices = [...Array(totalCols).keys()];
     const activeColIndices = allColIndices.filter(
       () => Math.random() < this.activeConfig.density,
     );
 
     this.streams = activeColIndices.map(
-      (index) => new Stream(index, rows, this.activeConfig, this.glyphs),
+      (index) =>
+        new Stream(
+          index,
+          rows,
+          this.activeConfig,
+          this.glyphs,
+          this.sentientPhrases,
+        ),
     );
 
     for (const s of this.streams) {
@@ -130,7 +194,7 @@ export default class RainEngine {
     }
   }
 
-  loop(timestamp) {
+  loop = (timestamp) => {
     if (timestamp - this.lastFrameTime >= this.activeConfig.speed) {
       this.lastFrameTime = timestamp;
 
@@ -138,24 +202,22 @@ export default class RainEngine {
       this.ctx.shadowBlur = 0;
       this.ctx.globalAlpha = this.activeConfig.fade;
       this.ctx.fillStyle = themeColors.background;
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillRect(0, 0, this.canvas.width / this.dpr, this.canvas.height / this.dpr);
 
       this.ctx.globalAlpha = 1;
-      this.ctx.shadowColor = this.activeConfig.headCol;
 
       for (const s of this.streams) {
-        // ++ Pass the active config to the stream methods
         s.step(this.activeConfig);
         s.draw(this.ctx, this.activeConfig);
       }
     }
-    this.animationId = requestAnimationFrame(this.loop.bind(this));
-  }
+    this.animationId = requestAnimationFrame(this.loop);
+  };
 
-  start() {
+  async start() {
     this.stop();
     this.refreshColors();
-    this.setup();
+    await this.setup();
     const now = performance.now();
     this.lastFrameTime = now - this.activeConfig.speed;
     this.loop(now);
@@ -181,12 +243,12 @@ export default class RainEngine {
       return { success: false, message: `Unknown preset: '${presetName}'.` };
 
     if (preset.isReset) {
-      return this.resetToDefaults(); // Changed to call the method above
+      return this.resetToDefaults();
     }
 
     if (preset.config) {
       Object.entries(preset.config).forEach(([param, value]) => {
-        this.updateParameter(param, value, preset.config);
+        this.updateParameter(param, value);
       });
       this.activePresetName = presetName;
       this.start();
@@ -208,11 +270,12 @@ export default class RainEngine {
     let parsedValue = value;
     if (rule.type === "int") parsedValue = parseInt(value, 10);
     if (rule.type === "float") parsedValue = parseFloat(value);
+    if (rule.type === "bool") parsedValue = value === true || value === "true";
 
     if (
-      isNaN(parsedValue) ||
-      (rule.min && parsedValue < rule.min) ||
-      (rule.max && parsedValue > rule.max)
+      Number.isNaN(parsedValue) ||
+      (rule.min !== undefined && parsedValue < rule.min) ||
+      (rule.max !== undefined && parsedValue > rule.max)
     ) {
       console.warn(`Invalid value for ${param}: ${value}`);
       return false;

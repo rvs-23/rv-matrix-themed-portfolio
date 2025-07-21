@@ -19,13 +19,18 @@ import {
 
 import { getAllCommands } from "./commands/0_index.js";
 import { debounce, renderTree } from "./utils.js";
+import { sentientRainPhrases } from "./config/index.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // ++ 1. Pass the correct config object to the loader
   const allData = await loadAllData();
   initializeLoaderScreen(allData.config.loader);
 
-  const rainEngine = new RainEngine(allData.rainConfig, allData.config.fonts);
+  const rainEngine = new RainEngine(
+    allData.rainConfig,
+    allData.config.fonts,
+    sentientRainPhrases,
+  );
 
   // This is the primary fix for your commands not working.
   const commandContext = {
