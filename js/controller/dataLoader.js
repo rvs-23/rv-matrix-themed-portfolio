@@ -58,8 +58,14 @@ export async function loadAllData() {
     await Promise.all([
       fetchJson(`${baseUrl}config/rain.json`, "rain.json (public)"),
       fetchJson(`${baseUrl}config/content/skills.json`, "skills.json (public)"),
-      fetchJson(`${baseUrl}config/content/hobbies.json`, "hobbies.json (public)"),
-      fetchJson(`${baseUrl}config/content/manPages.json`, "manPages.json (public)"),
+      fetchJson(
+        `${baseUrl}config/content/hobbies.json`,
+        "hobbies.json (public)",
+      ),
+      fetchJson(
+        `${baseUrl}config/content/manPages.json`,
+        "manPages.json (public)",
+      ),
     ]);
 
   return {
