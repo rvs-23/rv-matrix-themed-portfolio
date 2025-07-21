@@ -103,12 +103,12 @@
   "screenshot": {
     "name": "screenshot - Capture the Matrix rain canvas.",
     "synopsis": "screenshot",
-    "description": "Captures a high-resolution (1920x1080) PNG image of the current state of the Matrix rain animation canvas. This command renders the animation to an off-screen buffer, so it does not capture any UI elements like the terminal or navigation icons. The animation continues running smoothly during and after the capture.",
-    "arguments": "None",
+    "description": "Captures a high-resolution (default: 1920x1080) PNG image of the current state of the Matrix rain animation canvas. This command renders the animation to an off-screen buffer, so it does not capture any UI elements like the terminal or navigation icons. The animation continues running smoothly during and after the capture.",
+    "arguments": "[quality]: Optional. Indicating if the resolution should be fhd or 2k.",
     "examples": [
       "screenshot         - Captures the canvas and initiates a download."
     ],
-    "notes": "The downloaded file is automatically named 'rain_screenshot_<timestamp>.png'."
+    "notes": "The downloaded file is automatically named 'matrix_rain_wallpaper_rv_{rainPreset}_{theme}_{crtToggle}_{timeStamp}.png'."
   },
   "skills": {
     "name": "skills - List a summary of key skills.",
