@@ -47,7 +47,6 @@
   src: url("../public/matrix-resurrection.ttf") format("truetype");
 }
 
-
 /* General Body Styling */
 body {
   font-family: var(--font-stack-sans-serif);

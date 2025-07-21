@@ -110,7 +110,7 @@ export function initializeTerminalController(
   document.body.classList.remove("terminal-hidden"); // Ensure terminal is visible initially
 
   reapplyTerminalSize();
-  
+
   if (commandInputEl) commandInputEl.focus();
 }
 

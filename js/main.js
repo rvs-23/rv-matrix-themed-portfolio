@@ -17,7 +17,8 @@ import {
   isCrtModeActive,
 } from "./controller/shortcuts.js";
 
-import { getAllCommands, renderTree } from "./commands/0_index.js";
+import { getAllCommands } from "./commands/0_index.js";
+import { debounce, renderTree } from "./utils.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   // ++ 1. Pass the correct config object to the loader
@@ -75,13 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Error during final initialization step:", error);
     });
 
-  const debounce = (fn, delay = 150) => {
-    let t;
-    return (...a) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...a), delay);
-    };
-  };
   window.addEventListener(
     "resize",
     debounce(() => {

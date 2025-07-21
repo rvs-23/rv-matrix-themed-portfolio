@@ -227,6 +227,11 @@ export const help = {
       display: "resize term <W> <H>|reset",
       desc: "Resize terminal. E.g. `resize term 60vw 70vh` or `reset`.",
     },
+    {
+      cmd: "search [keyword]",
+      display: "search [keyword]",
+      desc: "Levenshtein distance based search in hobbies, skills and commands.",
+    },
     { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
     {
       cmd: "skilltree [path]",
