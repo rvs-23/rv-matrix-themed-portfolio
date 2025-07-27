@@ -216,3 +216,7 @@ This project is licensed under the **MIT License**.
 
 **AI Assistance Disclaimer:**
 A significant portion of the code in this project (JavaScript, CSS, HTML structure) was developed with the assistance of AI models. Human guidance by myself (rvs-23) was provided for the overall design, feature requests, integration, iterative refinement, and the extensive refactoring effort.
+
+- Initial Structural ideas: [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
+- Matrix Rain Analysis: [Carl Newton's Digital Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/).
+
