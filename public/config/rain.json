@@ -1,0 +1,161 @@
+{
+  "defaultConfig": {
+    "speed": 35,
+    "font": 19,
+    "lineH": 1,
+    "density": 0.95,
+    "minTrail": 15,
+    "maxTrail": 50,
+    "headGlowMin": 1,
+    "headGlowMax": 4,
+    "blur": 8,
+    "trailMutate": 10,
+    "fade": 0.22,
+    "decayBase": 0.94,
+    "baseCol": "#0aff0a",
+    "headCol": "#c8ffc8",
+    "fontFamily": "MatrixA, MatrixB, monospace",
+    "layers": 3,
+    "layerOp": [1, 0.7, 0.5],
+    "delChance": 0.04
+  },
+  "glyphs": "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789CKUVFRZ*|:=<>-_",
+  "presets": {
+    "default": {
+      "description": "Resets rain to its original default configuration.",
+      "isReset": true
+    },
+    "comet": {
+      "description": "Fewer, long, bright-headed streams with slow fades.",
+      "config": {
+        "speed": 50,
+        "font": 20,
+        "density": 0.35,
+        "minTrail": 60,
+        "maxTrail": 90,
+        "headGlowMin": 7,
+        "headGlowMax": 13,
+        "blur": 7,
+        "fade": 0.07,
+        "decayBase": 0.965,
+        "trailMutate": 220,
+        "layers": 4,
+        "delChance": 0.02,
+        "fontFamily": "MatrixA, MatrixB, monospace"
+      }
+    },
+    "storm": {
+      "description": "Very fast, dense, and chaotic code rain with quick fades.",
+      "config": {
+        "speed": 30,
+        "font": 15,
+        "density": 1.15,
+        "lineH": 0.85,
+        "minTrail": 10,
+        "maxTrail": 25,
+        "headGlowMin": 2,
+        "headGlowMax": 4,
+        "blur": 2,
+        "fade": 0.28,
+        "decayBase": 0.87,
+        "trailMutate": 35,
+        "layers": 2,
+        "delChance": 0.1
+      }
+    },
+    "whisper": {
+      "description": "Subtle, dense, micro-rain with very slow character churn.",
+      "config": {
+        "speed": 110,
+        "font": 12,
+        "lineH": 0.8,
+        "density": 0.95,
+        "minTrail": 30,
+        "maxTrail": 50,
+        "headGlowMin": 1,
+        "headGlowMax": 2,
+        "blur": 1,
+        "fade": 0.09,
+        "decayBase": 0.94,
+        "trailMutate": 280,
+        "fontFamily": "MatrixA, monospace",
+        "layers": 3,
+        "delChance": 0.01
+      }
+    },
+    "pulse": {
+      "description": "Layered rain with prominent erasing streams creating dynamic gaps.",
+      "config": {
+        "speed": 85,
+        "font": 18,
+        "density": 0.5,
+        "minTrail": 20,
+        "maxTrail": 35,
+        "headGlowMin": 3,
+        "headGlowMax": 5,
+        "blur": 4,
+        "fade": 0.17,
+        "decayBase": 0.91,
+        "trailMutate": 160,
+        "layers": 5,
+        "layerOp": [1, 0.8, 0.6, 0.35, 0.15],
+        "delChance": 0.18
+      }
+    },
+    "ancient": {
+      "description": "Larger, slower, more persistent glyphs with a classic feel.",
+      "config": {
+        "speed": 140,
+        "font": 23,
+        "density": 0.45,
+        "minTrail": 40,
+        "maxTrail": 70,
+        "headGlowMin": 2,
+        "headGlowMax": 5,
+        "blur": 3,
+        "fade": 0.05,
+        "decayBase": 0.95,
+        "trailMutate": 300,
+        "layers": 3,
+        "delChance": 0.03,
+        "fontFamily": "MatrixA, MatrixB, monospace"
+      }
+    },
+    "emberfall": {
+      "description": "Short, bright streams that fade quickly, like falling embers.",
+      "config": {
+        "speed": 70,
+        "font": 17,
+        "density": 0.6,
+        "minTrail": 5,
+        "maxTrail": 15,
+        "headGlowMin": 6,
+        "headGlowMax": 12,
+        "blur": 10,
+        "fade": 0.25,
+        "decayBase": 0.88,
+        "trailMutate": 50,
+        "layers": 3,
+        "layerOp": [1, 0.6, 0.3],
+        "delChance": 0.01
+      }
+    }
+  },
+  "validationRules": {
+    "speed": { "type": "int", "min": 10, "max": 500 },
+    "font": { "type": "int", "min": 8, "max": 40 },
+    "lineH": { "type": "float", "min": 0.5, "max": 2.0 },
+    "density": { "type": "float", "min": 0.1, "max": 2.0 },
+    "minTrail": { "type": "int", "min": 1, "max": 100 },
+    "maxTrail": { "type": "int", "min": 1, "max": 100 },
+    "headGlowMin": { "type": "int", "min": 0, "max": 20 },
+    "headGlowMax": { "type": "int", "min": 0, "max": 20 },
+    "blur": { "type": "int", "min": 0, "max": 20 },
+    "trailMutate": { "type": "int", "min": 10, "max": 1000 },
+    "fade": { "type": "float", "min": 0.01, "max": 1.0 },
+    "decayBase": { "type": "float", "min": 0.7, "max": 0.99 },
+    "layers": { "type": "int", "min": 1, "max": 10 },
+    "layerOp": { "type": "array_float", "ele_min": 0, "ele_max": 1 },
+    "delChance": { "type": "float", "min": 0, "max": 1 }
+  }
+}
