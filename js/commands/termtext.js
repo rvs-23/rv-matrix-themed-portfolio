@@ -1,5 +1,4 @@
 export default function termTextCommand(args, context) {
-  // ++ Get configs from context
   const { appendToTerminal, terminalController, config } = context;
   const messages = config.terminal.messages;
 

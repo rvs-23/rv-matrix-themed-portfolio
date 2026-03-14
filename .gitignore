@@ -71,16 +71,13 @@ coverage/
 .prettierignore
 .prettierrc
 .prettierrc.*
-.eslintrc
-.eslintrc.*
 .stylelintignore
 .stylelintrc
 .stylelintrc.*
 .nyc_output/
-.vitest/             
-vitest.config.js     
-.vscode-test/        
-eslint.config.mjs
+.vitest/
+vitest.config.js
+.vscode-test/
 
 # TypeScript (if used) [OPTIONAL]
 *.tsbuildinfo
@@ -94,7 +91,9 @@ tsconfig.tsbuildinfo
 yarn.lock
 pnpm-lock.yaml
 
+# Local-only assets (not pushed to remote)
+assets_local/
+
 # misc
 *.tgz                 # Packaged modules
-package-lock.json
 

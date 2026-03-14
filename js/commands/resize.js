@@ -1,8 +1,7 @@
 export default function resizeTermCommand(args, context) {
-  // ++ Get configs from context
   const { appendToTerminal, terminalController, config } = context;
   const messages = config.resize.messages;
-  const validUnits = new RegExp(config.resize.validUnitsRegex, "i"); // ++ Create RegExp from config string
+  const validUnits = new RegExp(config.resize.validUnitsRegex, "i");
 
   if (args[0]?.toLowerCase() === "term") {
     if (args.length === 2 && args[1].toLowerCase() === "reset") {

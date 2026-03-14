@@ -23,7 +23,7 @@ async function fetchJson(url, fileNameForError) {
     }
     try {
       const jsonData = await response.json();
-      console.log(`${fileNameForError} loaded successfully.`);
+      /* data loaded */
       return jsonData;
     } catch (e) {
       if (fileNameForError.includes("rain.json")) {

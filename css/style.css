@@ -159,9 +159,8 @@ body {
   }
 }
 
-/* ADD THIS KEYFRAME FOR QUICK HIDE */
+/* Terminal hide animation */
 @keyframes contentFadeOutQuick {
-  /* For HIDING the terminal quickly */
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -171,8 +170,6 @@ body {
     opacity: 0;
     transform: translateY(15px) scale(0.99);
   }
-
-  /* Optional transform */
 }
 
 .content-container {
@@ -214,29 +211,24 @@ body {
     font-size 0.3s ease;
 }
 
-/* Class for SHOWING with fade-in animation (mid-speed 0.3s) */
+/* Applied during terminal show transition */
 .content-container.is-appearing {
   display: flex !important;
   visibility: visible !important;
   opacity: 0;
-  /* Start animation from this state */
   transform: translateY(15px) scale(0.99);
-  /* Start animation from this state */
   animation: contentFadeInAppear 0.3s ease-out forwards;
 }
 
-/* ADD THIS CLASS FOR QUICK HIDE ANIMATION */
+/* Applied during terminal hide transition */
 .content-container.is-hiding {
   opacity: 1;
-  /* Start animation from this state */
   transform: translateY(0) scale(1);
-  /* Start animation from this state */
   animation: contentFadeOutQuick 0.15s ease-out forwards;
-  /* Quick 0.15s fade out */
   pointer-events: none;
 }
 
-/* Final hidden state (applied by JS after hide animation) */
+/* Terminal fully hidden */
 .content-container.hidden {
   display: none !important;
   opacity: 0 !important;

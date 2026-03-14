@@ -46,7 +46,7 @@ export function initializeTerminalController(
     termConfig.initialOpacity || initialTermOpacityConfig;
   userDetailsConfig = config.config.user || userDetailsConfig;
 
-  registeredCommands = commands; // Crucial for autocomplete
+  registeredCommands = commands;
   getCommandContextFunction = commandContextFunc;
 
   // Initialize available commands for autocomplete
@@ -73,8 +73,6 @@ export function initializeTerminalController(
   }
   updatePrimaryColorRGB(); // Set initial --primary-color-rgb
 
-  // Apply DOM-related configs from the main config module
-  // This line was already correct
   _applyDomConfigs(config.config);
 
   const plainNameArt = `<span class="ascii-name">${(userDetailsConfig.name || "USER").toUpperCase()}</span>`;
@@ -593,19 +591,16 @@ export function getInitialTerminalOpacity() {
 }
 
 export function setTerminalFontSize(sizeInput) {
-  // ++ Get config from context
   const context = getCommandContextFunction();
   const fontSizesConfig = context.config.terminal.fontSizes;
 
   let newSize = "";
   const inputSize = sizeInput.toLowerCase();
 
-  // ++ Use config for size mapping
   if (fontSizesConfig[inputSize]) {
     newSize = fontSizesConfig[inputSize];
   } else if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
     const sizeValue = parseFloat(inputSize);
-    // ++ Use config for validation
     if (
       inputSize.endsWith("px") &&
       (sizeValue < fontSizesConfig.minPx || sizeValue > fontSizesConfig.maxPx)

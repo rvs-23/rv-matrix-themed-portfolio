@@ -1,7 +1,7 @@
 /**
  * @file js/rain/engine.js
  * Matrix digital rain engine with sentient phrases.
- * Fixed & improved (July 2025).
+ * Fixed & improved (July 2025).
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";

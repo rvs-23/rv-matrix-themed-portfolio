@@ -10,7 +10,6 @@ let allMatrixChars = "";
 let loadingMessages = [];
 
 export function initializeLoaderScreen(loaderConfig) {
-  // ++ Parameter name changed for clarity
   loadingScreenEl = document.getElementById("loading-screen");
   matrixLoaderCharsEl = document.getElementById("matrix-loader-chars");
   decryptStatusEl = document.getElementById("decrypt-status");

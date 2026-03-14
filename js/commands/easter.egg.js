@@ -5,7 +5,6 @@
 
 export default async function easterEggCommand(args, context) {
   try {
-    // ++ This is the fix. All variables must be destructured from the 'context' object.
     const {
       appendToTerminal,
       mainContentContainer,

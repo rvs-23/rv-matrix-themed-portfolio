@@ -2,13 +2,13 @@
  * @file shortcuts.js
  * Manages global keyboard shortcuts like Konami code and terminal toggle.
  */
-import { toggleTerminalVisibility } from "./terminalController.js"; // Assuming this is the correct path
+import { toggleTerminalVisibility } from "./terminalController.js";
 
 let konamiCodeSequence = [];
 let konamiCodeIndex = 0;
 let crtModeActive = false;
 let commandInputElement;
-let onCrtToggleFeedback = (isActive) => {};
+let onCrtToggleFeedback = (_isActive) => {};
 
 export function initializeShortcuts(config, onCrtToggleCb) {
   // Ensure config and config.terminalConfig exist before accessing properties
@@ -29,9 +29,6 @@ function toggleCrtMode(activate) {
 function globalKeydownHandler(e) {
   const key = e.key; // Use e.key for modern browsers, already done
   const keyLower = key.toLowerCase(); // For Konami sequence comparison
-
-  // FIX 4: Process Konami code sequence BEFORE checking for input focus,
-  // but be mindful of default actions for keys like 'a', 'b' if input is focused.
 
   if (konamiCodeSequence.length > 0) {
     if (keyLower === konamiCodeSequence[konamiCodeIndex].toLowerCase()) {

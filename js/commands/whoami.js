@@ -1,12 +1,10 @@
 export default function whoamiCommand(args, context) {
-  // ++ Get configs from context
   const { appendToTerminal, userConfig, config } = context;
   const whoamiConfig = config.whoami;
   const contactConfig = config.contact;
 
   let htmlOutput = "";
 
-  // ++ Build HTML from config
   whoamiConfig.sections.forEach((section) => {
     htmlOutput += `<div class="output-section" style="margin-top: 0.7em;">`;
     htmlOutput += `<div class="output-section-title"><i class="fas ${section.icon}"></i> ${section.title}</div>`;

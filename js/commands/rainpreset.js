@@ -22,17 +22,14 @@ export default function rainPresetCommand(args, context) {
 
   const presetName = args[0].toLowerCase();
 
-  // ++ 1. Look up the preset data first
   const presetData = presets[presetName];
 
-  // ++ 2. Check if the preset exists before doing anything else
   if (!presetData) {
     return appendToTerminal(
       `<div class='output-error'>${messages.unknown_preset(presetName)}</div>`,
     );
   }
 
-  // ++ 3. If it's not a reset, print the "Applying..." message with the description
   if (!presetData.isReset) {
     appendToTerminal(
       `<div>${messages.applying(presetName, presetData.description || "")}</div>`,

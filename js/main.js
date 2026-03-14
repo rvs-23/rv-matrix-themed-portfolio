@@ -22,7 +22,6 @@ import { debounce, renderTree } from "./utils.js";
 import { sentientRainPhrases } from "./config/index.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // ++ 1. Pass the correct config object to the loader
   const allData = await loadAllData();
   initializeLoaderScreen(allData.config.loader);
 
@@ -32,10 +31,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     sentientRainPhrases,
   );
 
-  // This is the primary fix for your commands not working.
   const commandContext = {
-    config: allData.config, // Pass the entire config object
-    userConfig: allData.config.user, // Keep this for convenience
+    config: allData.config,
+    userConfig: allData.config.user,
     skillsData: allData.skillsData,
     hobbiesData: allData.hobbiesData,
     manPages: allData.manPages,
@@ -44,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     rainEngine: rainEngine,
     renderTree: renderTree,
     mainContentContainer: document.getElementById("contentContainer"),
-    allMatrixChars: allData.config.loader.matrixChars, // Correct path
+    allMatrixChars: allData.config.loader.matrixChars,
     isCrtActive: isCrtModeActive,
     getCurrentTheme: terminalController.getCurrentThemeName,
     getFullWelcomeMessage: terminalController.getFullWelcomeMessage,
@@ -74,7 +72,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("contentContainer").style.opacity = "1";
       }
       rainEngine.start();
-      // Use the new, safe function to focus the input
       terminalController.focusInput();
     })
     .catch((error) => {
@@ -89,7 +86,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 150),
   );
 
-  // Update navigation links from the new user config path
   const navCvLink = document.getElementById("nav-cv-link");
   const navMediumLink = document.getElementById("nav-medium-link");
   const linkedinLinkEl = document.getElementById("nav-linkedin-link");
