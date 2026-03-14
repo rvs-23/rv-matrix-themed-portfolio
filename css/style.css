@@ -213,8 +213,8 @@ body {
 
 /* Applied during terminal show transition */
 .content-container.is-appearing {
-  display: flex !important;
-  visibility: visible !important;
+  display: flex;
+  visibility: visible;
   opacity: 0;
   transform: translateY(15px) scale(0.99);
   animation: contentFadeInAppear 0.3s ease-out forwards;
@@ -230,10 +230,10 @@ body {
 
 /* Terminal fully hidden */
 .content-container.hidden {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 #terminal-output {
   flex-grow: 1;
@@ -329,12 +329,12 @@ body {
 }
 
 #command-input {
-  background-color: transparent !important;
-  border: none !important;
-  outline: none !important;
-  color: var(--primary-color) !important;
-  font-family: var(--font-mono-current) !important;
-  font-size: 1em !important;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: var(--primary-color);
+  font-family: var(--font-mono-current);
+  font-size: 1em;
   flex-grow: 1;
   caret-color: var(--primary-color);
   transition:
@@ -434,9 +434,6 @@ body {
   opacity: 0.85;
 }
 
-.output-text {
-}
-
 .output-error {
   color: #ff4136;
   text-shadow: 0 0 6px rgba(255, 65, 54, 0.8);
@@ -453,28 +450,31 @@ body {
   opacity: 0.8;
 }
 
-.output-welcome-wrapper {
+/* Utility classes for command output */
+.mt-section {
+  margin-top: 0.7em;
 }
 
-.output-error-wrapper {
+.section-title-plain {
+  border-left: none;
+  padding-left: 0;
 }
 
-.output-success-wrapper {
+.output-line-detail {
+  padding-left: 1em;
+  font-size: 0.9em;
+  opacity: 0.8;
 }
 
-.output-about-wrapper {
+.quote-highlight {
+  font-size: 1.1em;
+  text-align: center;
+  display: block;
+  padding: 1em 0;
 }
 
-.output-skills-wrapper {
-}
-
-.output-skilltree-wrapper {
-}
-
-.output-date-wrapper {
-}
-
-.output-whoami-wrapper {
+.icon-inline {
+  margin-right: 0.3em;
 }
 
 .ascii-name {
@@ -506,9 +506,9 @@ body {
 }
 
 body.terminal-hidden .minimal-nav {
-  opacity: 0 !important;
-  transform: translateY(100%) !important;
-  pointer-events: none !important;
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
 }
 
 .nav-icon {
@@ -697,10 +697,6 @@ body.crt-mode #matrix-canvas {
 }
 
 /* Man Page Specific Styling */
-.output-manpage-container {
-  /* This class wraps the entire man page output for potential top-level styling */
-}
-
 .output-manpage-wrapper {
   padding: 0.5em 0.2em; /* Adjusted padding */
   font-family: var(--font-mono-current); /* Ensure monospace */
@@ -726,16 +722,11 @@ body.crt-mode #matrix-canvas {
   white-space: pre-wrap; /* Preserve formatting like newlines from JSON */
 }
 
-/* Specifically style NAME and SYNOPSIS to be less indented, more traditional */
-.output-manpage-wrapper .output-manpage-header + .output-manpage-section-body {
-  /* Default padding-left: 1em is good for most sections */
-}
-
 .output-manpage-wrapper
-  .output-manpage-header[innerHTML="NAME"]
+  .output-manpage-header[data-section="name"]
   + .output-manpage-section-body,
 .output-manpage-wrapper
-  .output-manpage-header[innerHTML="SYNOPSIS"]
+  .output-manpage-header[data-section="synopsis"]
   + .output-manpage-section-body {
   padding-left: 0.5em; /* Less indent for these */
 }
@@ -746,4 +737,48 @@ body.crt-mode #matrix-canvas {
   white-space: pre-wrap;
   font-style: italic;
   color: var(--secondary-color); /* Make examples stand out a bit */
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  #matrix-canvas {
+    display: none;
+  }
+
+  .prompt-arrow {
+    animation: none;
+  }
+
+  body.crt-mode {
+    animation: none;
+    filter: none;
+  }
+
+  body.crt-mode::before {
+    display: none;
+  }
+
+  .content-container a:hover,
+  #terminal-output a:hover {
+    animation: none;
+  }
+
+  .nav-icon:hover {
+    animation: none;
+  }
+
+  .content-container.is-appearing {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .content-container.is-hiding {
+    animation: none;
+    opacity: 0;
+  }
+
+  .spinner {
+    animation: none;
+  }
 }

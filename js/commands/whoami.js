@@ -6,7 +6,7 @@ export default function whoamiCommand(args, context) {
   let htmlOutput = "";
 
   whoamiConfig.sections.forEach((section) => {
-    htmlOutput += `<div class="output-section" style="margin-top: 0.7em;">`;
+    htmlOutput += `<div class="output-section mt-section">`;
     htmlOutput += `<div class="output-section-title"><i class="fas ${section.icon}"></i> ${section.title}</div>`;
 
     if (section.isBlock) {

@@ -15,7 +15,7 @@ export default function helpCommand(args, context) {
       maxDisplayLength = item.display.length;
   });
 
-  let helpOutput = `<div class="output-section-title" style="border-left: none; padding-left:0;"><i class="fas fa-question-circle"></i> ${helpConfig.title}</div>`;
+  let helpOutput = `<div class="output-section-title section-title-plain"><i class="fas fa-question-circle"></i> ${helpConfig.title}</div>`;
   commandList.forEach((item) => {
     const displayPart = item.display
       .replace(/</g, "&lt;")

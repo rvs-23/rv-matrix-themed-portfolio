@@ -206,6 +206,7 @@ The following commands are available. For detailed info, use `man <command_name>
 
 - **Keyboard Navigation:** The application is fully navigable via keyboard.
 - **Visuals & Contrast:** Multiple theme options offer different contrast levels.
+- **Reduced Motion:** Respects `prefers-reduced-motion` — all animations (rain, CRT, hover glitch, blinking prompt) are disabled automatically for users with motion sensitivity.
 - **Animation Control:** Terminal visibility can be toggled to hide the main interface.
 
 ---

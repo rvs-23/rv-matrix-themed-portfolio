@@ -77,7 +77,7 @@ export default function skillTreeCommand(args, context) {
     }
   }
 
-  const titleHtml = `<div class="output-section-title" style="border-left: none; padding-left:0;"><i class="fas fa-sitemap"></i> Skill Pathway: ${displayPath.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+  const titleHtml = `<div class="output-section-title section-title-plain"><i class="fas fa-sitemap"></i> Skill Pathway: ${displayPath.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
   let treeHtmlLines = [];
 
   if (targetNode === skillsData) {
