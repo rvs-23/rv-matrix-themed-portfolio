@@ -49,7 +49,7 @@ export default function dateCommand(args, context) {
       );
       let output = `<div class="output-line"><span class="output-line-label"><i class="fas fa-globe-americas"></i> ${requestedTimezoneKey.toUpperCase()} Time:</span> ${foreignTime}</div>`;
       if (tzInfo.desc) {
-        output += `<div class="output-line" style="padding-left: 1em; font-size: 0.9em; opacity: 0.8;">${tzInfo.desc}</div>`;
+        output += `<div class="output-line output-line-detail">${tzInfo.desc}</div>`;
       }
       appendToTerminal(output, "output-date-wrapper");
     } else {

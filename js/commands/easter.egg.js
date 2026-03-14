@@ -73,7 +73,7 @@ export default async function easterEggCommand(args, context) {
       );
 
       appendToTerminal(
-        `<div><br/><span class="output-success" style="font-size: 1.1em; text-align: center; display: block; padding: 1em 0;">"${randomQuote}"</span><br/></div>`,
+        `<div><br/><span class="output-success quote-highlight">"${randomQuote}"</span><br/></div>`,
         "output-success-wrapper",
       );
 

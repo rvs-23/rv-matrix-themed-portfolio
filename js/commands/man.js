@@ -64,7 +64,7 @@ export default function manCommand(args, context) {
 
   sections.forEach((sectionKey) => {
     if (page[sectionKey]) {
-      htmlOutput += `<div class="output-manpage-header">${sectionKey.toUpperCase()}</div>`;
+      htmlOutput += `<div class="output-manpage-header" data-section="${sectionKey}">${sectionKey.toUpperCase()}</div>`;
       if (sectionKey === "examples" && Array.isArray(page.examples)) {
         page.examples.forEach((example) => {
           htmlOutput += `<div class="output-manpage-example">${example.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;

@@ -252,6 +252,14 @@ export default class RainEngine {
   };
 
   async start() {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (prefersReducedMotion) {
+      this.stop();
+      return;
+    }
+
     this.stop();
     this.refreshColors();
     await this.setup();
