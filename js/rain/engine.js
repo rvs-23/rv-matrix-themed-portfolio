@@ -365,6 +365,12 @@ export default class RainEngine {
         const cell = col[r];
         if (cell.brightness > 0.005) {
           cell.brightness *= decay;
+          // Uneven tail dissolve: dim cells randomly snap out early,
+          // creating gritty analogue fade instead of smooth decay
+          if (cell.brightness < 0.08 && Math.random() < 0.04) {
+            cell.brightness = 0;
+            continue;
+          }
           // Snap to zero below threshold to avoid lingering ghosts
           if (cell.brightness < 0.005) cell.brightness = 0;
         }
@@ -597,11 +603,28 @@ export default class RainEngine {
       // Collect landing glow burst when a stream head exits the bottom
       if (s.justLanded && !s.del && landingGlow > 0) {
         this.landingGlows.push({
-          x: s.col * (this.activeConfig.colW || this.activeConfig.font),
+          x:
+            s.col * (this.activeConfig.colW || this.activeConfig.font) +
+            (this.activeConfig.colW || this.activeConfig.font) / 2,
           intensity: landingGlow,
           radius: this.activeConfig.landingGlowSize ?? 60,
           birth: timestamp,
         });
+        // Landing splash: briefly brighten 3-4 cells in adjacent columns
+        for (const dc of [-2, -1, 1, 2]) {
+          const adjCol = s.col + dc;
+          if (adjCol >= 0 && adjCol < this.totalCols && Math.random() < 0.6) {
+            const adjRow =
+              this.gridRows - 1 - Math.floor(Math.random() * 3);
+            if (adjRow >= 0) {
+              const cell = this.grid[adjCol][adjRow];
+              cell.brightness = Math.max(
+                cell.brightness,
+                0.3 + Math.random() * 0.2,
+              );
+            }
+          }
+        }
         s.justLanded = false;
         // Cap array for performance
         if (this.landingGlows.length > 30) this.landingGlows.shift();
