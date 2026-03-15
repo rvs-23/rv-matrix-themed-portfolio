@@ -317,6 +317,12 @@ function getArgumentSuggestions(commandName, context, currentInput) {
   switch (commandName) {
     case "theme":
       return (context.config?.help?.availableThemes || []).sort();
+    case "rainfont": {
+      const fontSets = context.rainEngine?.fontSets
+        ? Object.keys(context.rainEngine.fontSets)
+        : [];
+      return fontSets.sort();
+    }
     case "rainpreset": {
       const presets = context.rainEngine?.presets
         ? Object.keys(context.rainEngine.presets)

@@ -198,6 +198,8 @@ export default class RainEngine {
     this.defaultConfig.fontFamily = fontConfig.matrix;
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
+    this.fontSets = rainConfig.fontSets || {};
+    this.activeFontSet = "combined";
     this.streams = [];
     this.grid = [];
     this.totalCols = 0;
@@ -573,5 +575,30 @@ export default class RainEngine {
     const themeColors = getCurrentThemeColors();
     this.activeConfig.baseCol = themeColors.primary;
     this.activeConfig.headCol = themeColors.glow;
+  }
+
+  /**
+   * Switch the glyph set and font used by the rain.
+   * @param {string} name - Font set key: "classic", "resurrections", or "combined"
+   * @returns {{ success: boolean, message: string }}
+   */
+  setFontSet(name) {
+    const fontSet = this.fontSets[name];
+    if (!fontSet) {
+      return {
+        success: false,
+        message: `Unknown font set: '${name}'.`,
+      };
+    }
+
+    this.glyphs = fontSet.glyphs;
+    this.activeConfig.fontFamily = fontSet.fontFamily;
+    this.activeFontSet = name;
+    this.start();
+
+    return {
+      success: true,
+      message: `Font set '${name}' applied. ${fontSet.description}`,
+    };
   }
 }

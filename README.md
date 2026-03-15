@@ -199,6 +199,7 @@ The following commands are available. For detailed info, use `man <command_name>
 | `help`                         | Display this list of available commands.              |
 | `hobbies`                      | List my hobbies and interests.                        |
 | `man <command>`                | Show detailed manual for a command.                   |
+| `rainfont <name>`              | Switch rain font: `classic`, `resurrections`, `combined`. |
 | `rainpreset <name>`            | Apply a new style to the background rain.             |
 | `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh`.       |
 | `skills`                       | List my key skills (summary).                         |

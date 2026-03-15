@@ -78,6 +78,18 @@
     ],
     "notes": "Manual pages are sourced from 'public/config/content/manPages.json'."
   },
+  "rainfont": {
+    "name": "rainfont - Switch the Matrix rain font and glyph set.",
+    "synopsis": "rainfont <classic | resurrections | combined>",
+    "description": "Changes the font used by the rain animation. 'classic' uses the original Matrix trilogy (1999) katakana glyphs (57 chars). 'resurrections' uses the expanded Matrix Resurrections (2021) glyph set (138 chars). 'combined' uses both fonts together (194 chars). Both font files are sourced from the Rezmason/matrix project. Run without arguments to see current font and available options.",
+    "arguments": "<name>: classic, resurrections, or combined.",
+    "examples": [
+      "rainfont classic        - Original 1999 Matrix look.",
+      "rainfont resurrections  - Matrix Resurrections (2021) glyphs.",
+      "rainfont combined       - Both glyph sets (default)."
+    ],
+    "notes": "Font sets are defined in 'public/config/rain.json'. The classic set uses Matrix-Code.ttf (MatrixA), resurrections uses Matrix-Resurrected.ttf (MatrixB)."
+  },
   "rainpreset": {
     "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
     "synopsis": "rainpreset <preset_name>",
