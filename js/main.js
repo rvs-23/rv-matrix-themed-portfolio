@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener(
     "resize",
     debounce(() => {
-      rainEngine.setup();
       terminalController.reapplyTerminalSize();
     }, 150),
   );

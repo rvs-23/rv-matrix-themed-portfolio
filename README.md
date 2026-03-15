@@ -89,7 +89,19 @@ No environment variables are required as all functionality is client-side.
 | `decayBase`   | 0.7–0.99                       | Per-glyph opacity multiplier along a trail; lower = quicker decay. |
 | `layers`      | int (1–10)                     | Number of parallax layers.                                         |
 | `layerOp`     | float array (length =`layers`) | Opacity multiplier per layer.                                      |
-| `delChance`   | 0–1                            | Chance a glyph is skipped entirely, producing gaps.                |
+| `delChance`   | 0–1                            | Chance a stream is a deletion stream that erases characters.       |
+
+#### Film-Accurate Rain Behaviors
+
+The rain engine implements behaviors from [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/):
+
+- **Stationary glyphs** — Characters remain fixed in place; illumination waves pass downward over them.
+- **Depth via opacity layers** — Multiple layers with configurable opacity create a sense of depth without altering character size.
+- **Deletion streams** — A small percentage of streams erase characters as they pass, creating organic density cycles.
+- **Globally synchronized mutations** — All visible character changes happen simultaneously every 3 frames.
+- **Selective head highlighting** — Only ~20% of streams have bright white glowing heads (per the film).
+- **Head stammer** — Every ~90 frames, all highlighted heads pause for one frame, creating rhythmic desynchronization.
+- **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look.
 
 ---
 
