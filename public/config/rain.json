@@ -17,9 +17,9 @@
     "fontFamily": "MatrixA, MatrixB, monospace",
     "layers": 3,
     "layerOp": [1, 0.7, 0.5],
-    "delChance": 0.04
+    "delChance": 0.15
   },
-  "glyphs": "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789CKUVFRZ*|:=<>-_",
+  "glyphs": "ﾊﾋｼﾂｳｰﾅﾐﾓﾆｻﾜｵﾘﾎﾏｴｷﾑﾃｹﾒｶﾕﾗｾﾈｽﾀﾇ日0123456789Z*+:=\".<>|¦_",
   "presets": {
     "default": {
       "description": "Resets rain to its original default configuration.",
