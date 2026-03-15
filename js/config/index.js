@@ -141,8 +141,6 @@ export const date = {
     hint: "Hint: Try 'date utc', 'date est', 'date ist', etc.",
     unknown_alias: (alias) =>
       `Unknown timezone alias: '${alias}'. Also failed as direct IANA name.`,
-    invalid_iana: (alias) =>
-      `Unknown timezone alias or invalid IANA name: '${alias}'.`,
     supported_aliases: (aliases) =>
       `Supported aliases: ${aliases}. You can also try IANA timezone names.`,
   },
@@ -324,20 +322,7 @@ export const rainpreset = {
     available_presets: (presets) => `Available presets: ${presets}`,
     unknown_preset: (name) =>
       `Unknown preset: '${name}'. Type 'rainpreset' for options.`,
-    reset_success: "Rain configuration reset to defaults.",
-    reset_fail: "Reset function not available for rain config.",
     applying: (name, desc) => `Applying preset '${name}'... (${desc})`,
-    apply_success: (name) => `Rain preset '${name}' applied successfully.`,
-    apply_partial: (name, count) =>
-      `Rain preset '${name}' partially applied with ${count} error(s).`,
-    apply_fail: (name, count) =>
-      `Failed to apply preset '${name}' due to ${count} error(s).`,
-    apply_no_settings: (name) =>
-      `Preset '${name}' processed. No recognized settings were found to apply.`,
-    apply_mixed: (name, s, e) =>
-      `Preset '${name}' application processed with mixed results. Successes: ${s}, Errors/Skipped: ${e}.`,
-    misconfigured: (name) =>
-      `Preset '${name}' is misconfigured (missing 'config' object or 'isReset' flag).`,
   },
 };
 

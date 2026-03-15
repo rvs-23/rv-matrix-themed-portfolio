@@ -40,7 +40,7 @@ function getRelevanceScore(searchTerm, candidate) {
  * @param {object} context - The application context.
  * @returns {void} This command outputs directly to the terminal.
  */
-export default async function searchCommand(args, context) {
+export default function searchCommand(args, context) {
   const { appendToTerminal, manPages, skillsData, hobbiesData } = context;
   const searchTerm = args[0];
 

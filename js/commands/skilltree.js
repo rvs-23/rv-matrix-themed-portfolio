@@ -3,8 +3,10 @@
  * Handles the 'skilltree' command for interactively exploring skills.
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default function skillTreeCommand(args, context) {
-  const { appendToTerminal, skillsData, renderTree } = context; // renderTree is from js/commands/index.js
+  const { appendToTerminal, skillsData, renderTree } = context;
 
   if (!skillsData) {
     appendToTerminal(
@@ -49,12 +51,8 @@ export default function skillTreeCommand(args, context) {
           currentPathForDisplayArray.length > 0
             ? currentPathForDisplayArray.join(" > ") + " > "
             : "";
-        const sanitizedPart = part.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const sanitizedTrail = errorPathTrail
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
         appendToTerminal(
-          `<div class='output-error'>Path segment not found: "${sanitizedPart}" in "${sanitizedTrail}${sanitizedPart}"</div>`,
+          `<div class='output-error'>Path segment not found: "${escapeHtml(part)}" in "${escapeHtml(errorPathTrail)}${escapeHtml(part)}"</div>`,
           "output-error-wrapper",
         );
         appendToTerminal(
@@ -77,7 +75,7 @@ export default function skillTreeCommand(args, context) {
     }
   }
 
-  const titleHtml = `<div class="output-section-title section-title-plain"><i class="fas fa-sitemap"></i> Skill Pathway: ${displayPath.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+  const titleHtml = `<div class="output-section-title section-title-plain"><i class="fas fa-sitemap"></i> Skill Pathway: ${escapeHtml(displayPath)}</div>`;
   let treeHtmlLines = [];
 
   if (targetNode === skillsData) {
@@ -111,8 +109,6 @@ export default function skillTreeCommand(args, context) {
     treeHtmlLines.push(
       "    └── (End of this skill branch or no further sub-skills listed.)",
     );
-    // Optionally, display a description if present in the leaf node
-    // if (targetNode.description) { treeHtmlLines.push(`        ${targetNode.description.replace(/</g, "&lt;").replace(/>/g, "&gt;")}`); }
   }
 
   const fullOutput =

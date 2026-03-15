@@ -3,6 +3,8 @@
  * Handles the 'skills' command, displaying a summary of key skill areas.
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default function skillsCommand(args, context) {
   const { appendToTerminal, skillsData } = context;
 
@@ -19,7 +21,7 @@ export default function skillsCommand(args, context) {
   if (skillsData.children && skillsData.children.length > 0) {
     skillsData.children.forEach((category) => {
       const categoryName = category.name
-        ? category.name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        ? escapeHtml(category.name)
         : "Unnamed Category";
       htmlOutput += `<div class="output-skills-category">${categoryName}</div>`;
       htmlOutput += `<ul class="output-skills-list">`;
@@ -27,7 +29,7 @@ export default function skillsCommand(args, context) {
       if (category.children && category.children.length > 0) {
         category.children.slice(0, 3).forEach((subCategory) => {
           const subCategoryName = subCategory.name
-            ? subCategory.name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            ? escapeHtml(subCategory.name)
             : "Unnamed Skill";
           htmlOutput += `<li>${subCategoryName}</li>`;
         });

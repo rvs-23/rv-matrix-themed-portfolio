@@ -402,7 +402,7 @@ async function processCommand(fullCommandText) {
   }
 }
 
-export function displayInitialWelcomeMessage() {
+function displayInitialWelcomeMessage() {
   if (state.elements.output && state.config.welcomeMsg) {
     appendToTerminal(
       state.config.welcomeMsg.replace(/\n/g, "<br/>"),
@@ -555,10 +555,6 @@ export function setTerminalOpacity(opacityValue) {
   );
 }
 
-export function getInitialTerminalOpacity() {
-  return state.terminal.opacity;
-}
-
 export function setTerminalFontSize(sizeInput) {
   const context = state.getContext();
   const fontSizesConfig = context.config.terminal.fontSizes;
@@ -613,7 +609,7 @@ export function getCurrentThemeColors() {
   };
 }
 
-export function updatePrimaryColorRGB() {
+function updatePrimaryColorRGB() {
   if (typeof getComputedStyle === "undefined" || !document.body) return;
 
   let primaryColorValue = getComputedStyle(document.body)

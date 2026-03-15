@@ -38,25 +38,30 @@ export function getLevenshteinDistance(s1, s2) {
 }
 
 /**
- * Renders a hierarchical data structure as a text-based tree.
- * Originally from js/commands/skilltree.js
- * @param {object} node - The current node in the data structure.
- * @param {string} prefix - The prefix for the current line of the tree.
- * @returns {string} The formatted tree string.
+ * Renders a hierarchical data structure (with `name` and `children` fields)
+ * as a text-based tree, pushing HTML lines into an output array.
+ * @param {object} node - The current node ({ name, children?, aliases? }).
+ * @param {string} prefix - The visual prefix for the current line.
+ * @param {boolean} isLast - Whether this node is the last sibling.
+ * @param {string[]} outputLines - Array to push formatted lines into.
+ * @param {boolean} isRoot - Whether this is the root node (unused, kept for call-site compat).
  */
-export function renderTree(node, prefix = "") {
-  let result = "";
-  const keys = Object.keys(node);
-  keys.forEach((key, index) => {
-    const isLast = index === keys.length - 1;
-    const connector = isLast ? "└── " : "├── ";
-    result += `${prefix}${connector}${key}\n`;
-    if (typeof node[key] === "object" && node[key] !== null) {
-      const newPrefix = prefix + (isLast ? "    " : "│   ");
-      result += renderTree(node[key], newPrefix);
-    }
-  });
-  return result;
+export function renderTree(node, prefix, isLast, outputLines, _isRoot) {
+  const connector = isLast ? "└── " : "├── ";
+  const name = node.name ? escapeHtml(node.name) : "Unnamed";
+  outputLines.push(`${prefix}${connector}${name}`);
+  if (node.children && node.children.length > 0) {
+    const newPrefix = prefix + (isLast ? "    " : "│   ");
+    node.children.forEach((child, index) => {
+      renderTree(
+        child,
+        newPrefix,
+        index === node.children.length - 1,
+        outputLines,
+        false,
+      );
+    });
+  }
 }
 
 /**
@@ -93,17 +98,3 @@ export function escapeHtml(str) {
     .replace(/'/g, "&#39;");
 }
 
-/**
- * Triggers a file download in the browser.
- * Originally from js/commands/download.js
- * @param {string} url - The URL of the file to download.
- * @param {string} fileName - The desired name for the downloaded file.
- */
-export function downloadFile(url, fileName) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}

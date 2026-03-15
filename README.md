@@ -86,8 +86,6 @@ No environment variables are required as all functionality is client-side.
 | `blur`        | px                             | Canvas blur applied to glowing heads.                              |
 | `bloomRadius` | int (0–30)                     | Blur radius for the full-screen bloom pass.                        |
 | `bloomIntensity` | float (0–1)                 | Alpha of the bloom layer (0 = off, 0.15 = default).                |
-| `trailMutate` | frames                         | After how many ticks the column mutates its characters.            |
-| `fade`        | 0–1                            | Opacity subtracted each frame; higher = faster fade.               |
 | `decayBase`   | 0.7–0.99                       | Per-glyph opacity multiplier along a trail; lower = quicker decay. |
 | `layers`      | int (1–10)                     | Number of parallax layers.                                         |
 | `layerOp`     | float array (length =`layers`) | Opacity multiplier per layer.                                      |

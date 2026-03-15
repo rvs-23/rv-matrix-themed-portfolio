@@ -3,6 +3,8 @@
  * Handles the 'hobbies' command, displaying a summary of hobbies and interests.
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default function hobbiesCommand(args, context) {
   const { appendToTerminal, hobbiesData } = context;
 
@@ -23,7 +25,7 @@ export default function hobbiesCommand(args, context) {
   if (hobbiesData.children && hobbiesData.children.length > 0) {
     hobbiesData.children.forEach((category) => {
       const categoryName = category.name
-        ? category.name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        ? escapeHtml(category.name)
         : "Unnamed Category";
       htmlOutput += `<div class="output-skills-category">${categoryName}</div>`; // Re-use skills styling for consistency
       htmlOutput += `<ul class="output-skills-list">`; // Re-use skills styling
@@ -32,16 +34,14 @@ export default function hobbiesCommand(args, context) {
         category.children.forEach((subCategory) => {
           // Display all sub-categories, not just first 3 like skills
           const subCategoryName = subCategory.name
-            ? subCategory.name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            ? escapeHtml(subCategory.name)
             : "Unnamed Hobby";
           htmlOutput += `<li>${subCategoryName}</li>`;
           // If subCategory also has children, you might want to indicate that, or implement a hobbytree command
           if (subCategory.children && subCategory.children.length > 0) {
             htmlOutput += `<ul>`;
             subCategory.children.forEach((item) => {
-              const itemName = item.name
-                ? item.name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
-                : "Detail";
+              const itemName = item.name ? escapeHtml(item.name) : "Detail";
               htmlOutput += `<li>${itemName}</li>`;
             });
             htmlOutput += `</ul>`;
@@ -63,7 +63,5 @@ export default function hobbiesCommand(args, context) {
   } else {
     htmlOutput += `<div class="output-line">No hobby categories defined in hobbies.json.</div>`;
   }
-  // Future: Add a hint for a 'hobbytree' command if you plan to implement it.
-  // htmlOutput += `<br/><div>Type 'hobbytree [path]' to explore specific hobbies.</div>`;
-  appendToTerminal(htmlOutput, "output-skills-wrapper"); // Can reuse 'output-skills-wrapper' or create 'output-hobbies-wrapper'
+  appendToTerminal(htmlOutput, "output-skills-wrapper");
 }

@@ -2,6 +2,8 @@
  * @file js/commands/help.js
  * Handles the 'help' command.
  */
+import { escapeHtml } from "../utils.js";
+
 export default function helpCommand(args, context) {
   const { appendToTerminal, config } = context;
   const helpConfig = config.help;
@@ -17,10 +19,7 @@ export default function helpCommand(args, context) {
 
   let helpOutput = `<div class="output-section-title section-title-plain"><i class="fas fa-question-circle"></i> ${helpConfig.title}</div>`;
   commandList.forEach((item) => {
-    const displayPart = item.display
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/ /g, "&nbsp;");
+    const displayPart = escapeHtml(item.display).replace(/ /g, "&nbsp;");
     const padding = "&nbsp;".repeat(
       Math.max(0, maxDisplayLength - item.display.length),
     );
@@ -29,7 +28,7 @@ export default function helpCommand(args, context) {
     const descText =
       typeof item.desc === "function" ? item.desc(context) : item.desc;
 
-    const descPart = descText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const descPart = escapeHtml(descText);
     helpOutput += `<div>${basePad.replace(/ /g, "&nbsp;")}${displayPart}${padding}${descSeparator.replace(/ /g, "&nbsp;")}${descPart}</div>`;
   });
   appendToTerminal(helpOutput, "output-help-wrapper");

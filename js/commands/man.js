@@ -3,6 +3,8 @@
  * Handles the 'man' command, displaying manual pages for other commands.
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default function manCommand(args, context) {
   const { appendToTerminal, manPages } = context;
 
@@ -15,7 +17,7 @@ export default function manCommand(args, context) {
     if (manPages && Object.keys(manPages).length > 0) {
       const availableManPages = Object.keys(manPages).sort().join(", ");
       appendToTerminal(
-        `<div>Available man pages for: ${availableManPages.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`,
+        `<div>Available man pages for: ${escapeHtml(availableManPages)}</div>`,
         "output-text-wrapper",
       );
     } else {
@@ -32,7 +34,7 @@ export default function manCommand(args, context) {
 
   if (!page) {
     appendToTerminal(
-      `<div class='output-error'>No manual entry for ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`,
+      `<div class='output-error'>No manual entry for ${escapeHtml(commandName)}</div>`,
       "output-error-wrapper",
     );
     if (manPages && Object.keys(manPages).length > 0) {
@@ -67,10 +69,10 @@ export default function manCommand(args, context) {
       htmlOutput += `<div class="output-manpage-header" data-section="${sectionKey}">${sectionKey.toUpperCase()}</div>`;
       if (sectionKey === "examples" && Array.isArray(page.examples)) {
         page.examples.forEach((example) => {
-          htmlOutput += `<div class="output-manpage-example">${example.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+          htmlOutput += `<div class="output-manpage-example">${escapeHtml(example)}</div>`;
         });
       } else {
-        htmlOutput += `<div class="output-manpage-section-body">${String(page[sectionKey]).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>")}</div>`;
+        htmlOutput += `<div class="output-manpage-section-body">${escapeHtml(String(page[sectionKey])).replace(/\n/g, "<br/>")}</div>`;
       }
     }
   });
@@ -80,7 +82,7 @@ export default function manCommand(args, context) {
     if (!sections.includes(key) && !customSectionOrder.includes(key)) {
       const header = key.toUpperCase().replace(/_/g, " ");
       htmlOutput += `<div class="output-manpage-header">${header}</div>`;
-      htmlOutput += `<div class="output-manpage-section-body">${String(page[key]).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>")}</div>`;
+      htmlOutput += `<div class="output-manpage-section-body">${escapeHtml(String(page[key])).replace(/\n/g, "<br/>")}</div>`;
     }
   });
 
@@ -89,7 +91,7 @@ export default function manCommand(args, context) {
     if (page[sectionKey]) {
       const header = sectionKey.toUpperCase().replace(/_/g, " ");
       htmlOutput += `<div class="output-manpage-header">${header}</div>`;
-      htmlOutput += `<div class="output-manpage-section-body">${String(page[sectionKey]).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br/>")}</div>`;
+      htmlOutput += `<div class="output-manpage-section-body">${escapeHtml(String(page[sectionKey])).replace(/\n/g, "<br/>")}</div>`;
     }
   });
 
