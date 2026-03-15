@@ -217,6 +217,17 @@ export const help = {
       desc: "Show detailed manual for a command.",
     },
     {
+      cmd: "rainfont <name>",
+      display: "rainfont <name>",
+      desc: (context) =>
+        `Switch rain font. Available: ${Object.keys(context.rainEngine.fontSets || {}).join(", ")}.`,
+    },
+    {
+      cmd: "rainsize <px>",
+      display: "rainsize <px>|reset",
+      desc: "Set rain glyph size (8–40px). E.g., `rainsize 14`.",
+    },
+    {
       cmd: "rainpreset <name>",
       display: "rainpreset <name>",
       desc: (context) =>
@@ -296,6 +307,14 @@ export const help = {
     "toxic",
     "virus",
   ],
+};
+
+export const rainfont = {
+  messages: {
+    usage: "Usage: rainfont &lt;classic | resurrections | combined&gt;",
+    unknown: (name) =>
+      `Unknown font set: '${name}'. Type 'rainfont' for options.`,
+  },
 };
 
 export const rainpreset = {

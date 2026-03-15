@@ -78,6 +78,30 @@
     ],
     "notes": "Manual pages are sourced from 'public/config/content/manPages.json'."
   },
+  "rainfont": {
+    "name": "rainfont - Switch the Matrix rain font and glyph set.",
+    "synopsis": "rainfont <classic | resurrections | combined>",
+    "description": "Changes the font used by the rain animation. 'classic' uses the original Matrix trilogy (1999) katakana glyphs (57 chars). 'resurrections' uses the expanded Matrix Resurrections (2021) glyph set (138 chars). 'combined' uses both fonts together (194 chars). Both font files are sourced from the Rezmason/matrix project. Run without arguments to see current font and available options.",
+    "arguments": "<name>: classic, resurrections, or combined.",
+    "examples": [
+      "rainfont classic        - Original 1999 Matrix look.",
+      "rainfont resurrections  - Matrix Resurrections (2021) glyphs.",
+      "rainfont combined       - Both glyph sets (default)."
+    ],
+    "notes": "Font sets are defined in 'public/config/rain.json'. The classic set uses Matrix-Code.ttf (MatrixA), resurrections uses Matrix-Resurrected.ttf (MatrixB)."
+  },
+  "rainsize": {
+    "name": "rainsize - Set the size of rain glyphs.",
+    "synopsis": "rainsize <px> | rainsize reset",
+    "description": "Changes the pixel size of glyphs in the Matrix rain animation. Accepts an integer between 8 and 40. Use 'reset' to restore the default size. Changing size triggers a full rain rebuild.",
+    "arguments": "<px>: Integer pixel size (8–40).\nreset: Restore default size.",
+    "examples": [
+      "rainsize 14    - Smaller, denser rain.",
+      "rainsize 22    - Larger, bolder glyphs.",
+      "rainsize reset - Restore default (16px)."
+    ],
+    "notes": "Smaller sizes create denser rain with more columns. Larger sizes are bolder but sparser."
+  },
   "rainpreset": {
     "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
     "synopsis": "rainpreset <preset_name>",
