@@ -7,6 +7,8 @@
  *  - Selective head highlighting (~1 in 5 streams get extra glow)
  *  - Head stammer (highlighted heads periodically pause in unison)
  *  - Depth conveyed via opacity layers only (uniform font size)
+ *  - Head character flickers constantly; trail characters are near-static
+ *  - Near-head glow gradient on all streams (first few chars pop)
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
@@ -19,8 +21,9 @@ const randRange = (min, max) => min + randInt(max - min + 1);
 /** ~1 in 5 streams get extra head glow (per the film). */
 const HIGHLIGHT_CHANCE = 0.2;
 
-/** All mutable glyphs change on the same frame, every N frames. */
-const GLYPH_SYNC_INTERVAL = 3;
+/** All mutable glyphs change on the same frame, every N frames.
+ *  Higher = less frequent mutation = more static trail (closer to film). */
+const GLYPH_SYNC_INTERVAL = 6;
 
 /** Every N frames, highlighted heads skip one advancement step. */
 const STAMMER_INTERVAL = 90;
@@ -56,13 +59,17 @@ class Stream {
       CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail),
     );
     this.headGlow = randRange(CFG.headGlowMin, CFG.headGlowMax);
-    this.head = -randInt(Math.floor(this.len * 0.5));
+
+    // Scatter: random delay before stream becomes visible.
+    // Use full screen height range so streams restart at very different times,
+    // preventing synchronization and keeping coverage even across the screen.
+    this.head = -randInt(this.rows);
 
     // Fresh character buffer for each pass
     this.buf = Array.from({ length: this.rows }, () => this.randChar());
 
-    // Per-stream speed variation (+-25% of base speed)
-    const speedVar = 0.25;
+    // Per-stream speed variation (+-35% of base speed for organic distribution)
+    const speedVar = 0.35;
     this.speed = CFG.speed * (1 + (Math.random() * speedVar * 2 - speedVar));
     this.lastUpdate = 0;
 
@@ -113,13 +120,14 @@ class Stream {
 
   /**
    * Globally synchronized glyph mutation. Called on all streams at once
-   * every GLYPH_SYNC_INTERVAL frames. Only mutates visible trail chars.
+   * every GLYPH_SYNC_INTERVAL frames. Trail characters are near-static
+   * (3% chance per glyph) — the head is the only thing that changes rapidly.
    */
   mutateGlyphs() {
     if (this.isSentient) return;
     for (let r = 0; r < this.rows; r++) {
       const t = this.head - r;
-      if (t >= 0 && t < this.len && this.buf[r] && Math.random() < 0.2) {
+      if (t >= 0 && t < this.len && this.buf[r] && Math.random() < 0.03) {
         this.buf[r] = this.randChar();
       }
     }
@@ -136,36 +144,36 @@ class Stream {
       // Deletion streams randomly skip drawing some glyphs (sparse gaps)
       if (this.del && Math.random() < 0.5) continue;
 
-      let alpha;
-      let colour;
+      // Base trail: exponential fade behind the head
+      let alpha = Math.pow(CFG.decayBase, t) * this.opacity;
+      let colour = CFG.baseCol;
       let blur = 0;
 
       if (this.isSentient) {
         // Ghostly: sentient phrases are subtle whispers, not announcements
         colour = CFG.baseCol;
         alpha = Math.pow(0.95, t) * this.opacity * 0.6;
-        blur = 0;
         if (t === 0) {
           colour = CFG.headCol;
           alpha = 0.7;
           blur = CFG.blur * 0.5;
         }
-      } else {
-        // Standard trail: exponential fade behind the head
-        alpha = Math.pow(CFG.decayBase, t) * this.opacity;
-        colour = CFG.baseCol;
-
-        // Head rendering: all heads are white, highlighted ones get extra glow
-        if (t === 0) {
-          colour = "#ffffff";
-          alpha = 1;
-          blur = this.hasHighlight ? CFG.blur : 0;
-        } else if (this.hasHighlight && t < this.headGlow && t > 0) {
-          // Glow gradient behind a highlighted head
-          colour = CFG.headCol;
-          alpha *= 1 - (t / this.headGlow) * 0.5 + 0.2;
-          blur = CFG.blur * (1 - t / this.headGlow);
-        }
+      } else if (t === 0) {
+        // Head: white, full brightness
+        colour = "#ffffff";
+        alpha = 1;
+        blur = this.hasHighlight ? CFG.blur : 0;
+      } else if (t <= 2) {
+        // Near-head glow: first 2 chars after head use glow color for ALL streams.
+        // This creates the "popping" leading characters seen in the film.
+        colour = CFG.headCol;
+        alpha = Math.max(alpha, (0.85 - t * 0.1) * this.opacity);
+        if (this.hasHighlight) blur = CFG.blur * (1 - t / this.headGlow);
+      } else if (this.hasHighlight && t < this.headGlow) {
+        // Extended glow gradient for highlighted heads only (~20% of streams)
+        colour = CFG.headCol;
+        alpha *= 1 - (t / this.headGlow) * 0.5 + 0.2;
+        blur = CFG.blur * (1 - t / this.headGlow);
       }
 
       alpha = Math.min(1, alpha);
@@ -180,8 +188,12 @@ class Stream {
         ctx.shadowBlur = 0;
       }
 
-      if (this.buf[r]) {
-        ctx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
+      // Head flickers: draw a fresh random char at t=0 every frame.
+      // Trail characters stay static (set once in step(), rarely mutated).
+      // This matches the film where only the leading cursor changes rapidly.
+      const ch = t === 0 && !this.isSentient ? this.randChar() : this.buf[r];
+      if (ch) {
+        ctx.fillText(ch, x, r * CFG.font * CFG.lineH);
       }
     }
   }
@@ -278,9 +290,11 @@ export default class RainEngine {
         ),
     );
 
-    // Scatter initial head positions so streams don't all start together
+    // Scatter initial head positions across full cycle range
+    // so streams are evenly distributed across the screen from the start
     for (const s of this.streams) {
-      s.head = -randInt(rows * 2);
+      s.head = -randInt(rows) + randInt(rows + s.len);
+      s.lastUpdate = performance.now();
     }
   }
 
