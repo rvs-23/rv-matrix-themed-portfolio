@@ -60,10 +60,11 @@ class Stream {
     );
     this.headGlow = randRange(CFG.headGlowMin, CFG.headGlowMax);
 
-    // Scatter: random delay before stream becomes visible.
-    // Use full screen height range so streams restart at very different times,
-    // preventing synchronization and keeping coverage even across the screen.
-    this.head = -randInt(this.rows);
+    // Short restart delay: at most ~12% of screen height before stream
+    // becomes visible again. Keeps columns well-covered at the top
+    // (~85-90% of columns have visible rain at any moment).
+    // Initial scatter for startup is handled separately in setup().
+    this.head = -randInt(Math.max(1, Math.floor(this.rows * 0.12)));
 
     // Fresh character buffer for each pass
     this.buf = Array.from({ length: this.rows }, () => this.randChar());
@@ -136,6 +137,9 @@ class Stream {
   draw(ctx, CFG) {
     if (!ctx) return;
     const x = this.col * (CFG.colW || CFG.font);
+    // Glow region: first ~30% of trail uses brighter glow color,
+    // creating the continuous illumination gradient seen in the film.
+    const glowRegion = Math.max(3, Math.floor(this.len * 0.3));
 
     for (let r = 0; r < this.rows; r++) {
       const t = this.head - r;
@@ -163,14 +167,22 @@ class Stream {
         colour = "#ffffff";
         alpha = 1;
         blur = this.hasHighlight ? CFG.blur : 0;
-      } else if (t <= 2) {
-        // Near-head glow: first 2 chars after head use glow color for ALL streams.
-        // This creates the "popping" leading characters seen in the film.
+      } else if (t < glowRegion) {
+        // Continuous glow gradient: headCol fading smoothly into baseCol.
+        // All streams get this — it's what makes the rain look "neon"
+        // rather than flat green. Subtle shadowBlur on all streams in
+        // this region approximates the additive bloom from the film.
+        const glowFade = t / glowRegion; // 0 at head → 1 at boundary
         colour = CFG.headCol;
-        alpha = Math.max(alpha, (0.85 - t * 0.1) * this.opacity);
-        if (this.hasHighlight) blur = CFG.blur * (1 - t / this.headGlow);
+        alpha = Math.max(alpha, (0.9 - glowFade * 0.5) * this.opacity);
+        // Subtle bloom for all streams; stronger for highlighted
+        if (this.hasHighlight && t < this.headGlow) {
+          blur = CFG.blur * (1 - t / this.headGlow);
+        } else {
+          blur = CFG.blur * 0.25 * (1 - glowFade);
+        }
       } else if (this.hasHighlight && t < this.headGlow) {
-        // Extended glow gradient for highlighted heads only (~20% of streams)
+        // Extended glow for highlighted heads beyond the glow region
         colour = CFG.headCol;
         alpha *= 1 - (t / this.headGlow) * 0.5 + 0.2;
         blur = CFG.blur * (1 - t / this.headGlow);
