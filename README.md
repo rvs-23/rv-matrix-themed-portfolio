@@ -101,7 +101,7 @@ The rain engine implements behaviors from [Carl Newton's digital rain analysis](
 - **Globally synchronized mutations** — All visible character changes happen simultaneously every 3 frames.
 - **Selective head highlighting** — Only ~20% of streams have bright white glowing heads (per the film).
 - **Head stammer** — Every ~90 frames, all highlighted heads pause for one frame, creating rhythmic desynchronization.
-- **Authentic glyph set** — 30 half-width katakana + `日` + `0-9` + `Z` + 11 symbols (54 total, per the film).
+- **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look.
 
 ---
 

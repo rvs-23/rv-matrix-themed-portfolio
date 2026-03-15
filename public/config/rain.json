@@ -19,7 +19,7 @@
     "layerOp": [1, 0.7, 0.5],
     "delChance": 0.04
   },
-  "glyphs": "ﾊﾋｼﾂｳｰﾅﾐﾓﾆｻﾜｵﾘﾎﾏｴｷﾑﾃｹﾒｶﾕﾗｾﾈｽﾀﾇ日0123456789Z*+:=\".<>|¦_",
+  "glyphs": "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789CKUVFRZ*|:=<>-_",
   "presets": {
     "default": {
       "description": "Resets rain to its original default configuration.",

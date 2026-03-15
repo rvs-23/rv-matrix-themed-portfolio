@@ -2,15 +2,11 @@
  * @file js/rain/engine.js
  * Matrix digital rain engine with sentient phrases.
  *
- * Implements film-accurate behaviors from Carl Newton's digital rain analysis:
- *  - Stationary glyphs with illumination waves passing downward
+ * Film-accurate behaviors (Carl Newton's digital rain analysis):
  *  - Globally synchronized glyph mutations (all changes on the same frame)
- *  - Selective head highlighting (~1 in 5 streams get bright white heads)
- *  - Deletion streams that erase characters, creating organic density cycles
+ *  - Selective head highlighting (~1 in 5 streams get extra glow)
  *  - Head stammer (highlighted heads periodically pause in unison)
- *  - Depth via opacity layers only (no font-size variation)
- *
- * Glyph set: 30 half-width katakana + 日 + 0-9 + Z + 11 symbols (54 chars).
+ *  - Depth conveyed via opacity layers only (uniform font size)
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
@@ -20,39 +16,24 @@ const randRange = (min, max) => min + randInt(max - min + 1);
 
 /* ── Carl Newton constants ────────────────────────────────────────────── */
 
-/** ~1 in 5 streams get a bright white highlighted head (per the film). */
+/** ~1 in 5 streams get extra head glow (per the film). */
 const HIGHLIGHT_CHANCE = 0.2;
 
-/**
- * All mutable glyphs change on the same frame. In the film this happens
- * every 3 frames; we use the engine's globalTick counter to synchronize.
- */
+/** All mutable glyphs change on the same frame, every N frames. */
 const GLYPH_SYNC_INTERVAL = 3;
 
-/**
- * Every ~90 frames, all highlighted heads "stammer" — they skip one
- * advancement step while non-highlighted streams continue normally.
- * This creates the subtle rhythmic desynchronization visible in the film.
- */
+/** Every N frames, highlighted heads skip one advancement step. */
 const STAMMER_INTERVAL = 90;
 
 /* ── Stream ───────────────────────────────────────────────────────────── */
 
 class Stream {
-  /**
-   * Each Stream represents one column of the rain. Characters in `buf`
-   * are stationary — only the illumination cursor (`head`) moves downward.
-   * New glyphs are placed at the head position as it advances.
-   */
   constructor(colIndex, rows, config, glyphs, sentientPhrases = []) {
     this.col = colIndex;
     this.rows = rows;
     this.glyphs = glyphs;
     this.sentientPhrases = sentientPhrases;
     this.sentientChance = 0.069;
-
-    // Pre-fill the column with random glyphs (persistent grid)
-    this.buf = Array.from({ length: this.rows }, () => this.randChar());
     this.reset(config);
   }
 
@@ -60,30 +41,25 @@ class Stream {
     return this.glyphs.charAt(randInt(this.glyphs.length));
   }
 
-  /**
-   * Re-initialize stream state for a new pass down the column.
-   * The character buffer is NOT fully re-randomized — glyphs persist
-   * from previous passes (film-accurate: glyphs stay in place).
-   */
   reset(CFG) {
     // Depth via opacity: use the configured layer system
     this.layer = CFG.layers > 0 ? randInt(CFG.layers) : 0;
     this.opacity = CFG.layerOp?.[this.layer] ?? 1;
 
-    // Deletion stream: erases characters instead of placing new ones.
-    // Creates organic breathing as columns go dark then refill.
-    this.isDeletion = Math.random() < CFG.delChance;
+    // Deletion flag: randomly skip drawing some glyphs (creates sparse gaps)
+    this.del = Math.random() < CFG.delChance;
 
-    // Selective highlighting: only ~20% get bright white head glow
-    this.hasHighlight = !this.isDeletion && Math.random() < HIGHLIGHT_CHANCE;
+    // Selective highlighting: only ~20% get extra head glow
+    this.hasHighlight = !this.del && Math.random() < HIGHLIGHT_CHANCE;
 
     this.len = Math.round(
       CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail),
     );
     this.headGlow = randRange(CFG.headGlowMin, CFG.headGlowMax);
-
-    // Start above the visible area for a staggered entrance
     this.head = -randInt(Math.floor(this.len * 0.5));
+
+    // Fresh character buffer for each pass
+    this.buf = Array.from({ length: this.rows }, () => this.randChar());
 
     // Per-stream speed variation (+-25% of base speed)
     const speedVar = 0.25;
@@ -91,11 +67,7 @@ class Stream {
     this.lastUpdate = 0;
 
     // Sentient phrase: occasionally a stream spells out a hidden message
-    if (
-      !this.isDeletion &&
-      Math.random() < this.sentientChance &&
-      this.sentientPhrases.length
-    ) {
+    if (Math.random() < this.sentientChance && this.sentientPhrases.length) {
       this.isSentient = true;
       this.sentientText =
         this.sentientPhrases[randInt(this.sentientPhrases.length)];
@@ -111,7 +83,6 @@ class Stream {
   /**
    * Advance the illumination cursor one row downward.
    * @param {boolean} isStammerFrame - If true, highlighted heads skip this step
-   * @returns {boolean} Whether the stream was due for an update this frame
    */
   step(CFG, timestamp, isStammerFrame) {
     if (timestamp - this.lastUpdate < this.speed) return false;
@@ -119,23 +90,16 @@ class Stream {
 
     // Stammer: highlighted streams skip one advancement frame
     if (isStammerFrame && this.hasHighlight) {
-      return true; // Still "stepped" (for draw), but head doesn't advance
+      return true;
     }
 
     this.head++;
 
-    // Place or erase the glyph at the new head position
+    // Place a new glyph at the head position
     if (this.head >= 0 && this.head < this.rows) {
-      if (this.isDeletion) {
-        // Deletion stream: erase the cell (creates dark gap)
-        this.buf[this.head] = null;
-      } else if (
-        this.isSentient &&
-        this.sentientIndex < this.sentientText.length
-      ) {
+      if (this.isSentient && this.sentientIndex < this.sentientText.length) {
         this.buf[this.head] = this.sentientText[this.sentientIndex++];
       } else {
-        // Normal stream: new glyph appears at head (film: "glyphs appear beneath")
         this.buf[this.head] = this.randChar();
       }
     }
@@ -150,40 +114,35 @@ class Stream {
   }
 
   /**
-   * Globally synchronized glyph mutation. Called on all streams simultaneously
-   * every GLYPH_SYNC_INTERVAL frames. Only mutates visible trail characters;
-   * sentient and deletion streams are exempt.
+   * Globally synchronized glyph mutation. Called on all streams at once
+   * every GLYPH_SYNC_INTERVAL frames. Only mutates visible trail chars.
    */
   mutateGlyphs() {
-    if (this.isSentient || this.isDeletion) return;
+    if (this.isSentient) return;
     for (let r = 0; r < this.rows; r++) {
       const t = this.head - r;
-      // Only mutate characters currently within the visible trail
-      if (t >= 0 && t < this.len && this.buf[r] && Math.random() < 0.15) {
+      if (t >= 0 && t < this.len && this.buf[r] && Math.random() < 0.2) {
         this.buf[r] = this.randChar();
       }
     }
   }
 
-  /**
-   * Render this stream's visible trail onto the canvas.
-   * Deletion streams produce no visible output (they only erase grid cells).
-   */
-  draw(ctx, CFG, colWidth) {
-    if (!ctx || this.isDeletion) return;
-    const x = this.col * colWidth;
+  draw(ctx, CFG) {
+    if (!ctx) return;
+    const x = this.col * CFG.font;
 
     for (let r = 0; r < this.rows; r++) {
-      const t = this.head - r; // Distance behind the head (0 = head itself)
+      const t = this.head - r;
       if (t < 0 || t >= this.len) continue;
-      if (!this.buf[r]) continue; // Skip deleted/empty cells
+
+      // Deletion streams randomly skip drawing some glyphs (sparse gaps)
+      if (this.del && Math.random() < 0.5) continue;
 
       let alpha;
       let colour;
       let blur = 0;
 
       if (this.isSentient) {
-        // Sentient streams glow in the head color with slow decay
         colour = CFG.headCol;
         alpha = Math.pow(0.97, t) * this.opacity;
         blur = CFG.blur * alpha * 1.5;
@@ -197,14 +156,11 @@ class Stream {
         alpha = Math.pow(CFG.decayBase, t) * this.opacity;
         colour = CFG.baseCol;
 
-        if (t === 0 && this.hasHighlight) {
-          // Highlighted head: pure white with glow (film: ~1 in 5 streams)
+        // Head rendering: all heads are white, highlighted ones get extra glow
+        if (t === 0) {
           colour = "#ffffff";
           alpha = 1;
-          blur = CFG.blur;
-        } else if (t === 0) {
-          // Non-highlighted head: slightly brighter green, no glow
-          alpha = Math.min(1, alpha * 1.5);
+          blur = this.hasHighlight ? CFG.blur : 0;
         } else if (this.hasHighlight && t < this.headGlow && t > 0) {
           // Glow gradient behind a highlighted head
           colour = CFG.headCol;
@@ -217,7 +173,7 @@ class Stream {
       ctx.globalAlpha = Math.max(0, alpha);
       ctx.fillStyle = colour;
 
-      // Only apply shadow blur when needed (performance optimization)
+      // Only apply shadow blur when needed (performance)
       if (blur > 0) {
         ctx.shadowColor = colour;
         ctx.shadowBlur = Math.max(0, blur);
@@ -225,7 +181,9 @@ class Stream {
         ctx.shadowBlur = 0;
       }
 
-      ctx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
+      if (this.buf[r]) {
+        ctx.fillText(this.buf[r], x, r * CFG.font * CFG.lineH);
+      }
     }
   }
 }
@@ -249,13 +207,10 @@ export default class RainEngine {
     this.sentientPhrases = sentientPhrases;
     this.dpr = window.devicePixelRatio || 1;
 
-    /** Measured column width from ctx.measureText — used consistently in draw */
-    this.colWidth = 0;
-
     /** Frame counter for globally synchronized glyph mutations */
     this.globalTick = 0;
 
-    /** Counter for the stammer effect (highlighted heads pause periodically) */
+    /** Counter for the stammer effect */
     this.stammerCounter = 0;
 
     this._resizeTimeout = null;
@@ -280,25 +235,20 @@ export default class RainEngine {
       await document.fonts.ready.catch(() => {});
     }
 
-    // Size canvas to window, accounting for device pixel ratio
     this.canvas.width = window.innerWidth * this.dpr;
     this.canvas.height = window.innerHeight * this.dpr;
     this.canvas.style.width = `${window.innerWidth}px`;
     this.canvas.style.height = `${window.innerHeight}px`;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
 
-    // Single font size for all streams (depth via opacity, not font scaling)
     this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
     this.ctx.textBaseline = "top";
 
-    // Use measured glyph width for consistent column spacing
+    // Column width from measured text for accurate column count
     const metrics = this.ctx.measureText("M");
-    this.colWidth = metrics.width || this.activeConfig.font;
+    const colW = metrics.width || this.activeConfig.font;
 
-    const totalCols = Math.max(
-      1,
-      Math.floor(window.innerWidth / this.colWidth),
-    );
+    const totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
     const rows = Math.max(
       1,
       Math.floor(
@@ -307,7 +257,6 @@ export default class RainEngine {
       ),
     );
 
-    // Filter columns by density — not every column gets a stream
     const allColIndices = [...Array(totalCols).keys()];
     const activeColIndices = allColIndices.filter(
       () => Math.random() < this.activeConfig.density,
@@ -334,9 +283,10 @@ export default class RainEngine {
     const themeColors = getCurrentThemeColors();
     this.globalTick++;
 
-    // Background fade at ~30fps — draws semi-transparent background to create trails
+    // Background fade at ~30fps
     if (timestamp - this.lastFrameTime >= 33) {
       this.lastFrameTime = timestamp;
+
       this.ctx.shadowBlur = 0;
       this.ctx.globalAlpha = this.activeConfig.fade;
       this.ctx.fillStyle = themeColors.background;
@@ -362,13 +312,11 @@ export default class RainEngine {
       this.stammerCounter = 0;
     }
 
-    // Step and draw all streams in a single pass (uniform font size)
-    this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
     this.ctx.globalAlpha = 1;
     for (const s of this.streams) {
       const didStep = s.step(this.activeConfig, timestamp, isStammerFrame);
       if (didStep) {
-        s.draw(this.ctx, this.activeConfig, this.colWidth);
+        s.draw(this.ctx, this.activeConfig);
       }
     }
 
@@ -415,7 +363,6 @@ export default class RainEngine {
     }
 
     if (preset.config) {
-      // Check if structural params changed (these require a full stream rebuild)
       const needsRebuild =
         preset.config.font !== undefined ||
         preset.config.density !== undefined ||
@@ -429,7 +376,6 @@ export default class RainEngine {
       if (needsRebuild) {
         this.start();
       } else {
-        // Non-structural change: streams adopt new speed/trail/glow on next reset
         this.refreshColors();
       }
 
