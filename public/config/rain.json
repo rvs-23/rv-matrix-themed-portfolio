@@ -1,0 +1,184 @@
+{
+  "defaultConfig": {
+    "speed": 40,
+    "font": 16,
+    "lineH": 1,
+    "density": 0.95,
+    "minTrail": 20,
+    "maxTrail": 85,
+    "headGlowMin": 8,
+    "headGlowMax": 18,
+    "blur": 10,
+    "bloomRadius": 8,
+    "bloomIntensity": 0.15,
+    "trailMutate": 10,
+    "fade": 0.18,
+    "decayBase": 0.96,
+    "baseCol": "#0aff0a",
+    "headCol": "#c8ffc8",
+    "fontFamily": "MatrixA, MatrixB, monospace",
+    "layers": 3,
+    "layerOp": [1, 0.7, 0.5],
+    "delChance": 0.04,
+    "multiStream": 0.2
+  },
+  "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989",
+  "fontSets": {
+    "classic": {
+      "description": "Original Matrix trilogy (1999) — mirrored katakana, digits, symbols. 57 glyphs from Matrix-Code.ttf.",
+      "fontFamily": "MatrixA, monospace",
+      "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937"
+    },
+    "resurrections": {
+      "description": "Matrix Resurrections (2021) — expanded glyph set. 138 glyphs from Matrix-Resurrected.ttf.",
+      "fontFamily": "MatrixB, monospace",
+      "glyphs": "\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue937\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989"
+    },
+    "combined": {
+      "description": "Both classic and Resurrections glyphs combined. 194 glyphs from both fonts.",
+      "fontFamily": "MatrixA, MatrixB, monospace",
+      "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989"
+    }
+  },
+  "presets": {
+    "default": {
+      "description": "Resets rain to its original default configuration.",
+      "isReset": true
+    },
+    "comet": {
+      "description": "Fewer, long, bright-headed streams with slow fades.",
+      "config": {
+        "speed": 50,
+        "font": 20,
+        "density": 0.35,
+        "minTrail": 60,
+        "maxTrail": 90,
+        "headGlowMin": 7,
+        "headGlowMax": 13,
+        "blur": 7,
+        "fade": 0.07,
+        "decayBase": 0.965,
+        "trailMutate": 220,
+        "layers": 4,
+        "delChance": 0.02,
+        "fontFamily": "MatrixA, MatrixB, monospace"
+      }
+    },
+    "storm": {
+      "description": "Very fast, dense, and chaotic code rain with quick fades.",
+      "config": {
+        "speed": 30,
+        "font": 15,
+        "density": 1.15,
+        "lineH": 0.85,
+        "minTrail": 10,
+        "maxTrail": 25,
+        "headGlowMin": 2,
+        "headGlowMax": 4,
+        "blur": 2,
+        "fade": 0.28,
+        "decayBase": 0.87,
+        "trailMutate": 35,
+        "layers": 2,
+        "delChance": 0.1
+      }
+    },
+    "whisper": {
+      "description": "Subtle, dense, micro-rain with very slow character churn.",
+      "config": {
+        "speed": 110,
+        "font": 12,
+        "lineH": 0.8,
+        "density": 0.95,
+        "minTrail": 30,
+        "maxTrail": 50,
+        "headGlowMin": 1,
+        "headGlowMax": 2,
+        "blur": 1,
+        "fade": 0.09,
+        "decayBase": 0.94,
+        "trailMutate": 280,
+        "fontFamily": "MatrixA, monospace",
+        "layers": 3,
+        "delChance": 0.01
+      }
+    },
+    "pulse": {
+      "description": "Layered rain with prominent erasing streams creating dynamic gaps.",
+      "config": {
+        "speed": 85,
+        "font": 18,
+        "density": 0.5,
+        "minTrail": 20,
+        "maxTrail": 35,
+        "headGlowMin": 3,
+        "headGlowMax": 5,
+        "blur": 4,
+        "fade": 0.17,
+        "decayBase": 0.91,
+        "trailMutate": 160,
+        "layers": 5,
+        "layerOp": [1, 0.8, 0.6, 0.35, 0.15],
+        "delChance": 0.18
+      }
+    },
+    "ancient": {
+      "description": "Larger, slower, more persistent glyphs with a classic feel.",
+      "config": {
+        "speed": 140,
+        "font": 23,
+        "density": 0.45,
+        "minTrail": 40,
+        "maxTrail": 70,
+        "headGlowMin": 2,
+        "headGlowMax": 5,
+        "blur": 3,
+        "fade": 0.05,
+        "decayBase": 0.95,
+        "trailMutate": 300,
+        "layers": 3,
+        "delChance": 0.03,
+        "fontFamily": "MatrixA, MatrixB, monospace"
+      }
+    },
+    "emberfall": {
+      "description": "Short, bright streams that fade quickly, like falling embers.",
+      "config": {
+        "speed": 70,
+        "font": 17,
+        "density": 0.6,
+        "minTrail": 5,
+        "maxTrail": 15,
+        "headGlowMin": 6,
+        "headGlowMax": 12,
+        "blur": 10,
+        "fade": 0.25,
+        "decayBase": 0.88,
+        "trailMutate": 50,
+        "layers": 3,
+        "layerOp": [1, 0.6, 0.3],
+        "delChance": 0.01
+      }
+    }
+  },
+  "validationRules": {
+    "speed": { "type": "int", "min": 10, "max": 500 },
+    "font": { "type": "int", "min": 8, "max": 40 },
+    "lineH": { "type": "float", "min": 0.5, "max": 2.0 },
+    "density": { "type": "float", "min": 0.1, "max": 2.0 },
+    "minTrail": { "type": "int", "min": 1, "max": 100 },
+    "maxTrail": { "type": "int", "min": 1, "max": 100 },
+    "headGlowMin": { "type": "int", "min": 0, "max": 20 },
+    "headGlowMax": { "type": "int", "min": 0, "max": 20 },
+    "blur": { "type": "int", "min": 0, "max": 20 },
+    "bloomRadius": { "type": "int", "min": 0, "max": 30 },
+    "bloomIntensity": { "type": "float", "min": 0, "max": 1.0 },
+    "trailMutate": { "type": "int", "min": 10, "max": 1000 },
+    "fade": { "type": "float", "min": 0.01, "max": 1.0 },
+    "decayBase": { "type": "float", "min": 0.7, "max": 0.99 },
+    "layers": { "type": "int", "min": 1, "max": 10 },
+    "layerOp": { "type": "array_float", "ele_min": 0, "ele_max": 1 },
+    "delChance": { "type": "float", "min": 0, "max": 1 },
+    "multiStream": { "type": "float", "min": 0, "max": 0.8 }
+  }
+}

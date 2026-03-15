@@ -1,0 +1,99 @@
+# Mac OS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.Spotlight-V100
+.Trashes
+
+# IDE / Editor specific files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Log files
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+bower_components/
+
+# Build output & distribution folders
+dist/
+build/
+out/
+public/build/
+target/
+.parcel-cache/
+.svelte-kit/
+.next/
+.nuxt/
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.swp
+*~
+*.bak
+*.patch
+
+# Linting & Formatting config artifacts
+.eslintcache
+.prettiercache
+.prettierignore
+.prettierrc
+.prettierrc.*
+.stylelintignore
+.stylelintrc
+.stylelintrc.*
+.nyc_output/
+.vitest/
+vitest.config.js
+.vscode-test/
+
+# TypeScript (if used) [OPTIONAL]
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# System crash logs (sometimes generated when node crashes)
+*.pid
+*.pid.lock
+
+# Yarn/PNPM lock (keep if using npm)
+yarn.lock
+pnpm-lock.yaml
+
+# Local-only assets (not pushed to remote)
+assets_local/
+
+# misc
+*.tgz                 # Packaged modules
+
