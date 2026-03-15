@@ -281,6 +281,13 @@ body.theme-copper {
   --terminal-base-b: 8;
 }
 
+/* Ghost/Obsidian scrollbar contrast overrides */
+body.theme-ghost,
+body.theme-obsidian {
+  --scrollbar-thumb-color: rgba(255, 255, 255, 0.35);
+  --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.6);
+}
+
 /* OBSIDIAN – volcanic black with lava orange */
 body.theme-obsidian {
   --primary-color: #696969; /* Dim Gray */
