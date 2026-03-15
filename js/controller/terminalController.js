@@ -3,29 +3,26 @@
  * Manages terminal DOM elements, input, output, history, and related functionalities.
  */
 
-let terminalOutputEl, commandInputEl, mainContentContainerEl;
-let currentTerminalSize = {};
-let commandHistory = [];
-let historyIndex = 0;
-let terminalVisible = true;
-let defaultTerminalSizeConfig = { width: "50vw", height: "50vh" }; // Fallback
-let initialTermOpacityConfig = 0.8; // Fallback
-let userDetailsConfig = { userName: "User" }; // Fallback
-let fullWelcomeMsg = "Welcome!"; // Fallback
+const MAX_HISTORY = 100;
 
-// To be initialized by main.js
-let registeredCommands = {};
-let getCommandContextFunction = () => ({});
-
-// --- Autocomplete State Variables ---
-let availableCommandsForAutocomplete = [];
-let lastAutocompletePrefix = ""; // Stores the input prefix for current suggestions
-let autocompleteSuggestions = []; // Stores current list of matching suggestions
-let autocompleteIndex = 0; // Index for cycling through suggestions
+const state = {
+  elements: { output: null, input: null, container: null },
+  history: { entries: [], index: 0 },
+  terminal: {
+    visible: true,
+    size: {},
+    defaultSize: { width: "50vw", height: "50vh" },
+    opacity: 0.8,
+  },
+  autocomplete: { prefix: "", suggestions: [], index: 0, commands: [] },
+  config: { user: { userName: "User" }, welcomeMsg: "Welcome!" },
+  commands: {},
+  getContext: () => ({}),
+};
 
 export function focusInput() {
-  if (commandInputEl) {
-    commandInputEl.focus();
+  if (state.elements.input) {
+    state.elements.input.focus();
   }
 }
 
@@ -34,28 +31,28 @@ export function initializeTerminalController(
   commands,
   commandContextFunc,
 ) {
-  terminalOutputEl = document.getElementById("terminal-output");
-  commandInputEl = document.getElementById("command-input");
-  mainContentContainerEl = document.getElementById("contentContainer");
+  state.elements.output = document.getElementById("terminal-output");
+  state.elements.input = document.getElementById("command-input");
+  state.elements.container = document.getElementById("contentContainer");
 
   const termConfig = config.config.terminal;
-  defaultTerminalSizeConfig =
-    termConfig.defaultSize || defaultTerminalSizeConfig;
-  currentTerminalSize = { ...defaultTerminalSizeConfig }; // Initialize with default
-  initialTermOpacityConfig =
-    termConfig.initialOpacity || initialTermOpacityConfig;
-  userDetailsConfig = config.config.user || userDetailsConfig;
+  state.terminal.defaultSize =
+    termConfig.defaultSize || state.terminal.defaultSize;
+  state.terminal.size = { ...state.terminal.defaultSize };
+  state.terminal.opacity =
+    termConfig.initialOpacity || state.terminal.opacity;
+  state.config.user = config.config.user || state.config.user;
 
-  registeredCommands = commands;
-  getCommandContextFunction = commandContextFunc;
+  state.commands = commands;
+  state.getContext = commandContextFunc;
 
   // Initialize available commands for autocomplete
-  availableCommandsForAutocomplete = Object.keys(registeredCommands).sort();
+  state.autocomplete.commands = Object.keys(state.commands).sort();
 
   // Setup initial styles and welcome message
   document.documentElement.style.setProperty(
     "--terminal-opacity",
-    String(initialTermOpacityConfig),
+    String(state.terminal.opacity),
   );
   const initialTheme =
     Array.from(document.body.classList).find((cls) =>
@@ -71,48 +68,46 @@ export function initializeTerminalController(
     document.documentElement.style.setProperty("--terminal-base-g", "24");
     document.documentElement.style.setProperty("--terminal-base-b", "39");
   }
-  updatePrimaryColorRGB(); // Set initial --primary-color-rgb
+  updatePrimaryColorRGB();
 
   _applyDomConfigs(config.config);
 
-  const plainNameArt = `<span class="ascii-name">${(userDetailsConfig.name || "USER").toUpperCase()}</span>`;
-  const welcomeText = `Welcome to ${userDetailsConfig.name || "User"}'s Terminal.\nType 'help' to see available commands.\n(Ctrl + \\ to toggle terminal visibility)\n---------------------------------------------------`;
-  fullWelcomeMsg = `${plainNameArt}\n${welcomeText}`;
+  const plainNameArt = `<span class="ascii-name">${(state.config.user.name || "USER").toUpperCase()}</span>`;
+  const welcomeText = `Welcome to ${state.config.user.name || "User"}'s Terminal.\nType 'help' to see available commands.\n(Ctrl + \\ to toggle terminal visibility)\n---------------------------------------------------`;
+  state.config.welcomeMsg = `${plainNameArt}\n${welcomeText}`;
 
-  if (commandInputEl) {
-    commandInputEl.addEventListener("keydown", handleCommandInputKeydown);
-    // Add event listener to reset autocomplete if input changes via non-keydown events (e.g. paste)
-    commandInputEl.addEventListener("input", () => {
+  if (state.elements.input) {
+    state.elements.input.addEventListener("keydown", handleCommandInputKeydown);
+    state.elements.input.addEventListener("input", () => {
       if (
-        commandInputEl.value !== lastAutocompletePrefix &&
-        !commandInputEl.value.startsWith(
-          lastAutocompletePrefix.split(" ")[0] || "",
+        state.elements.input.value !== state.autocomplete.prefix &&
+        !state.elements.input.value.startsWith(
+          state.autocomplete.prefix.split(" ")[0] || "",
         )
       ) {
-        lastAutocompletePrefix = "";
-        autocompleteSuggestions = [];
-        autocompleteIndex = 0;
+        state.autocomplete.prefix = "";
+        state.autocomplete.suggestions = [];
+        state.autocomplete.index = 0;
       }
     });
   }
-  if (mainContentContainerEl) {
-    mainContentContainerEl.addEventListener("click", (e) => {
-      if (!terminalVisible) return;
+  if (state.elements.container) {
+    state.elements.container.addEventListener("click", (e) => {
+      if (!state.terminal.visible) return;
       if (e.target.tagName !== "A" && e.target.tagName !== "INPUT") {
-        if (commandInputEl) commandInputEl.focus();
+        if (state.elements.input) state.elements.input.focus();
       }
     });
   }
 
   displayInitialWelcomeMessage();
-  document.body.classList.remove("terminal-hidden"); // Ensure terminal is visible initially
+  document.body.classList.remove("terminal-hidden");
 
   reapplyTerminalSize();
 
-  if (commandInputEl) commandInputEl.focus();
+  if (state.elements.input) state.elements.input.focus();
 }
 
-// Helper function to apply configurations to the DOM
 function _applyDomConfigs(config) {
   if (config.fonts) {
     document.documentElement.style.setProperty(
@@ -127,57 +122,57 @@ function _applyDomConfigs(config) {
 }
 
 export function appendToTerminal(htmlContent, type = "output-text-wrapper") {
-  if (!terminalOutputEl) return null;
+  if (!state.elements.output) return null;
   const lineDiv = document.createElement("div");
-  lineDiv.classList.add(type); // Use a general wrapper class
-  lineDiv.innerHTML = htmlContent; // Content is already HTML
-  terminalOutputEl.appendChild(lineDiv);
-  terminalOutputEl.scrollTop = terminalOutputEl.scrollHeight;
+  lineDiv.classList.add(type);
+  lineDiv.innerHTML = htmlContent;
+  state.elements.output.appendChild(lineDiv);
+  state.elements.output.scrollTop = state.elements.output.scrollHeight;
   return lineDiv;
 }
 
 function handleCommandInputKeydown(e) {
-  if (!terminalVisible) return;
+  if (!state.terminal.visible) return;
 
   if (e.key === "Tab") {
     e.preventDefault();
-    if (commandInputEl.disabled) return;
+    if (state.elements.input.disabled) return;
     handleAutocomplete();
-    return; // Prevent further processing for Tab
+    return;
   }
 
-  // Reset autocomplete state if any key other than Tab is pressed (or Enter, ArrowUp, ArrowDown if they don't use suggestions)
   if (e.key !== "ArrowUp" && e.key !== "ArrowDown") {
-    // Keep suggestions if navigating history while suggestions are active from a previous tab
     if (
-      commandInputEl.value !== lastAutocompletePrefix.split(" ")[0] &&
-      !autocompleteSuggestions.includes(commandInputEl.value)
+      state.elements.input.value !== state.autocomplete.prefix.split(" ")[0] &&
+      !state.autocomplete.suggestions.includes(state.elements.input.value)
     ) {
-      lastAutocompletePrefix = "";
-      autocompleteSuggestions = [];
-      autocompleteIndex = 0;
+      state.autocomplete.prefix = "";
+      state.autocomplete.suggestions = [];
+      state.autocomplete.index = 0;
     }
   }
 
   if (e.key === "Enter") {
     e.preventDefault();
-    if (commandInputEl.disabled) return;
-    const fullCommandText = commandInputEl.value.trim();
-    commandInputEl.value = ""; // Clear input immediately
+    if (state.elements.input.disabled) return;
+    const fullCommandText = state.elements.input.value.trim();
+    state.elements.input.value = "";
 
-    // Reset autocomplete state on Enter
-    lastAutocompletePrefix = "";
-    autocompleteSuggestions = [];
-    autocompleteIndex = 0;
+    state.autocomplete.prefix = "";
+    state.autocomplete.suggestions = [];
+    state.autocomplete.index = 0;
 
     if (fullCommandText) {
       if (
-        commandHistory.length === 0 ||
-        commandHistory[commandHistory.length - 1] !== fullCommandText
+        state.history.entries.length === 0 ||
+        state.history.entries[state.history.entries.length - 1] !== fullCommandText
       ) {
-        commandHistory.push(fullCommandText);
+        state.history.entries.push(fullCommandText);
+        if (state.history.entries.length > MAX_HISTORY) {
+          state.history.entries.shift();
+        }
       }
-      historyIndex = commandHistory.length;
+      state.history.index = state.history.entries.length;
 
       const sanitizedCommandDisplay = fullCommandText
         .replace(/</g, "&lt;")
@@ -190,49 +185,46 @@ function handleCommandInputKeydown(e) {
     }
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
-    if (commandHistory.length > 0) {
-      historyIndex = Math.max(0, historyIndex - 1);
-      commandInputEl.value = commandHistory[historyIndex] || "";
+    if (state.history.entries.length > 0) {
+      state.history.index = Math.max(0, state.history.index - 1);
+      state.elements.input.value = state.history.entries[state.history.index] || "";
       setTimeout(
         () =>
-          commandInputEl.setSelectionRange(
-            commandInputEl.value.length,
-            commandInputEl.value.length,
+          state.elements.input.setSelectionRange(
+            state.elements.input.value.length,
+            state.elements.input.value.length,
           ),
         0,
       );
     }
-    // Reset autocomplete if navigating history
-    lastAutocompletePrefix = "";
-    autocompleteSuggestions = [];
-    autocompleteIndex = 0;
+    state.autocomplete.prefix = "";
+    state.autocomplete.suggestions = [];
+    state.autocomplete.index = 0;
   } else if (e.key === "ArrowDown") {
     e.preventDefault();
-    if (historyIndex < commandHistory.length - 1) {
-      historyIndex++;
-      commandInputEl.value = commandHistory[historyIndex];
+    if (state.history.index < state.history.entries.length - 1) {
+      state.history.index++;
+      state.elements.input.value = state.history.entries[state.history.index];
     } else {
-      historyIndex = commandHistory.length;
-      commandInputEl.value = "";
+      state.history.index = state.history.entries.length;
+      state.elements.input.value = "";
     }
     setTimeout(
       () =>
-        commandInputEl.setSelectionRange(
-          commandInputEl.value.length,
-          commandInputEl.value.length,
+        state.elements.input.setSelectionRange(
+          state.elements.input.value.length,
+          state.elements.input.value.length,
         ),
       0,
     );
-    // Reset autocomplete if navigating history
-    lastAutocompletePrefix = "";
-    autocompleteSuggestions = [];
-    autocompleteIndex = 0;
+    state.autocomplete.prefix = "";
+    state.autocomplete.suggestions = [];
+    state.autocomplete.index = 0;
   }
-  // Other keys will be handled by the 'input' event listener for resetting autocomplete if necessary
 }
 
 function handleAutocomplete() {
-  const currentFullInput = commandInputEl.value;
+  const currentFullInput = state.elements.input.value;
   const parts = currentFullInput.split(" ");
   const currentTypingPart =
     parts.length > 1 && !currentFullInput.endsWith(" ")
@@ -241,91 +233,82 @@ function handleAutocomplete() {
         ? parts[0]
         : "";
 
-  // If the input is different from the last prefix used for suggestions,
-  // or if we are trying to get new argument suggestions
   if (
-    currentFullInput !== lastAutocompletePrefix ||
+    currentFullInput !== state.autocomplete.prefix ||
     (currentFullInput.endsWith(" ") &&
-      lastAutocompletePrefix !== currentFullInput)
+      state.autocomplete.prefix !== currentFullInput)
   ) {
-    autocompleteIndex = 0; // Reset index for new suggestions
-    lastAutocompletePrefix = currentFullInput; // Update the prefix
+    state.autocomplete.index = 0;
+    state.autocomplete.prefix = currentFullInput;
 
     const commandNamePart = currentFullInput.split(" ")[0].toLowerCase();
     if (
       currentFullInput.endsWith(" ") &&
-      availableCommandsForAutocomplete.includes(commandNamePart)
+      state.autocomplete.commands.includes(commandNamePart)
     ) {
-      // Trying to get argument suggestions for a completed command
-      const context = getCommandContextFunction();
-      autocompleteSuggestions = getArgumentSuggestions(
+      const context = state.getContext();
+      state.autocomplete.suggestions = getArgumentSuggestions(
         commandNamePart,
         context,
         currentFullInput,
       );
     } else if (!currentFullInput.includes(" ")) {
-      // Trying to get command name suggestions
-      autocompleteSuggestions = availableCommandsForAutocomplete.filter((cmd) =>
+      state.autocomplete.suggestions = state.autocomplete.commands.filter((cmd) =>
         cmd.startsWith(currentFullInput.toLowerCase()),
       );
     } else {
-      autocompleteSuggestions = []; // No suggestions for other cases (e.g. typing second arg)
+      state.autocomplete.suggestions = [];
     }
   }
 
-  if (autocompleteSuggestions.length > 0) {
+  if (state.autocomplete.suggestions.length > 0) {
     let suggestion;
     if (currentFullInput.endsWith(" ") && !currentTypingPart) {
-      // Suggesting first argument
       suggestion =
         currentFullInput +
-        autocompleteSuggestions[
-          autocompleteIndex % autocompleteSuggestions.length
+        state.autocomplete.suggestions[
+          state.autocomplete.index % state.autocomplete.suggestions.length
         ];
     } else if (!currentFullInput.includes(" ")) {
-      // Suggesting command
       suggestion =
-        autocompleteSuggestions[
-          autocompleteIndex % autocompleteSuggestions.length
+        state.autocomplete.suggestions[
+          state.autocomplete.index % state.autocomplete.suggestions.length
         ];
     } else {
-      // Suggesting argument completion (if currentTypingPart is part of an argument)
       const baseCommand = currentFullInput.substring(
         0,
         currentFullInput.lastIndexOf(" ") + 1,
       );
       const potentialArg =
-        autocompleteSuggestions[
-          autocompleteIndex % autocompleteSuggestions.length
+        state.autocomplete.suggestions[
+          state.autocomplete.index % state.autocomplete.suggestions.length
         ];
       if (potentialArg.startsWith(currentTypingPart)) {
         suggestion = baseCommand + potentialArg;
       } else {
-        // If current suggestions don't match the typing part, cycle to next valid one or reset
-        autocompleteIndex++;
-        if (autocompleteIndex >= autocompleteSuggestions.length)
-          autocompleteIndex = 0;
+        state.autocomplete.index++;
+        if (state.autocomplete.index >= state.autocomplete.suggestions.length)
+          state.autocomplete.index = 0;
         const nextPotentialArg =
-          autocompleteSuggestions[
-            autocompleteIndex % autocompleteSuggestions.length
+          state.autocomplete.suggestions[
+            state.autocomplete.index % state.autocomplete.suggestions.length
           ];
         if (nextPotentialArg.startsWith(currentTypingPart)) {
           suggestion = baseCommand + nextPotentialArg;
         } else {
-          // Could not find a matching suggestion for the current typed part, maybe clear or beep
-          autocompleteSuggestions = []; // Clear suggestions
+          state.autocomplete.suggestions = [];
           return;
         }
       }
     }
 
     if (suggestion) {
-      commandInputEl.value = suggestion;
-      autocompleteIndex++; // Move to next suggestion for subsequent Tab
+      state.elements.input.value = suggestion;
+      state.autocomplete.index++;
     }
   } else {
-    autocompleteIndex = 0; // No suggestions, reset index
-    lastAutocompletePrefix = currentFullInput; // Still update prefix to prevent re-querying immediately
+    state.autocomplete.index = 0;
+    state.autocomplete.prefix = currentFullInput;
   }
 }
 
@@ -333,19 +316,7 @@ function getArgumentSuggestions(commandName, context, currentInput) {
   const inputParts = currentInput.trim().split(" ");
   switch (commandName) {
     case "theme":
-      return [
-        "amber",
-        "cyan",
-        "green",
-        "purple",
-        "twilight",
-        "crimson",
-        "forest",
-        "goldenglitch",
-        "retroarcade",
-        "reloaded",
-        "voidblue",
-      ].sort();
+      return (context.config?.help?.availableThemes || []).sort();
     case "rainpreset": {
       const presets =
         context.rainOptions && context.rainOptions.getRainPresets
@@ -359,15 +330,13 @@ function getArgumentSuggestions(commandName, context, currentInput) {
     }
 
     case "resize":
-      if (inputParts.length === 2 && inputParts[1] === "term") return ["reset"]; // Suggest 'reset' after 'resize term'
-      if (inputParts.length === 1) return ["term"]; // Suggest 'term' after 'resize'
+      if (inputParts.length === 2 && inputParts[1] === "term") return ["reset"];
+      if (inputParts.length === 1) return ["term"];
       return [];
     case "download":
       if (inputParts.length === 1) return ["cv"];
       return [];
     case "date": {
-      // Assuming context.dateCommandTimezoneAliases is populated if available
-      // For this example, using a placeholder. In a real scenario, this data should be accessible.
       const timezoneAliases = context.dateCommandTimezoneAliases || [
         "utc",
         "est",
@@ -403,15 +372,14 @@ async function processCommand(fullCommandText) {
   const commandName = parts[0] ? parts[0].toLowerCase() : "";
   const args = parts.slice(1);
 
-  const commandFunc = registeredCommands[commandName];
-  const commandContext = getCommandContextFunction();
+  const commandFunc = state.commands[commandName];
+  const commandContext = state.getContext();
 
   if (typeof commandFunc === "function") {
     try {
-      // Pass context to the command function
       const result = commandFunc(args, commandContext);
       if (result && typeof result.then === "function") {
-        await result; // Handle async commands
+        await result;
       }
     } catch (err) {
       console.error("Error executing command:", commandName, err);
@@ -430,27 +398,27 @@ async function processCommand(fullCommandText) {
 }
 
 export function displayInitialWelcomeMessage() {
-  if (terminalOutputEl && fullWelcomeMsg) {
+  if (state.elements.output && state.config.welcomeMsg) {
     appendToTerminal(
-      fullWelcomeMsg.replace(/\n/g, "<br/>"),
+      state.config.welcomeMsg.replace(/\n/g, "<br/>"),
       "output-welcome-wrapper",
     );
   }
 }
 
 export function clearTerminalOutput() {
-  if (terminalOutputEl) {
-    terminalOutputEl.innerHTML = "";
+  if (state.elements.output) {
+    state.elements.output.innerHTML = "";
     displayInitialWelcomeMessage();
   }
 }
 
 export function resizeTerminalElement(width, height) {
-  if (mainContentContainerEl) {
-    mainContentContainerEl.style.width = width;
-    mainContentContainerEl.style.height = height;
+  if (state.elements.container) {
+    state.elements.container.style.width = width;
+    state.elements.container.style.height = height;
 
-    currentTerminalSize = { width, height };
+    state.terminal.size = { width, height };
 
     appendToTerminal(
       `<div class='output-success'>Terminal resized to ${width} width, ${height} height.</div>`,
@@ -464,64 +432,60 @@ export function resizeTerminalElement(width, height) {
 
 export function reapplyTerminalSize() {
   if (
-    mainContentContainerEl &&
-    currentTerminalSize.width &&
-    currentTerminalSize.height
+    state.elements.container &&
+    state.terminal.size.width &&
+    state.terminal.size.height
   ) {
-    mainContentContainerEl.style.width = currentTerminalSize.width;
-    mainContentContainerEl.style.height = currentTerminalSize.height;
+    state.elements.container.style.width = state.terminal.size.width;
+    state.elements.container.style.height = state.terminal.size.height;
   }
 }
 
 export function getDefaultTerminalSize() {
-  return { ...defaultTerminalSizeConfig };
+  return { ...state.terminal.defaultSize };
 }
 
 export function toggleTerminalVisibility() {
-  terminalVisible = !terminalVisible;
+  state.terminal.visible = !state.terminal.visible;
 
-  // Clear any existing animation/state classes to prevent conflicts
-  mainContentContainerEl.classList.remove("is-appearing", "is-hiding");
+  state.elements.container.classList.remove("is-appearing", "is-hiding");
 
-  if (!terminalVisible) {
+  if (!state.terminal.visible) {
     // ---- HIDING ----
-    mainContentContainerEl.classList.add("is-hiding");
-    document.body.classList.add("terminal-hidden"); // For nav bar, etc.
+    state.elements.container.classList.add("is-hiding");
+    document.body.classList.add("terminal-hidden");
 
-    // Listen for the end of the fade-out animation
-    mainContentContainerEl.addEventListener(
+    state.elements.container.addEventListener(
       "animationend",
       function handleHideAnimationEnd() {
-        mainContentContainerEl.classList.add("hidden"); // Truly hide it (display: none)
-        mainContentContainerEl.classList.remove("is-hiding"); // Clean up animation class
-        mainContentContainerEl.removeEventListener(
+        state.elements.container.classList.add("hidden");
+        state.elements.container.classList.remove("is-hiding");
+        state.elements.container.removeEventListener(
           "animationend",
           handleHideAnimationEnd,
-        ); // Clean up listener
+        );
       },
       { once: true },
-    ); // Ensure listener runs only once
+    );
 
-    if (terminalOutputEl) {
+    if (state.elements.output) {
       appendToTerminal(
         `<div>Terminal interface hidden. Ctrl + \\ to restore.</div>`,
       );
     }
   } else {
     // ---- SHOWING ----
-    // Prepare for appearance: remove 'hidden' and ensure correct display type
-    mainContentContainerEl.classList.remove("hidden");
-    mainContentContainerEl.style.display = "flex"; // Or your default for .content-container
+    state.elements.container.classList.remove("hidden");
+    state.elements.container.style.display = "flex";
 
-    mainContentContainerEl.classList.add("is-appearing");
+    state.elements.container.classList.add("is-appearing");
     document.body.classList.remove("terminal-hidden");
 
-    // Clean up 'is-appearing' after animation completes
-    mainContentContainerEl.addEventListener(
+    state.elements.container.addEventListener(
       "animationend",
       function handleShowAnimationEnd() {
-        mainContentContainerEl.classList.remove("is-appearing");
-        mainContentContainerEl.removeEventListener(
+        state.elements.container.classList.remove("is-appearing");
+        state.elements.container.removeEventListener(
           "animationend",
           handleShowAnimationEnd,
         );
@@ -530,11 +494,11 @@ export function toggleTerminalVisibility() {
     );
 
     setTimeout(() => {
-      if (commandInputEl) commandInputEl.focus();
-    }, 50); // Small delay for focus after animation starts
+      if (state.elements.input) state.elements.input.focus();
+    }, 50);
 
-    const lastMessageElement = terminalOutputEl
-      ? terminalOutputEl.lastChild
+    const lastMessageElement = state.elements.output
+      ? state.elements.output.lastChild
       : null;
     const lastMessageText = lastMessageElement
       ? lastMessageElement.textContent
@@ -544,7 +508,7 @@ export function toggleTerminalVisibility() {
       (!lastMessageText.includes("Terminal interface hidden") &&
         !lastMessageText.includes("Terminal interface restored"))
     ) {
-      if (terminalOutputEl) {
+      if (state.elements.output) {
         appendToTerminal(
           `<div>Terminal interface restored. Ctrl + \\ to hide.</div>`,
         );
@@ -556,7 +520,7 @@ export function toggleTerminalVisibility() {
 export function setTerminalOpacity(opacityValue) {
   let newOpacity;
   if (opacityValue === "reset") {
-    newOpacity = initialTermOpacityConfig;
+    newOpacity = state.terminal.opacity;
   } else {
     let parsedInput = parseFloat(opacityValue);
     if (isNaN(parsedInput)) {
@@ -576,7 +540,7 @@ export function setTerminalOpacity(opacityValue) {
       return;
     }
   }
-  newOpacity = Math.max(0, Math.min(1, newOpacity)); // Clamp
+  newOpacity = Math.max(0, Math.min(1, newOpacity));
   document.documentElement.style.setProperty(
     "--terminal-opacity",
     String(newOpacity),
@@ -587,11 +551,11 @@ export function setTerminalOpacity(opacityValue) {
 }
 
 export function getInitialTerminalOpacity() {
-  return initialTermOpacityConfig;
+  return state.terminal.opacity;
 }
 
 export function setTerminalFontSize(sizeInput) {
-  const context = getCommandContextFunction();
+  const context = state.getContext();
   const fontSizesConfig = context.config.terminal.fontSizes;
 
   let newSize = "";
@@ -636,7 +600,6 @@ export function getCurrentThemeColors() {
         styles.getPropertyValue("--background-color").trim() || "#000",
     };
   }
-  // Fallback if styles are not available (e.g., during initial script load before body is fully parsed)
   return {
     primary: "#0F0",
     secondary: "#00FFFF",
@@ -698,14 +661,14 @@ export function updatePrimaryColorRGB() {
 }
 
 export function applyTheme(themeNameInput) {
-  const context = getCommandContextFunction();
+  const context = state.getContext();
   const validSpecificThemes = context.config.help.availableThemes;
 
   const showThemeUsage = () => {
     const currentThemeClass =
       Array.from(document.body.classList).find((cls) =>
         cls.startsWith("theme-"),
-      ) || "theme-green"; // Default to green
+      ) || "theme-green";
     appendToTerminal(
       "<div class='output-error'>Usage: theme &lt;name&gt;</div>",
     );
@@ -719,36 +682,33 @@ export function applyTheme(themeNameInput) {
 
   if (!themeNameInput) {
     showThemeUsage();
-    return false; // Indicate theme was not applied
+    return false;
   }
 
-  // The themeNameInput is already lowercased by the command processor
   if (validSpecificThemes.includes(themeNameInput)) {
-    // Remove any existing theme-xxxx class
     document.body.classList.forEach((className) => {
       if (className.startsWith("theme-")) {
         document.body.classList.remove(className);
       }
     });
-    // Add the new theme class
     const targetThemeClass = `theme-${themeNameInput}`;
     document.body.classList.add(targetThemeClass);
-    updatePrimaryColorRGB(); // Update --primary-color-rgb for styles dependent on it
+    updatePrimaryColorRGB();
     appendToTerminal(
       `<div class='output-success'>Theme set to ${targetThemeClass.replace("theme-", "")}.</div>`,
     );
-    return true; // Theme applied successfully
+    return true;
   } else {
     appendToTerminal(
       `<div class='output-error'>Error: Theme "${themeNameInput.replace(/</g, "&lt;").replace(/>/g, "&gt;")}" not found.</div>`,
     );
     showThemeUsage();
-    return false; // Theme not found
+    return false;
   }
 }
 
 export function getFullWelcomeMessage() {
-  return fullWelcomeMsg;
+  return state.config.welcomeMsg;
 }
 
 export function getCurrentThemeName() {

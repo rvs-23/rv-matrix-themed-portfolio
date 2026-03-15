@@ -3,6 +3,8 @@
  * Handles the 'date' command.
  */
 
+import { escapeHtml } from "../utils.js";
+
 function getFormattedDateTime(date, timeZoneIana, locale, options) {
   const finalOptions = { ...options };
   if (timeZoneIana) {
@@ -10,8 +12,7 @@ function getFormattedDateTime(date, timeZoneIana, locale, options) {
   }
   try {
     return date.toLocaleString(locale, finalOptions);
-  } catch (e) {
-    console.warn(`Error formatting date for timezone ${timeZoneIana}:`, e);
+  } catch {
     return `Error displaying time for ${timeZoneIana}. Invalid timezone.`;
   }
 }
@@ -47,7 +48,7 @@ export default function dateCommand(args, context) {
         dateConfig.locale,
         dateConfig.options,
       );
-      let output = `<div class="output-line"><span class="output-line-label"><i class="fas fa-globe-americas"></i> ${requestedTimezoneKey.toUpperCase()} Time:</span> ${foreignTime}</div>`;
+      let output = `<div class="output-line"><span class="output-line-label"><i class="fas fa-globe-americas"></i> ${escapeHtml(requestedTimezoneKey.toUpperCase())} Time:</span> ${foreignTime}</div>`;
       if (tzInfo.desc) {
         output += `<div class="output-line output-line-detail">${tzInfo.desc}</div>`;
       }
@@ -61,11 +62,11 @@ export default function dateCommand(args, context) {
       );
       if (directIANATime.includes("Error")) {
         appendToTerminal(
-          `<div class="output-error">${dateConfig.messages.unknown_alias(args[0])}</div>`,
+          `<div class="output-error">${dateConfig.messages.unknown_alias(escapeHtml(args[0]))}</div>`,
         );
       } else {
         appendToTerminal(
-          `<div class="output-line"><span class="output-line-label"><i class="fas fa-globe"></i> ${args[0]} Time:</span> ${directIANATime}</div>`,
+          `<div class="output-line"><span class="output-line-label"><i class="fas fa-globe"></i> ${escapeHtml(args[0])} Time:</span> ${directIANATime}</div>`,
         );
       }
       appendToTerminal(

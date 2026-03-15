@@ -3,6 +3,8 @@
  * Handles the 'easter.egg' command which triggers a terminal glitch effect and a quote.
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default async function easterEggCommand(args, context) {
   try {
     const {
@@ -69,7 +71,7 @@ export default async function easterEggCommand(args, context) {
       let randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       randomQuote = randomQuote.replace(
         "{{userName}}",
-        userConfig.name || "User",
+        escapeHtml(userConfig.name || "User"),
       );
 
       appendToTerminal(

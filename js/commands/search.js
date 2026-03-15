@@ -3,7 +3,7 @@
  * Implements a smarter fuzzy search functionality.
  */
 
-import { getLevenshteinDistance } from "../utils.js";
+import { getLevenshteinDistance, escapeHtml } from "../utils.js";
 
 /**
  * Calculates a relevance score for a search term against a candidate string.
@@ -86,7 +86,7 @@ export default async function searchCommand(args, context) {
   }
 
   if (results.length === 0) {
-    appendToTerminal(`No results found for "${searchTerm}".`);
+    appendToTerminal(`No results found for "${escapeHtml(searchTerm)}".`);
     return;
   }
 
@@ -94,11 +94,11 @@ export default async function searchCommand(args, context) {
   results.sort((a, b) => a.score - b.score);
 
   // Format the output
-  let output = `Search results for "<span class="highlight">${searchTerm}</span>":\n\n`;
+  let output = `Search results for "<span class="highlight">${escapeHtml(searchTerm)}</span>":\n\n`;
   results.forEach((res) => {
-    output += `[${res.type}] - <b>${res.name}</b>\n`;
+    output += `[${res.type}] - <b>${escapeHtml(res.name)}</b>\n`;
     if (res.description) {
-      output += `  <span class="comment">${res.description}</span>\n`;
+      output += `  <span class="comment">${escapeHtml(res.description)}</span>\n`;
     }
   });
 

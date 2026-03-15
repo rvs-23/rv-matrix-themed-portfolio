@@ -1,3 +1,5 @@
+import { escapeHtml } from "../utils.js";
+
 export default function whoamiCommand(args, context) {
   const { appendToTerminal, userConfig, config } = context;
   const whoamiConfig = config.whoami;
@@ -12,7 +14,7 @@ export default function whoamiCommand(args, context) {
     if (section.isBlock) {
       const blockContent = userConfig[section.userKey];
       if (blockContent) {
-        htmlOutput += `<div class="output-line">${blockContent.replace(/\n/g, "<br/>")}</div>`;
+        htmlOutput += `<div class="output-line">${escapeHtml(blockContent).replace(/\n/g, "<br/>")}</div>`;
       }
     } else if (section.useContact) {
       // Reuse contact config for the network access section
@@ -20,13 +22,13 @@ export default function whoamiCommand(args, context) {
         const userValue = userConfig[channel.userKey];
         if (userValue) {
           const displayValue = channel.isHandle ? `@${userValue}` : userValue;
-          htmlOutput += `<div class="output-line"><span class="output-line-label">${channel.label}:</span> <a href="${channel.urlPrefix}${userValue}" target="_blank" rel="noopener noreferrer">${displayValue}</a></div>`;
+          htmlOutput += `<div class="output-line"><span class="output-line-label">${channel.label}:</span> <a href="${channel.urlPrefix}${encodeURI(userValue)}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayValue)}</a></div>`;
         }
       });
     } else {
       section.fields.forEach((field) => {
         const value = userConfig[field.userKey] || field.fallback;
-        htmlOutput += `<div class="output-line"><span class="output-line-label">${field.label}:</span> ${value}</div>`;
+        htmlOutput += `<div class="output-line"><span class="output-line-label">${field.label}:</span> ${escapeHtml(value)}</div>`;
       });
     }
     htmlOutput += `</div>`;
