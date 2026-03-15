@@ -396,20 +396,25 @@ export default class RainEngine {
   }
 
   /**
-   * Render the entire grid. Maps cell brightness to color:
+   * Render the entire grid. Every visible cell gets a brightness-scaled
+   * shadowBlur — each glyph glows from within like glass holding light.
+   * Brighter cells glow more intensely, creating the luminous cascade
+   * seen in the film.
+   *
+   * Color mapping:
    *  [0.85, 1.0] → white          (head)
    *  [0.2, 0.85) → headCol/glow   (neon glow region)
    *  (0.01, 0.2) → baseCol        (trail body)
    *  ≤ 0.01       → skip          (black / not drawn)
    *
-   * Second pass: ALL non-deletion heads get shadowBlur glow overlay.
-   * Highlighted heads get stronger blur; others get a subtle halo.
+   * Second pass: full-screen bloom (offscreen blur + additive composite).
    */
   renderGrid(themeColors) {
     const ctx = this.ctx;
     const CFG = this.activeConfig;
     const colW = CFG.colW || CFG.font;
     const lineH = CFG.font * CFG.lineH;
+    const blurScale = CFG.blur;
 
     // Clear canvas to background color (no semi-transparent overlay needed)
     ctx.shadowBlur = 0;
@@ -422,7 +427,11 @@ export default class RainEngine {
       this.canvas.height / this.dpr,
     );
 
-    // Pass 1: draw all grid cells with brightness-mapped colors
+    // Draw all grid cells with brightness-mapped colors and per-cell glow.
+    // Every visible character gets shadowBlur scaled by its brightness,
+    // making each glyph look self-illuminated — glass holding light.
+    ctx.shadowColor = CFG.headCol;
+
     for (let c = 0; c < this.totalCols; c++) {
       const x = c * colW;
       const col = this.grid[c];
@@ -452,6 +461,10 @@ export default class RainEngine {
           continue; // Fully black — skip drawing
         }
 
+        // Per-cell glow: brightness-scaled shadowBlur.
+        // Cells above 0.15 get a glow aura; dimmer cells render flat.
+        ctx.shadowBlur = b > 0.15 ? b * blurScale : 0;
+
         // Temporal dithering: tiny noise prevents gradient banding
         const finalAlpha = Math.max(0, alpha + (Math.random() - 0.5) * 0.02);
         ctx.fillStyle = color;
@@ -466,25 +479,6 @@ export default class RainEngine {
           ctx.fillText(cell.char, x, r * lineH);
         }
       }
-    }
-
-    // Pass 2: ALL non-deletion heads get shadowBlur glow overlay.
-    // Every head gets a subtle halo; highlighted heads get stronger bloom.
-    // This creates the pervasive luminous feel across the whole screen.
-    for (const s of this.streams) {
-      if (s.del || s.head < 0 || s.head >= this.gridRows) continue;
-
-      const cell = this.grid[s.col][s.head];
-      if (!cell.char) continue;
-
-      const x = s.col * colW;
-      const y = s.head * lineH;
-
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = "#ffffff";
-      ctx.shadowColor = CFG.headCol;
-      ctx.shadowBlur = s.hasHighlight ? CFG.blur : CFG.blur * 0.4;
-      ctx.fillText(cell.char, x, y);
     }
 
     ctx.shadowBlur = 0;
