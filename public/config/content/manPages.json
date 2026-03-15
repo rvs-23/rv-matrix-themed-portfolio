@@ -90,6 +90,18 @@
     ],
     "notes": "Font sets are defined in 'public/config/rain.json'. The classic set uses Matrix-Code.ttf (MatrixA), resurrections uses Matrix-Resurrected.ttf (MatrixB)."
   },
+  "rainsize": {
+    "name": "rainsize - Set the size of rain glyphs.",
+    "synopsis": "rainsize <px> | rainsize reset",
+    "description": "Changes the pixel size of glyphs in the Matrix rain animation. Accepts an integer between 8 and 40. Use 'reset' to restore the default size. Changing size triggers a full rain rebuild.",
+    "arguments": "<px>: Integer pixel size (8–40).\nreset: Restore default size.",
+    "examples": [
+      "rainsize 14    - Smaller, denser rain.",
+      "rainsize 22    - Larger, bolder glyphs.",
+      "rainsize reset - Restore default (16px)."
+    ],
+    "notes": "Smaller sizes create denser rain with more columns. Larger sizes are bolder but sparser."
+  },
   "rainpreset": {
     "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
     "synopsis": "rainpreset <preset_name>",

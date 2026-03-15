@@ -201,6 +201,7 @@ The following commands are available. For detailed info, use `man <command_name>
 | `man <command>`                | Show detailed manual for a command.                   |
 | `rainfont <name>`              | Switch rain font: `classic`, `resurrections`, `combined`. |
 | `rainpreset <name>`            | Apply a new style to the background rain.             |
+| `rainsize <px>\|reset`          | Set rain glyph size (8–40px). E.g., `rainsize 14`.   |
 | `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh`.       |
 | `skills`                       | List my key skills (summary).                         |
 | `skilltree [path]`             | Explore skills. E.g., `skilltree se`.                 |

@@ -15,6 +15,7 @@ import hobbiesCommand from "./hobbies.js";
 import manCommand from "./man.js";
 import rainFontCommand from "./rainfont.js";
 import rainPresetCommand from "./rainpreset.js";
+import rainSizeCommand from "./rainsize.js";
 import resizeTermCommand from "./resize.js";
 import screenshotCommand from "./screenshot.js";
 import searchCommand from "./search.js";
@@ -45,6 +46,7 @@ export function getAllCommands() {
     man: manCommand,
     rainfont: rainFontCommand,
     rainpreset: rainPresetCommand,
+    rainsize: rainSizeCommand,
     resize: resizeTermCommand,
     search: searchCommand,
     screenshot: screenshotCommand,
