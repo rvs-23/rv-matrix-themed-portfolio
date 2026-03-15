@@ -169,14 +169,14 @@ class Stream {
     const peak = this.isSentient ? this.opacity * 0.6 : this.opacity;
 
     // Illuminate halo: headGlow cells behind the head with diminishing brightness.
-    // Square-root falloff keeps cells bright much longer before tapering —
-    // creates the wide, luminous cascade seen in the film where many cells
-    // behind the head stay near-white/glow before gradually fading.
+    // Power falloff (0.35) keeps the first ~40% of the halo near-white and the
+    // rest in the bright glow zone — creates the long, luminous cascade seen in
+    // the film where the head blazes and a wide trail stays very bright.
     for (let i = 0; i <= this.headGlow; i++) {
       const r = this.head - i;
       if (r < 0 || r >= this.rows) continue;
       const t = i / (this.headGlow + 1);
-      const brightness = peak * Math.sqrt(1 - t);
+      const brightness = peak * Math.pow(1 - t, 0.35);
       grid[this.col][r].brightness = Math.max(
         grid[this.col][r].brightness,
         brightness,
@@ -396,10 +396,7 @@ export default class RainEngine {
   }
 
   /**
-   * Render the entire grid. A power curve (γ < 1) is applied to raw
-   * brightness before color mapping, keeping cells in the bright glow
-   * zone for most of the trail — inspired by Rezmason's contrast/palette
-   * approach. After the curve, brightness maps to color:
+   * Render the entire grid. Maps cell brightness to color:
    *  [0.85, 1.0] → white          (head)
    *  [0.2, 0.85) → headCol/glow   (neon glow region)
    *  (0.01, 0.2) → baseCol        (trail body)
@@ -434,11 +431,7 @@ export default class RainEngine {
         const cell = col[r];
         if (!cell.char || cell.brightness < 0.005) continue;
 
-        // Brightness curve: γ < 1 compresses the decay range so cells
-        // stay in the bright glow zone much longer before fading.
-        // Raw 0.5→0.68, 0.2→0.47, 0.1→0.35, 0.05→0.26 — almost
-        // the entire visible trail lands in the glow region (0.2–0.85).
-        const b = Math.pow(cell.brightness, 0.45);
+        const b = cell.brightness;
         let color, alpha;
 
         if (b >= 0.85) {
