@@ -80,6 +80,20 @@ export function debounce(func, wait) {
 }
 
 /**
+ * Escapes a string for safe insertion into HTML.
+ * @param {string} str The string to escape.
+ * @returns {string} The escaped string.
+ */
+export function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
  * Triggers a file download in the browser.
  * Originally from js/commands/download.js
  * @param {string} url - The URL of the file to download.

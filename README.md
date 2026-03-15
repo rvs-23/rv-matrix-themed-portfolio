@@ -33,10 +33,10 @@ This portfolio is a client-side single-page application built with vanilla HTML5
   - **`style.css`**: Contains global styles, `@font-face` declarations, layout, and responsive media queries.
   - **`themes.css`**: Dedicated file for all theme-specific CSS variables.
 - **`js/`**:
-  - **`main.js`**: The primary entry point. It loads all data, initializes all modules, assembles the `commandContext`, and sets up global event listeners.
+  - **`main.js`**: The primary entry point. Loads data, initializes modules, assembles the `commandContext`, hydrates nav links, and sets up event listeners.
   - **`controller/`**: Modules for managing application state and UI.
     - **`dataLoader.js`**: Imports the main JS config and asynchronously fetches all other data files from the `/public/config/` directory.
-    - **`terminalController.js`**: Manages all DOM interactions and state for the terminal itself.
+    - **`terminalController.js`**: Manages all DOM interactions and state for the terminal. State is organized in a single `state` object for clarity.
     - **`shortcuts.js`**: Manages global keyboard shortcuts.
     - **`loaderScreen.js`**: Manages the initial loading animation.
   - **`rain/`**:

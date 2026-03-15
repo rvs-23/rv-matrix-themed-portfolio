@@ -21,6 +21,31 @@ import { getAllCommands } from "./commands/0_index.js";
 import { debounce, renderTree } from "./utils.js";
 import { sentientRainPhrases } from "./config/index.js";
 
+function hydrateNavLinks(userConfig) {
+  if (!userConfig) return;
+  const navCvLink = document.getElementById("nav-cv-link");
+  const navMediumLink = document.getElementById("nav-medium-link");
+  const linkedinLinkEl = document.getElementById("nav-linkedin-link");
+  const githubLinkEl = document.getElementById("nav-github-link");
+  const emailLinkEl = document.getElementById("nav-email-link");
+
+  if (navCvLink && userConfig.cvLink) navCvLink.href = userConfig.cvLink;
+  if (navMediumLink) {
+    if (userConfig.medium) {
+      navMediumLink.href = `https://medium.com/@${userConfig.medium}`;
+      navMediumLink.style.display = "";
+    } else {
+      navMediumLink.style.display = "none";
+    }
+  }
+  if (linkedinLinkEl && userConfig.linkedin)
+    linkedinLinkEl.href = `https://www.linkedin.com/in/${userConfig.linkedin}`;
+  if (githubLinkEl && userConfig.github)
+    githubLinkEl.href = `https://github.com/${userConfig.github}`;
+  if (emailLinkEl && userConfig.email)
+    emailLinkEl.href = `mailto:${userConfig.email}`;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const allData = await loadAllData();
   initializeLoaderScreen(allData.config.loader);
@@ -85,28 +110,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 150),
   );
 
-  const navCvLink = document.getElementById("nav-cv-link");
-  const navMediumLink = document.getElementById("nav-medium-link");
-  const linkedinLinkEl = document.getElementById("nav-linkedin-link");
-  const githubLinkEl = document.getElementById("nav-github-link");
-  const emailLinkEl = document.getElementById("nav-email-link");
-
-  const userCfg = allData.config.user;
-  if (userCfg) {
-    if (navCvLink && userCfg.cvLink) navCvLink.href = userCfg.cvLink;
-    if (navMediumLink) {
-      if (userCfg.medium) {
-        navMediumLink.href = `https://medium.com/@${userCfg.medium}`;
-        navMediumLink.style.display = "";
-      } else {
-        navMediumLink.style.display = "none";
-      }
-    }
-    if (linkedinLinkEl && userCfg.linkedin)
-      linkedinLinkEl.href = `https://www.linkedin.com/in/${userCfg.linkedin}`;
-    if (githubLinkEl && userCfg.github)
-      githubLinkEl.href = `https://github.com/${userCfg.github}`;
-    if (emailLinkEl && userCfg.email)
-      emailLinkEl.href = `mailto:${userCfg.email}`;
-  }
+  hydrateNavLinks(allData.config.user);
 });
