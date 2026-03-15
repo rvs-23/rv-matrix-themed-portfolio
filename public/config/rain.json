@@ -17,7 +17,7 @@
     "fontFamily": "MatrixA, MatrixB, monospace",
     "layers": 3,
     "layerOp": [1, 0.7, 0.5],
-    "delChance": 0.15
+    "delChance": 0.04
   },
   "glyphs": "ﾊﾋｼﾂｳｰﾅﾐﾓﾆｻﾜｵﾘﾎﾏｴｷﾑﾃｹﾒｶﾕﾗｾﾈｽﾀﾇ日0123456789Z*+:=\".<>|¦_",
   "presets": {
