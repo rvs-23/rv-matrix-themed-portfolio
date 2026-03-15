@@ -15,6 +15,8 @@
  *  - Depth conveyed via opacity layers only (uniform font size)
  *  - Head character flickers (throttled); grid characters are near-static
  *  - Brightness-based color mapping (white → glow → green → dim)
+ *  - Continuous speed wobble (sine wave with irrational frequency)
+ *  - Full-screen bloom pass (offscreen downscale → blur → additive composite)
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
@@ -81,9 +83,12 @@ class Stream {
     // Throttled head flicker character
     this.headChar = this.randChar();
 
-    // Per-stream speed variation (+-35% for organic distribution)
-    const speedVar = 0.35;
-    this.speed = CFG.speed * (1 + (Math.random() * speedVar * 2 - speedVar));
+    // Per-stream speed variation (+-50% base for organic distribution)
+    const speedVar = 0.5;
+    this.baseSpeed =
+      CFG.speed * (1 + (Math.random() * speedVar * 2 - speedVar));
+    // Random phase for continuous sine-wave wobble (non-repeating organic drift)
+    this.speedPhase = Math.random() * Math.PI * 2;
     this.lastUpdate = 0;
 
     // Sentient phrases: occasionally a stream spells out a hidden message
@@ -106,7 +111,12 @@ class Stream {
    * Sets character and brightness in the grid at the new head position.
    */
   step(CFG, grid, timestamp, isStammerFrame) {
-    if (timestamp - this.lastUpdate < this.speed) return false;
+    // Continuous speed wobble: +-20% oscillation on top of +-50% base
+    // Uses irrational frequency (sqrt(2)) for non-repeating organic drift
+    const wobble =
+      1 +
+      0.2 * Math.sin(Math.SQRT2 * timestamp * 0.001 + this.speedPhase);
+    if (timestamp - this.lastUpdate < this.baseSpeed * wobble) return false;
     this.lastUpdate = timestamp;
 
     // Stammer: highlighted streams skip one advancement frame
@@ -156,12 +166,14 @@ class Stream {
     const peak = this.isSentient ? this.opacity * 0.6 : this.opacity;
 
     // Illuminate halo: headGlow cells behind the head with diminishing brightness.
-    // Linear falloff gives a visible, gradual cascade — the bright head
-    // smoothly transitions into the trail rather than dropping off sharply.
+    // Square-root falloff keeps cells bright much longer before tapering —
+    // creates the wide, luminous cascade seen in the film where many cells
+    // behind the head stay near-white/glow before gradually fading.
     for (let i = 0; i <= this.headGlow; i++) {
       const r = this.head - i;
       if (r < 0 || r >= this.rows) continue;
-      const brightness = peak * (1 - i / (this.headGlow + 1));
+      const t = i / (this.headGlow + 1);
+      const brightness = peak * Math.sqrt(1 - t);
       grid[this.col][r].brightness = Math.max(
         grid[this.col][r].brightness,
         brightness,
@@ -279,6 +291,13 @@ export default class RainEngine {
         brightness: 0,
       })),
     );
+
+    // Bloom: offscreen canvas at 1/4 resolution for diffuse glow pass
+    this.bloomCanvas = document.createElement("canvas");
+    this.bloomCtx = this.bloomCanvas.getContext("2d");
+    this.bloomScale = 0.25;
+    this.bloomCanvas.width = Math.ceil(this.canvas.width * this.bloomScale);
+    this.bloomCanvas.height = Math.ceil(this.canvas.height * this.bloomScale);
 
     // Create streams (brightness cursors) for active columns
     const allColIndices = [...Array(this.totalCols).keys()];
@@ -430,6 +449,32 @@ export default class RainEngine {
     }
 
     ctx.shadowBlur = 0;
+
+    // Pass 3: Full-screen bloom — pervasive diffuse phosphor glow.
+    // Downscale the rendered frame to a small offscreen canvas, then
+    // draw it back blurred with additive blending. Creates the ambient
+    // luminescence that bleeds between characters in the film.
+    const bloomRadius = CFG.bloomRadius ?? 8;
+    const bloomIntensity = CFG.bloomIntensity ?? 0.15;
+
+    if (bloomRadius > 0 && bloomIntensity > 0 && this.bloomCanvas) {
+      const bCtx = this.bloomCtx;
+      const bCanvas = this.bloomCanvas;
+
+      // Downscale main canvas to bloom canvas
+      bCtx.clearRect(0, 0, bCanvas.width, bCanvas.height);
+      bCtx.drawImage(this.canvas, 0, 0, bCanvas.width, bCanvas.height);
+
+      // Draw bloom back with blur + additive blend
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.filter = `blur(${bloomRadius}px)`;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = bloomIntensity;
+      ctx.drawImage(bCanvas, 0, 0, this.canvas.width, this.canvas.height);
+      ctx.restore();
+      ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    }
   }
 
   loop = (timestamp) => {

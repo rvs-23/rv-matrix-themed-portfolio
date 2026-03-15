@@ -84,6 +84,8 @@ No environment variables are required as all functionality is client-side.
 | `headGlowMin` | int                            | How many leading glyphs glow at minimum.                           |
 | `headGlowMax` | int (≥ `headGlowMin`)          | How many leading glyphs glow at maximum.                           |
 | `blur`        | px                             | Canvas blur applied to glowing heads.                              |
+| `bloomRadius` | int (0–30)                     | Blur radius for the full-screen bloom pass.                        |
+| `bloomIntensity` | float (0–1)                 | Alpha of the bloom layer (0 = off, 0.15 = default).                |
 | `trailMutate` | frames                         | After how many ticks the column mutates its characters.            |
 | `fade`        | 0–1                            | Opacity subtracted each frame; higher = faster fade.               |
 | `decayBase`   | 0.7–0.99                       | Per-glyph opacity multiplier along a trail; lower = quicker decay. |
@@ -103,7 +105,9 @@ Additional behaviors inspired by [Carl Newton's digital rain analysis](https://c
 - **Globally synchronized mutations** — All visible character changes happen simultaneously every 6 frames.
 - **Selective head highlighting** — Only ~20% of streams have bright white glowing heads (per the film).
 - **Head stammer** — Every ~90 frames, all highlighted heads pause for one frame, creating rhythmic desynchronization.
-- **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look.
+- **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look. Font glyphs are already mirrored in the TTF files (as in the film).
+- **Full-screen bloom** — Offscreen downscale → Gaussian blur → additive composite creates pervasive phosphor glow that bleeds between characters.
+- **Organic speed wobble** — Each stream has ±50% base speed variation plus continuous ±20% sine-wave drift using an irrational frequency, preventing repeating patterns.
 
 ---
 
