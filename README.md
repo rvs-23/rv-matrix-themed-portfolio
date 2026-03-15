@@ -92,6 +92,7 @@ No environment variables are required as all functionality is client-side.
 | `layers`      | int (1–10)                     | Number of parallax layers.                                         |
 | `layerOp`     | float array (length =`layers`) | Opacity multiplier per layer.                                      |
 | `delChance`   | 0–1                            | Chance a stream is a deletion stream that erases characters.       |
+| `multiStream` | float (0–0.8)                  | Chance each active column gets a second concurrent stream.         |
 
 #### Film-Inspired Rain Behaviors
 
@@ -108,6 +109,8 @@ Additional behaviors inspired by [Carl Newton's digital rain analysis](https://c
 - **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look. Font glyphs are already mirrored in the TTF files (as in the film).
 - **Full-screen bloom** — Offscreen downscale → Gaussian blur → additive composite creates pervasive phosphor glow that bleeds between characters.
 - **Organic speed wobble** — Each stream has ±50% base speed variation plus continuous ±20% sine-wave drift using an irrational frequency, preventing repeating patterns.
+- **Multiple raindrops per column** — ~20% of columns run two concurrent streams, creating denser overlapping rain as in the film.
+- **Temporal dithering** — Imperceptible per-frame noise on alpha values prevents visible banding on brightness gradients.
 
 ---
 

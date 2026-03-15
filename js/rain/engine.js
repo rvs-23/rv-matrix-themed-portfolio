@@ -17,6 +17,9 @@
  *  - Brightness-based color mapping (white → glow → green → dim)
  *  - Continuous speed wobble (sine wave with irrational frequency)
  *  - Full-screen bloom pass (offscreen downscale → blur → additive composite)
+ *  - Multiple raindrops per column (concurrent streams with natural spacing)
+ *  - Temporal dithering (tiny alpha noise prevents gradient banding)
+ *  - Glyph cross-fade on mutation (old + new at 50% opacity each)
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
@@ -288,6 +291,7 @@ export default class RainEngine {
     this.grid = Array.from({ length: this.totalCols }, () =>
       Array.from({ length: this.gridRows }, () => ({
         char: this.randChar(),
+        prevChar: null,
         brightness: 0,
       })),
     );
@@ -315,6 +319,26 @@ export default class RainEngine {
           this.sentientPhrases,
         ),
     );
+
+    // Multiple raindrops per column: some columns get a second stream.
+    // Speed variation naturally spaces them; the grid model handles
+    // overlapping trails via Math.max on brightness.
+    const multiChance = this.activeConfig.multiStream ?? 0.2;
+    if (multiChance > 0) {
+      const extraStreams = activeColIndices
+        .filter(() => Math.random() < multiChance)
+        .map(
+          (index) =>
+            new Stream(
+              index,
+              this.gridRows,
+              this.activeConfig,
+              this.glyphs,
+              this.sentientPhrases,
+            ),
+        );
+      this.streams.push(...extraStreams);
+    }
 
     // Scatter initial head positions and pre-illuminate trails
     // so the rain is evenly distributed from the first frame
@@ -354,13 +378,18 @@ export default class RainEngine {
     }
   }
 
-  /** Globally synchronized glyph mutation across the entire grid. */
+  /** Globally synchronized glyph mutation across the entire grid.
+   *  Stores previous character for cross-fade rendering. */
   mutateGrid() {
     for (let c = 0; c < this.totalCols; c++) {
       const col = this.grid[c];
       for (let r = 0; r < this.gridRows; r++) {
+        const cell = col[r];
         if (Math.random() < MUTATION_CHANCE) {
-          col[r].char = this.randChar();
+          cell.prevChar = cell.char;
+          cell.char = this.randChar();
+        } else {
+          cell.prevChar = null;
         }
       }
     }
@@ -423,9 +452,19 @@ export default class RainEngine {
           continue; // Fully black — skip drawing
         }
 
-        ctx.globalAlpha = Math.max(0, alpha);
+        // Temporal dithering: tiny noise prevents gradient banding
+        const finalAlpha = Math.max(0, alpha + (Math.random() - 0.5) * 0.02);
         ctx.fillStyle = color;
-        ctx.fillText(cell.char, x, r * lineH);
+
+        // Glyph cross-fade: on mutation frames, blend old and new at 50% each
+        if (cell.prevChar) {
+          ctx.globalAlpha = finalAlpha * 0.5;
+          ctx.fillText(cell.prevChar, x, r * lineH);
+          ctx.fillText(cell.char, x, r * lineH);
+        } else {
+          ctx.globalAlpha = finalAlpha;
+          ctx.fillText(cell.char, x, r * lineH);
+        }
       }
     }
 
