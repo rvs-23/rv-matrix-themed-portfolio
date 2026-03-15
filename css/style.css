@@ -13,7 +13,7 @@
   --terminal-base-r: 17;
   --terminal-base-g: 24;
   --terminal-base-b: 39;
-  --terminal-opacity: 0.88;
+  --terminal-opacity: 0.55;
   --text-shadow-color: rgba(0, 255, 0, 0.7);
   --border-color: rgba(0, 255, 0, 0.6);
   --hover-color: #33ff33;
@@ -22,7 +22,7 @@
   --scrollbar-thumb-color: rgba(0, 255, 0, 0.5);
   --scrollbar-thumb-hover-color: rgba(0, 255, 0, 0.8);
   --nav-icon-color: #0f0;
-  --nav-icon-hover-color: #33ff33;
+
   --nav-label-bg: rgba(0, 255, 0, 0.15);
   --loader-text-color: #0f0;
   --loader-spinner-color: #0f0;
@@ -147,10 +147,9 @@ body {
 
 /* Content Container & Terminal Animations */
 @keyframes contentFadeInAppear {
-  /* For SHOWING the terminal */
   from {
     opacity: 0;
-    transform: translateY(15px) scale(0.99);
+    transform: translateY(20px) scale(0.97);
   }
 
   to {
@@ -159,7 +158,6 @@ body {
   }
 }
 
-/* Terminal hide animation */
 @keyframes contentFadeOutQuick {
   from {
     opacity: 1;
@@ -168,7 +166,7 @@ body {
 
   to {
     opacity: 0;
-    transform: translateY(15px) scale(0.99);
+    transform: translateY(20px) scale(0.97);
   }
 }
 
@@ -179,7 +177,7 @@ body {
   font-family: var(--font-mono-current);
   font-size: var(--terminal-font-size);
   text-shadow: 0 0 8px var(--text-shadow-color);
-  padding: 1rem;
+  padding: 0 1rem 1rem;
   max-width: 90vw;
   max-height: 90vh;
   background-color: rgba(
@@ -188,13 +186,15 @@ body {
     var(--terminal-base-b),
     var(--terminal-opacity)
   );
-  border-radius: 0.5rem;
+  border-radius: 12px;
   box-shadow:
-    0 10px 25px -5px var(--text-shadow-color),
-    0 6px 10px -4px var(--text-shadow-color);
-  border: 1px solid var(--border-color);
-  -webkit-backdrop-filter: blur(8px) saturate(1.2);
-  backdrop-filter: blur(8px) saturate(1.2);
+    0 20px 60px -10px rgba(0, 0, 0, 0.5),
+    0 8px 20px -6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 20px rgba(var(--primary-color-rgb), 0.03);
+  border: 1px solid rgba(var(--primary-color-rgb), 0.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
@@ -218,15 +218,15 @@ body {
   display: flex;
   visibility: visible;
   opacity: 0;
-  transform: translateY(15px) scale(0.99);
-  animation: contentFadeInAppear 0.3s ease-out forwards;
+  transform: translateY(20px) scale(0.97);
+  animation: contentFadeInAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Applied during terminal hide transition */
 .content-container.is-hiding {
   opacity: 1;
   transform: translateY(0) scale(1);
-  animation: contentFadeOutQuick 0.15s ease-out forwards;
+  animation: contentFadeOutQuick 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
   pointer-events: none;
 }
 
@@ -237,6 +237,56 @@ body {
   visibility: hidden;
   pointer-events: none;
 }
+
+/* Terminal title bar with traffic-light dots (decorative) */
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px 6px;
+  flex-shrink: 0;
+}
+
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0.5;
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.terminal-dot:nth-child(1) {
+  background-color: #888;
+}
+
+.terminal-dot:nth-child(2) {
+  background-color: #777;
+}
+
+.terminal-dot:nth-child(3) {
+  background-color: #666;
+}
+
+/* Reveal color on hover over the title bar */
+.terminal-titlebar:hover .terminal-dot {
+  opacity: 0.9;
+}
+
+.terminal-titlebar:hover .terminal-dot:nth-child(1) {
+  background-color: #ff5f57;
+}
+
+.terminal-titlebar:hover .terminal-dot:nth-child(2) {
+  background-color: #febc2e;
+}
+
+.terminal-titlebar:hover .terminal-dot:nth-child(3) {
+  background-color: #28c840;
+}
+
 #terminal-output {
   flex-grow: 1;
   overflow-y: auto;
@@ -507,10 +557,13 @@ body {
     transform 0.4s ease;
 }
 
-body.terminal-hidden .minimal-nav {
+body.terminal-hidden .minimal-nav .nav-icon:not(#nav-toggle-term) {
   opacity: 0;
-  transform: translateY(100%);
   pointer-events: none;
+}
+
+body.terminal-hidden .minimal-nav #nav-toggle-term {
+  opacity: 0.6;
 }
 
 .nav-icon {
@@ -526,7 +579,7 @@ body.terminal-hidden .minimal-nav {
 }
 
 .nav-icon:hover {
-  color: var(--nav-icon-hover-color);
+  color: var(--hover-color);
   animation: glitch-hover-effect 0.2s linear infinite;
 }
 
@@ -536,7 +589,7 @@ body.terminal-hidden .minimal-nav {
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--nav-label-bg);
-  color: var(--nav-icon-hover-color);
+  color: var(--hover-color);
   padding: 0.25rem 0.5rem;
   border-radius: 3px;
   font-size: 0.65rem;

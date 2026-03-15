@@ -91,6 +91,13 @@ No environment variables are required as all functionality is client-side.
 | `layerOp`     | float array (length =`layers`) | Opacity multiplier per layer.                                      |
 | `delChance`   | 0–1                            | Chance a stream is a deletion stream that erases characters.       |
 | `multiStream` | float (0–0.8)                  | Chance each active column gets a second concurrent stream.         |
+| `highlightChance` | float (0–1)                | Fraction of streams that get extra bright head glow (~0.2 = film). |
+| `glyphSyncInterval` | int (1–60)               | Frames between globally synchronized glyph mutations.              |
+| `mutationChance` | float (0–1)                  | Per-cell mutation probability on sync frames (0.03 = near-static). |
+| `stammerInterval` | int (10–500)                | Frames between head-stammer pauses for highlighted streams.        |
+| `headFlickerInterval` | int (1–30)              | Frames between head character changes (lower = faster flicker).    |
+| `landingGlow` | float (0–1)                      | Intensity of radial glow burst when streams exit canvas bottom.    |
+| `landingGlowSize` | int (10–200)                | Pixel radius of landing glow bursts.                               |
 
 #### Film-Inspired Rain Behaviors
 
@@ -101,9 +108,10 @@ Additional behaviors inspired by [Carl Newton's digital rain analysis](https://c
 - **Brightness-based color mapping** — Cell brightness maps to a color ramp: white (head) → glow green (near-head) → primary green (trail) → dim floor (background).
 - **Depth via opacity layers** — Multiple layers with configurable opacity create a sense of depth without altering character size.
 - **Deletion streams** — A small percentage of streams erase characters as they pass, creating organic density cycles.
-- **Globally synchronized mutations** — All visible character changes happen simultaneously every 6 frames.
-- **Selective head highlighting** — Only ~20% of streams have bright white glowing heads (per the film).
-- **Head stammer** — Every ~90 frames, all highlighted heads pause for one frame, creating rhythmic desynchronization.
+- **Globally synchronized mutations** — All visible character changes happen simultaneously (configurable via `glyphSyncInterval`, default 6 frames).
+- **Selective head highlighting** — Configurable fraction of streams get bright white heads (`highlightChance`, default ~20%).
+- **Head stammer** — Highlighted heads periodically pause in unison (`stammerInterval`, default ~90 frames).
+- **Landing glow** — Optional radial bloom burst where streams hit the canvas floor (`landingGlow`, disabled by default).
 - **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look. Font glyphs are already mirrored in the TTF files (as in the film).
 - **Full-screen bloom** — Offscreen downscale → Gaussian blur → additive composite creates pervasive phosphor glow that bleeds between characters.
 - **Organic speed wobble** — Each stream has ±50% base speed variation plus continuous ±20% sine-wave drift using an irrational frequency, preventing repeating patterns.
@@ -167,7 +175,7 @@ This is a static website that uses Vite for an enhanced local development experi
 
 Use this checklist to ensure the portfolio is stable, functional, and visually correct before deploying.
 
-- [ ] **`help`**: Lists all 24 current themes, including `ghost`, `quantum`, and `inferno`.
+- [ ] **`help`**: Lists all 10 current themes, including `ghost`, `quantum`, and `inferno`.
 - [ ] **`theme <name>`**: Both terminal and rain colors update correctly for several themes.
 - [ ] **`rainpreset <name>`**: Rain style changes correctly, and the preset's description is displayed. Test with `default` and at least two others.
 - [ ] **`whoami` / `contact` / `skills`**: All personal information is correct and links are clickable and valid.
@@ -219,8 +227,8 @@ The following commands are available. For detailed info, use `man <command_name>
 
 ### 5.2. Customization Options
 
-- **Themes:** `amber`, `arctic`, `bloodmoon`, `copper`, `crimson`, `cyan`, `cybercandy`, `deepsea`, `dunes`, `forest`, `ghost`, `green` (default), `hologram`, `inferno`, `neon`, `obsidian`, `purple`, `quantum`, `reloaded`, `retroarcade`, `synthwavegrid`, `terran`, `toxic`, `virus`.
-- **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`.
+- **Themes:** `amber`, `crimson`, `cyan`, `ember`, `ghost`, `green` (default), `inferno`, `midnight`, `phantom`, `reloaded`, `sakura`.
+- **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`, `cascade`, `rainfall`, `frozen`.
 - **CRT Effect (Easter Egg):** `ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`.
 
 ### 5.3. Accessibility Notes

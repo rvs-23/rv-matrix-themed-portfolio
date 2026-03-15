@@ -29,24 +29,8 @@ const randRange = (min, max) => min + randInt(max - min + 1);
 
 /* ── Constants ────────────────────────────────────────────────────────── */
 
-/** ~1 in 5 streams get extra head glow (per the film). */
-const HIGHLIGHT_CHANCE = 0.2;
-
-/** All mutable glyphs change on the same frame, every N frames.
- *  Higher = less frequent mutation = more static (closer to film). */
-const GLYPH_SYNC_INTERVAL = 6;
-
-/** Every N frames, highlighted heads skip one advancement step. */
-const STAMMER_INTERVAL = 90;
-
-/** Head character changes every N frames (~20 changes/sec at 60fps). */
-const HEAD_FLICKER_INTERVAL = 3;
-
 /** Brightness decay runs at this interval (~30fps). */
 const DECAY_INTERVAL_MS = 33;
-
-/** Per-cell mutation chance on sync frames (3% = near-static). */
-const MUTATION_CHANCE = 0.03;
 
 /* ── Stream (brightness cursor) ──────────────────────────────────────── */
 
@@ -72,8 +56,9 @@ class Stream {
     // Deletion flag: stream erases cells instead of illuminating them
     this.del = Math.random() < CFG.delChance;
 
-    // Selective highlighting: only ~20% get extra head glow
-    this.hasHighlight = !this.del && Math.random() < HIGHLIGHT_CHANCE;
+    // Selective highlighting: configurable chance for extra head glow
+    this.hasHighlight =
+      !this.del && Math.random() < (CFG.highlightChance ?? 0.2);
 
     this.len = Math.round(
       CFG.minTrail + Math.random() * (CFG.maxTrail - CFG.minTrail),
@@ -84,6 +69,7 @@ class Stream {
     this.head = -randInt(Math.max(1, Math.floor(this.rows * 0.12)));
 
     // Throttled head flicker character
+    this.headFlickerInterval = CFG.headFlickerInterval ?? 3;
     this.headChar = this.randChar();
 
     // Per-stream speed variation (+-50% base for organic distribution)
@@ -125,7 +111,11 @@ class Stream {
     // Stammer: highlighted streams skip one advancement frame
     if (isStammerFrame && this.hasHighlight) return true;
 
+    const prevHead = this.head;
     this.head++;
+
+    // Detect the frame the head exits the bottom of the screen
+    this.justLanded = prevHead < this.rows && this.head >= this.rows;
 
     if (this.head >= 0 && this.head < this.rows) {
       const cell = grid[this.col][this.head];
@@ -185,7 +175,7 @@ class Stream {
 
     // Throttled head character flicker
     if (!this.isSentient) {
-      if (tick % HEAD_FLICKER_INTERVAL === 0) {
+      if (tick % this.headFlickerInterval === 0) {
         this.headChar = this.randChar();
       }
       grid[this.col][this.head].char = this.headChar;
@@ -231,6 +221,9 @@ export default class RainEngine {
     /** Counter for the stammer effect. */
     this.stammerCounter = 0;
 
+    /** Active landing glow bursts at canvas bottom. */
+    this.landingGlows = [];
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
@@ -253,6 +246,7 @@ export default class RainEngine {
 
   async setup() {
     if (!this.canvas || !this.ctx) return;
+    this.landingGlows = [];
 
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready.catch(() => {});
@@ -381,11 +375,12 @@ export default class RainEngine {
   /** Globally synchronized glyph mutation across the entire grid.
    *  Stores previous character for cross-fade rendering. */
   mutateGrid() {
+    const mutationChance = this.activeConfig.mutationChance ?? 0.03;
     for (let c = 0; c < this.totalCols; c++) {
       const col = this.grid[c];
       for (let r = 0; r < this.gridRows; r++) {
         const cell = col[r];
-        if (Math.random() < MUTATION_CHANCE) {
+        if (Math.random() < mutationChance) {
           cell.prevChar = cell.char;
           cell.char = this.randChar();
         } else {
@@ -510,6 +505,64 @@ export default class RainEngine {
     }
   }
 
+  /**
+   * Render multi-layered elliptical glow bursts at the canvas bottom.
+   * Three concentric layers with exponential decay (~120ms half-life)
+   * create a phosphor-persistence effect rather than a cartoonish pop.
+   */
+  renderLandingGlows(timestamp, themeColors) {
+    const ctx = this.ctx;
+    const canvasH = window.innerHeight;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    // Three layers: tight core (fast decay), mid bloom, wide halo (slow decay)
+    const layers = [
+      { rScale: 0.3, aScale: 0.5, halfLife: 80 },
+      { rScale: 0.7, aScale: 0.2, halfLife: 140 },
+      { rScale: 1.5, aScale: 0.06, halfLife: 220 },
+    ];
+
+    for (let i = this.landingGlows.length - 1; i >= 0; i--) {
+      const g = this.landingGlows[i];
+      const age = timestamp - g.birth;
+      if (age > 600) {
+        this.landingGlows.splice(i, 1);
+        continue;
+      }
+
+      for (const layer of layers) {
+        // Exponential decay: each layer has its own half-life
+        const alpha =
+          g.intensity * layer.aScale * Math.exp((-age * 0.693) / layer.halfLife);
+        if (alpha < 0.003) continue;
+
+        const r = g.radius * layer.rScale;
+
+        // Elliptical shape (wider than tall) via scale transform
+        ctx.save();
+        ctx.translate(g.x, canvasH);
+        ctx.scale(1.0, 0.4);
+
+        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+        grad.addColorStop(0, themeColors.glow);
+        grad.addColorStop(0.15, themeColors.glow);
+        grad.addColorStop(0.5, themeColors.primary);
+        grad.addColorStop(1, "transparent");
+
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = grad;
+        ctx.fillRect(-r, -r, r * 2, r);
+
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
   loop = (timestamp) => {
     const themeColors = getCurrentThemeColors();
     this.globalTick++;
@@ -521,26 +574,47 @@ export default class RainEngine {
     }
 
     // Globally synchronized glyph mutations
-    if (this.globalTick % GLYPH_SYNC_INTERVAL === 0) {
+    const glyphSyncInterval = this.activeConfig.glyphSyncInterval ?? 6;
+    if (this.globalTick % glyphSyncInterval === 0) {
       this.mutateGrid();
     }
 
     // Stammer: periodically all highlighted heads pause for one frame
     this.stammerCounter++;
-    const isStammerFrame = this.stammerCounter >= STAMMER_INTERVAL;
+    const stammerInterval = this.activeConfig.stammerInterval ?? 90;
+    const isStammerFrame = this.stammerCounter >= stammerInterval;
     if (isStammerFrame) {
       this.stammerCounter = 0;
     }
 
     // Step streams (advance cursors, set brightness in grid)
     // Then update heads (counteract decay, apply flicker)
+    const landingGlow = this.activeConfig.landingGlow ?? 0;
     for (const s of this.streams) {
       s.step(this.activeConfig, this.grid, timestamp, isStammerFrame);
       s.updateHead(this.grid, this.globalTick);
+
+      // Collect landing glow burst when a stream head exits the bottom
+      if (s.justLanded && !s.del && landingGlow > 0) {
+        this.landingGlows.push({
+          x: s.col * (this.activeConfig.colW || this.activeConfig.font),
+          intensity: landingGlow,
+          radius: this.activeConfig.landingGlowSize ?? 60,
+          birth: timestamp,
+        });
+        s.justLanded = false;
+        // Cap array for performance
+        if (this.landingGlows.length > 30) this.landingGlows.shift();
+      }
     }
 
     // Render entire grid
     this.renderGrid(themeColors);
+
+    // Render landing glow bursts at canvas bottom
+    if (landingGlow > 0 && this.landingGlows.length > 0) {
+      this.renderLandingGlows(timestamp, themeColors);
+    }
 
     this.animationId = requestAnimationFrame(this.loop);
   };
@@ -598,6 +672,8 @@ export default class RainEngine {
         preset.config.density !== undefined ||
         preset.config.lineH !== undefined;
 
+      // Reset to defaults first so no stale values leak between presets
+      this.activeConfig = { ...this.defaultConfig };
       Object.entries(preset.config).forEach(([param, value]) => {
         this.updateParameter(param, value);
       });

@@ -8,10 +8,8 @@ export default function rainSizeCommand(args, context) {
   if (!args || args.length === 0) {
     const current = rainEngine.activeConfig.font;
     appendToTerminal(
-      `<div class='output-error'>Usage: rainsize &lt;px&gt; | reset</div>`,
-    );
-    appendToTerminal(
-      `<div>Current: ${current}px (valid range: 8–40)</div>`,
+      `<div class='output-error'>Usage: rainsize &lt;px&gt; | reset</div>` +
+        `<div>Current: ${current}px (valid range: 8–40)</div>`,
     );
     return;
   }

@@ -55,18 +55,6 @@ body.theme-amber {
   --terminal-base-b: 0;
 }
 
-body.theme-purple {
-  --primary-color: #c000c0;
-  --primary-color-rgb: 192, 0, 192;
-  --secondary-color: #da70d6;
-  --hover-color: #ee82ee;
-  --matrix-rain-glow-color: #eca0ec;
-  --background-color: #080008;
-  --terminal-base-r: 20;
-  --terminal-base-g: 0;
-  --terminal-base-b: 20;
-}
-
 body.theme-crimson {
   --primary-color: #dc143c;
   --primary-color-rgb: 220, 20, 60;
@@ -77,30 +65,6 @@ body.theme-crimson {
   --terminal-base-r: 20;
   --terminal-base-g: 0;
   --terminal-base-b: 0;
-}
-
-body.theme-forest {
-  --primary-color: #228b22;
-  --primary-color-rgb: 34, 139, 34;
-  --secondary-color: #adff2f;
-  --hover-color: #32cd32;
-  --matrix-rain-glow-color: #98fb98;
-  --background-color: #001000;
-  --terminal-base-r: 0;
-  --terminal-base-g: 20;
-  --terminal-base-b: 0;
-}
-
-body.theme-retroarcade {
-  --primary-color: #ff00ff;
-  --primary-color-rgb: 255, 0, 255;
-  --secondary-color: #00ffff;
-  --hover-color: #f8f8f2;
-  --matrix-rain-glow-color: #f8f8f2;
-  --background-color: #28004d;
-  --terminal-base-r: 28;
-  --terminal-base-g: 0;
-  --terminal-base-b: 51;
 }
 
 body.theme-reloaded {
@@ -115,18 +79,6 @@ body.theme-reloaded {
   --terminal-base-b: 25;
 }
 
-body.theme-synthwavegrid {
-  --primary-color: #ff4081;
-  --primary-color-rgb: 255, 64, 129;
-  --secondary-color: #00e5ff;
-  --hover-color: #ffd600;
-  --matrix-rain-glow-color: #ffffff;
-  --background-color: #1a0d2e;
-  --terminal-base-r: 35;
-  --terminal-base-g: 20;
-  --terminal-base-b: 60;
-}
-
 body.theme-inferno {
   --primary-color: #ff7900; /* Bright Orange */
   --primary-color-rgb: 255, 121, 0;
@@ -137,18 +89,6 @@ body.theme-inferno {
   --terminal-base-r: 40;
   --terminal-base-g: 10;
   --terminal-base-b: 0;
-}
-
-body.theme-terran {
-  --primary-color: #a07855; /* Earthy Brown */
-  --primary-color-rgb: 160, 120, 85;
-  --secondary-color: #6a8a54; /* Leafy Green */
-  --hover-color: #d4b996; /* Sandy color */
-  --matrix-rain-glow-color: #e6dbc9;
-  --background-color: #12100e; /* Deep Earth */
-  --terminal-base-r: 30;
-  --terminal-base-g: 25;
-  --terminal-base-b: 20;
 }
 
 /* A high-contrast, ethereal theme with a glitchy accent color. */
@@ -164,165 +104,61 @@ body.theme-ghost {
   --terminal-base-b: 15;
 }
 
-/* CYBERCANDY – hyper‑saturated blue & cotton‑candy pink */
-body.theme-cybercandy {
-  --primary-color: #00eaff; /* Glitch Blue */
-  --primary-color-rgb: 0, 234, 255;
-  --secondary-color: #ff56ff; /* Bubblegum Magenta */
-  --hover-color: #ffb3ff;
-  --matrix-rain-glow-color: #ffffff;
-  --background-color: #2b0040; /* Arcade violet */
-  --terminal-base-r: 43;
-  --terminal-base-g: 0;
-  --terminal-base-b: 64;
-}
-
-/* DUNES – warm desert golds under a moonlit teal sky */
-body.theme-dunes {
-  --primary-color: #d6b66a; /* Sandstone Gold */
-  --primary-color-rgb: 214, 182, 106;
-  --secondary-color: #7dc7c7; /* Cool Oasis */
-  --hover-color: #ffe9a3;
-  --matrix-rain-glow-color: #fff6d5;
-  --background-color: #08211f; /* Desert night */
-  --terminal-base-r: 8;
-  --terminal-base-g: 33;
-  --terminal-base-b: 31;
-}
-
-/* QUANTUM – electric purple with spectral highlights */
-body.theme-quantum {
-  --primary-color: #b347ff; /* Quantum Purple */
-  --primary-color-rgb: 179, 71, 255;
-  --secondary-color: #00ff9d; /* Spectral Green */
-  --hover-color: #e0a3ff;
-  --matrix-rain-glow-color: #ffffff;
-  --background-color: #0f0020; /* Deep Space */
-  --terminal-base-r: 15;
-  --terminal-base-g: 0;
-  --terminal-base-b: 32;
-}
-
-/* BLOODMOON – deep crimson with bone white accents */
-body.theme-bloodmoon {
-  --primary-color: #8b0000; /* Dark Red */
-  --primary-color-rgb: 139, 0, 0;
-  --secondary-color: #f8f8ff; /* Ghost White */
-  --hover-color: #dc143c;
-  --matrix-rain-glow-color: #ffcccc;
-  --background-color: #1a0000; /* Blood Black */
-  --terminal-base-r: 26;
-  --terminal-base-g: 0;
-  --terminal-base-b: 0;
-}
-
-/* ARCTIC – ice blue with aurora highlights */
-body.theme-arctic {
-  --primary-color: #87ceeb; /* Sky Blue */
-  --primary-color-rgb: 135, 206, 235;
-  --secondary-color: #00ff7f; /* Aurora Green */
-  --hover-color: #b0e0e6;
-  --matrix-rain-glow-color: #f0ffff;
-  --background-color: #001122; /* Polar Night */
-  --terminal-base-r: 0;
-  --terminal-base-g: 17;
-  --terminal-base-b: 34;
-}
-
-/* NEON – hot pink cyberpunk with electric accents */
-body.theme-neon {
-  --primary-color: #ff1493; /* Deep Pink */
-  --primary-color-rgb: 255, 20, 147;
-  --secondary-color: #00ff00; /* Electric Green */
-  --hover-color: #ff69b4;
-  --matrix-rain-glow-color: #ffffff;
-  --background-color: #0a0a0a; /* True Black */
-  --terminal-base-r: 10;
-  --terminal-base-g: 10;
-  --terminal-base-b: 10;
-}
-
-/* TOXIC – radioactive green with warning yellow */
-body.theme-toxic {
-  --primary-color: #39ff14; /* Electric Lime */
-  --primary-color-rgb: 57, 255, 20;
-  --secondary-color: #ffff00; /* Warning Yellow */
-  --hover-color: #7fff00;
-  --matrix-rain-glow-color: #ccff99;
-  --background-color: #001100; /* Toxic Dark */
-  --terminal-base-r: 0;
-  --terminal-base-g: 17;
-  --terminal-base-b: 0;
-}
-
-/* HOLOGRAM – translucent blue with silver highlights */
-body.theme-hologram {
-  --primary-color: #4169e1; /* Royal Blue */
-  --primary-color-rgb: 65, 105, 225;
-  --secondary-color: #c0c0c0; /* Silver */
-  --hover-color: #87cefa;
-  --matrix-rain-glow-color: #e6f3ff;
-  --background-color: #000814; /* Deep Navy */
-  --terminal-base-r: 0;
-  --terminal-base-g: 8;
-  --terminal-base-b: 20;
-}
-
-/* COPPER – steampunk brass with oxidized green */
-body.theme-copper {
-  --primary-color: #b87333; /* Copper */
-  --primary-color-rgb: 184, 115, 51;
-  --secondary-color: #2e8b57; /* Verdigris Green */
-  --hover-color: #cd853f;
-  --matrix-rain-glow-color: #f4a460;
-  --background-color: #1c1008; /* Bronze Black */
-  --terminal-base-r: 28;
-  --terminal-base-g: 16;
-  --terminal-base-b: 8;
-}
-
-/* Ghost/Obsidian scrollbar contrast overrides */
-body.theme-ghost,
-body.theme-obsidian {
+/* Ghost scrollbar contrast override */
+body.theme-ghost {
   --scrollbar-thumb-color: rgba(255, 255, 255, 0.35);
   --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.6);
 }
 
-/* OBSIDIAN – volcanic black with lava orange */
-body.theme-obsidian {
-  --primary-color: #696969; /* Dim Gray */
-  --primary-color-rgb: 105, 105, 105;
-  --secondary-color: #ff4500; /* Orange Red */
-  --hover-color: #a9a9a9;
-  --matrix-rain-glow-color: #dcdcdc;
-  --background-color: #000000; /* Pure Black */
-  --terminal-base-r: 0;
-  --terminal-base-g: 0;
-  --terminal-base-b: 0;
+/* PHANTOM – deep indigo with silver spectral glow */
+body.theme-phantom {
+  --primary-color: #7b68ee; /* Medium Slate Blue */
+  --primary-color-rgb: 123, 104, 238;
+  --secondary-color: #c0c0c0; /* Silver */
+  --hover-color: #9f8fff;
+  --matrix-rain-glow-color: #d4ccff;
+  --background-color: #06001a; /* Deep Void */
+  --terminal-base-r: 12;
+  --terminal-base-g: 8;
+  --terminal-base-b: 30;
 }
 
-/* VIRUS – sickly green with corrupted red glitches */
-body.theme-virus {
-  --primary-color: #adff2f; /* Green Yellow */
-  --primary-color-rgb: 173, 255, 47;
-  --secondary-color: #ff0000; /* Red */
-  --hover-color: #9acd32;
-  --matrix-rain-glow-color: #f0fff0;
-  --background-color: #0f1f0f; /* Infection Dark */
-  --terminal-base-r: 15;
-  --terminal-base-g: 31;
+/* SAKURA – cherry blossom pink with warm ivory */
+body.theme-sakura {
+  --primary-color: #f0a0b0; /* Soft Cherry */
+  --primary-color-rgb: 240, 160, 176;
+  --secondary-color: #ffe4c4; /* Warm Ivory */
+  --hover-color: #ffb7c5;
+  --matrix-rain-glow-color: #ffd9e0;
+  --background-color: #0e0508; /* Dark Petal */
+  --terminal-base-r: 25;
+  --terminal-base-g: 10;
   --terminal-base-b: 15;
 }
 
-/* DEEP_SEA – bioluminescent blue with abyssal depths */
-body.theme-deepsea {
-  --primary-color: #00ced1; /* Dark Turquoise */
-  --primary-color-rgb: 0, 206, 209;
-  --secondary-color: #20b2aa; /* Light Sea Green */
-  --hover-color: #48d1cc;
-  --matrix-rain-glow-color: #afeeee;
-  --background-color: #001f3f; /* Navy */
-  --terminal-base-r: 0;
-  --terminal-base-g: 31;
-  --terminal-base-b: 63;
+/* MIDNIGHT – deep navy with electric blue city glow */
+body.theme-midnight {
+  --primary-color: #4a9eff; /* Electric Blue */
+  --primary-color-rgb: 74, 158, 255;
+  --secondary-color: #87ceeb; /* Sky Blue */
+  --hover-color: #7ab8ff;
+  --matrix-rain-glow-color: #b8d8ff;
+  --background-color: #000814; /* Deep Navy */
+  --terminal-base-r: 5;
+  --terminal-base-g: 10;
+  --terminal-base-b: 25;
 }
+
+/* EMBER – smouldering red-orange like glowing coals */
+body.theme-ember {
+  --primary-color: #e05030; /* Deep Ember */
+  --primary-color-rgb: 224, 80, 48;
+  --secondary-color: #ffb347; /* Warm Amber */
+  --hover-color: #ff6f40;
+  --matrix-rain-glow-color: #ffaa80;
+  --background-color: #100400; /* Coal Black */
+  --terminal-base-r: 28;
+  --terminal-base-g: 8;
+  --terminal-base-b: 4;
+}
+

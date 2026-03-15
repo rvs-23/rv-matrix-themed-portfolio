@@ -8,20 +8,22 @@ export default function rainPresetCommand(args, context) {
   const presets = rainEngine.presets || {};
 
   if (!args || args.length === 0) {
-    appendToTerminal(`<div class='output-error'>${messages.usage}</div>`);
     const presetKeys = Object.keys(presets);
-    if (presetKeys.length > 0) {
-      appendToTerminal(
-        `<div>${messages.available_presets(presetKeys.join(", "))}</div>`,
-      );
-    } else {
+    if (presetKeys.length === 0) {
       appendToTerminal(`<div>${messages.no_presets}</div>`);
+      return;
     }
+    let output = `<div class='output-error'>${messages.usage}</div>`;
+    output += `<div>Current: <span class='output-success'>${rainEngine.activePresetName}</span></div>`;
+    for (const key of presetKeys) {
+      const marker = key === rainEngine.activePresetName ? " ◄" : "";
+      output += `<div>  ${key} — ${presets[key].description || ""}${marker}</div>`;
+    }
+    appendToTerminal(output);
     return;
   }
 
   const presetName = args[0].toLowerCase();
-
   const presetData = presets[presetName];
 
   if (!presetData) {
@@ -36,12 +38,7 @@ export default function rainPresetCommand(args, context) {
     );
   }
 
-  // 4. Now, apply the preset and print the final result
   const result = rainEngine.applyPreset(presetName);
-
-  if (result.success) {
-    appendToTerminal(`<div class='output-success'>${result.message}</div>`);
-  } else {
-    appendToTerminal(`<div class='output-error'>${result.message}</div>`);
-  }
+  const cls = result.success ? "output-success" : "output-error";
+  appendToTerminal(`<div class='${cls}'>${result.message}</div>`);
 }

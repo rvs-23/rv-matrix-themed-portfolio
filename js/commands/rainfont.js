@@ -9,16 +9,13 @@ export default function rainFontCommand(args, context) {
   const fontSetNames = Object.keys(fontSets);
 
   if (!args || args.length === 0) {
-    appendToTerminal(`<div class='output-error'>${messages.usage}</div>`);
-    appendToTerminal(
-      `<div>Current: <span class='output-success'>${rainEngine.activeFontSet}</span></div>`,
-    );
+    let output = `<div class='output-error'>${messages.usage}</div>`;
+    output += `<div>Current: <span class='output-success'>${rainEngine.activeFontSet}</span></div>`;
     for (const name of fontSetNames) {
       const marker = name === rainEngine.activeFontSet ? " ◄" : "";
-      appendToTerminal(
-        `<div>  ${name} — ${fontSets[name].description}${marker}</div>`,
-      );
+      output += `<div>  ${name} — ${fontSets[name].description}${marker}</div>`;
     }
+    appendToTerminal(output);
     return;
   }
 
@@ -26,18 +23,13 @@ export default function rainFontCommand(args, context) {
 
   if (!fontSets[name]) {
     appendToTerminal(
-      `<div class='output-error'>${messages.unknown(name)}</div>`,
-    );
-    appendToTerminal(
-      `<div>Available: ${fontSetNames.join(", ")}</div>`,
+      `<div class='output-error'>${messages.unknown(name)}</div>` +
+        `<div>Available: ${fontSetNames.join(", ")}</div>`,
     );
     return;
   }
 
   const result = rainEngine.setFontSet(name);
-  if (result.success) {
-    appendToTerminal(`<div class='output-success'>${result.message}</div>`);
-  } else {
-    appendToTerminal(`<div class='output-error'>${result.message}</div>`);
-  }
+  const cls = result.success ? "output-success" : "output-error";
+  appendToTerminal(`<div class='${cls}'>${result.message}</div>`);
 }

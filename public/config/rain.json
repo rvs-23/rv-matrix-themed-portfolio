@@ -18,7 +18,14 @@
     "layers": 3,
     "layerOp": [1, 0.7, 0.5],
     "delChance": 0.04,
-    "multiStream": 0.2
+    "multiStream": 0.2,
+    "highlightChance": 0.2,
+    "glyphSyncInterval": 6,
+    "mutationChance": 0.03,
+    "stammerInterval": 90,
+    "headFlickerInterval": 3,
+    "landingGlow": 0,
+    "landingGlowSize": 60
   },
   "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989",
   "fontSets": {
@@ -57,7 +64,9 @@
         "decayBase": 0.965,
         "layers": 4,
         "delChance": 0.02,
-        "fontFamily": "MatrixA, MatrixB, monospace"
+        "fontFamily": "MatrixA, MatrixB, monospace",
+        "highlightChance": 0.4,
+        "headFlickerInterval": 2
       }
     },
     "storm": {
@@ -74,7 +83,10 @@
         "blur": 2,
         "decayBase": 0.87,
         "layers": 2,
-        "delChance": 0.1
+        "delChance": 0.1,
+        "highlightChance": 0.35,
+        "mutationChance": 0.08,
+        "headFlickerInterval": 1
       }
     },
     "whisper": {
@@ -92,7 +104,10 @@
         "decayBase": 0.94,
         "fontFamily": "MatrixA, monospace",
         "layers": 3,
-        "delChance": 0.01
+        "delChance": 0.01,
+        "highlightChance": 0.05,
+        "mutationChance": 0.01,
+        "glyphSyncInterval": 12
       }
     },
     "pulse": {
@@ -109,7 +124,9 @@
         "decayBase": 0.91,
         "layers": 5,
         "layerOp": [1, 0.8, 0.6, 0.35, 0.15],
-        "delChance": 0.18
+        "delChance": 0.18,
+        "mutationChance": 0.05,
+        "glyphSyncInterval": 8
       }
     },
     "ancient": {
@@ -126,7 +143,10 @@
         "decayBase": 0.95,
         "layers": 3,
         "delChance": 0.03,
-        "fontFamily": "MatrixA, MatrixB, monospace"
+        "fontFamily": "MatrixA, MatrixB, monospace",
+        "glyphSyncInterval": 15,
+        "mutationChance": 0.01,
+        "headFlickerInterval": 10
       }
     },
     "emberfall": {
@@ -143,7 +163,67 @@
         "decayBase": 0.88,
         "layers": 3,
         "layerOp": [1, 0.6, 0.3],
-        "delChance": 0.01
+        "delChance": 0.01,
+        "highlightChance": 0.6,
+        "headFlickerInterval": 1,
+        "mutationChance": 0.06
+      }
+    },
+    "cascade": {
+      "description": "Dense cinematic rain — many bright heads, maximum coverage.",
+      "config": {
+        "speed": 45,
+        "font": 16,
+        "density": 1.3,
+        "minTrail": 30,
+        "maxTrail": 80,
+        "headGlowMin": 10,
+        "headGlowMax": 18,
+        "blur": 12,
+        "bloomIntensity": 0.22,
+        "decayBase": 0.96,
+        "layers": 3,
+        "delChance": 0.02,
+        "multiStream": 0.4,
+        "highlightChance": 0.5
+      }
+    },
+    "rainfall": {
+      "description": "Streams bloom when they hit the floor — landing glow enabled.",
+      "config": {
+        "speed": 50,
+        "font": 16,
+        "density": 0.8,
+        "minTrail": 25,
+        "maxTrail": 60,
+        "headGlowMin": 5,
+        "headGlowMax": 10,
+        "blur": 8,
+        "decayBase": 0.95,
+        "layers": 3,
+        "delChance": 0.03,
+        "landingGlow": 0.7,
+        "landingGlowSize": 80
+      }
+    },
+    "frozen": {
+      "description": "Near-static crystalline — extremely slow, minimal mutation.",
+      "config": {
+        "speed": 300,
+        "font": 16,
+        "density": 0.95,
+        "minTrail": 40,
+        "maxTrail": 85,
+        "headGlowMin": 3,
+        "headGlowMax": 8,
+        "blur": 5,
+        "decayBase": 0.985,
+        "layers": 3,
+        "delChance": 0.02,
+        "mutationChance": 0.005,
+        "highlightChance": 0.05,
+        "glyphSyncInterval": 20,
+        "headFlickerInterval": 15
       }
     }
   },
@@ -163,6 +243,13 @@
     "layers": { "type": "int", "min": 1, "max": 10 },
     "layerOp": { "type": "array_float", "ele_min": 0, "ele_max": 1 },
     "delChance": { "type": "float", "min": 0, "max": 1 },
-    "multiStream": { "type": "float", "min": 0, "max": 0.8 }
+    "multiStream": { "type": "float", "min": 0, "max": 0.8 },
+    "highlightChance": { "type": "float", "min": 0, "max": 1 },
+    "glyphSyncInterval": { "type": "int", "min": 1, "max": 60 },
+    "mutationChance": { "type": "float", "min": 0, "max": 1 },
+    "stammerInterval": { "type": "int", "min": 10, "max": 500 },
+    "headFlickerInterval": { "type": "int", "min": 1, "max": 30 },
+    "landingGlow": { "type": "float", "min": 0, "max": 1 },
+    "landingGlowSize": { "type": "int", "min": 10, "max": 200 }
   }
 }

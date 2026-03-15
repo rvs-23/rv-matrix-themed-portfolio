@@ -94,11 +94,11 @@ export default function searchCommand(args, context) {
   results.sort((a, b) => a.score - b.score);
 
   // Format the output
-  let output = `Search results for "<span class="highlight">${escapeHtml(searchTerm)}</span>":\n\n`;
+  let output = `Search results for "<span class="highlight">${escapeHtml(searchTerm)}</span>":<br><br>`;
   results.forEach((res) => {
-    output += `[${res.type}] - <b>${escapeHtml(res.name)}</b>\n`;
+    output += `[${res.type}] - <b>${escapeHtml(res.name)}</b><br>`;
     if (res.description) {
-      output += `  <span class="comment">${escapeHtml(res.description)}</span>\n`;
+      output += `  <span class="comment">${escapeHtml(res.description)}</span><br>`;
     }
   });
 

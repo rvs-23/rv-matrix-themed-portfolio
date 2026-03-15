@@ -105,13 +105,13 @@
   "rainpreset": {
     "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
     "synopsis": "rainpreset <preset_name>",
-    "description": "Changes multiple Matrix rain parameters at once by applying a named preset (e.g., 'comet', 'storm', 'default'). Use 'rainpreset' without arguments or with an invalid preset name to see available presets.",
+    "description": "Changes multiple Matrix rain parameters at once by applying a named preset. 10 presets: default, comet, storm, whisper, pulse, ancient, emberfall, cascade, rainfall, frozen. Use 'rainpreset' without arguments to see all presets with descriptions.",
     "arguments": "<preset_name>: The name of the preset to apply.",
     "examples": [
       "rainpreset comet   - Applies the 'comet' rain preset.",
       "rainpreset default - Resets rain to its default configuration."
     ],
-    "notes": "Available presets are defined in 'public/config/rain.json'. The 'default' preset resets to original values."
+    "notes": "Available presets are defined in 'public/config/rain.json'. The 'default' preset resets to original values. 'rainfall' enables landing glow, 'frozen' is near-static, 'cascade' is dense cinematic."
   },
   "resize": {
     "name": "resize - Resize the terminal window.",
@@ -195,7 +195,7 @@
       "theme reloaded     - Switches to the reloaded theme.",
       "theme              - Shows current and available themes."
     ],
-    "available_themes": "amber, arctic, bloodmoon, copper, crimson, cyan, cybercandy, deepsea, dunes, forest, ghost, green (default), hologram, inferno, neon, obsidian, purple, quantum, reloaded, retroarcade, synthwavegrid, terran, toxic, virus.",
+    "available_themes": "amber, crimson, cyan, ember, ghost, green (default), inferno, midnight, phantom, reloaded, sakura.",
     "notes": "Theme changes also update the Matrix rain colors for a cohesive look."
   },
   "toggleterm": {
