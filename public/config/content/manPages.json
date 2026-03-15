@@ -65,7 +65,7 @@
     "examples": [
       "hobbies            - Shows the list of hobbies and interests."
     ],
-    "notes": "Data is sourced from 'assets/hobbies.json'."
+    "notes": "Data is sourced from 'public/config/content/hobbies.json'."
   },
   "man": {
     "name": "man - Display manual pages for commands.",
@@ -76,18 +76,18 @@
       "man theme          - Shows the manual for the 'theme' command.",
       "man skilltree      - Shows the manual for the 'skilltree' command."
     ],
-    "notes": "Manual pages are sourced from 'assets/manPages.json'."
+    "notes": "Manual pages are sourced from 'public/config/content/manPages.json'."
   },
   "rainpreset": {
     "name": "rainpreset - Apply a predefined visual preset to the Matrix rain animation.",
     "synopsis": "rainpreset <preset_name>",
-    "description": "Changes multiple Matrix rain parameters at once by applying a named preset (e.g., 'comet', 'storm', 'default'). Use 'rainpreset' without arguments or with an invalid preset name to see available presets from 'js/rain/rainConfig.json'.",
+    "description": "Changes multiple Matrix rain parameters at once by applying a named preset (e.g., 'comet', 'storm', 'default'). Use 'rainpreset' without arguments or with an invalid preset name to see available presets.",
     "arguments": "<preset_name>: The name of the preset to apply.",
     "examples": [
       "rainpreset comet   - Applies the 'comet' rain preset.",
       "rainpreset default - Resets rain to its default configuration."
     ],
-    "notes": "Available presets are defined in 'js/rain/rainConfig.json'. The 'default' preset resets to original values."
+    "notes": "Available presets are defined in 'public/config/rain.json'. The 'default' preset resets to original values."
   },
   "resize": {
     "name": "resize - Resize the terminal window.",
@@ -116,7 +116,7 @@
     "description": "Displays a summarized list of the portfolio owner's key skills, categorized for overview. For a more detailed exploration, use the 'skilltree' command.",
     "arguments": "None",
     "examples": ["skills             - Shows the summary of key skills."],
-    "notes": "Data is sourced from 'assets/skills.json'. Hints for 'skilltree' command are provided."
+    "notes": "Data is sourced from 'public/config/content/skills.json'. Hints for 'skilltree' command are provided."
   },
   "skilltree": {
     "name": "skilltree - Interactively explore a detailed hierarchy of technical skills.",
@@ -129,7 +129,7 @@
       "skilltree ai > genai - Shows skills under Generative AI within AI.",
       "skilltree \"Data Science & Analysis\" - Shows skills under Data Science."
     ],
-    "notes": "Refer to 'assets/skills.json' for defined names and aliases. The tree is rendered using a visual hierarchy."
+    "notes": "Refer to 'public/config/content/skills.json' for defined names and aliases. The tree is rendered using a visual hierarchy."
   },
   "sudo": {
     "name": "sudo - Attempt a superuser command.",
@@ -171,7 +171,7 @@
       "theme reloaded     - Switches to the reloaded theme.",
       "theme              - Shows current and available themes."
     ],
-    "available_themes": "amber, crimson, cyan, forest, goldenglitch, green (default), purple, reloaded, retroarcade, synthwavegrid, twilight, voidblue. (Sorted list)",
+    "available_themes": "amber, arctic, bloodmoon, copper, crimson, cyan, cybercandy, deepsea, dunes, forest, ghost, green (default), hologram, inferno, neon, obsidian, purple, quantum, reloaded, retroarcade, synthwavegrid, terran, toxic, virus.",
     "notes": "Theme changes also update the Matrix rain colors for a cohesive look."
   },
   "toggleterm": {

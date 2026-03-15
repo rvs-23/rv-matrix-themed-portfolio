@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rv's Matrix Terminal Portfolio</title>
+    <meta name="description" content="Interactive Matrix-themed terminal portfolio of Rishav Sharma — Data Scientist & Software Developer. Explore skills, projects, and more through a command-line interface." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Rv's Matrix Terminal Portfolio" />
+    <meta property="og:description" content="A Matrix-themed interactive terminal portfolio. Type commands to explore." />
+    <meta property="og:image" content="/favicon/rv-matrix-style-favicon-1.png" />
+    <meta name="twitter:card" content="summary" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,7 +22,7 @@
 
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     />
 
     <link rel="stylesheet" href="/css/style.css" />
@@ -40,15 +46,25 @@
 
     <canvas id="matrix-canvas"></canvas>
 
+    <noscript>
+      <div style="color: #0f0; background: #000; padding: 2rem; font-family: monospace; text-align: center;">
+        <h1>Rv's Matrix Terminal Portfolio</h1>
+        <p>This interactive portfolio requires JavaScript to run.</p>
+        <p>Contact: <a href="mailto:23rishavsharma@gmail.com" style="color: #0ff;">23rishavsharma@gmail.com</a></p>
+      </div>
+    </noscript>
+
     <div id="contentContainer" class="content-container">
-      <pre id="terminal-output"></pre>
+      <pre id="terminal-output" role="log" aria-live="polite" aria-label="Terminal output"></pre>
       <div class="prompt-line">
         <span class="prompt-arrow">$</span>
+        <label for="command-input" class="sr-only">Terminal command input</label>
         <input
           type="text"
           id="command-input"
           autocomplete="off"
           spellcheck="false"
+          aria-label="Terminal command input"
         />
       </div>
     </div>
@@ -57,6 +73,7 @@
       <a
         href="#"
         target="_blank"
+        rel="noopener noreferrer"
         class="nav-icon"
         id="nav-linkedin-link"
         aria-label="LinkedIn"
@@ -67,6 +84,7 @@
       <a
         href="#"
         target="_blank"
+        rel="noopener noreferrer"
         class="nav-icon"
         id="nav-github-link"
         aria-label="GitHub"
@@ -81,6 +99,7 @@
       <a
         href="#"
         target="_blank"
+        rel="noopener noreferrer"
         class="nav-icon"
         id="nav-medium-link"
         aria-label="Medium"
@@ -92,6 +111,7 @@
       <a
         href="#"
         target="_blank"
+        rel="noopener noreferrer"
         class="nav-icon"
         id="nav-cv-link"
         aria-label="Download CV"
