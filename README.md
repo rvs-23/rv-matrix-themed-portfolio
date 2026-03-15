@@ -24,8 +24,7 @@ This portfolio is a client-side single-page application built with vanilla HTML5
 
 - **`index.html`**: The main HTML file. Structures the page, loads stylesheets, JavaScript modules, and defines the core layout.
 - **`public/`**: Directory for all static assets that are served directly.
-  - **`config/`**: The central hub for all configuration and data.
-    - **`index.js`**: The single source of truth for all application configuration (user details, terminal settings, command data, fonts).
+  - **`config/`**: Data files consumed at runtime.
     - **`rain.json`**: Configuration for the rain animation's defaults, glyphs, presets, and validation rules.
     - **`content/`**: Contains data files that drive specific commands (e.g., `skills.json`, `hobbies.json`, `manPages.json`).
   - **`*.ttf`, `favicon/`**: Font files and site icons.
@@ -34,6 +33,7 @@ This portfolio is a client-side single-page application built with vanilla HTML5
   - **`themes.css`**: Dedicated file for all theme-specific CSS variables.
 - **`js/`**:
   - **`main.js`**: The primary entry point. Loads data, initializes modules, assembles the `commandContext`, hydrates nav links, and sets up event listeners.
+  - **`config/index.js`**: The single source of truth for all application configuration (user details, terminal settings, command data, fonts).
   - **`controller/`**: Modules for managing application state and UI.
     - **`dataLoader.js`**: Imports the main JS config and asynchronously fetches all other data files from the `/public/config/` directory.
     - **`terminalController.js`**: Manages all DOM interactions and state for the terminal. State is organized in a single `state` object for clarity.
@@ -160,7 +160,7 @@ This is a static website that uses Vite for an enhanced local development experi
 
 Use this checklist to ensure the portfolio is stable, functional, and visually correct before deploying.
 
-- [ ] **`help`**: Lists all current themes, including `ghost`, `abyss`, and `cyborg`.
+- [ ] **`help`**: Lists all 24 current themes, including `ghost`, `quantum`, and `inferno`.
 - [ ] **`theme <name>`**: Both terminal and rain colors update correctly for several themes.
 - [ ] **`rainpreset <name>`**: Rain style changes correctly, and the preset's description is displayed. Test with `default` and at least two others.
 - [ ] **`whoami` / `contact` / `skills`**: All personal information is correct and links are clickable and valid.
@@ -210,7 +210,7 @@ The following commands are available. For detailed info, use `man <command_name>
 
 ### 5.2. Customization Options
 
-- **Themes:** `abyss`, `amber`, `crimson`, `cyan`, `cyborg`, `forest`, `ghost`, `goldenglitch`, `green` (default), `inferno`, `purple`, `reloaded`, `retroarcade`, `synthwavegrid`, `twilight`, `voidblue`.
+- **Themes:** `amber`, `arctic`, `bloodmoon`, `copper`, `crimson`, `cyan`, `cybercandy`, `deepsea`, `dunes`, `forest`, `ghost`, `green` (default), `hologram`, `inferno`, `neon`, `obsidian`, `purple`, `quantum`, `reloaded`, `retroarcade`, `synthwavegrid`, `terran`, `toxic`, `virus`.
 - **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`.
 - **CRT Effect (Easter Egg):** `ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`.
 
