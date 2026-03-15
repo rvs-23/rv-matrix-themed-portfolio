@@ -38,8 +38,9 @@ const STAMMER_INTERVAL = 90;
 const HEAD_FLICKER_INTERVAL = 3;
 
 /** Minimum brightness for grid cells. Non-zero means cells are never truly
- *  black, eliminating the "stripy" channels between active streams. */
-const BRIGHTNESS_FLOOR = 0.03;
+ *  black, eliminating the "stripy" channels between active streams.
+ *  0.06 gives a visible background texture on most displays. */
+const BRIGHTNESS_FLOOR = 0.06;
 
 /** Brightness decay runs at this interval (~30fps). */
 const DECAY_INTERVAL_MS = 33;
@@ -149,16 +150,30 @@ class Stream {
   }
 
   /**
-   * Keep the head cell bright and flickering between steps.
-   * Called every render frame to counteract decay and update flicker char.
+   * Illuminate the head and a halo of cells behind it every frame.
+   * The halo creates a visible cascade of diminishing brightness behind
+   * the leading edge — the "neon glow trail" effect from the film.
+   * Also handles throttled head character flicker.
    */
   updateHead(grid, tick) {
     if (this.head < 0 || this.head >= this.rows || this.del) return;
 
-    // Refresh brightness (counteracts decay between steps)
-    grid[this.col][this.head].brightness = this.isSentient
-      ? this.opacity * 0.6
-      : this.opacity;
+    const peak = this.isSentient ? this.opacity * 0.6 : this.opacity;
+
+    // Illuminate halo: headGlow cells behind the head with diminishing brightness.
+    // This counteracts decay and creates a visible bright cascade, not just
+    // a single bright cell followed by an abrupt drop-off.
+    for (let i = 0; i <= this.headGlow; i++) {
+      const r = this.head - i;
+      if (r < 0 || r >= this.rows) continue;
+      // Quadratic falloff for a visible but natural gradient
+      const ratio = 1 - i / (this.headGlow + 1);
+      const brightness = peak * ratio * ratio;
+      grid[this.col][r].brightness = Math.max(
+        grid[this.col][r].brightness,
+        brightness,
+      );
+    }
 
     // Throttled head character flicker
     if (!this.isSentient) {
@@ -337,12 +352,13 @@ export default class RainEngine {
 
   /**
    * Render the entire grid. Maps cell brightness to color:
-   *  [0.9, 1.0] → white          (head)
-   *  [0.5, 0.9) → headCol/glow   (neon glow region)
-   *  (floor, 0.5) → baseCol      (trail body)
-   *  ≤ floor      → baseCol dim  (background texture)
+   *  [0.85, 1.0] → white          (head)
+   *  [0.25, 0.85) → headCol/glow  (neon glow region — wide for vibrancy)
+   *  (floor, 0.25) → baseCol      (trail body)
+   *  ≤ floor       → baseCol dim  (background texture)
    *
-   * Second pass: highlighted stream heads get shadowBlur overlay.
+   * Second pass: ALL non-deletion heads get shadowBlur glow overlay.
+   * Highlighted heads get stronger blur; others get a subtle halo.
    */
   renderGrid(themeColors) {
     const ctx = this.ctx;
@@ -373,22 +389,25 @@ export default class RainEngine {
         const b = cell.brightness;
         let color, alpha;
 
-        if (b >= 0.9) {
+        if (b >= 0.85) {
           // Head: white at full brightness
           color = "#ffffff";
           alpha = 1.0;
-        } else if (b >= 0.5) {
-          // Glow region: headCol (neon green/glow color)
+        } else if (b >= 0.25) {
+          // Glow region: neon headCol. Wide range (0.25–0.85) keeps
+          // more of the trail in the vibrant glow color, matching the
+          // pervasive neon green seen in the film.
           color = CFG.headCol;
-          alpha = 0.5 + (b - 0.5) * 1.25; // maps 0.5→0.5, 0.9→1.0
+          // Maps 0.25→0.6, 0.85→1.0 (never drops below 0.6 for punch)
+          alpha = 0.6 + ((b - 0.25) / 0.6) * 0.4;
         } else if (b > BRIGHTNESS_FLOOR + 0.01) {
-          // Trail body: baseCol (primary green)
+          // Trail body: primary green, boosted alpha for visibility
           color = CFG.baseCol;
-          alpha = Math.min(1.0, b * 2.5);
+          alpha = Math.min(1.0, b * 3.5);
         } else {
           // Background texture: dim but visible
           color = CFG.baseCol;
-          alpha = BRIGHTNESS_FLOOR;
+          alpha = BRIGHTNESS_FLOOR * 1.5;
         }
 
         ctx.globalAlpha = Math.max(0, alpha);
@@ -397,15 +416,11 @@ export default class RainEngine {
       }
     }
 
-    // Pass 2: highlighted stream heads get shadowBlur overlay
+    // Pass 2: ALL non-deletion heads get shadowBlur glow overlay.
+    // Every head gets a subtle halo; highlighted heads get stronger bloom.
+    // This creates the pervasive luminous feel across the whole screen.
     for (const s of this.streams) {
-      if (
-        !s.hasHighlight ||
-        s.del ||
-        s.head < 0 ||
-        s.head >= this.gridRows
-      )
-        continue;
+      if (s.del || s.head < 0 || s.head >= this.gridRows) continue;
 
       const cell = this.grid[s.col][s.head];
       if (!cell.char) continue;
@@ -416,7 +431,7 @@ export default class RainEngine {
       ctx.globalAlpha = 1;
       ctx.fillStyle = "#ffffff";
       ctx.shadowColor = CFG.headCol;
-      ctx.shadowBlur = CFG.blur;
+      ctx.shadowBlur = s.hasHighlight ? CFG.blur : CFG.blur * 0.4;
       ctx.fillText(cell.char, x, y);
     }
 
