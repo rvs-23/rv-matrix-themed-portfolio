@@ -104,11 +104,9 @@ class Stream {
       }
     }
 
-    // Reset when the trail has fully passed off-screen
-    if (this.head > this.rows + this.len * 0.3) {
-      if (Math.random() < 0.02 || this.head > this.rows + this.len) {
-        this.reset(CFG);
-      }
+    // Reset only when the entire trail has fully left the screen
+    if (this.head - this.len >= this.rows) {
+      this.reset(CFG);
     }
     return true;
   }
@@ -245,9 +243,14 @@ export default class RainEngine {
     this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
     this.ctx.textBaseline = "top";
 
-    // Column width from measured text for accurate column count
-    const metrics = this.ctx.measureText("M");
-    const colW = metrics.width || this.activeConfig.font;
+    // Column width: measure the widest glyph in the set, enforce font-size minimum
+    let maxGlyphWidth = 0;
+    for (let i = 0; i < Math.min(this.glyphs.length, 30); i++) {
+      const w = this.ctx.measureText(this.glyphs[i]).width;
+      if (w > maxGlyphWidth) maxGlyphWidth = w;
+    }
+    // Use at least font size (CJK glyphs are ~square), add 10% gap for clean spacing
+    const colW = Math.max(maxGlyphWidth, this.activeConfig.font) * 1.1;
 
     this.activeConfig.colW = colW;
     const totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
