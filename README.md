@@ -93,12 +93,14 @@ No environment variables are required as all functionality is client-side.
 
 #### Film-Inspired Rain Behaviors
 
-The rain engine implements behaviors inspired by [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/):
+The rain engine uses a **persistent glyph grid** — characters exist at every screen position at all times. Streams are brightness cursors that illuminate cells as they pass; cells decay toward a dim floor, never fully black. This eliminates the "streams on black" look and creates the dense, luminous field seen in the film.
 
-- **Stationary glyphs** — Characters remain fixed in place; illumination waves pass downward over them.
+Additional behaviors inspired by [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/):
+
+- **Brightness-based color mapping** — Cell brightness maps to a color ramp: white (head) → glow green (near-head) → primary green (trail) → dim floor (background).
 - **Depth via opacity layers** — Multiple layers with configurable opacity create a sense of depth without altering character size.
 - **Deletion streams** — A small percentage of streams erase characters as they pass, creating organic density cycles.
-- **Globally synchronized mutations** — All visible character changes happen simultaneously every 3 frames.
+- **Globally synchronized mutations** — All visible character changes happen simultaneously every 6 frames.
 - **Selective head highlighting** — Only ~20% of streams have bright white glowing heads (per the film).
 - **Head stammer** — Every ~90 frames, all highlighted heads pause for one frame, creating rhythmic desynchronization.
 - **Authentic glyph set** — Full-width katakana + numerals + symbols for the classic Matrix look.
