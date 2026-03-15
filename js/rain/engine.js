@@ -7,8 +7,9 @@
  *  - Selective head highlighting (~1 in 5 streams get extra glow)
  *  - Head stammer (highlighted heads periodically pause in unison)
  *  - Depth conveyed via opacity layers only (uniform font size)
- *  - Head character flickers constantly; trail characters are near-static
- *  - Near-head glow gradient on all streams (first few chars pop)
+ *  - Head character flickers (throttled); trail characters are near-static
+ *  - Continuous illumination gradient over first ~30% of trail
+ *  - All visible trail chars redrawn every frame (no blink artifacts)
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
@@ -27,6 +28,10 @@ const GLYPH_SYNC_INTERVAL = 6;
 
 /** Every N frames, highlighted heads skip one advancement step. */
 const STAMMER_INTERVAL = 90;
+
+/** Head character changes every N globalTick frames (~20 changes/sec at 60fps).
+ *  Throttled to be visible but not chaotic noise. */
+const HEAD_FLICKER_INTERVAL = 3;
 
 /* ── Stream ───────────────────────────────────────────────────────────── */
 
@@ -69,6 +74,9 @@ class Stream {
     // Fresh character buffer for each pass
     this.buf = Array.from({ length: this.rows }, () => this.randChar());
 
+    // Current head flicker character (throttled, not every frame)
+    this.headChar = this.randChar();
+
     // Per-stream speed variation (+-35% of base speed for organic distribution)
     const speedVar = 0.35;
     this.speed = CFG.speed * (1 + (Math.random() * speedVar * 2 - speedVar));
@@ -90,6 +98,7 @@ class Stream {
 
   /**
    * Advance the illumination cursor one row downward.
+   * Only handles position/state — drawing is done separately every frame.
    * @param {boolean} isStammerFrame - If true, highlighted heads skip this step
    */
   step(CFG, timestamp, isStammerFrame) {
@@ -134,7 +143,12 @@ class Stream {
     }
   }
 
-  draw(ctx, CFG) {
+  /**
+   * Draw all visible trail characters. Called every frame (not gated by step)
+   * so the background fade doesn't cause brightness oscillation (blink).
+   * @param {number} tick - Global frame counter for throttling head flicker
+   */
+  draw(ctx, CFG, tick) {
     if (!ctx) return;
     const x = this.col * (CFG.colW || CFG.font);
     // Glow region: first ~30% of trail uses brighter glow color,
@@ -170,16 +184,13 @@ class Stream {
       } else if (t < glowRegion) {
         // Continuous glow gradient: headCol fading smoothly into baseCol.
         // All streams get this — it's what makes the rain look "neon"
-        // rather than flat green. Subtle shadowBlur on all streams in
-        // this region approximates the additive bloom from the film.
+        // rather than flat green. Only highlighted streams get shadowBlur
+        // to keep non-highlighted characters crisp and individually readable.
         const glowFade = t / glowRegion; // 0 at head → 1 at boundary
         colour = CFG.headCol;
         alpha = Math.max(alpha, (0.9 - glowFade * 0.5) * this.opacity);
-        // Subtle bloom for all streams; stronger for highlighted
         if (this.hasHighlight && t < this.headGlow) {
           blur = CFG.blur * (1 - t / this.headGlow);
-        } else {
-          blur = CFG.blur * 0.25 * (1 - glowFade);
         }
       } else if (this.hasHighlight && t < this.headGlow) {
         // Extended glow for highlighted heads beyond the glow region
@@ -200,10 +211,19 @@ class Stream {
         ctx.shadowBlur = 0;
       }
 
-      // Head flickers: draw a fresh random char at t=0 every frame.
-      // Trail characters stay static (set once in step(), rarely mutated).
-      // This matches the film where only the leading cursor changes rapidly.
-      const ch = t === 0 && !this.isSentient ? this.randChar() : this.buf[r];
+      // Head flickers: new random char every HEAD_FLICKER_INTERVAL frames
+      // (~20 changes/sec). Trail characters stay static. This matches the
+      // film where the cursor visibly changes but isn't pure noise.
+      let ch;
+      if (t === 0 && !this.isSentient) {
+        if (tick % HEAD_FLICKER_INTERVAL === 0) {
+          this.headChar = this.randChar();
+        }
+        ch = this.headChar;
+      } else {
+        ch = this.buf[r];
+      }
+
       if (ch) {
         ctx.fillText(ch, x, r * CFG.font * CFG.lineH);
       }
@@ -343,12 +363,13 @@ export default class RainEngine {
       this.stammerCounter = 0;
     }
 
+    // Step advances head position; draw redraws ALL visible trail chars.
+    // Drawing every frame (not gated by step) ensures the background fade
+    // doesn't cause brightness oscillation on characters between steps.
     this.ctx.globalAlpha = 1;
     for (const s of this.streams) {
-      const didStep = s.step(this.activeConfig, timestamp, isStammerFrame);
-      if (didStep) {
-        s.draw(this.ctx, this.activeConfig);
-      }
+      s.step(this.activeConfig, timestamp, isStammerFrame);
+      s.draw(this.ctx, this.activeConfig, this.globalTick);
     }
 
     this.animationId = requestAnimationFrame(this.loop);

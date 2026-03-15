@@ -1,7 +1,7 @@
 {
   "defaultConfig": {
     "speed": 40,
-    "font": 19,
+    "font": 21,
     "lineH": 1,
     "density": 0.95,
     "minTrail": 20,
