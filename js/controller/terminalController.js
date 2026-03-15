@@ -73,7 +73,7 @@ export function initializeTerminalController(
   _applyDomConfigs(config.config);
 
   const plainNameArt = `<span class="ascii-name">${(state.config.user.name || "USER").toUpperCase()}</span>`;
-  const welcomeText = `Type 'help' for commands. Ctrl + \\ to toggle terminal.`;
+  const welcomeText = `Type 'help' for commands. Toggle terminal: Ctrl + \\ or nav bar icon.`;
   state.config.welcomeMsg = `${plainNameArt}\n${welcomeText}`;
 
   if (state.elements.input) {
@@ -475,7 +475,7 @@ export function toggleTerminalVisibility() {
 
     if (state.elements.output) {
       appendToTerminal(
-        `<div>Terminal interface hidden. Ctrl + \\ to restore.</div>`,
+        `<div>Terminal hidden. Restore: Ctrl + \\ or nav icon.</div>`,
       );
     }
   } else {
@@ -515,7 +515,7 @@ export function toggleTerminalVisibility() {
     ) {
       if (state.elements.output) {
         appendToTerminal(
-          `<div>Terminal interface restored. Ctrl + \\ to hide.</div>`,
+          `<div>Terminal restored. Hide: Ctrl + \\ or nav icon.</div>`,
         );
       }
     }

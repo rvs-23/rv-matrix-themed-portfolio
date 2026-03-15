@@ -55,6 +55,11 @@
     </noscript>
 
     <div id="contentContainer" class="content-container">
+      <div class="terminal-titlebar" aria-hidden="true">
+        <span class="terminal-dot"></span>
+        <span class="terminal-dot"></span>
+        <span class="terminal-dot"></span>
+      </div>
       <pre id="terminal-output" role="log" aria-live="polite" aria-label="Terminal output"></pre>
       <div class="prompt-line">
         <span class="prompt-arrow">$</span>
@@ -70,6 +75,15 @@
     </div>
 
     <nav class="minimal-nav">
+      <a
+        href="#"
+        class="nav-icon"
+        id="nav-toggle-term"
+        aria-label="Toggle terminal"
+      >
+        <i class="fas fa-terminal"></i>
+        <span class="nav-label">Terminal</span>
+      </a>
       <a
         href="#"
         target="_blank"

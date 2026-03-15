@@ -21,6 +21,32 @@ import { getAllCommands } from "./commands/0_index.js";
 import { debounce, renderTree } from "./utils.js";
 import { sentientRainPhrases } from "./config/index.js";
 
+function initTitleBarDots(tc) {
+  const dots = document.querySelectorAll(".terminal-dot");
+  if (dots.length < 3) return;
+
+  // Red dot: hide terminal
+  dots[0].addEventListener("click", (e) => {
+    e.stopPropagation();
+    tc.toggleTerminalVisibility();
+  });
+
+  // Yellow dot: toggle between reduced opacity (30%) and default
+  let dimmed = false;
+  dots[1].addEventListener("click", (e) => {
+    e.stopPropagation();
+    dimmed = !dimmed;
+    tc.setTerminalOpacity(dimmed ? 0.3 : "reset");
+  });
+
+  // Green dot: reset terminal size to defaults
+  dots[2].addEventListener("click", (e) => {
+    e.stopPropagation();
+    const defaults = tc.getDefaultTerminalSize();
+    tc.resizeTerminalElement(defaults.width, defaults.height);
+  });
+}
+
 function hydrateNavLinks(userConfig) {
   if (!userConfig) return;
   const navCvLink = document.getElementById("nav-cv-link");
@@ -111,4 +137,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   );
 
   hydrateNavLinks(allData.config.user);
+
+  // Mobile-friendly terminal toggle via nav icon
+  const navToggleTerm = document.getElementById("nav-toggle-term");
+  if (navToggleTerm) {
+    navToggleTerm.addEventListener("click", (e) => {
+      e.preventDefault();
+      terminalController.toggleTerminalVisibility();
+    });
+  }
+
+  // Title bar dot actions: close, minimize opacity, maximize size
+  initTitleBarDots(terminalController, rainEngine);
 });
