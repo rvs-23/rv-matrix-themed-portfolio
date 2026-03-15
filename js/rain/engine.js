@@ -37,11 +37,6 @@ const STAMMER_INTERVAL = 90;
 /** Head character changes every N frames (~20 changes/sec at 60fps). */
 const HEAD_FLICKER_INTERVAL = 3;
 
-/** Minimum brightness for grid cells. Non-zero means cells are never truly
- *  black, eliminating the "stripy" channels between active streams.
- *  0.06 gives a visible background texture on most displays. */
-const BRIGHTNESS_FLOOR = 0.06;
-
 /** Brightness decay runs at this interval (~30fps). */
 const DECAY_INTERVAL_MS = 33;
 
@@ -161,14 +156,12 @@ class Stream {
     const peak = this.isSentient ? this.opacity * 0.6 : this.opacity;
 
     // Illuminate halo: headGlow cells behind the head with diminishing brightness.
-    // This counteracts decay and creates a visible bright cascade, not just
-    // a single bright cell followed by an abrupt drop-off.
+    // Linear falloff gives a visible, gradual cascade — the bright head
+    // smoothly transitions into the trail rather than dropping off sharply.
     for (let i = 0; i <= this.headGlow; i++) {
       const r = this.head - i;
       if (r < 0 || r >= this.rows) continue;
-      // Quadratic falloff for a visible but natural gradient
-      const ratio = 1 - i / (this.headGlow + 1);
-      const brightness = peak * ratio * ratio;
+      const brightness = peak * (1 - i / (this.headGlow + 1));
       grid[this.col][r].brightness = Math.max(
         grid[this.col][r].brightness,
         brightness,
@@ -199,7 +192,15 @@ export default class RainEngine {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
     this.fontSets = rainConfig.fontSets || {};
-    this.activeFontSet = "combined";
+
+    // Default to classic (original 1999 Matrix) font set
+    const defaultFontSet = this.fontSets.classic;
+    if (defaultFontSet) {
+      this.glyphs = defaultFontSet.glyphs;
+      this.activeConfig.fontFamily = defaultFontSet.fontFamily;
+      this.defaultConfig.fontFamily = defaultFontSet.fontFamily;
+    }
+    this.activeFontSet = "classic";
     this.streams = [];
     this.grid = [];
     this.totalCols = 0;
@@ -270,11 +271,12 @@ export default class RainEngine {
       ),
     );
 
-    // Persistent glyph grid: characters exist at every position, always
+    // Persistent glyph grid: characters exist at every position.
+    // Brightness starts at 0 (black) — streams illuminate cells as they pass.
     this.grid = Array.from({ length: this.totalCols }, () =>
       Array.from({ length: this.gridRows }, () => ({
         char: this.randChar(),
-        brightness: BRIGHTNESS_FLOOR,
+        brightness: 0,
       })),
     );
 
@@ -317,24 +319,17 @@ export default class RainEngine {
     }
   }
 
-  /** Decay all grid cell brightnesses toward BRIGHTNESS_FLOOR. */
+  /** Decay all grid cell brightnesses toward zero. */
   decayGrid() {
     const decay = this.activeConfig.decayBase;
     for (let c = 0; c < this.totalCols; c++) {
       const col = this.grid[c];
       for (let r = 0; r < this.gridRows; r++) {
         const cell = col[r];
-        if (cell.brightness > BRIGHTNESS_FLOOR + 0.005) {
-          cell.brightness = Math.max(
-            BRIGHTNESS_FLOOR,
-            cell.brightness * decay,
-          );
-        } else if (cell.brightness < BRIGHTNESS_FLOOR - 0.005) {
-          // Slowly recover deleted cells toward floor
-          cell.brightness = Math.min(
-            BRIGHTNESS_FLOOR,
-            cell.brightness + 0.002,
-          );
+        if (cell.brightness > 0.005) {
+          cell.brightness *= decay;
+          // Snap to zero below threshold to avoid lingering ghosts
+          if (cell.brightness < 0.005) cell.brightness = 0;
         }
       }
     }
@@ -355,9 +350,9 @@ export default class RainEngine {
   /**
    * Render the entire grid. Maps cell brightness to color:
    *  [0.85, 1.0] → white          (head)
-   *  [0.25, 0.85) → headCol/glow  (neon glow region — wide for vibrancy)
-   *  (floor, 0.25) → baseCol      (trail body)
-   *  ≤ floor       → baseCol dim  (background texture)
+   *  [0.2, 0.85) → headCol/glow   (neon glow region)
+   *  (0.01, 0.2) → baseCol        (trail body)
+   *  ≤ 0.01       → skip          (black / not drawn)
    *
    * Second pass: ALL non-deletion heads get shadowBlur glow overlay.
    * Highlighted heads get stronger blur; others get a subtle halo.
@@ -395,21 +390,18 @@ export default class RainEngine {
           // Head: white at full brightness
           color = "#ffffff";
           alpha = 1.0;
-        } else if (b >= 0.25) {
-          // Glow region: neon headCol. Wide range (0.25–0.85) keeps
-          // more of the trail in the vibrant glow color, matching the
-          // pervasive neon green seen in the film.
+        } else if (b >= 0.2) {
+          // Glow region: neon headCol. Wide range (0.2–0.85) keeps
+          // more of the trail in the vibrant glow color.
           color = CFG.headCol;
-          // Maps 0.25→0.6, 0.85→1.0 (never drops below 0.6 for punch)
-          alpha = 0.6 + ((b - 0.25) / 0.6) * 0.4;
-        } else if (b > BRIGHTNESS_FLOOR + 0.01) {
-          // Trail body: primary green, boosted alpha for visibility
+          // Maps 0.2→0.7, 0.85→1.0 (never drops below 0.7 for punch)
+          alpha = 0.7 + ((b - 0.2) / 0.65) * 0.3;
+        } else if (b > 0.01) {
+          // Trail body: primary green
           color = CFG.baseCol;
-          alpha = Math.min(1.0, b * 3.5);
+          alpha = Math.min(1.0, b * 4.0);
         } else {
-          // Background texture: dim but visible
-          color = CFG.baseCol;
-          alpha = BRIGHTNESS_FLOOR * 1.5;
+          continue; // Fully black — skip drawing
         }
 
         ctx.globalAlpha = Math.max(0, alpha);
