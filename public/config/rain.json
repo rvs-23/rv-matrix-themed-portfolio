@@ -10,7 +10,7 @@
     "headGlowMax": 18,
     "blur": 10,
     "bloomRadius": 8,
-    "bloomIntensity": 0.15,
+    "bloomIntensity": 0.25,
     "trailMutate": 10,
     "fade": 0.18,
     "decayBase": 0.96,

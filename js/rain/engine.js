@@ -396,14 +396,17 @@ export default class RainEngine {
   }
 
   /**
-   * Render the entire grid. Maps cell brightness to color:
+   * Render the entire grid. A power curve (γ < 1) is applied to raw
+   * brightness before color mapping, keeping cells in the bright glow
+   * zone for most of the trail — inspired by Rezmason's contrast/palette
+   * approach. After the curve, brightness maps to color:
    *  [0.85, 1.0] → white          (head)
    *  [0.2, 0.85) → headCol/glow   (neon glow region)
    *  (0.01, 0.2) → baseCol        (trail body)
    *  ≤ 0.01       → skip          (black / not drawn)
    *
    * Second pass: ALL non-deletion heads get shadowBlur glow overlay.
-   * Highlighted heads get stronger blur; others get a subtle halo.
+   * Third pass: full-screen bloom (offscreen blur + additive composite).
    */
   renderGrid(themeColors) {
     const ctx = this.ctx;
@@ -431,7 +434,11 @@ export default class RainEngine {
         const cell = col[r];
         if (!cell.char || cell.brightness < 0.005) continue;
 
-        const b = cell.brightness;
+        // Brightness curve: γ < 1 compresses the decay range so cells
+        // stay in the bright glow zone much longer before fading.
+        // Raw 0.5→0.68, 0.2→0.47, 0.1→0.35, 0.05→0.26 — almost
+        // the entire visible trail lands in the glow region (0.2–0.85).
+        const b = Math.pow(cell.brightness, 0.45);
         let color, alpha;
 
         if (b >= 0.85) {
