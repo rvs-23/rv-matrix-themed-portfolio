@@ -2,7 +2,7 @@
  * @file js/rain/engine.js
  * Matrix digital rain engine with sentient phrases.
  *
- * Film-accurate behaviors (Carl Newton's digital rain analysis):
+ * Film-inspired behaviors (Carl Newton's digital rain analysis):
  *  - Globally synchronized glyph mutations (all changes on the same frame)
  *  - Selective head highlighting (~1 in 5 streams get extra glow)
  *  - Head stammer (highlighted heads periodically pause in unison)
@@ -129,7 +129,7 @@ class Stream {
 
   draw(ctx, CFG) {
     if (!ctx) return;
-    const x = this.col * CFG.font;
+    const x = this.col * (CFG.colW || CFG.font);
 
     for (let r = 0; r < this.rows; r++) {
       const t = this.head - r;
@@ -143,13 +143,14 @@ class Stream {
       let blur = 0;
 
       if (this.isSentient) {
-        colour = CFG.headCol;
-        alpha = Math.pow(0.97, t) * this.opacity;
-        blur = CFG.blur * alpha * 1.5;
+        // Ghostly: sentient phrases are subtle whispers, not announcements
+        colour = CFG.baseCol;
+        alpha = Math.pow(0.95, t) * this.opacity * 0.6;
+        blur = 0;
         if (t === 0) {
-          colour = "#ffffff";
-          alpha = 1;
-          blur = CFG.blur * 2;
+          colour = CFG.headCol;
+          alpha = 0.7;
+          blur = CFG.blur * 0.5;
         }
       } else {
         // Standard trail: exponential fade behind the head
@@ -248,6 +249,7 @@ export default class RainEngine {
     const metrics = this.ctx.measureText("M");
     const colW = metrics.width || this.activeConfig.font;
 
+    this.activeConfig.colW = colW;
     const totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
     const rows = Math.max(
       1,

@@ -21,7 +21,7 @@ export const user = {
 export const terminal = {
   defaultSize: {
     width: "69%",
-    height: "31%",
+    height: "55%",
   },
   initialOpacity: 0.69,
   konamiCodeSequence: [

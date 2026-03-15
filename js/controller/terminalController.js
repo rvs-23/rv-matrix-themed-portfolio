@@ -73,7 +73,7 @@ export function initializeTerminalController(
   _applyDomConfigs(config.config);
 
   const plainNameArt = `<span class="ascii-name">${(state.config.user.name || "USER").toUpperCase()}</span>`;
-  const welcomeText = `Welcome to ${state.config.user.name || "User"}'s Terminal.\nType 'help' to see available commands.\n(Ctrl + \\ to toggle terminal visibility)\n---------------------------------------------------`;
+  const welcomeText = `Type 'help' for commands. Ctrl + \\ to toggle terminal.`;
   state.config.welcomeMsg = `${plainNameArt}\n${welcomeText}`;
 
   if (state.elements.input) {
@@ -318,10 +318,9 @@ function getArgumentSuggestions(commandName, context, currentInput) {
     case "theme":
       return (context.config?.help?.availableThemes || []).sort();
     case "rainpreset": {
-      const presets =
-        context.rainOptions && context.rainOptions.getRainPresets
-          ? Object.keys(context.rainOptions.getRainPresets())
-          : [];
+      const presets = context.rainEngine?.presets
+        ? Object.keys(context.rainEngine.presets)
+        : [];
       return presets.sort();
     }
     case "man": {

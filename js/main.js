@@ -33,9 +33,9 @@ function hydrateNavLinks(userConfig) {
   if (navMediumLink) {
     if (userConfig.medium) {
       navMediumLink.href = `https://medium.com/@${userConfig.medium}`;
-      navMediumLink.style.display = "";
+      navMediumLink.classList.remove("nav-icon--hidden");
     } else {
-      navMediumLink.style.display = "none";
+      navMediumLink.classList.add("nav-icon--hidden");
     }
   }
   if (linkedinLinkEl && userConfig.linkedin)

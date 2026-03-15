@@ -36,7 +36,7 @@ This portfolio is a client-side single-page application built with vanilla HTML5
   - **`config/index.js`**: The single source of truth for all application configuration (user details, terminal settings, command data, fonts).
   - **`controller/`**: Modules for managing application state and UI.
     - **`dataLoader.js`**: Imports the main JS config and asynchronously fetches all other data files from the `/public/config/` directory.
-    - **`terminalController.js`**: Manages all DOM interactions and state for the terminal. State is organized in a single `state` object for clarity.
+    - **`terminalController.js`**: Manages all DOM interactions and state for the terminal. State is organized in a single `state` object for clarity. Terminal features a glass-blur effect via `backdrop-filter`.
     - **`shortcuts.js`**: Manages global keyboard shortcuts.
     - **`loaderScreen.js`**: Manages the initial loading animation.
   - **`rain/`**:
@@ -91,9 +91,9 @@ No environment variables are required as all functionality is client-side.
 | `layerOp`     | float array (length =`layers`) | Opacity multiplier per layer.                                      |
 | `delChance`   | 0–1                            | Chance a stream is a deletion stream that erases characters.       |
 
-#### Film-Accurate Rain Behaviors
+#### Film-Inspired Rain Behaviors
 
-The rain engine implements behaviors from [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/):
+The rain engine implements behaviors inspired by [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/):
 
 - **Stationary glyphs** — Characters remain fixed in place; illumination waves pass downward over them.
 - **Depth via opacity layers** — Multiple layers with configurable opacity create a sense of depth without altering character size.
@@ -235,9 +235,4 @@ A significant portion of the code in this project (JavaScript, CSS, HTML structu
 - Initial inspiration and structural ideas from [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
 - Matrix Rain Analysis: [Carl Newton's Digital Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/).
 
----
-A significant portion of the code in this project (JavaScript, CSS, HTML structure) was developed with the assistance of AI models. Human guidance by myself (rvs-23) was provided for the overall design, feature requests, integration, iterative refinement, and the extensive refactoring effort.
-
-- Initial Structural ideas: [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
-- Matrix Rain Analysis: [Carl Newton's Digital Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/).
 
