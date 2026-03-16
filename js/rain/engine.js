@@ -40,7 +40,7 @@ class Stream {
     this.rows = rows;
     this.glyphs = glyphs;
     this.sentientPhrases = sentientPhrases;
-    this.sentientChance = 0.069;
+    this.isExtra = false;
     this.reset(config);
   }
 
@@ -66,7 +66,10 @@ class Stream {
     this.headGlow = randRange(CFG.headGlowMin, CFG.headGlowMax);
 
     // Short restart delay (~12% of screen height) keeps columns well-covered
-    this.head = -randInt(Math.max(1, Math.floor(this.rows * 0.12)));
+    // Extra streams get additional delay for spacing discipline
+    const delayBase = randInt(Math.max(1, Math.floor(this.rows * 0.12)));
+    const extraDelay = this.isExtra ? (CFG.minStreamGap ?? 12) : 0;
+    this.head = -(delayBase + extraDelay);
 
     // Throttled head flicker character
     this.headFlickerInterval = CFG.headFlickerInterval ?? 3;
@@ -81,7 +84,7 @@ class Stream {
     this.lastUpdate = 0;
 
     // Sentient phrases: occasionally a stream spells out a hidden message
-    if (Math.random() < this.sentientChance && this.sentientPhrases.length) {
+    if (Math.random() < (CFG.sentientChance ?? 0.069) && this.sentientPhrases.length) {
       this.isSentient = true;
       this.sentientText =
         this.sentientPhrases[randInt(this.sentientPhrases.length)];
@@ -224,6 +227,9 @@ export default class RainEngine {
     /** Active landing glow bursts at canvas bottom. */
     this.landingGlows = [];
 
+    /** True during high-res capture — disables temporal dithering. */
+    this.isCapturing = false;
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
@@ -315,30 +321,35 @@ export default class RainEngine {
     );
 
     // Multiple raindrops per column: some columns get a second stream.
-    // Speed variation naturally spaces them; the grid model handles
-    // overlapping trails via Math.max on brightness.
+    // Extra streams are marked and get additional restart delay for spacing.
     const multiChance = this.activeConfig.multiStream ?? 0.2;
     if (multiChance > 0) {
       const extraStreams = activeColIndices
         .filter(() => Math.random() < multiChance)
-        .map(
-          (index) =>
-            new Stream(
-              index,
-              this.gridRows,
-              this.activeConfig,
-              this.glyphs,
-              this.sentientPhrases,
-            ),
-        );
+        .map((index) => {
+          const s = new Stream(
+            index,
+            this.gridRows,
+            this.activeConfig,
+            this.glyphs,
+            this.sentientPhrases,
+          );
+          s.isExtra = true;
+          return s;
+        });
       this.streams.push(...extraStreams);
     }
 
     // Scatter initial head positions and pre-illuminate trails
     // so the rain is evenly distributed from the first frame
     const decayBase = this.activeConfig.decayBase;
+    const minGap = this.activeConfig.minStreamGap ?? 12;
     for (const s of this.streams) {
       s.head = -randInt(this.gridRows) + randInt(this.gridRows + s.len);
+      // Stagger extra streams further from primaries for spacing
+      if (s.isExtra) {
+        s.head -= minGap + randInt(minGap);
+      }
       s.lastUpdate = performance.now();
 
       // Pre-illuminate the trail behind the initial head position
@@ -356,23 +367,24 @@ export default class RainEngine {
     }
   }
 
-  /** Decay all grid cell brightnesses toward zero. */
+  /** Decay all grid cell brightnesses toward a dim floor (never fully black). */
   decayGrid() {
     const decay = this.activeConfig.decayBase;
+    const floor = this.activeConfig.dimFloor ?? 0;
+    const floorThreshold = floor + 0.005;
     for (let c = 0; c < this.totalCols; c++) {
       const col = this.grid[c];
       for (let r = 0; r < this.gridRows; r++) {
         const cell = col[r];
-        if (cell.brightness > 0.005) {
+        if (cell.brightness > floorThreshold) {
           cell.brightness *= decay;
           // Uneven tail dissolve: dim cells randomly snap out early,
           // creating gritty analogue fade instead of smooth decay
-          if (cell.brightness < 0.08 && Math.random() < 0.04) {
-            cell.brightness = 0;
+          if (cell.brightness < 0.08 && cell.brightness > floorThreshold && Math.random() < 0.04) {
+            cell.brightness = floor;
             continue;
           }
-          // Snap to zero below threshold to avoid lingering ghosts
-          if (cell.brightness < 0.005) cell.brightness = 0;
+          if (cell.brightness < floorThreshold) cell.brightness = floor;
         }
       }
     }
@@ -433,6 +445,10 @@ export default class RainEngine {
     // making each glyph look self-illuminated — glass holding light.
     ctx.shadowColor = CFG.headCol;
 
+    // Blur clamp: cap per-glyph shadowBlur to prevent muddy midtones
+    const maxBlur = blurScale * 0.65;
+    const capturing = this.isCapturing;
+
     for (let c = 0; c < this.totalCols; c++) {
       const x = c * colW;
       const col = this.grid[c];
@@ -441,36 +457,38 @@ export default class RainEngine {
         const cell = col[r];
         if (!cell.char || cell.brightness < 0.005) continue;
 
-        const b = cell.brightness;
+        let b = cell.brightness;
+
+        // Ghost flicker: dim cells occasionally spike brighter for one frame
+        // (visual only — does not alter grid state)
+        if (b > 0.05 && b < 0.25 && Math.random() < 0.006) {
+          b += 0.15 + Math.random() * 0.1;
+        }
+
         let color, alpha;
 
         if (b >= 0.85) {
-          // Head: white at full brightness
           color = "#ffffff";
           alpha = 1.0;
         } else if (b >= 0.2) {
-          // Glow region: neon headCol. Wide range (0.2–0.85) keeps
-          // more of the trail in the vibrant glow color.
           color = CFG.headCol;
-          // Maps 0.2→0.7, 0.85→1.0 (never drops below 0.7 for punch)
           alpha = 0.7 + ((b - 0.2) / 0.65) * 0.3;
         } else if (b > 0.01) {
-          // Trail body: primary green
           color = CFG.baseCol;
           alpha = Math.min(1.0, b * 4.0);
         } else {
-          continue; // Fully black — skip drawing
+          continue;
         }
 
-        // Per-cell glow: brightness-scaled shadowBlur.
-        // Cells above 0.15 get a glow aura; dimmer cells render flat.
-        ctx.shadowBlur = b > 0.15 ? b * blurScale : 0;
+        // Per-cell glow with clamp to preserve glyph legibility
+        ctx.shadowBlur = b > 0.15 ? Math.min(b * blurScale, maxBlur) : 0;
 
-        // Temporal dithering: tiny noise prevents gradient banding
-        const finalAlpha = Math.max(0, alpha + (Math.random() - 0.5) * 0.02);
+        // Temporal dithering: disabled during screenshot capture
+        const finalAlpha = capturing
+          ? alpha
+          : Math.max(0, alpha + (Math.random() - 0.5) * 0.02);
         ctx.fillStyle = color;
 
-        // Glyph cross-fade: on mutation frames, blend old and new at 50% each
         if (cell.prevChar) {
           ctx.globalAlpha = finalAlpha * 0.5;
           ctx.fillText(cell.prevChar, x, r * lineH);
@@ -567,6 +585,67 @@ export default class RainEngine {
 
     ctx.restore();
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
+  /**
+   * Render the current grid state at a target resolution and return a PNG blob.
+   * Uses the DPR scaling trick: same logical coordinates, more physical pixels.
+   * Disables temporal dithering for a clean, stable capture.
+   */
+  captureHighRes(targetW, targetH) {
+    this.isCapturing = true;
+
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width = targetW;
+    offCanvas.height = targetH;
+    const offCtx = offCanvas.getContext("2d");
+
+    // Scale to cover the entire target canvas (no gaps)
+    const logicalW =
+      this.totalCols * (this.activeConfig.colW || this.activeConfig.font);
+    const logicalH =
+      this.gridRows * this.activeConfig.font * this.activeConfig.lineH;
+    const scale = Math.max(targetW / logicalW, targetH / logicalH);
+
+    // Save engine state
+    const savedCanvas = this.canvas;
+    const savedCtx = this.ctx;
+    const savedDpr = this.dpr;
+    const savedBloom = this.bloomCanvas;
+    const savedBloomCtx = this.bloomCtx;
+
+    // Swap to offscreen canvas with scaled transform
+    this.canvas = offCanvas;
+    this.ctx = offCtx;
+    this.dpr = scale;
+    this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
+    this.ctx.textBaseline = "top";
+
+    // Scaled bloom canvas
+    this.bloomCanvas = document.createElement("canvas");
+    this.bloomCtx = this.bloomCanvas.getContext("2d");
+    this.bloomCanvas.width = Math.ceil(targetW * this.bloomScale);
+    this.bloomCanvas.height = Math.ceil(targetH * this.bloomScale);
+
+    // Render current state at target resolution
+    const themeColors = getCurrentThemeColors();
+    this.renderGrid(themeColors);
+
+    const landingGlow = this.activeConfig.landingGlow ?? 0;
+    if (landingGlow > 0 && this.landingGlows.length > 0) {
+      this.renderLandingGlows(performance.now(), themeColors);
+    }
+
+    // Restore engine state
+    this.canvas = savedCanvas;
+    this.ctx = savedCtx;
+    this.dpr = savedDpr;
+    this.bloomCanvas = savedBloom;
+    this.bloomCtx = savedBloomCtx;
+    this.isCapturing = false;
+
+    return new Promise((resolve) => offCanvas.toBlob(resolve, "image/png"));
   }
 
   loop = (timestamp) => {
