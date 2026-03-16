@@ -13,6 +13,7 @@ import easterEggCommand from "./easter.egg.js";
 import helpCommand from "./help.js";
 import hobbiesCommand from "./hobbies.js";
 import manCommand from "./man.js";
+import missionCommand from "./mission.js";
 import rainFontCommand from "./rainfont.js";
 import rainPresetCommand from "./rainpreset.js";
 import rainSizeCommand from "./rainsize.js";
@@ -44,6 +45,8 @@ export function getAllCommands() {
     help: helpCommand,
     hobbies: hobbiesCommand,
     man: manCommand,
+    mission: missionCommand,
+    hire: missionCommand,
     rainfont: rainFontCommand,
     rainpreset: rainPresetCommand,
     rainsize: rainSizeCommand,

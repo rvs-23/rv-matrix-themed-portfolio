@@ -114,6 +114,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   });
 
+  // Detect recruiter mode via URL path, hash, or query param
+  const isRecruiterMode =
+    window.location.pathname.replace(/\/$/, "").endsWith("/recruiter") ||
+    window.location.hash === "#recruiter" ||
+    new URLSearchParams(window.location.search).get("mode") === "recruiter";
+
   Promise.all([
     new Promise((resolve) => hideLoadingScreen(resolve)),
     document.fonts.ready,
@@ -124,6 +130,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       rainEngine.start();
       terminalController.focusInput();
+
+      if (isRecruiterMode) {
+        setTimeout(() => {
+          registeredCommands.mission([], commandContext);
+        }, 400);
+      }
     })
     .catch((error) => {
       console.error("Error during final initialization step:", error);
