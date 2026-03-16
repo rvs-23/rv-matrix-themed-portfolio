@@ -31,17 +31,6 @@ body.theme-green {
   --terminal-base-b: 39;
 }
 
-body.theme-cyan {
-  --primary-color: #0ff;
-  --primary-color-rgb: 0, 255, 255;
-  --secondary-color: #0f0;
-  --hover-color: #5fffff;
-  --matrix-rain-glow-color: #afffff;
-  --background-color: #000505;
-  --terminal-base-r: 0;
-  --terminal-base-g: 20;
-  --terminal-base-b: 20;
-}
 
 body.theme-amber {
   --primary-color: #ffbf00;
@@ -160,5 +149,18 @@ body.theme-ember {
   --terminal-base-r: 28;
   --terminal-base-g: 8;
   --terminal-base-b: 4;
+}
+
+/* NEURAL-STORM – dual-color cyan + magenta chaos */
+body.theme-neuralstorm {
+  --primary-color: #00f0ff;
+  --primary-color-rgb: 0, 240, 255;
+  --secondary-color: #ff0055;
+  --hover-color: #60ffff;
+  --matrix-rain-glow-color: #b0ffff;
+  --background-color: #020005;
+  --terminal-base-r: 5;
+  --terminal-base-g: 0;
+  --terminal-base-b: 15;
 }
 

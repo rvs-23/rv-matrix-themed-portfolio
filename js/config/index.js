@@ -215,6 +215,11 @@ export const help = {
       desc: "Show detailed manual for a command.",
     },
     {
+      cmd: "mission",
+      display: "mission",
+      desc: "Recruiter dossier — profile summary and quick links.",
+    },
+    {
       cmd: "rainfont <name>",
       display: "rainfont <name>",
       desc: (context) =>
@@ -282,12 +287,12 @@ export const help = {
   availableThemes: [
     "amber",
     "crimson",
-    "cyan",
     "ember",
     "ghost",
     "green",
     "inferno",
     "midnight",
+    "neuralstorm",
     "phantom",
     "reloaded",
     "sakura",

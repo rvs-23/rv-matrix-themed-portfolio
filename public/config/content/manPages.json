@@ -191,12 +191,23 @@
     "description": "Switches the visual theme of the terminal and Matrix rain animation. Affects text, backgrounds, UI elements, and rain colors. Running 'theme' without arguments lists available themes and the current one.",
     "arguments": "[theme_name]: Optional. The name of the theme to apply. If omitted, current and available themes are listed.",
     "examples": [
-      "theme cyan         - Switches to the cyan theme.",
+      "theme neuralstorm  - Switches to the neural-storm theme.",
       "theme reloaded     - Switches to the reloaded theme.",
       "theme              - Shows current and available themes."
     ],
-    "available_themes": "amber, crimson, cyan, ember, ghost, green (default), inferno, midnight, phantom, reloaded, sakura.",
-    "notes": "Theme changes also update the Matrix rain colors for a cohesive look."
+    "available_themes": "amber, crimson, ember, ghost, green (default), inferno, midnight, neuralstorm, phantom, reloaded, sakura.",
+    "notes": "Theme changes also update the Matrix rain colors for a cohesive look. NEURAL-STORM is dual-color cyan + magenta."
+  },
+  "mission": {
+    "name": "mission - Display recruiter dossier and enable recruiter mode.",
+    "synopsis": "mission",
+    "description": "Displays a professional dossier summary with identity, role, and status. Designed for recruiters and hiring managers. Alias: 'hire'.",
+    "arguments": "None",
+    "examples": [
+      "mission            - Activates recruiter mode with dossier.",
+      "hire               - Same as mission."
+    ],
+    "notes": "Recruiter mode can also be triggered automatically by visiting the site with #recruiter in the URL or ?mode=recruiter query parameter."
   },
   "toggleterm": {
     "name": "toggleterm - Hide or show the terminal window.",

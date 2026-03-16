@@ -612,6 +612,44 @@ body.terminal-hidden .minimal-nav #nav-toggle-term {
   bottom: 135%;
 }
 
+/* Recruiter mode: highlight nav bar */
+@keyframes recruiter-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+body.recruiter-mode .minimal-nav {
+  background-color: rgba(
+    var(--terminal-base-r),
+    var(--terminal-base-g),
+    var(--terminal-base-b),
+    0.45
+  );
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(var(--primary-color-rgb), 0.25);
+}
+
+body.recruiter-mode .minimal-nav #nav-cv-link,
+body.recruiter-mode .minimal-nav #nav-email-link,
+body.recruiter-mode .minimal-nav #nav-github-link {
+  color: var(--hover-color);
+  text-shadow: 0 0 10px var(--text-shadow-color);
+  animation: recruiter-pulse 2s ease-in-out infinite;
+}
+
+body.recruiter-mode .minimal-nav #nav-cv-link {
+  animation-delay: 0s;
+}
+
+body.recruiter-mode .minimal-nav #nav-email-link {
+  animation-delay: 0.3s;
+}
+
+body.recruiter-mode .minimal-nav #nav-github-link {
+  animation-delay: 0.6s;
+}
+
 .terminal-glitch-overlay {
   position: absolute;
   top: 0;
