@@ -5,18 +5,21 @@
  */
 
 // Import individual command handlers
+import bluepillCommand from "./bluepill.js";
 import clearCommand from "./clear.js";
 import contactCommand from "./contact.js";
 import dateCommand from "./date.js";
+import decodeCommand from "./decode.js";
 import downloadCvCommand from "./download.js";
-import easterEggCommand from "./easter.egg.js";
 import helpCommand from "./help.js";
 import hobbiesCommand from "./hobbies.js";
 import manCommand from "./man.js";
 import missionCommand from "./mission.js";
+import nospoonCommand from "./nospoon.js";
 import rainFontCommand from "./rainfont.js";
 import rainPresetCommand from "./rainpreset.js";
 import rainSizeCommand from "./rainsize.js";
+import redpillCommand from "./redpill.js";
 import resizeTermCommand from "./resize.js";
 import screenshotCommand from "./screenshot.js";
 import searchCommand from "./search.js";
@@ -27,29 +30,31 @@ import termOpacityCommand from "./termopacity.js";
 import termTextCommand from "./termtext.js";
 import themeCommand from "./theme.js";
 import toggleTermCommand from "./toggleterm.js";
+import wakeCommand from "./wake.js";
 import whoamiCommand from "./whoami.js";
 
 /**
  * Assembles all command functions into a single object.
- * The `context` will be passed from main.js and contains necessary functions
- * (like appendToTerminal, access to configs, etc.) and data.
  * @returns {object} An object mapping command names to their functions.
  */
 export function getAllCommands() {
   const cmds = {
+    bluepill: bluepillCommand,
     clear: clearCommand,
     contact: contactCommand,
     date: dateCommand,
+    decode: decodeCommand,
     download: downloadCvCommand,
-    "easter.egg": easterEggCommand,
     help: helpCommand,
     hobbies: hobbiesCommand,
     man: manCommand,
     mission: missionCommand,
     hire: missionCommand,
+    nospoon: nospoonCommand,
     rainfont: rainFontCommand,
     rainpreset: rainPresetCommand,
     rainsize: rainSizeCommand,
+    redpill: redpillCommand,
     resize: resizeTermCommand,
     search: searchCommand,
     screenshot: screenshotCommand,
@@ -60,6 +65,7 @@ export function getAllCommands() {
     termtext: termTextCommand,
     theme: themeCommand,
     toggleterm: toggleTermCommand,
+    wake: wakeCommand,
     whoami: whoamiCommand,
   };
 

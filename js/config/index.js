@@ -165,26 +165,21 @@ export const download = {
   },
 };
 
-// -- COMMAND: EASTER EGG --
-export const easterEgg = {
-  glitchInterval: 80,
-  maxGlitches: 25,
-  initialMessage: "Initiating system override...",
-  quotes: [
-    "Wake up, {{userName}}…",
-    "The Matrix has you.",
-    "Follow the white rabbit.",
-    "Choice is an illusion created between those with power and those without.",
-    "The body cannot live without the mind.",
-    "Code is just another form of déjà-vu.",
-    "It is not the algorithm that scares them, it is the accuracy.",
-    "Wake up, the bugs in your dreams are trying to unit test your soul.",
-    "Don't think you are. Know you are. That's why you version control your skincare routine.",
-    "Free your mind.",
-    "A mind that won't question is more predictable than any ML algorithm",
-    "You are not the anomaly. You are the expected exception.",
-  ],
-};
+// -- MATRIX QUOTES (used by decode command) --
+export const matrixQuotes = [
+  "Wake up, {{userName}}…",
+  "The Matrix has you.",
+  "Follow the white rabbit.",
+  "Choice is an illusion created between those with power and those without.",
+  "The body cannot live without the mind.",
+  "Code is just another form of déjà-vu.",
+  "It is not the algorithm that scares them, it is the accuracy.",
+  "Wake up, the bugs in your dreams are trying to unit test your soul.",
+  "Don't think you are. Know you are. That's why you version control your skincare routine.",
+  "Free your mind.",
+  "A mind that won't question is more predictable than any ML algorithm",
+  "You are not the anomaly. You are the expected exception.",
+];
 
 // -- COMMAND: HELP --
 export const help = {
@@ -202,8 +197,12 @@ export const help = {
       display: "date [timezone]",
       desc: "Display date/time. Optional: utc, est, etc.",
     },
+    {
+      cmd: "decode",
+      display: "decode [text]",
+      desc: "Decode-reveal any text with a Matrix decryption effect.",
+    },
     { cmd: "download cv", display: "download cv", desc: "Download my CV." },
-    { cmd: "easter.egg", display: "easter.egg", desc: "???" },
     {
       cmd: "hobbies",
       display: "hobbies",

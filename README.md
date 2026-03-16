@@ -181,7 +181,7 @@ Use this checklist to ensure the portfolio is stable, functional, and visually c
 - [ ] **`whoami` / `contact` / `skills`**: All personal information is correct and links are clickable and valid.
 - [ ] **`resize term <values>` & `reset`**: Terminal resizes correctly and resets to the configured default.
 - [ ] **`download cv`**: Triggers the CV download.
-- [ ] **`easter.egg`**: The glitch effect runs and displays a quote.
+- [ ] **`decode`**: Decode-reveals a random Matrix quote.
 - [ ] **Invalid Command**: An unknown command (e.g., `reboot`) shows the "Command not found" error.
 - [ ] **Command History**: Up and Down arrow keys cycle through previous commands.
 - [ ] **Autocomplete**: Tab key correctly completes commands (e.g., `th` -> `theme`) and suggests arguments (e.g., `theme ` -> cycles themes).
@@ -208,7 +208,8 @@ The following commands are available. For detailed info, use `man <command_name>
 | `contact`                      | Show contact information.                             |
 | `date [timezone]`              | Display date/time.                                    |
 | `download cv`                  | Initiate download of my CV.                           |
-| `easter.egg`                   | ???                                                   |
+| `decode [text]`                | Decode-reveal text with Matrix decryption effect.     |
+| `mission`                      | Recruiter dossier with nav highlight.                 |
 | `help`                         | Display this list of available commands.              |
 | `hobbies`                      | List my hobbies and interests.                        |
 | `man <command>`                | Show detailed manual for a command.                   |
@@ -227,7 +228,7 @@ The following commands are available. For detailed info, use `man <command_name>
 
 ### 5.2. Customization Options
 
-- **Themes:** `amber`, `crimson`, `cyan`, `ember`, `ghost`, `green` (default), `inferno`, `midnight`, `phantom`, `reloaded`, `sakura`.
+- **Themes:** `amber`, `crimson`, `ember`, `ghost`, `green` (default), `inferno`, `midnight`, `neuralstorm`, `phantom`, `reloaded`, `sakura`.
 - **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`, `cascade`, `rainfall`, `frozen`.
 - **CRT Effect (Easter Egg):** `ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`.
 
@@ -252,4 +253,12 @@ A significant portion of the code in this project (JavaScript, CSS, HTML structu
 - Initial inspiration and structural ideas from [Rezmason's Matrix Portfolio](https://github.com/Rezmason/matrix/tree/master).
 - Matrix Rain Analysis: [Carl Newton's Digital Rain Analysis](https://carlnewton.github.io/digital-rain-analysis/).
 
-
+<!-- There is no spoon. But there are hidden commands.
+     wake      — The Matrix opening sequence. "Wake up..."
+     redpill   — You take the red pill. Welcome to the real world.
+     bluepill  — The story ends. Ignorance is bliss.
+     nospoon   — The terminal bends. It is only yourself.
+     decode    — No args = random Matrix quote, decoded.
+     hire      — Alias for mission.
+     Konami    — ↑↑↓↓←→←→BA toggles CRT mode.
+-->
