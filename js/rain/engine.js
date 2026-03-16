@@ -230,14 +230,51 @@ export default class RainEngine {
     /** True during high-res capture — disables temporal dithering. */
     this.isCapturing = false;
 
+    /** Interactive rain: click burst enabled by default. */
+    this.interactBurst = true;
+    this.clickBursts = [];
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
+    this._handleClick = this._handleClick.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
+
+    if (this.canvas) {
+      this.canvas.addEventListener("click", this._handleClick);
+    }
   }
 
   destroy() {
     window.removeEventListener("resize", this._handleResize);
+    if (this.canvas) {
+      this.canvas.removeEventListener("click", this._handleClick);
+    }
     this.stop();
+  }
+
+  _handleClick(e) {
+    if (!this.interactBurst) return;
+    e.preventDefault();
+    // Organic burst: slight randomness in intensity and radius
+    this.clickBursts.push({
+      x: e.clientX,
+      y: e.clientY,
+      birth: performance.now(),
+      intensity: 0.7 + Math.random() * 0.3,
+      radius: 70 + Math.random() * 40,
+    });
+    if (this.clickBursts.length > 8) this.clickBursts.shift();
+  }
+
+  /** Get burst interaction state. */
+  getInteract() {
+    return { burst: this.interactBurst };
+  }
+
+  /** Enable or disable burst interaction. */
+  setInteract(effect, enabled) {
+    this.interactBurst = enabled;
+    if (!enabled) this.clickBursts = [];
   }
 
   _handleResize() {
@@ -588,6 +625,101 @@ export default class RainEngine {
   }
 
   /**
+   * Click bursts: organic brightness wave that expands outward from click.
+   * Longer duration (800ms), ease-out decay, per-cell jitter for natural feel.
+   */
+  _applyClickBursts(timestamp) {
+    const CFG = this.activeConfig;
+    const colW = CFG.colW || CFG.font;
+    const lineH = CFG.font * CFG.lineH;
+    const DURATION = 800;
+
+    for (let i = this.clickBursts.length - 1; i >= 0; i--) {
+      const burst = this.clickBursts[i];
+      const age = timestamp - burst.birth;
+      if (age > DURATION) {
+        this.clickBursts.splice(i, 1);
+        continue;
+      }
+
+      const t = age / DURATION;
+      // Ease-out cubic decay — fast bright start, slow fade
+      const decay = 1 - t * t * t;
+      // Radius expands outward as burst ages (wave front)
+      const innerRadius = burst.radius * t * 0.6;
+      const outerRadius = burst.radius * (0.4 + t * 0.6);
+      const burstCol = Math.floor(burst.x / colW);
+      const burstRow = Math.floor(burst.y / lineH);
+      const colRadius = Math.ceil(outerRadius / colW);
+      const rowRadius = Math.ceil(outerRadius / lineH);
+
+      for (let c = burstCol - colRadius; c <= burstCol + colRadius; c++) {
+        if (c < 0 || c >= this.totalCols) continue;
+        for (let r = burstRow - rowRadius; r <= burstRow + rowRadius; r++) {
+          if (r < 0 || r >= this.gridRows) continue;
+          const dx = (c - burstCol) * colW;
+          const dy = (r - burstRow) * lineH;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > outerRadius) continue;
+
+          // Ring-shaped wave: strongest between inner and outer radius
+          let wave;
+          if (dist < innerRadius) {
+            wave = 0.2; // Faint residual glow inside the ring
+          } else {
+            const ringPos = (dist - innerRadius) / (outerRadius - innerRadius);
+            // Bell-curve peaking at ring center
+            wave = Math.exp(-8 * (ringPos - 0.4) * (ringPos - 0.4));
+          }
+
+          // Per-cell jitter: hash from position for stable randomness
+          const jitter = 0.7 + ((c * 7 + r * 13) % 17) / 17 * 0.6;
+          const boost = burst.intensity * decay * wave * jitter * 0.5;
+          this.grid[c][r].brightness = Math.min(
+            1.0,
+            this.grid[c][r].brightness + boost,
+          );
+        }
+      }
+    }
+  }
+
+  /**
+   * Render radial glow overlay for click bursts (additive blend).
+   * Expands outward as a soft ring rather than a solid circle.
+   */
+  _renderClickBursts(timestamp, themeColors) {
+    const ctx = this.ctx;
+    const DURATION = 800;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    for (let i = this.clickBursts.length - 1; i >= 0; i--) {
+      const burst = this.clickBursts[i];
+      const age = timestamp - burst.birth;
+      if (age > DURATION) continue;
+
+      const t = age / DURATION;
+      const decay = 1 - t * t * t;
+      const r = burst.radius * (0.4 + t * 0.6);
+      const alpha = burst.intensity * decay * 0.1;
+      if (alpha < 0.003) continue;
+
+      const grad = ctx.createRadialGradient(burst.x, burst.y, r * 0.3, burst.x, burst.y, r);
+      grad.addColorStop(0, themeColors.primary);
+      grad.addColorStop(0.5, themeColors.glow);
+      grad.addColorStop(1, "transparent");
+
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = grad;
+      ctx.fillRect(burst.x - r, burst.y - r, r * 2, r * 2);
+    }
+
+    ctx.restore();
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
+  /**
    * Render the current grid state at a target resolution and return a PNG blob.
    * Uses the DPR scaling trick: same logical coordinates, more physical pixels.
    * Disables temporal dithering for a clean, stable capture.
@@ -695,12 +827,22 @@ export default class RainEngine {
       }
     }
 
+    // Interactive effects: modify grid before render
+    if (this.interactBurst && this.clickBursts.length > 0) {
+      this._applyClickBursts(timestamp);
+    }
+
     // Render entire grid
     this.renderGrid(themeColors);
 
     // Render landing glow bursts at canvas bottom
     if (landingGlow > 0 && this.landingGlows.length > 0) {
       this.renderLandingGlows(timestamp, themeColors);
+    }
+
+    // Render click burst glow overlay
+    if (this.interactBurst && this.clickBursts.length > 0) {
+      this._renderClickBursts(timestamp, themeColors);
     }
 
     this.animationId = requestAnimationFrame(this.loop);
