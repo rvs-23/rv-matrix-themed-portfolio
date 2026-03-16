@@ -1,6 +1,6 @@
 /**
  * @file js/commands/screenshot.js
- * Handles the 'screenshot' command with resolution control and dynamic filenames.
+ * Handles the 'screenshot' command — renders rain at target resolution.
  */
 
 export default function screenshotCommand(args, context) {
@@ -14,9 +14,8 @@ export default function screenshotCommand(args, context) {
   } = context;
   const screenshotConfig = config.screenshot;
   const messages = screenshotConfig.messages;
-  const srcCanvas = document.getElementById("matrix-canvas");
 
-  if (!srcCanvas) {
+  if (!rainEngine) {
     return appendToTerminal(
       "<div class='output-error'>Rain canvas not found.</div>",
     );
@@ -43,18 +42,12 @@ export default function screenshotCommand(args, context) {
     firstName && firstName.length >= 2
       ? `${firstName[0]}${firstName.slice(-1)}`.toLowerCase()
       : (firstName?.[0] || "u").toLowerCase();
-  const time = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, ""); // YYYYMMDDHHMMSS format
+  const time = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, "");
 
   const fileName = `matrix_rain_wallpaper_${userInitials}_${preset}_${theme}_${crt}_${time}.png`;
 
-  // 3. Create and Download Image
-  const offCanvas = document.createElement("canvas");
-  offCanvas.width = TARGET_W;
-  offCanvas.height = TARGET_H;
-  const offCtx = offCanvas.getContext("2d");
-  offCtx.drawImage(srcCanvas, 0, 0, TARGET_W, TARGET_H);
-
-  offCanvas.toBlob((blob) => {
+  // 3. Render at target resolution and download
+  rainEngine.captureHighRes(TARGET_W, TARGET_H).then((blob) => {
     if (!blob) {
       return appendToTerminal(
         "<div class='output-error'>Screenshot failed.</div>",
@@ -75,5 +68,5 @@ export default function screenshotCommand(args, context) {
     appendToTerminal(
       `<div class='output-success'>${messages.success(fileName, resolutionArg.toUpperCase())}</div>`,
     );
-  }, "image/png");
+  });
 }
