@@ -3,6 +3,11 @@
  * Manages terminal DOM elements, input, output, history, and related functionalities.
  */
 
+import {
+  getLevenshteinDistance,
+  getLongestCommonSubsequence,
+} from "../utils.js";
+
 const MAX_HISTORY = 100;
 
 const state = {
@@ -334,6 +339,8 @@ function getArgumentSuggestions(commandName, context, currentInput) {
       return manPageKeys.sort();
     }
 
+    case "raininteract":
+      return ["off", "thunder", "column"];
     case "resize":
       if (inputParts.length === 2 && inputParts[1] === "term") return ["reset"];
       if (inputParts.length === 1) return ["term"];
@@ -393,12 +400,60 @@ async function processCommand(fullCommandText) {
       );
     }
   } else if (commandName) {
+    const safeName = commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     appendToTerminal(
-      `<div class="output-error">Command not found: ${commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`,
+      `<div class="output-error">Command not found: ${safeName}</div>`,
     );
-    appendToTerminal(
-      `<div>Type 'help' for a list of available commands.</div>`,
-    );
+
+    // Suggest closest match: prefix > normalized Levenshtein, LCS tiebreaker
+    let bestMatch = null;
+    let bestScore = Infinity;
+    let bestLcs = -1;
+    let bestDist = Infinity;
+    let closestRawMatch = null;
+    let closestRawDist = Infinity;
+    for (const cmd of state.autocomplete.commands) {
+      const dist = getLevenshteinDistance(commandName, cmd);
+      const lcs = getLongestCommonSubsequence(commandName, cmd);
+      let score;
+      if (cmd.startsWith(commandName) && commandName.length >= 2) {
+        score = (cmd.length - commandName.length) / cmd.length * 0.3;
+      } else if (commandName.startsWith(cmd)) {
+        score = 0.25;
+      } else {
+        const maxLen = Math.max(commandName.length, cmd.length);
+        score = maxLen > 0 ? dist / maxLen : 1;
+      }
+      // Primary: score. Tiebreak: higher LCS, then lower raw distance.
+      const better =
+        score < bestScore - 0.05 ||
+        (score <= bestScore + 0.05 &&
+          (lcs > bestLcs || (lcs === bestLcs && dist < bestDist)));
+      if (better) {
+        bestScore = Math.min(score, bestScore);
+        bestMatch = cmd;
+        bestLcs = lcs;
+        bestDist = dist;
+      }
+      if (dist < closestRawDist) {
+        closestRawDist = dist;
+        closestRawMatch = cmd;
+      }
+    }
+    // Short-string leniency: for inputs <=4 chars, accept raw distance <=2
+    if (commandName.length <= 4 && closestRawDist <= 2 && closestRawMatch) {
+      bestMatch = closestRawMatch;
+      bestScore = 0;
+    }
+    if (bestMatch && bestScore <= 0.5) {
+      appendToTerminal(
+        `<div>Did you mean '<span class="output-success">${bestMatch}</span>'? Type 'help' for all commands.</div>`,
+      );
+    } else {
+      appendToTerminal(
+        `<div>Type 'help' for a list of available commands.</div>`,
+      );
+    }
   }
 }
 

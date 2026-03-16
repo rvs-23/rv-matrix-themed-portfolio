@@ -25,6 +25,29 @@ export default function missionCommand(args, context) {
   const title = escapeHtml(user.title || "System Analyst");
   const bio = escapeHtml(user.bio || "");
 
+  // Build quick-action links
+  const quickLinks = [];
+  if (user.cvLink) {
+    quickLinks.push(
+      `<a href="${encodeURI(user.cvLink)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Download CV</a>`,
+    );
+  }
+  if (user.linkedin) {
+    quickLinks.push(
+      `<a href="https://www.linkedin.com/in/${encodeURIComponent(user.linkedin)}" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i> LinkedIn</a>`,
+    );
+  }
+  if (user.github) {
+    quickLinks.push(
+      `<a href="https://github.com/${encodeURIComponent(user.github)}" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub</a>`,
+    );
+  }
+  if (user.email) {
+    quickLinks.push(
+      `<a href="mailto:${encodeURIComponent(user.email)}"><i class="fas fa-envelope"></i> Email</a>`,
+    );
+  }
+
   const output =
     `<div class="output-section-title section-title-plain"><i class="fas fa-user-secret icon-inline"></i> DOSSIER &mdash; ${name}</div>` +
     `<div class="output-section">` +
@@ -35,8 +58,11 @@ export default function missionCommand(args, context) {
     `<div class="output-section">` +
     `<div class="output-line">${bio}</div>` +
     `</div>` +
+    (quickLinks.length
+      ? `<div class="mt-section">${quickLinks.join(" &nbsp;&middot;&nbsp; ")}</div>`
+      : "") +
     `<div class="mt-section output-text-small">` +
-    `<span class="output-success">skills</span> &middot; <span class="output-success">whoami</span> &middot; <span class="output-success">contact</span> &middot; <span class="output-success">download cv</span>` +
+    `Try: <span class="output-success">skills</span> &middot; <span class="output-success">whoami</span> &middot; <span class="output-success">contact</span>` +
     `</div>`;
 
   appendToTerminal(output);

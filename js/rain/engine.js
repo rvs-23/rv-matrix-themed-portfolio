@@ -230,14 +230,82 @@ export default class RainEngine {
     /** True during high-res capture — disables temporal dithering. */
     this.isCapturing = false;
 
+    /** Interactive rain: click effects with selectable mode. */
+    this.interactBurst = true;
+    this.burstMode = "thunder"; // "column" | "thunder"
+    this.columnBoosts = [];     // column energy pulses
+    this.lightningStrikes = []; // thunderstorm lightning bolts
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
+    this._handleClick = this._handleClick.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
+
+    if (this.canvas) {
+      this.canvas.addEventListener("click", this._handleClick);
+    }
   }
 
   destroy() {
     window.removeEventListener("resize", this._handleResize);
+    if (this.canvas) {
+      this.canvas.removeEventListener("click", this._handleClick);
+    }
     this.stop();
+  }
+
+  _handleClick(e) {
+    if (!this.interactBurst) return;
+    e.preventDefault();
+    const now = performance.now();
+    const CFG = this.activeConfig;
+    const colW = CFG.colW || CFG.font;
+    const lineH = CFG.font * CFG.lineH;
+
+    switch (this.burstMode) {
+      case "column": {
+        const clickCol = Math.floor(e.clientX / colW);
+        const clickRow = Math.floor(e.clientY / lineH);
+        this.columnBoosts.push({
+          col: clickCol,
+          row: clickRow,
+          birth: now,
+          intensity: 0.8 + Math.random() * 0.2,
+        });
+        if (this.columnBoosts.length > 8) this.columnBoosts.shift();
+        break;
+      }
+
+      case "thunder": {
+        const clickCol = Math.floor(e.clientX / colW);
+        const clickRow = Math.floor(e.clientY / lineH);
+        const bolt = this._generateBolt(clickCol, clickRow, colW, lineH);
+        this.lightningStrikes.push({
+          birth: now,
+          bolt,
+          intensity: 0.9 + Math.random() * 0.1,
+        });
+        if (this.lightningStrikes.length > 4) this.lightningStrikes.shift();
+        break;
+      }
+    }
+  }
+
+  /** Get interaction state. */
+  getInteract() {
+    return { burst: this.interactBurst, mode: this.burstMode };
+  }
+
+  /** Set interaction mode. "off" disables; a mode name enables with that mode. */
+  setInteract(mode) {
+    if (mode === "off") {
+      this.interactBurst = false;
+    } else {
+      this.interactBurst = true;
+      this.burstMode = mode;
+    }
+    this.columnBoosts = [];
+    this.lightningStrikes = [];
   }
 
   _handleResize() {
@@ -587,6 +655,303 @@ export default class RainEngine {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 
+  /* ── Column mode: focused downward energy pulse ───────────────────── */
+
+  _applyColumnBoost(timestamp) {
+    const DURATION = 1200;
+
+    for (let i = this.columnBoosts.length - 1; i >= 0; i--) {
+      const boost = this.columnBoosts[i];
+      const age = timestamp - boost.birth;
+      if (age > DURATION) {
+        this.columnBoosts.splice(i, 1);
+        continue;
+      }
+
+      const t = age / DURATION;
+      const decay = 1 - t * t;
+      const travelDist = Math.floor(this.gridRows * 1.3 * t);
+      const waveFront = Math.min(
+        boost.row + travelDist,
+        this.gridRows - 1,
+      );
+      const waveDepth = 4;
+      const waveTop = Math.max(0, waveFront - waveDepth);
+      const spread = 1; // tight: 3 columns
+
+      for (let dc = -spread; dc <= spread; dc++) {
+        const c = boost.col + dc;
+        if (c < 0 || c >= this.totalCols) continue;
+        const colFade = 1 - Math.abs(dc) / (spread + 1);
+
+        for (let r = waveTop; r <= waveFront; r++) {
+          const depthFade = (r - waveTop) / (waveDepth || 1);
+          const b = boost.intensity * decay * colFade * depthFade * 0.55;
+          this.grid[c][r].brightness = Math.min(
+            1.0,
+            this.grid[c][r].brightness + b,
+          );
+        }
+      }
+    }
+  }
+
+  _renderColumnGlow(timestamp, themeColors) {
+    const ctx = this.ctx;
+    const CFG = this.activeConfig;
+    const colW = CFG.colW || CFG.font;
+    const lineH = CFG.font * CFG.lineH;
+    const DURATION = 1200;
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    for (const boost of this.columnBoosts) {
+      const age = timestamp - boost.birth;
+      if (age > DURATION) continue;
+
+      const t = age / DURATION;
+      const decay = 1 - t * t;
+      const travelDist = Math.floor(this.gridRows * 1.3 * t);
+      const waveFront = Math.min(boost.row + travelDist, this.gridRows - 1);
+      const waveY = waveFront * lineH;
+      const centerX = (boost.col + 0.5) * colW;
+      const alpha = boost.intensity * decay * 0.1;
+      if (alpha < 0.003) continue;
+
+      const spreadPx = 2 * colW;
+      const depthPx = 5 * lineH;
+      const size = Math.max(spreadPx, depthPx);
+      const grad = ctx.createRadialGradient(
+        centerX, waveY, 0, centerX, waveY, size,
+      );
+      grad.addColorStop(0, themeColors.glow);
+      grad.addColorStop(0.3, themeColors.primary);
+      grad.addColorStop(1, "transparent");
+
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = grad;
+      ctx.fillRect(centerX - size, waveY - size, size * 2, size * 2);
+    }
+
+    ctx.restore();
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
+  /* ── Thunder mode: lightning bolt from sky to click point ────────── */
+
+  /**
+   * Generate a jagged lightning bolt path from top of screen to target.
+   * Returns { trunk: [{c, r, x, y}], branches: [[{c, r, x, y}]] }.
+   */
+  _generateBolt(targetCol, targetRow, colW, lineH) {
+    const trunk = [];
+    const branches = [];
+
+    // Start from top, offset from target for a natural angle
+    let col = targetCol + Math.round((Math.random() - 0.5) * 10);
+    col = Math.max(0, Math.min(this.totalCols - 1, col));
+    let row = 0;
+
+    while (row <= targetRow && row < this.gridRows) {
+      trunk.push({
+        c: col,
+        r: row,
+        x: (col + 0.5) * colW,
+        y: (row + 0.5) * lineH,
+      });
+
+      // Possible branch fork
+      if (row > 3 && Math.random() < 0.18) {
+        const branch = [{
+          c: col, r: row,
+          x: (col + 0.5) * colW, y: (row + 0.5) * lineH,
+        }];
+        let bc = col;
+        let br = row;
+        const dir = Math.random() < 0.5 ? -1 : 1;
+        const len = 3 + randInt(6);
+        for (let b = 0; b < len; b++) {
+          br += 1 + randInt(1);
+          bc += dir * (1 + randInt(1));
+          bc = Math.max(0, Math.min(this.totalCols - 1, bc));
+          if (br >= this.gridRows) break;
+          branch.push({
+            c: bc, r: br,
+            x: (bc + 0.5) * colW, y: (br + 0.5) * lineH,
+          });
+        }
+        branches.push(branch);
+      }
+
+      // Step down 1-3 rows with lateral jitter biased toward target
+      row += 1 + randInt(2);
+      const bias = (targetCol - col) * 0.2;
+      col += Math.round(bias + (Math.random() - 0.5) * 4);
+      col = Math.max(0, Math.min(this.totalCols - 1, col));
+    }
+
+    // Ensure bolt reaches target
+    if (targetRow < this.gridRows) {
+      trunk.push({
+        c: targetCol,
+        r: targetRow,
+        x: (targetCol + 0.5) * colW,
+        y: (targetRow + 0.5) * lineH,
+      });
+    }
+
+    return { trunk, branches };
+  }
+
+  /**
+   * Interpolate grid cells between consecutive bolt points and boost brightness.
+   * Fills every row between p0 and p1 with linearly interpolated columns.
+   */
+  _boostBoltSegment(p0, p1, brightness, width) {
+    const rowDiff = p1.r - p0.r;
+    for (let dr = 0; dr <= Math.max(rowDiff, 0); dr++) {
+      const r = p0.r + dr;
+      if (r < 0 || r >= this.gridRows) continue;
+      const t = rowDiff > 0 ? dr / rowDiff : 0;
+      const c = Math.round(p0.c + (p1.c - p0.c) * t);
+      // Boost the bolt cell and its neighbors
+      for (let dc = -width; dc <= width; dc++) {
+        const nc = c + dc;
+        if (nc < 0 || nc >= this.totalCols) continue;
+        const fade = dc === 0 ? 1.0 : 0.3;
+        this.grid[nc][r].brightness = Math.min(
+          1.0,
+          this.grid[nc][r].brightness + brightness * fade,
+        );
+      }
+    }
+  }
+
+  _applyThunder(timestamp) {
+    const DURATION = 700;
+
+    for (let i = this.lightningStrikes.length - 1; i >= 0; i--) {
+      const strike = this.lightningStrikes[i];
+      const age = timestamp - strike.birth;
+      if (age > DURATION) {
+        this.lightningStrikes.splice(i, 1);
+        continue;
+      }
+
+      // Lightning flicker: bright → dim gap → restrike → fade
+      let flash;
+      if (age < 60) flash = 1.0;
+      else if (age < 100) flash = 0.15;
+      else if (age < 180) flash = 0.7;
+      else flash = 0.7 * Math.max(0, 1 - (age - 180) / 520);
+
+      const brightness = strike.intensity * flash;
+      if (brightness < 0.01) continue;
+
+      // Interpolate trunk cells for continuous bolt path
+      const trunk = strike.bolt.trunk;
+      for (let j = 0; j < trunk.length - 1; j++) {
+        this._boostBoltSegment(trunk[j], trunk[j + 1], brightness, 1);
+      }
+
+      // Branches: thinner, dimmer
+      for (const branch of strike.bolt.branches) {
+        for (let j = 0; j < branch.length - 1; j++) {
+          this._boostBoltSegment(
+            branch[j],
+            branch[j + 1],
+            brightness * 0.5,
+            0,
+          );
+        }
+      }
+    }
+  }
+
+  _renderThunderGlow(timestamp, themeColors) {
+    const ctx = this.ctx;
+    const DURATION = 700;
+    const canvasW = window.innerWidth;
+    const canvasH = window.innerHeight;
+
+    ctx.save();
+
+    for (const strike of this.lightningStrikes) {
+      const age = timestamp - strike.birth;
+      if (age > DURATION) continue;
+
+      let flash;
+      if (age < 60) flash = 1.0;
+      else if (age < 100) flash = 0.15;
+      else if (age < 180) flash = 0.7;
+      else flash = 0.7 * Math.max(0, 1 - (age - 180) / 520);
+
+      const alpha = strike.intensity * flash;
+      if (alpha < 0.01) continue;
+
+      // Full-screen ambient flash (brief)
+      if (age < 120) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = (age < 60 ? 0.07 : 0.025) * alpha;
+        ctx.fillStyle = themeColors.glow;
+        ctx.fillRect(0, 0, canvasW, canvasH);
+      }
+
+      // Draw bolt trunk — outer glow layer
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = alpha * 0.4;
+      ctx.strokeStyle = themeColors.glow;
+      ctx.lineWidth = 4;
+      ctx.shadowColor = themeColors.glow;
+      ctx.shadowBlur = 20;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      const trunk = strike.bolt.trunk;
+      if (trunk.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(trunk[0].x, trunk[0].y);
+        for (let j = 1; j < trunk.length; j++) {
+          ctx.lineTo(trunk[j].x, trunk[j].y);
+        }
+        ctx.stroke();
+
+        // Inner bright core
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = alpha * 0.7;
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = "#fff";
+        ctx.beginPath();
+        ctx.moveTo(trunk[0].x, trunk[0].y);
+        for (let j = 1; j < trunk.length; j++) {
+          ctx.lineTo(trunk[j].x, trunk[j].y);
+        }
+        ctx.stroke();
+      }
+
+      // Draw branches — thinner, dimmer, theme-colored
+      ctx.strokeStyle = themeColors.primary;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = alpha * 0.25;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = themeColors.primary;
+
+      for (const branch of strike.bolt.branches) {
+        if (branch.length < 2) continue;
+        ctx.beginPath();
+        ctx.moveTo(branch[0].x, branch[0].y);
+        for (let j = 1; j < branch.length; j++) {
+          ctx.lineTo(branch[j].x, branch[j].y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  }
+
   /**
    * Render the current grid state at a target resolution and return a PNG blob.
    * Uses the DPR scaling trick: same logical coordinates, more physical pixels.
@@ -695,12 +1060,30 @@ export default class RainEngine {
       }
     }
 
+    // Interactive effects: modify grid before render
+    if (this.interactBurst) {
+      if (this.burstMode === "column" && this.columnBoosts.length > 0) {
+        this._applyColumnBoost(timestamp);
+      } else if (this.burstMode === "thunder" && this.lightningStrikes.length > 0) {
+        this._applyThunder(timestamp);
+      }
+    }
+
     // Render entire grid
     this.renderGrid(themeColors);
 
     // Render landing glow bursts at canvas bottom
     if (landingGlow > 0 && this.landingGlows.length > 0) {
       this.renderLandingGlows(timestamp, themeColors);
+    }
+
+    // Render interaction glow overlay
+    if (this.interactBurst) {
+      if (this.burstMode === "column" && this.columnBoosts.length > 0) {
+        this._renderColumnGlow(timestamp, themeColors);
+      } else if (this.burstMode === "thunder" && this.lightningStrikes.length > 0) {
+        this._renderThunderGlow(timestamp, themeColors);
+      }
     }
 
     this.animationId = requestAnimationFrame(this.loop);

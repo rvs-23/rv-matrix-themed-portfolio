@@ -17,6 +17,7 @@ import manCommand from "./man.js";
 import missionCommand from "./mission.js";
 import nospoonCommand from "./nospoon.js";
 import rainFontCommand from "./rainfont.js";
+import rainInteractCommand from "./raininteract.js";
 import rainPresetCommand from "./rainpreset.js";
 import rainSizeCommand from "./rainsize.js";
 import redpillCommand from "./redpill.js";
@@ -52,6 +53,7 @@ export function getAllCommands() {
     hire: missionCommand,
     nospoon: nospoonCommand,
     rainfont: rainFontCommand,
+    raininteract: rainInteractCommand,
     rainpreset: rainPresetCommand,
     rainsize: rainSizeCommand,
     redpill: redpillCommand,

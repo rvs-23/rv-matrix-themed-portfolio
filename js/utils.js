@@ -5,6 +5,30 @@
  */
 
 /**
+ * Length of the longest common subsequence between two strings.
+ * Used as a tiebreaker when Levenshtein scores are close.
+ * @param {string} s1 The first string.
+ * @param {string} s2 The second string.
+ * @returns {number} LCS length.
+ */
+export function getLongestCommonSubsequence(s1, s2) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+  const m = s1.length;
+  const n = s2.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] =
+        s1[i - 1] === s2[j - 1]
+          ? dp[i - 1][j - 1] + 1
+          : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+/**
  * Calculates the Levenshtein distance between two strings for fuzzy searching.
  * @param {string} s1 The first string.
  * @param {string} s2 The second string.

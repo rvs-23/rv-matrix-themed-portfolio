@@ -225,6 +225,11 @@ export const help = {
         `Switch rain font. Available: ${Object.keys(context.rainEngine.fontSets || {}).join(", ")}.`,
     },
     {
+      cmd: "raininteract <off|thunder|column>",
+      display: "raininteract <mode>",
+      desc: "Toggle rain click effects. Modes: thunder, column.",
+    },
+    {
       cmd: "rainsize <px>",
       display: "rainsize <px>|reset",
       desc: "Set rain glyph size (8–40px). E.g., `rainsize 14`.",
