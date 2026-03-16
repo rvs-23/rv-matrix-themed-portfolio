@@ -274,7 +274,7 @@ export default class RainEngine {
     this.totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
     this.gridRows = Math.max(
       1,
-      Math.floor(
+      Math.ceil(
         window.innerHeight /
           (this.activeConfig.font * this.activeConfig.lineH),
       ),
@@ -610,21 +610,6 @@ export default class RainEngine {
           radius: this.activeConfig.landingGlowSize ?? 60,
           birth: timestamp,
         });
-        // Landing splash: briefly brighten 3-4 cells in adjacent columns
-        for (const dc of [-2, -1, 1, 2]) {
-          const adjCol = s.col + dc;
-          if (adjCol >= 0 && adjCol < this.totalCols && Math.random() < 0.6) {
-            const adjRow =
-              this.gridRows - 1 - Math.floor(Math.random() * 3);
-            if (adjRow >= 0) {
-              const cell = this.grid[adjCol][adjRow];
-              cell.brightness = Math.max(
-                cell.brightness,
-                0.3 + Math.random() * 0.2,
-              );
-            }
-          }
-        }
         s.justLanded = false;
         // Cap array for performance
         if (this.landingGlows.length > 30) this.landingGlows.shift();

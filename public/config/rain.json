@@ -4,7 +4,7 @@
     "font": 16,
     "lineH": 1,
     "density": 0.95,
-    "minTrail": 20,
+    "minTrail": 11,
     "maxTrail": 85,
     "headGlowMin": 8,
     "headGlowMax": 18,
