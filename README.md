@@ -13,6 +13,8 @@ Welcome to my personal portfolio, reimagined as a Matrix-themed interactive term
 - **Immersive Loading Sequence:** A themed loading animation enhances initial user engagement.
 - **Keyboard Shortcuts:** Includes `Ctrl + \` to toggle terminal visibility and a Konami code easter egg for a CRT visual effect.
 - **Comprehensive Command Set:** Offers a range of commands for navigation, customization, and information retrieval, complete with a `man` (manual) system.
+- **Fuzzy "Did You Mean?" Suggestions:** Mistyped commands show the closest match using Levenshtein distance, longest common subsequence tiebreaking, and prefix matching.
+- **Interactive Rain Effects:** Click the rain canvas to trigger visual effects — lightning bolts (thunder mode) or downward energy pulses (column mode). Controlled via the `raininteract` command.
 
 ---
 
@@ -182,7 +184,9 @@ Use this checklist to ensure the portfolio is stable, functional, and visually c
 - [ ] **`resize term <values>` & `reset`**: Terminal resizes correctly and resets to the configured default.
 - [ ] **`download cv`**: Triggers the CV download.
 - [ ] **`decode`**: Decode-reveals a random Matrix quote.
-- [ ] **Invalid Command**: An unknown command (e.g., `reboot`) shows the "Command not found" error.
+- [ ] **Invalid Command**: An unknown command (e.g., `reboot`) shows "Command not found" with a "Did you mean?" suggestion.
+- [ ] **`raininteract`**: Thunder mode shows lightning bolt on canvas click; `raininteract column` switches mode; `raininteract off` disables.
+- [ ] **`mission`**: Shows recruiter dossier with clickable CV, LinkedIn, GitHub, and Email links.
 - [ ] **Command History**: Up and Down arrow keys cycle through previous commands.
 - [ ] **Autocomplete**: Tab key correctly completes commands (e.g., `th` -> `theme`) and suggests arguments (e.g., `theme ` -> cycles themes).
 - [ ] **Shortcuts**: `Ctrl + \` toggles the terminal visibility.
@@ -209,14 +213,16 @@ The following commands are available. For detailed info, use `man <command_name>
 | `date [timezone]`              | Display date/time.                                    |
 | `download cv`                  | Initiate download of my CV.                           |
 | `decode [text]`                | Decode-reveal text with Matrix decryption effect.     |
-| `mission`                      | Recruiter dossier with nav highlight.                 |
+| `mission`                      | Recruiter dossier with clickable quick links.         |
 | `help`                         | Display this list of available commands.              |
 | `hobbies`                      | List my hobbies and interests.                        |
 | `man <command>`                | Show detailed manual for a command.                   |
 | `rainfont <name>`              | Switch rain font: `classic`, `resurrections`, `combined`. |
+| `raininteract <mode>`          | Toggle rain click effects: `thunder`, `column`, `off`. |
 | `rainpreset <name>`            | Apply a new style to the background rain.             |
 | `rainsize <px>\|reset`          | Set rain glyph size (8–40px). E.g., `rainsize 14`.   |
 | `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh`.       |
+| `search [keyword]`             | Fuzzy search across hobbies, skills, and commands.    |
 | `skills`                       | List my key skills (summary).                         |
 | `skilltree [path]`             | Explore skills. E.g., `skilltree se`.                 |
 | `sudo <command>`               | Attempt superuser command (humorous).                 |
@@ -230,6 +236,7 @@ The following commands are available. For detailed info, use `man <command_name>
 
 - **Themes:** `amber`, `crimson`, `ember`, `ghost`, `green` (default), `inferno`, `midnight`, `neuralstorm`, `phantom`, `reloaded`, `sakura`.
 - **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`, `cascade`, `rainfall`, `frozen`.
+- **Rain Click Effects:** `thunder` (lightning bolt from sky to click, default), `column` (downward energy pulse). Toggle with `raininteract`.
 - **CRT Effect (Easter Egg):** `ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`.
 
 ### 5.3. Accessibility Notes
