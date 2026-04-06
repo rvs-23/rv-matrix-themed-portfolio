@@ -322,29 +322,38 @@ function getArgumentSuggestions(commandName, context, currentInput) {
   switch (commandName) {
     case "theme":
       return (context.config?.help?.availableThemes || []).sort();
-    case "rainfont": {
-      const fontSets = context.rainEngine?.fontSets
-        ? Object.keys(context.rainEngine.fontSets)
-        : [];
-      return fontSets.sort();
+    case "rain": {
+      if (inputParts.length <= 2) {
+        return ["preset", "font", "size", "gravity", "glyphspeed"];
+      }
+      const rainSub = inputParts[1]?.toLowerCase();
+      if (rainSub === "preset") {
+        const presets = context.rainEngine?.presets ? Object.keys(context.rainEngine.presets) : [];
+        return presets.sort();
+      }
+      if (rainSub === "font") {
+        const fontSets = context.rainEngine?.fontSets ? Object.keys(context.rainEngine.fontSets) : [];
+        return fontSets.sort();
+      }
+      if (rainSub === "size") return ["reset"];
+      if (rainSub === "gravity") return ["off", "moon", "earth", "jupiter"];
+      if (rainSub === "glyphspeed") return ["reset", "1", "3", "6", "10", "15", "20"];
+      return [];
     }
-    case "rainpreset": {
-      const presets = context.rainEngine?.presets
-        ? Object.keys(context.rainEngine.presets)
-        : [];
-      return presets.sort();
+    case "term": {
+      if (inputParts.length <= 2) {
+        return ["opacity", "fontsize", "size"];
+      }
+      const termSub = inputParts[1]?.toLowerCase();
+      if (termSub === "opacity") return ["reset"];
+      if (termSub === "fontsize") return ["small", "default", "large"];
+      if (termSub === "size") return ["reset"];
+      return [];
     }
     case "man": {
       const manPageKeys = context.manPages ? Object.keys(context.manPages) : [];
       return manPageKeys.sort();
     }
-
-    case "raininteract":
-      return ["off", "thunder", "column"];
-    case "resize":
-      if (inputParts.length === 2 && inputParts[1] === "term") return ["reset"];
-      if (inputParts.length === 1) return ["term"];
-      return [];
     case "download":
       if (inputParts.length === 1) return ["cv"];
       return [];

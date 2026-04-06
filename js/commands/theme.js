@@ -19,5 +19,6 @@ export default function themeCommand(args, context) {
         "output-warning-wrapper",
       );
     }
+    try { localStorage.setItem("rv_theme", themeNameInput); } catch { /* storage unavailable */ }
   }
 }

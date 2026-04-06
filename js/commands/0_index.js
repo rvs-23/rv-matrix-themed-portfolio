@@ -4,31 +4,27 @@
  * Imports individual command modules and aggregates them.
  */
 
-// Import individual command handlers
 import bluepillCommand from "./bluepill.js";
 import clearCommand from "./clear.js";
 import contactCommand from "./contact.js";
 import dateCommand from "./date.js";
 import decodeCommand from "./decode.js";
 import downloadCvCommand from "./download.js";
+import eeCommand from "./ee.js";
 import helpCommand from "./help.js";
 import hobbiesCommand from "./hobbies.js";
 import manCommand from "./man.js";
 import missionCommand from "./mission.js";
 import nospoonCommand from "./nospoon.js";
-import rainFontCommand from "./rainfont.js";
-import rainInteractCommand from "./raininteract.js";
-import rainPresetCommand from "./rainpreset.js";
-import rainSizeCommand from "./rainsize.js";
+import rainCommand from "./rain.js";
 import redpillCommand from "./redpill.js";
-import resizeTermCommand from "./resize.js";
+import resetCommand from "./reset.js";
 import screenshotCommand from "./screenshot.js";
 import searchCommand from "./search.js";
 import skillsCommand from "./skills.js";
 import skillTreeCommand from "./skilltree.js";
 import sudoCommand from "./sudo.js";
-import termOpacityCommand from "./termopacity.js";
-import termTextCommand from "./termtext.js";
+import termCommand from "./term.js";
 import themeCommand from "./theme.js";
 import toggleTermCommand from "./toggleterm.js";
 import wakeCommand from "./wake.js";
@@ -39,37 +35,39 @@ import whoamiCommand from "./whoami.js";
  * @returns {object} An object mapping command names to their functions.
  */
 export function getAllCommands() {
-  const cmds = {
-    bluepill: bluepillCommand,
-    clear: clearCommand,
-    contact: contactCommand,
-    date: dateCommand,
-    decode: decodeCommand,
-    download: downloadCvCommand,
-    help: helpCommand,
-    hobbies: hobbiesCommand,
-    man: manCommand,
-    mission: missionCommand,
-    hire: missionCommand,
-    nospoon: nospoonCommand,
-    rainfont: rainFontCommand,
-    raininteract: rainInteractCommand,
-    rainpreset: rainPresetCommand,
-    rainsize: rainSizeCommand,
-    redpill: redpillCommand,
-    resize: resizeTermCommand,
-    search: searchCommand,
-    screenshot: screenshotCommand,
+  return {
+    // Portfolio
+    whoami: whoamiCommand,
     skills: skillsCommand,
     skilltree: skillTreeCommand,
-    sudo: sudoCommand,
-    termopacity: termOpacityCommand,
-    termtext: termTextCommand,
-    theme: themeCommand,
-    toggleterm: toggleTermCommand,
-    wake: wakeCommand,
-    whoami: whoamiCommand,
-  };
+    hobbies: hobbiesCommand,
+    contact: contactCommand,
+    mission: missionCommand,
+    hire: missionCommand,
 
-  return cmds;
+    // Utility
+    help: helpCommand,
+    man: manCommand,
+    clear: clearCommand,
+    search: searchCommand,
+    date: dateCommand,
+    download: downloadCvCommand,
+    screenshot: screenshotCommand,
+    reset: resetCommand,
+
+    // Customization
+    theme: themeCommand,
+    rain: rainCommand,
+    term: termCommand,
+    toggleterm: toggleTermCommand,
+
+    // Easter eggs (hidden from help)
+    ee: eeCommand,
+    decode: decodeCommand,
+    sudo: sudoCommand,
+    wake: wakeCommand,
+    redpill: redpillCommand,
+    bluepill: bluepillCommand,
+    nospoon: nospoonCommand,
+  };
 }

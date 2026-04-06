@@ -8,13 +8,13 @@ Welcome to my personal portfolio, reimagined as a Matrix-themed interactive term
 
 - **Interactive Terminal Interface:** Navigate through portfolio sections (WhoAmI, Skills, Contact, etc.) using familiar command-line inputs.
 - **Dynamic Matrix Rain Animation:** Features the iconic falling character animation as a persistent background, built with HTML5 Canvas and customizable through presets.
-- **Customizable Theming:** Alter the visual aesthetics of the terminal and effects using various color themes (`theme` command) and opacity controls (`termopacity` command).
+- **Customizable Theming:** Alter the visual aesthetics of the terminal and effects using various color themes (`theme` command) and terminal appearance controls (`term` command).
 - **Skill Tree Explorer:** Interactively explore a detailed hierarchy of technical skills using the `skilltree` command.
 - **Immersive Loading Sequence:** A themed loading animation enhances initial user engagement.
 - **Keyboard Shortcuts:** Includes `Ctrl + \` to toggle terminal visibility and a Konami code easter egg for a CRT visual effect.
-- **Comprehensive Command Set:** Offers a range of commands for navigation, customization, and information retrieval, complete with a `man` (manual) system.
+- **Consolidated Command Set:** Clean command hierarchy — `rain` for all rain settings, `term` for all terminal settings. Complete with a `man` (manual) system.
 - **Fuzzy "Did You Mean?" Suggestions:** Mistyped commands show the closest match using Levenshtein distance, longest common subsequence tiebreaking, and prefix matching.
-- **Interactive Rain Effects:** Click the rain canvas to trigger visual effects — lightning bolts (thunder mode) or downward energy pulses (column mode). Controlled via the `raininteract` command.
+- **Session Persistence:** Theme and rain preset choices persist across page reloads via localStorage.
 
 ---
 
@@ -177,25 +177,30 @@ This is a static website that uses Vite for an enhanced local development experi
 
 Use this checklist to ensure the portfolio is stable, functional, and visually correct before deploying.
 
-- [ ] **`help`**: Lists all 10 current themes, including `ghost`, `quantum`, and `inferno`.
-- [ ] **`theme <name>`**: Both terminal and rain colors update correctly for several themes.
-- [ ] **`rainpreset <name>`**: Rain style changes correctly, and the preset's description is displayed. Test with `default` and at least two others.
-- [ ] **`whoami` / `contact` / `skills`**: All personal information is correct and links are clickable and valid.
-- [ ] **`resize term <values>` & `reset`**: Terminal resizes correctly and resets to the configured default.
+- [ ] **`help`**: Lists commands in a clean, consolidated format (no easter eggs visible).
+- [ ] **`theme <name>`**: Both terminal and rain colors update correctly. Test a few themes.
+- [ ] **`rain preset <name>`**: Rain style changes. Test with `default`, `storm`, `rainfall`.
+- [ ] **`rain font <name>`**: Switches glyph set. Test `classic`, `resurrections`.
+- [ ] **`rain size <px>`**: Glyph size changes. `rain size reset` restores default.
+- [ ] **`rain gravity <level>`**: Test `moon`, `earth`, `jupiter`, `off`.
+- [ ] **`rain glyphspeed <n>`**: Test `1` (rapid), `15` (steady), `reset`.
+- [ ] **`rain`**: Shows current rain config overview.
+- [ ] **`term opacity <val>`**: Terminal opacity changes. `term opacity reset` restores.
+- [ ] **`term fontsize <size>`**: Test `small`, `large`, `13px`.
+- [ ] **`term size <W> <H>`**: Terminal resizes. `term size reset` restores default.
+- [ ] **`term`**: Shows current terminal config overview.
+- [ ] **`whoami` / `contact` / `skills`**: All personal info correct, links valid.
 - [ ] **`download cv`**: Triggers the CV download.
-- [ ] **`decode`**: Decode-reveals a random Matrix quote.
-- [ ] **Invalid Command**: An unknown command (e.g., `reboot`) shows "Command not found" with a "Did you mean?" suggestion.
-- [ ] **`raininteract`**: Thunder mode shows lightning bolt on canvas click; `raininteract column` switches mode; `raininteract off` disables.
-- [ ] **`mission`**: Shows recruiter dossier with clickable CV, LinkedIn, GitHub, and Email links.
-- [ ] **Command History**: Up and Down arrow keys cycle through previous commands.
-- [ ] **Autocomplete**: Tab key correctly completes commands (e.g., `th` -> `theme`) and suggests arguments (e.g., `theme ` -> cycles themes).
-- [ ] **Shortcuts**: `Ctrl + \` toggles the terminal visibility.
+- [ ] **`mission`**: Shows recruiter dossier with clickable quick links.
+- [ ] **`reset`**: Clears all preferences, restores green theme + default preset.
+- [ ] **Session persistence**: Set a theme + preset, hard refresh, settings persist.
+- [ ] **Invalid Command**: Shows "Command not found" with a "Did you mean?" suggestion.
+- [ ] **`ee`**: Lists all easter eggs (command itself is hidden from help).
+- [ ] **Command History**: Up/Down arrow keys cycle previous commands.
+- [ ] **Autocomplete**: Tab completes commands and subcommands (e.g., `rain ` → cycles subcommands).
+- [ ] **Shortcuts**: `Ctrl + \` toggles terminal visibility.
 - [ ] **Konami Code**: The sequence toggles CRT mode.
-- [ ] **Desktop Window Resizing**: The terminal and rain effect adapt gracefully when the browser window is manually resized.
-- [ ] **Mobile Simulation (DevTools)**: The layout is clean on various device sizes (iPhone, Pixel, etc.).
-- [ ] **Virtual Keyboard**: The view adjusts on mobile to keep the input visible when the keyboard is active.
-- [ ] **No Console Errors**: The developer console (F12) is free of red errors on load and during use.
-- [ ] **All Links Valid**: Every external link (navbar, `contact` output) has been manually clicked and verified.
+- [ ] **No Console Errors**: Developer console free of red errors on load and during use.
 
 ---
 
@@ -205,39 +210,44 @@ Use this checklist to ensure the portfolio is stable, functional, and visually c
 
 The following commands are available. For detailed info, use `man <command_name>`.
 
-| Command                        | Description                                           |
-| :----------------------------- | :---------------------------------------------------- |
-| `whoami`                       | Display operator identification and detailed profile. |
-| `clear`                        | Clear terminal output.                                |
-| `contact`                      | Show contact information.                             |
-| `date [timezone]`              | Display date/time.                                    |
-| `download cv`                  | Initiate download of my CV.                           |
-| `decode [text]`                | Decode-reveal text with Matrix decryption effect.     |
-| `mission`                      | Recruiter dossier with clickable quick links.         |
-| `help`                         | Display this list of available commands.              |
-| `hobbies`                      | List my hobbies and interests.                        |
-| `man <command>`                | Show detailed manual for a command.                   |
-| `rainfont <name>`              | Switch rain font: `classic`, `resurrections`, `combined`. |
-| `raininteract <mode>`          | Toggle rain click effects: `thunder`, `column`, `off`. |
-| `rainpreset <name>`            | Apply a new style to the background rain.             |
-| `rainsize <px>\|reset`          | Set rain glyph size (8–40px). E.g., `rainsize 14`.   |
-| `resize term <W> <H> \| reset` | Resize terminal. E.g., `resize term 60vw 70vh`.       |
-| `search [keyword]`             | Fuzzy search across hobbies, skills, and commands.    |
-| `skills`                       | List my key skills (summary).                         |
-| `skilltree [path]`             | Explore skills. E.g., `skilltree se`.                 |
-| `sudo <command>`               | Attempt superuser command (humorous).                 |
-| `termopacity <val> \| reset`   | Set terminal background opacity (0-100).              |
-| `termtext <size>`              | Set terminal font size. E.g., `large`, `12px`.        |
-| `theme <name>`                 | Change the color scheme.                              |
-| `toggleterm`                   | Hide or show the terminal window (`Ctrl + \`).        |
-| `screenshot`                   | Save a PNG of the rain canvas.                        |
+| Command                         | Description                                            |
+| :------------------------------ | :----------------------------------------------------- |
+| **Portfolio**                   |                                                        |
+| `whoami`                        | Display operator identification and detailed profile.  |
+| `skills`                        | List key skills (summary).                             |
+| `skilltree [path]`              | Explore skills. E.g., `skilltree se`.                  |
+| `hobbies`                       | List hobbies and interests.                            |
+| `contact`                       | Show contact information.                              |
+| `mission`                       | Recruiter dossier with clickable quick links.          |
+| `download cv`                   | Download my CV.                                        |
+| **Customization**               |                                                        |
+| `theme <name>`                  | Change the color scheme.                               |
+| `rain`                          | Show rain config. Subcommands below.                   |
+| `rain preset <name>`            | Apply rain preset.                                     |
+| `rain font <name>`              | Switch rain font set.                                  |
+| `rain size <px>\|reset`         | Set rain glyph size (8–40px).                          |
+| `rain gravity <level>`          | Acceleration: `off`, `moon`, `earth`, `jupiter`.       |
+| `rain glyphspeed <1-30\|reset>` | Glyph mutation speed. Lower = faster.                  |
+| `term`                          | Show terminal config. Subcommands below.               |
+| `term opacity <val\|reset>`     | Set terminal background opacity (0-100).               |
+| `term fontsize <size>`          | Set terminal font size. E.g., `large`, `12px`.         |
+| `term size <W> <H>\|reset`      | Resize terminal. E.g., `term size 60vw 70vh`.          |
+| `toggleterm`                    | Hide/show terminal (`Ctrl + \`).                       |
+| **Utility**                     |                                                        |
+| `help`                          | Show available commands.                               |
+| `man <command>`                 | Detailed manual for a command.                         |
+| `clear`                         | Clear terminal output.                                 |
+| `search [keyword]`              | Fuzzy search across hobbies, skills, and commands.     |
+| `date [timezone]`               | Display date/time.                                     |
+| `screenshot`                    | Save a PNG of the rain canvas.                         |
+| `reset`                         | Reset all preferences to defaults.                     |
 
 ### 5.2. Customization Options
 
 - **Themes:** `amber`, `crimson`, `ember`, `ghost`, `green` (default), `inferno`, `midnight`, `neuralstorm`, `phantom`, `reloaded`, `sakura`.
 - **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`, `cascade`, `rainfall`, `frozen`.
-- **Rain Click Effects:** `thunder` (lightning bolt from sky to click, default), `column` (downward energy pulse). Toggle with `raininteract`.
-- **CRT Effect (Easter Egg):** `ArrowUp, ArrowUp, ArrowDown, ArrowDown, ArrowLeft, ArrowRight, ArrowLeft, ArrowRight, B, A`.
+- **Rain Gravity:** `moon` (gentle), `earth` (natural), `jupiter` (heavy). Streams accelerate as they fall.
+- **Session Persistence:** Theme and rain preset are saved to localStorage and restored on reload. Use `reset` to clear.
 
 ### 5.3. Accessibility Notes
 
