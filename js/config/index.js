@@ -185,103 +185,32 @@ export const matrixQuotes = [
 export const help = {
   title: "AVAILABLE COMMANDS",
   commandList: [
-    {
-      cmd: "whoami",
-      display: "whoami",
-      desc: "Display operator identification and profile.",
-    },
-    { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
-    { cmd: "contact", display: "contact", desc: "Show contact information." },
-    {
-      cmd: "date",
-      display: "date [timezone]",
-      desc: "Display date/time. Optional: utc, est, etc.",
-    },
-    {
-      cmd: "decode",
-      display: "decode [text]",
-      desc: "Decode-reveal any text with a Matrix decryption effect.",
-    },
-    { cmd: "download cv", display: "download cv", desc: "Download my CV." },
-    {
-      cmd: "hobbies",
-      display: "hobbies",
-      desc: "List my hobbies and interests.",
-    },
-    {
-      cmd: "man <command>",
-      display: "man <command>",
-      desc: "Show detailed manual for a command.",
-    },
-    {
-      cmd: "mission",
-      display: "mission",
-      desc: "Recruiter dossier — profile summary and quick links.",
-    },
-    {
-      cmd: "rainfont <name>",
-      display: "rainfont <name>",
-      desc: (context) =>
-        `Switch rain font. Available: ${Object.keys(context.rainEngine.fontSets || {}).join(", ")}.`,
-    },
-    {
-      cmd: "rainsize <px>",
-      display: "rainsize <px>|reset",
-      desc: "Set rain glyph size (8–40px). E.g., `rainsize 14`.",
-    },
-    {
-      cmd: "rainpreset <name>",
-      display: "rainpreset <name>",
-      desc: (context) =>
-        `Apply rain preset. Available: ${Object.keys(context.rainEngine.presets || {}).join(", ")}.`,
-    },
-    {
-      cmd: "resize term <W> <H>|reset",
-      display: "resize term <W> <H>|reset",
-      desc: "Resize terminal. E.g. `resize term 60vw 70vh` or `reset`.",
-    },
-    {
-      cmd: "search [keyword]",
-      display: "search [keyword]",
-      desc: "Levenshtein distance based search in hobbies, skills and commands.",
-    },
+    // Portfolio
+    { cmd: "whoami", display: "whoami", desc: "Display operator identification and profile." },
     { cmd: "skills", display: "skills", desc: "List my key skills (summary)." },
-    {
-      cmd: "skilltree [path]",
-      display: "skilltree [path]",
-      desc: "Explore skills. E.g., `skilltree se`.",
-    },
-    {
-      cmd: "sudo",
-      display: "sudo",
-      desc: "Attempt superuser command (humorous).",
-    },
-    {
-      cmd: "termopacity <0-100|reset>",
-      display: "termopacity <value>|reset",
-      desc: "Set terminal background opacity.",
-    },
-    {
-      cmd: "termtext <size>",
-      display: "termtext <size>",
-      desc: "Set terminal font size. E.g., `13px`, `small`, `default`, `large`.",
-    },
+    { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., `skilltree se`." },
+    { cmd: "hobbies", display: "hobbies", desc: "List my hobbies and interests." },
+    { cmd: "contact", display: "contact", desc: "Show contact information." },
+    { cmd: "mission", display: "mission", desc: "Recruiter dossier — profile summary and quick links." },
+    { cmd: "download cv", display: "download cv", desc: "Download my CV." },
+    // Customization
     {
       cmd: "theme <name>",
       display: "theme <name>",
       desc: (context) =>
-        `Themes: ${context.config.help.availableThemes.sort().join(", ")}. (Default green).`,
+        `Change color scheme. Available: ${context.config.help.availableThemes.sort().join(", ")}.`,
     },
-    {
-      cmd: "toggleterm",
-      display: "toggleterm",
-      desc: "Hide or show the terminal window (Shortcut: Ctrl + \\).",
-    },
-    {
-      cmd: "screenshot",
-      display: "screenshot",
-      desc: "Save a 1920×1080 PNG of the rain canvas.",
-    },
+    { cmd: "rain", display: "rain <subcommand>", desc: "Rain config: preset, font, size, gravity, glyphspeed." },
+    { cmd: "term", display: "term <subcommand>", desc: "Terminal config: opacity, fontsize, size." },
+    { cmd: "toggleterm", display: "toggleterm", desc: "Hide/show terminal (Shortcut: Ctrl + \\)." },
+    // Utility
+    { cmd: "help", display: "help", desc: "Show this command list." },
+    { cmd: "man <command>", display: "man <command>", desc: "Show detailed manual for a command." },
+    { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
+    { cmd: "search [keyword]", display: "search [keyword]", desc: "Fuzzy search across hobbies, skills, and commands." },
+    { cmd: "date [timezone]", display: "date [timezone]", desc: "Display date/time. Optional: utc, est, etc." },
+    { cmd: "screenshot", display: "screenshot", desc: "Save a PNG of the rain canvas." },
+    { cmd: "reset", display: "reset", desc: "Reset all preferences to defaults." },
   ],
   availableThemes: [
     "amber",

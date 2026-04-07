@@ -94,6 +94,9 @@ pnpm-lock.yaml
 # Local-only assets (not pushed to remote)
 assets_local/
 
+# Media folder (reference images, videos, audio, planning docs — local only)
+media/
+
 # misc
 *.tgz                 # Packaged modules
 

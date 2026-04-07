@@ -76,11 +76,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   const allData = await loadAllData();
   initializeLoaderScreen(allData.config.loader);
 
+  // Restore persisted theme before rain engine reads colors
+  const savedTheme = (() => {
+    try { return localStorage.getItem("rv_theme"); } catch { return null; }
+  })();
+  if (savedTheme && allData.config.help.availableThemes.includes(savedTheme)) {
+    document.body.classList.forEach((cls) => {
+      if (cls.startsWith("theme-")) document.body.classList.remove(cls);
+    });
+    document.body.classList.add(`theme-${savedTheme}`);
+  }
+
   const rainEngine = new RainEngine(
     allData.rainConfig,
     allData.config.fonts,
     sentientRainPhrases,
   );
+
+  // Restore persisted preset
+  const savedPreset = (() => {
+    try { return localStorage.getItem("rv_preset"); } catch { return null; }
+  })();
+  if (savedPreset && rainEngine.presets && rainEngine.presets[savedPreset]) {
+    rainEngine.applyPreset(savedPreset);
+  }
 
   const commandContext = {
     config: allData.config,

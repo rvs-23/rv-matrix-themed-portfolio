@@ -258,6 +258,7 @@
     "landingGlowSize": { "type": "int", "min": 10, "max": 200 },
     "dimFloor": { "type": "float", "min": 0, "max": 0.1 },
     "sentientChance": { "type": "float", "min": 0, "max": 0.5 },
-    "minStreamGap": { "type": "int", "min": 0, "max": 40 }
+    "minStreamGap": { "type": "int", "min": 0, "max": 40 },
+    "gravityAccel": { "type": "float", "min": 0, "max": 1 }
   }
 }

@@ -83,6 +83,7 @@ class Stream {
     this.speedPhase = Math.random() * Math.PI * 2;
     this.lastUpdate = 0;
 
+
     // Sentient phrases: occasionally a stream spells out a hidden message
     if (Math.random() < (CFG.sentientChance ?? 0.069) && this.sentientPhrases.length) {
       this.isSentient = true;
@@ -108,7 +109,14 @@ class Stream {
     const wobble =
       1 +
       0.2 * Math.sin(Math.SQRT2 * timestamp * 0.001 + this.speedPhase);
-    if (timestamp - this.lastUpdate < this.baseSpeed * wobble) return false;
+
+    // Gravity acceleration: speed decreases (faster) as head approaches bottom
+    const gravity = CFG.gravityAccel ?? 0;
+    const gravityMult = gravity > 0 && this.head > 0 && this.rows > 0
+      ? 1 / (1 + gravity * (this.head / this.rows))
+      : 1;
+
+    if (timestamp - this.lastUpdate < this.baseSpeed * wobble * gravityMult) return false;
     this.lastUpdate = timestamp;
 
     // Stammer: highlighted streams skip one advancement frame
@@ -140,6 +148,7 @@ class Stream {
         cell.brightness = this.isSentient
           ? this.opacity * 0.6
           : this.opacity;
+
       }
     }
 
@@ -380,7 +389,7 @@ export default class RainEngine {
           cell.brightness *= decay;
           // Uneven tail dissolve: dim cells randomly snap out early,
           // creating gritty analogue fade instead of smooth decay
-          if (cell.brightness < 0.08 && cell.brightness > floorThreshold && Math.random() < 0.04) {
+          if (cell.brightness < 0.12 && cell.brightness > floorThreshold && Math.random() < 0.15) {
             cell.brightness = floor;
             continue;
           }
@@ -693,6 +702,7 @@ export default class RainEngine {
         // Cap array for performance
         if (this.landingGlows.length > 30) this.landingGlows.shift();
       }
+
     }
 
     // Render entire grid

@@ -34,6 +34,7 @@ export default [
         Number: "readonly",
         String: "readonly",
         fetch: "readonly",
+        localStorage: "readonly",
       },
     },
     rules: {
