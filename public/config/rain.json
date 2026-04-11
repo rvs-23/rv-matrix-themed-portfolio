@@ -1,7 +1,7 @@
 {
   "defaultConfig": {
     "speed": 40,
-    "font": 16,
+    "font": 18,
     "lineH": 1,
     "density": 0.95,
     "minTrail": 11,
@@ -156,7 +156,7 @@
       "description": "Short, bright streams that fade quickly, like falling embers.",
       "config": {
         "speed": 70,
-        "font": 17,
+        "font": 18,
         "density": 0.6,
         "minTrail": 5,
         "maxTrail": 15,
@@ -176,7 +176,7 @@
       "description": "Dense cinematic rain — many bright heads, maximum coverage.",
       "config": {
         "speed": 45,
-        "font": 16,
+        "font": 18,
         "density": 1.3,
         "minTrail": 30,
         "maxTrail": 80,
@@ -196,7 +196,7 @@
       "description": "Streams bloom when they hit the floor — landing glow enabled.",
       "config": {
         "speed": 50,
-        "font": 16,
+        "font": 18,
         "density": 0.8,
         "minTrail": 25,
         "maxTrail": 60,
@@ -214,7 +214,7 @@
       "description": "Near-static crystalline — extremely slow, minimal mutation.",
       "config": {
         "speed": 300,
-        "font": 16,
+        "font": 18,
         "density": 0.95,
         "minTrail": 40,
         "maxTrail": 85,
