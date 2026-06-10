@@ -237,6 +237,10 @@ export default class RainEngine {
     this.totalCols = 0;
     this.gridRows = 0;
     this.animationId = null;
+    // Monotonic token: each start() claims one. start() bails after its async
+    // setup() if a newer start() has superseded it, so overlapping calls (boot
+    // applyPreset + boot start, or a resize mid-setup) never spawn two rAF loops.
+    this._startGen = 0;
     this.lastDecayTime = 0;
     this.sentientPhrases = sentientPhrases;
     this.dpr = window.devicePixelRatio || 1;
@@ -740,10 +744,13 @@ export default class RainEngine {
     }
 
     this.stop();
+    const gen = ++this._startGen;
     this.refreshColors();
     this.globalTick = 0;
     this.stammerCounter = 0;
     await this.setup();
+    // A newer start() ran while we awaited setup() — let it own the loop.
+    if (gen !== this._startGen) return;
     const now = performance.now();
     this.lastDecayTime = now - DECAY_INTERVAL_MS;
     this.loop(now);
