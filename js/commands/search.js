@@ -78,11 +78,16 @@ export default function searchCommand(args, context) {
     findSkills(skillsData);
   }
 
-  // 3. Search through hobbies
-  if (hobbiesData && Array.isArray(hobbiesData.hobbies)) {
-    hobbiesData.hobbies.forEach((hobby) => {
-      processItem(hobby, "HOBBY");
-    });
+  // 3. Search through hobbies (same tree shape as skills: name + children)
+  if (hobbiesData && hobbiesData.children) {
+    const findHobbies = (node) => {
+      if (!node.children) return;
+      node.children.forEach((item) => {
+        processItem(item.name, "HOBBY", `Category: ${node.name || "Root"}`);
+        findHobbies(item); // Recurse
+      });
+    };
+    findHobbies(hobbiesData);
   }
 
   if (results.length === 0) {
