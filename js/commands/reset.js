@@ -16,10 +16,13 @@ export default function resetCommand(_args, context) {
   terminalController.applyTheme("green");
   if (rainEngine) rainEngine.refreshColors();
 
-  // Reset rain preset to default
+  // Reset rain preset to default (also restores the default rain font set)
   if (rainEngine && rainEngine.applyPreset) {
     rainEngine.applyPreset("default");
   }
+
+  // Reset terminal appearance (opacity, font size, window size) to defaults
+  terminalController.resetTerminalAppearance();
 
   appendToTerminal(
     "<div class='output-success'>All preferences reset to defaults.</div>",
