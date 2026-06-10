@@ -67,7 +67,6 @@
         "decayBase": 0.965,
         "layers": 4,
         "delChance": 0.02,
-        "fontFamily": "MatrixA, MatrixB, monospace",
         "highlightChance": 0.4,
         "headFlickerInterval": 2
       }
@@ -111,7 +110,6 @@
         "bloomIntensity": 0.05,
         "decayBase": 0.94,
         "dimFloor": 0.010,
-        "fontFamily": "MatrixA, monospace",
         "layers": 3,
         "delChance": 0.01,
         "highlightChance": 0.05,
@@ -155,7 +153,6 @@
         "decayBase": 0.95,
         "layers": 3,
         "delChance": 0.03,
-        "fontFamily": "MatrixA, MatrixB, monospace",
         "glyphSyncInterval": 15,
         "mutationChance": 0.01,
         "headFlickerInterval": 10

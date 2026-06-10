@@ -766,6 +766,14 @@ export default class RainEngine {
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
+    // Factory reset also restores the default (classic) font set so glyphs and
+    // fontFamily can't be left desynced by an earlier `rain font` switch.
+    const classic = this.fontSets.classic;
+    if (classic) {
+      this.glyphs = classic.glyphs;
+      this.activeConfig.fontFamily = classic.fontFamily;
+      this.activeFontSet = "classic";
+    }
     this.start();
     return { success: true, message: "Rain reset to defaults." };
   }
@@ -790,8 +798,14 @@ export default class RainEngine {
         preset.config.density !== undefined ||
         preset.config.lineH !== undefined;
 
-      // Reset to defaults first so no stale values leak between presets
+      // Reset to defaults first so no stale values leak between presets.
       this.activeConfig = { ...this.defaultConfig };
+      // The font set (glyphs + fontFamily, a matched pair) is owned by
+      // setFontSet, not by presets. Preserve the active set so switching presets
+      // never leaves glyphs and fontFamily out of sync; any fontFamily key in a
+      // preset is intentionally ignored (updateParameter has no rule for it).
+      const activeSet = this.fontSets[this.activeFontSet];
+      if (activeSet) this.activeConfig.fontFamily = activeSet.fontFamily;
       Object.entries(preset.config).forEach(([param, value]) => {
         this.updateParameter(param, value);
       });
