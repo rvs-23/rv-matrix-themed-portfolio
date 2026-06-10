@@ -87,17 +87,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.body.classList.add(`theme-${savedTheme}`);
   }
 
-  const rainEngine = new RainEngine(
-    allData.rainConfig,
-    allData.config.fonts,
-    sentientRainPhrases,
-  );
+  // Rain is non-essential: if rain.json failed to load, disable it and keep
+  // the terminal fully usable instead of crashing the whole app on the loader.
+  let rainEngine = null;
+  try {
+    rainEngine = new RainEngine(
+      allData.rainConfig,
+      allData.config.fonts,
+      sentientRainPhrases,
+    );
+  } catch (err) {
+    console.error("Rain engine disabled:", err.message);
+  }
 
   // Restore persisted preset
   const savedPreset = (() => {
     try { return localStorage.getItem("rv_preset"); } catch { return null; }
   })();
-  if (savedPreset && rainEngine.presets && rainEngine.presets[savedPreset]) {
+  if (
+    rainEngine &&
+    savedPreset &&
+    rainEngine.presets &&
+    rainEngine.presets[savedPreset]
+  ) {
     rainEngine.applyPreset(savedPreset);
   }
 
@@ -147,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (document.getElementById("contentContainer")) {
         document.getElementById("contentContainer").style.opacity = "1";
       }
-      rainEngine.start();
+      if (rainEngine) rainEngine.start();
       terminalController.focusInput();
 
       if (isRecruiterMode) {

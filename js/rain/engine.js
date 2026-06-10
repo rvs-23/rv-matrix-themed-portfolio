@@ -199,9 +199,23 @@ class Stream {
 
 export default class RainEngine {
   constructor(rainConfig, fontConfig, sentientPhrases = []) {
+    // Fail loud-but-clear if rain.json never loaded (404 / offline / bad JSON):
+    // dataLoader returns {} on failure, which would otherwise blow up below with
+    // a cryptic "cannot set property of undefined". The caller catches this and
+    // disables rain rather than freezing the whole app on the loader screen.
+    if (
+      !rainConfig ||
+      typeof rainConfig.defaultConfig !== "object" ||
+      rainConfig.defaultConfig === null
+    ) {
+      throw new Error(
+        "RainEngine: rain.json is missing or invalid (no defaultConfig).",
+      );
+    }
     this.canvas = document.getElementById("matrix-canvas");
     this.ctx = this.canvas?.getContext("2d");
-    this.defaultConfig = rainConfig.defaultConfig;
+    // Defensive copy — never mutate the shared parsed-JSON object in place.
+    this.defaultConfig = { ...rainConfig.defaultConfig };
     this.glyphs = rainConfig.glyphs || "01";
     this.presets = rainConfig.presets || {};
     this.validationRules = rainConfig.validationRules || {};
