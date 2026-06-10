@@ -66,6 +66,7 @@
         "blur": 7,
         "decayBase": 0.965,
         "layers": 4,
+        "layerOp": [1, 0.7, 0.45, 0.25],
         "delChance": 0.02,
         "highlightChance": 0.4,
         "headFlickerInterval": 2
