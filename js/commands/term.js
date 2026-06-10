@@ -4,6 +4,8 @@
  * Subcommands: opacity, fontsize, size
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default function termCommand(args, context) {
   const { appendToTerminal, terminalController, config } = context;
 
@@ -21,7 +23,7 @@ export default function termCommand(args, context) {
     case "size":     return _size(subArgs, appendToTerminal, terminalController, config);
     default:
       appendToTerminal(
-        `<div class='output-error'>Unknown subcommand '${sub.replace(/</g, "&lt;")}'. Type 'term' for usage.</div>`,
+        `<div class='output-error'>Unknown subcommand '${escapeHtml(sub)}'. Type 'term' for usage.</div>`,
       );
   }
 }

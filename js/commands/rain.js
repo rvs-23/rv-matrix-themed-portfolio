@@ -4,6 +4,8 @@
  * Subcommands: preset, font, size, gravity, glyphspeed
  */
 
+import { escapeHtml } from "../utils.js";
+
 const GRAVITY_LEVELS = {
   moon:    { value: 0.15, desc: "Gentle drift — barely noticeable acceleration." },
   earth:   { value: 0.4,  desc: "Natural pull — streams visibly pick up speed." },
@@ -34,7 +36,7 @@ export default function rainCommand(args, context) {
     case "glyphspeed": return _glyphspeed(subArgs, appendToTerminal, rainEngine);
     default:
       appendToTerminal(
-        `<div class='output-error'>Unknown subcommand '${sub.replace(/</g, "&lt;")}'. Type 'rain' for usage.</div>`,
+        `<div class='output-error'>Unknown subcommand '${escapeHtml(sub)}'. Type 'rain' for usage.</div>`,
       );
   }
 }
@@ -86,7 +88,7 @@ function _preset(args, appendToTerminal, rainEngine, config) {
 
   if (!presetData) {
     return appendToTerminal(
-      `<div class='output-error'>${messages.unknown_preset(presetName)}</div>`,
+      `<div class='output-error'>${messages.unknown_preset(escapeHtml(presetName))}</div>`,
     );
   }
 
@@ -126,7 +128,7 @@ function _font(args, appendToTerminal, rainEngine, config) {
 
   if (!fontSets[name]) {
     appendToTerminal(
-      `<div class='output-error'>${messages.unknown(name)}</div>` +
+      `<div class='output-error'>${messages.unknown(escapeHtml(name))}</div>` +
         `<div>Available: ${fontSetNames.join(", ")}</div>`,
     );
     return;
