@@ -25,7 +25,7 @@ export default function manCommand(args, context) {
       );
     } else {
       appendToTerminal(
-        "<div>No manual pages loaded or defined. Check 'assets/manPages.json'.</div>",
+        "<div>No manual pages loaded or defined. Check 'public/config/content/manPages.json'.</div>",
         "output-text-wrapper",
       );
     }

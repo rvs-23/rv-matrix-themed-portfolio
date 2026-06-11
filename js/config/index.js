@@ -231,7 +231,7 @@ export const rainfont = {
   messages: {
     usage: "Usage: rainfont &lt;classic | resurrections | combined&gt;",
     unknown: (name) =>
-      `Unknown font set: '${name}'. Type 'rainfont' for options.`,
+      `Unknown font set: '${name}'. Type 'rain font' for options.`,
   },
 };
 
@@ -241,7 +241,7 @@ export const rainpreset = {
     no_presets: "No rain presets loaded or defined. Check config/rain.json.",
     available_presets: (presets) => `Available presets: ${presets}`,
     unknown_preset: (name) =>
-      `Unknown preset: '${name}'. Type 'rainpreset' for options.`,
+      `Unknown preset: '${name}'. Type 'rain preset' for options.`,
     applying: (name, desc) => `Applying preset '${name}'... (${desc})`,
   },
 };

@@ -10,7 +10,7 @@ export default function skillsCommand(args, context) {
 
   if (!skillsData || !skillsData.children || skillsData.children.length === 0) {
     appendToTerminal(
-      "<div class='output-error'>Skills data not loaded or is empty. Please check 'assets/skills.json'.</div>",
+      "<div class='output-error'>Skills data not loaded or is empty. Please check 'public/config/content/skills.json'.</div>",
       "output-error-wrapper",
     );
     return;
