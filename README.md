@@ -1,5 +1,7 @@
 # Matrix Terminal Portfolio
 
+**🔗 Live:** [rvs23.dev](https://rvs23.dev/)
+
 ## 1. Project Overview
 
 Welcome to my personal portfolio, reimagined as a Matrix-themed interactive terminal. This project departs from traditional portfolio layouts to offer a different user experience. This was purely built out of personal interest & an ever-_green_ love for The Matrix.
