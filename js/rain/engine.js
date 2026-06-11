@@ -199,9 +199,23 @@ class Stream {
 
 export default class RainEngine {
   constructor(rainConfig, fontConfig, sentientPhrases = []) {
+    // Fail loud-but-clear if rain.json never loaded (404 / offline / bad JSON):
+    // dataLoader returns {} on failure, which would otherwise blow up below with
+    // a cryptic "cannot set property of undefined". The caller catches this and
+    // disables rain rather than freezing the whole app on the loader screen.
+    if (
+      !rainConfig ||
+      typeof rainConfig.defaultConfig !== "object" ||
+      rainConfig.defaultConfig === null
+    ) {
+      throw new Error(
+        "RainEngine: rain.json is missing or invalid (no defaultConfig).",
+      );
+    }
     this.canvas = document.getElementById("matrix-canvas");
     this.ctx = this.canvas?.getContext("2d");
-    this.defaultConfig = rainConfig.defaultConfig;
+    // Defensive copy — never mutate the shared parsed-JSON object in place.
+    this.defaultConfig = { ...rainConfig.defaultConfig };
     this.glyphs = rainConfig.glyphs || "01";
     this.presets = rainConfig.presets || {};
     this.validationRules = rainConfig.validationRules || {};
@@ -223,6 +237,10 @@ export default class RainEngine {
     this.totalCols = 0;
     this.gridRows = 0;
     this.animationId = null;
+    // Monotonic token: each start() claims one. start() bails after its async
+    // setup() if a newer start() has superseded it, so overlapping calls (boot
+    // applyPreset + boot start, or a resize mid-setup) never spawn two rAF loops.
+    this._startGen = 0;
     this.lastDecayTime = 0;
     this.sentientPhrases = sentientPhrases;
     this.dpr = window.devicePixelRatio || 1;
@@ -726,10 +744,13 @@ export default class RainEngine {
     }
 
     this.stop();
+    const gen = ++this._startGen;
     this.refreshColors();
     this.globalTick = 0;
     this.stammerCounter = 0;
     await this.setup();
+    // A newer start() ran while we awaited setup() — let it own the loop.
+    if (gen !== this._startGen) return;
     const now = performance.now();
     this.lastDecayTime = now - DECAY_INTERVAL_MS;
     this.loop(now);
@@ -745,6 +766,14 @@ export default class RainEngine {
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
+    // Factory reset also restores the default (classic) font set so glyphs and
+    // fontFamily can't be left desynced by an earlier `rain font` switch.
+    const classic = this.fontSets.classic;
+    if (classic) {
+      this.glyphs = classic.glyphs;
+      this.activeConfig.fontFamily = classic.fontFamily;
+      this.activeFontSet = "classic";
+    }
     this.start();
     return { success: true, message: "Rain reset to defaults." };
   }
@@ -769,8 +798,14 @@ export default class RainEngine {
         preset.config.density !== undefined ||
         preset.config.lineH !== undefined;
 
-      // Reset to defaults first so no stale values leak between presets
+      // Reset to defaults first so no stale values leak between presets.
       this.activeConfig = { ...this.defaultConfig };
+      // The font set (glyphs + fontFamily, a matched pair) is owned by
+      // setFontSet, not by presets. Preserve the active set so switching presets
+      // never leaves glyphs and fontFamily out of sync; any fontFamily key in a
+      // preset is intentionally ignored (updateParameter has no rule for it).
+      const activeSet = this.fontSets[this.activeFontSet];
+      if (activeSet) this.activeConfig.fontFamily = activeSet.fontFamily;
       Object.entries(preset.config).forEach(([param, value]) => {
         this.updateParameter(param, value);
       });

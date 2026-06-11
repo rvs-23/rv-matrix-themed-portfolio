@@ -5,6 +5,9 @@
 
 import { escapeHtml } from "../utils.js";
 
+// Command aliases that share another command's manual page.
+const MAN_ALIASES = { hire: "mission" };
+
 export default function manCommand(args, context) {
   const { appendToTerminal, manPages } = context;
 
@@ -22,14 +25,15 @@ export default function manCommand(args, context) {
       );
     } else {
       appendToTerminal(
-        "<div>No manual pages loaded or defined. Check 'assets/manPages.json'.</div>",
+        "<div>No manual pages loaded or defined. Check 'public/config/content/manPages.json'.</div>",
         "output-text-wrapper",
       );
     }
     return;
   }
 
-  const commandName = args[0].toLowerCase();
+  const requested = args[0].toLowerCase();
+  const commandName = MAN_ALIASES[requested] || requested;
   const page = manPages ? manPages[commandName] : null;
 
   if (!page) {

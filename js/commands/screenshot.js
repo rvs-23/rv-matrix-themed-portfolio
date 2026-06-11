@@ -3,6 +3,8 @@
  * Handles the 'screenshot' command — renders rain at target resolution.
  */
 
+import { escapeHtml } from "../utils.js";
+
 export default function screenshotCommand(args, context) {
   const {
     appendToTerminal,
@@ -27,7 +29,7 @@ export default function screenshotCommand(args, context) {
 
   if (!resolution) {
     return appendToTerminal(
-      `<div class='output-error'>${messages.invalid_resolution(args[0])}</div>`,
+      `<div class='output-error'>${messages.invalid_resolution(escapeHtml(args[0]))}</div>`,
     );
   }
 

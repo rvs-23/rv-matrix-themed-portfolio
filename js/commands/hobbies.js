@@ -14,7 +14,7 @@ export default function hobbiesCommand(args, context) {
     hobbiesData.children.length === 0
   ) {
     appendToTerminal(
-      "<div class='output-error'>Hobbies data not loaded or is empty. Please check 'assets/hobbies.json'.</div>",
+      "<div class='output-error'>Hobbies data not loaded or is empty. Please check 'public/config/content/hobbies.json'.</div>",
       "output-error-wrapper",
     );
     return;

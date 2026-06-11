@@ -10,7 +10,7 @@ export default function skillTreeCommand(args, context) {
 
   if (!skillsData) {
     appendToTerminal(
-      "<div class='output-error'>Skills data not loaded. Please check 'assets/skills.json'.</div>",
+      "<div class='output-error'>Skills data not loaded. Please check 'public/config/content/skills.json'.</div>",
       "output-error-wrapper",
     );
     return;
@@ -117,7 +117,7 @@ export default function skillTreeCommand(args, context) {
 
   if (!pathArg && skillsData.children && skillsData.children.length > 0) {
     appendToTerminal(
-      "<div>Hint: Navigate deeper using names or aliases (e.g., `skilltree se`, `skilltree ai > genai`). Check `assets/skills.json` for defined aliases.</div>",
+      "<div>Hint: Navigate deeper using names or aliases (e.g., `skilltree se`, `skilltree ai > genai`). Check `public/config/content/skills.json` for defined aliases.</div>",
       "output-text-wrapper",
     );
   }

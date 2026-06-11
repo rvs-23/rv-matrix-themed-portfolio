@@ -44,11 +44,8 @@ export const terminal = {
     maxPx: 28,
   },
   messages: {
-    opacity_usage:
-      "Usage: termopacity <value> (0-100 or 0.0-1.0) or 'termopacity reset'",
     opacity_current: (val) => `Current terminal opacity: ${val}`,
     opacity_unavailable: "Terminal opacity control not available.",
-    text_usage: "Usage: termtext <size>",
     text_examples:
       "Examples: termtext 13px, termtext small, termtext default, termtext large",
     text_current: (val) => `Current terminal font size: ${val}`,
@@ -229,19 +226,16 @@ export const help = {
 
 export const rainfont = {
   messages: {
-    usage: "Usage: rainfont &lt;classic | resurrections | combined&gt;",
     unknown: (name) =>
-      `Unknown font set: '${name}'. Type 'rainfont' for options.`,
+      `Unknown font set: '${name}'. Type 'rain font' for options.`,
   },
 };
 
 export const rainpreset = {
   messages: {
-    usage: "Usage: rainpreset &lt;preset_name&gt;",
     no_presets: "No rain presets loaded or defined. Check config/rain.json.",
-    available_presets: (presets) => `Available presets: ${presets}`,
     unknown_preset: (name) =>
-      `Unknown preset: '${name}'. Type 'rainpreset' for options.`,
+      `Unknown preset: '${name}'. Type 'rain preset' for options.`,
     applying: (name, desc) => `Applying preset '${name}'... (${desc})`,
   },
 };

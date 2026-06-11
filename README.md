@@ -100,6 +100,10 @@ No environment variables are required as all functionality is client-side.
 | `headFlickerInterval` | int (1–30)              | Frames between head character changes (lower = faster flicker).    |
 | `landingGlow` | float (0–1)                      | Intensity of radial glow burst when streams exit canvas bottom.    |
 | `landingGlowSize` | int (10–200)                | Pixel radius of landing glow bursts.                               |
+| `dimFloor`    | float (0–0.1)                  | Minimum brightness cells decay toward — keeps the field from going fully black. |
+| `gravityAccel` | float (0–1)                   | Downward acceleration; streams speed up as they near the bottom (0 = off). Set via `rain gravity`. |
+| `sentientChance` | float (0–0.5)               | Chance a stream spells a hidden phrase instead of random glyphs.   |
+| `minStreamGap` | int (0–40)                    | Extra row spacing before a column's second stream restarts.        |
 
 #### Film-Inspired Rain Behaviors
 
@@ -275,6 +279,7 @@ A significant portion of the code in this project (JavaScript, CSS, HTML structu
      redpill   — You take the red pill. Welcome to the real world.
      bluepill  — The story ends. Ignorance is bliss.
      nospoon   — The terminal bends. It is only yourself.
+     sudo      — Attempt a superuser command (always denied).
      decode    — No args = random Matrix quote, decoded.
      hire      — Alias for mission.
      Konami    — ↑↑↓↓←→←→BA toggles CRT mode.

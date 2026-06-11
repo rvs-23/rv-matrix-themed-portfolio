@@ -45,7 +45,7 @@ export function initializeTerminalController(
     termConfig.defaultSize || state.terminal.defaultSize;
   state.terminal.size = { ...state.terminal.defaultSize };
   state.terminal.opacity =
-    termConfig.initialOpacity || state.terminal.opacity;
+    termConfig.initialOpacity ?? state.terminal.opacity;
   state.config.user = config.config.user || state.config.user;
 
   state.commands = commands;
@@ -512,6 +512,25 @@ export function reapplyTerminalSize() {
 
 export function getDefaultTerminalSize() {
   return { ...state.terminal.defaultSize };
+}
+
+/**
+ * Restore terminal appearance (opacity, font size, window size) to startup
+ * defaults — silently, with no per-setting output. Used by the `reset` command,
+ * which otherwise left these CSS overrides in place despite claiming a full reset.
+ */
+export function resetTerminalAppearance() {
+  document.documentElement.style.setProperty(
+    "--terminal-opacity",
+    String(state.terminal.opacity),
+  );
+  // Drop the inline override so font size reverts to the CSS :root default.
+  document.documentElement.style.removeProperty("--terminal-font-size");
+  state.terminal.size = { ...state.terminal.defaultSize };
+  if (state.elements.container) {
+    state.elements.container.style.width = state.terminal.defaultSize.width;
+    state.elements.container.style.height = state.terminal.defaultSize.height;
+  }
 }
 
 export function toggleTerminalVisibility() {
