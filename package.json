@@ -1,6 +1,6 @@
 {
   "name": "rv-matrix-themed-portfolio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "Matrix-themed interactive terminal portfolio (vanilla JS + Vite).",
   "license": "MIT",
