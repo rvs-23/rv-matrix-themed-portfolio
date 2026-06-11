@@ -85,7 +85,7 @@
       "rain preset default    - Resets rain to default.",
       "rain font classic      - Switches to the classic 1999 glyph set.",
       "rain size 20           - Sets glyph size to 20px.",
-      "rain size reset        - Resets glyph size to default (18px).",
+      "rain size reset        - Resets glyph size to default (16px).",
       "rain gravity earth     - Natural gravitational pull.",
       "rain gravity off       - Disables gravity.",
       "rain glyphspeed 15     - Glyphs hold steady (deliberate pace).",
