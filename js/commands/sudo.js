@@ -7,7 +7,7 @@ import { escapeHtml } from "../utils.js";
 
 export default function sudoCommand(args, context) {
   const { appendToTerminal, userConfig } = context;
-  const userName = escapeHtml(userConfig.userName || "User");
+  const userName = escapeHtml(userConfig.name || "User");
 
   appendToTerminal(
     `<div class="output-error"><i class="fas fa-user-shield icon-inline"></i> Access Denied. User '${userName}' is not authorized for 'sudo'. This incident will be logged (not really).</div>`,
