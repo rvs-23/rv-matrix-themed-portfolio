@@ -194,5 +194,13 @@
       "decode                       - Decodes a random Matrix quote.",
       "decode hello world           - Decodes the text 'hello world'."
     ]
+  },
+  "sudo": {
+    "name": "sudo - Attempt a superuser command.",
+    "synopsis": "sudo <command>",
+    "description": "A thematic command. Attempts to run a command with superuser privileges, which is always denied in this simulated terminal.",
+    "arguments": "<command>: Any command string you wish to 'attempt' with sudo.",
+    "examples": ["sudo reboot        - Attempts to reboot (denied)."],
+    "notes": "For thematic effect only. Listed under the 'ee' (easter eggs) command."
   }
 }
