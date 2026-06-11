@@ -124,10 +124,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     rainEngine: rainEngine,
     renderTree: renderTree,
     mainContentContainer: document.getElementById("contentContainer"),
-    allMatrixChars: allData.config.loader.matrixChars,
+    dateCommandTimezoneAliases: Object.keys(allData.config.date.aliases),
     isCrtActive: isCrtModeActive,
     getCurrentTheme: terminalController.getCurrentThemeName,
-    getFullWelcomeMessage: terminalController.getFullWelcomeMessage,
   };
 
   const registeredCommands = getAllCommands();
@@ -191,5 +190,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // Title bar dot actions: close, minimize opacity, maximize size
-  initTitleBarDots(terminalController, rainEngine);
+  initTitleBarDots(terminalController);
 });

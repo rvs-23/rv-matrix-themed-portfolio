@@ -45,7 +45,7 @@ export function initializeTerminalController(
     termConfig.defaultSize || state.terminal.defaultSize;
   state.terminal.size = { ...state.terminal.defaultSize };
   state.terminal.opacity =
-    termConfig.initialOpacity || state.terminal.opacity;
+    termConfig.initialOpacity ?? state.terminal.opacity;
   state.config.user = config.config.user || state.config.user;
 
   state.commands = commands;
