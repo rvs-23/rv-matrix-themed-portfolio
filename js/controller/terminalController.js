@@ -452,6 +452,13 @@ async function processCommand(fullCommandText) {
       );
     }
   } else if (commandName) {
+    // Multi-word input that isn't a command reads like a question → route it
+    // through `ask` (local keyword matching) instead of a flat "not found".
+    if (parts.length > 1 && typeof state.commands.ask === "function") {
+      state.commands.ask(parts, commandContext);
+      return;
+    }
+
     const safeName = commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     appendToTerminal(
       `<div class="output-error">Command not found: ${safeName}</div>`,
