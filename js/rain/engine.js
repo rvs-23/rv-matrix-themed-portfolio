@@ -734,6 +734,32 @@ export default class RainEngine {
     this.animationId = requestAnimationFrame(this.loop);
   };
 
+  /**
+   * Advance the simulation `frames` steps without rendering, so the grid is
+   * already populated and settled when the first visible frame paints. Prevents
+   * the empty-grid "cascade in" burst on initial load. Timestamps simulate the
+   * recent past so the live loop continues seamlessly.
+   */
+  warmUp(frames) {
+    const end = performance.now();
+    for (let f = frames; f > 0; f--) {
+      const ts = end - f * DECAY_INTERVAL_MS;
+      this.globalTick++;
+      this.decayGrid();
+      const glyphSyncInterval = this.activeConfig.glyphSyncInterval ?? 6;
+      if (this.globalTick % glyphSyncInterval === 0) this.mutateGrid();
+      this.stammerCounter++;
+      const stammerInterval = this.activeConfig.stammerInterval ?? 90;
+      const isStammerFrame = this.stammerCounter >= stammerInterval;
+      if (isStammerFrame) this.stammerCounter = 0;
+      for (const s of this.streams) {
+        s.step(this.activeConfig, this.grid, ts, isStammerFrame);
+        s.updateHead(this.grid, this.globalTick);
+        s.justLanded = false; // don't spawn landing glows from the pre-roll
+      }
+    }
+  }
+
   async start() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -751,6 +777,9 @@ export default class RainEngine {
     await this.setup();
     // A newer start() ran while we awaited setup() — let it own the loop.
     if (gen !== this._startGen) return;
+    // Pre-roll so the first visible frame is a full, settled field rather than
+    // an empty grid cascading in (the startup "burst").
+    this.warmUp(40);
     const now = performance.now();
     this.lastDecayTime = now - DECAY_INTERVAL_MS;
     this.loop(now);
