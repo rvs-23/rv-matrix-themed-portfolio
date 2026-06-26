@@ -166,6 +166,18 @@ document.addEventListener("DOMContentLoaded", async () => {
           registeredCommands.mission([], commandContext);
         }, 400);
       }
+
+      // Deep link: ?cmd=<name> runs one command on load. Allowlisted to
+      // registered, arg-less, [a-z]-only names — so a shared URL can never
+      // inject markup or run anything but a known command.
+      const deepLinkCmd = (
+        new URLSearchParams(window.location.search).get("cmd") || ""
+      )
+        .toLowerCase()
+        .replace(/[^a-z]/g, "");
+      if (deepLinkCmd && registeredCommands[deepLinkCmd]) {
+        setTimeout(() => terminalController.runCommand(deepLinkCmd), 500);
+      }
     })
     .catch((error) => {
       console.error("Error during final initialization step:", error);
