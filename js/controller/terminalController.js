@@ -115,6 +115,7 @@ export function initializeTerminalController(
   }
 
   displayInitialWelcomeMessage();
+  renderCommandChips();
   document.body.classList.remove("terminal-hidden");
 
   reapplyTerminalSize();
@@ -143,6 +144,59 @@ export function appendToTerminal(htmlContent, type = "output-text-wrapper") {
   state.elements.output.appendChild(lineDiv);
   state.elements.output.scrollTop = state.elements.output.scrollHeight;
   return lineDiv;
+}
+
+/** Echo + record + dispatch a command line. Shared by Enter and runCommand. */
+function submitCommand(fullCommandText) {
+  if (!fullCommandText) return;
+  if (
+    state.history.entries.length === 0 ||
+    state.history.entries[state.history.entries.length - 1] !== fullCommandText
+  ) {
+    state.history.entries.push(fullCommandText);
+    if (state.history.entries.length > MAX_HISTORY) {
+      state.history.entries.shift();
+    }
+  }
+  state.history.index = state.history.entries.length;
+
+  const sanitizedCommandDisplay = fullCommandText
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  appendToTerminal(
+    `<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`,
+  );
+
+  processCommand(fullCommandText);
+}
+
+/** Run a command programmatically — used by click-to-run chips and deep links. */
+export function runCommand(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return;
+  if (state.elements.input) state.elements.input.value = "";
+  state.autocomplete.prefix = "";
+  state.autocomplete.suggestions = [];
+  state.autocomplete.index = 0;
+  submitCommand(trimmed);
+  focusInput();
+}
+
+/** Render clickable command chips above the input for quick discovery. */
+function renderCommandChips() {
+  const host = document.getElementById("command-chips");
+  if (!host) return;
+  const chips = ["whoami", "skills", "contact", "mission", "rain", "help"];
+  host.replaceChildren();
+  for (const cmd of chips) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "command-chip";
+    btn.textContent = cmd;
+    btn.setAttribute("aria-label", `Run ${cmd}`);
+    btn.addEventListener("click", () => runCommand(cmd));
+    host.appendChild(btn);
+  }
 }
 
 function handleCommandInputKeydown(e) {
@@ -176,27 +230,7 @@ function handleCommandInputKeydown(e) {
     state.autocomplete.suggestions = [];
     state.autocomplete.index = 0;
 
-    if (fullCommandText) {
-      if (
-        state.history.entries.length === 0 ||
-        state.history.entries[state.history.entries.length - 1] !== fullCommandText
-      ) {
-        state.history.entries.push(fullCommandText);
-        if (state.history.entries.length > MAX_HISTORY) {
-          state.history.entries.shift();
-        }
-      }
-      state.history.index = state.history.entries.length;
-
-      const sanitizedCommandDisplay = fullCommandText
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      appendToTerminal(
-        `<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`,
-      );
-
-      processCommand(fullCommandText);
-    }
+    submitCommand(fullCommandText);
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
     if (state.history.entries.length > 0) {
