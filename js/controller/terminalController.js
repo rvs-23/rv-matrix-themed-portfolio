@@ -7,6 +7,7 @@ import {
   getLevenshteinDistance,
   getLongestCommonSubsequence,
 } from "../utils.js";
+import { recordEgg } from "../eggs.js";
 
 const MAX_HISTORY = 100;
 
@@ -445,6 +446,7 @@ async function processCommand(fullCommandText) {
       if (result && typeof result.then === "function") {
         await result;
       }
+      recordEgg(commandName); // no-op unless it's a tracked easter egg
     } catch (err) {
       console.error("Error executing command:", commandName, err);
       appendToTerminal(

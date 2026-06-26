@@ -3,6 +3,8 @@
  * Resets all user preferences to factory defaults and clears session storage.
  */
 
+import { clearEggs } from "../eggs.js";
+
 export default function resetCommand(_args, context) {
   const { appendToTerminal, terminalController, rainEngine } = context;
 
@@ -11,6 +13,7 @@ export default function resetCommand(_args, context) {
     localStorage.removeItem("rv_theme");
     localStorage.removeItem("rv_preset");
   } catch { /* storage unavailable */ }
+  clearEggs();
 
   // Reset theme to green
   terminalController.applyTheme("green");
