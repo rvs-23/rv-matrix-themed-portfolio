@@ -6,6 +6,7 @@
 
 import askCommand from "./ask.js";
 import bluepillCommand from "./bluepill.js";
+import changelogCommand from "./changelog.js";
 import clearCommand from "./clear.js";
 import contactCommand from "./contact.js";
 import dateCommand from "./date.js";
@@ -52,6 +53,7 @@ export function getAllCommands() {
     clear: clearCommand,
     search: searchCommand,
     ask: askCommand,
+    changelog: changelogCommand,
     date: dateCommand,
     download: downloadCvCommand,
     screenshot: screenshotCommand,

@@ -213,5 +213,13 @@
       "ask how do I reach you    - Routes to contact."
     ],
     "notes": "Routing rules are defined in js/config/index.js (ask.routes)."
+  },
+  "changelog": {
+    "name": "changelog - Show the project's release history.",
+    "synopsis": "changelog",
+    "description": "Renders the site's own CHANGELOG.md in the terminal — the version history of this portfolio.",
+    "arguments": "None",
+    "examples": ["changelog          - Shows all releases."],
+    "notes": "Sourced from CHANGELOG.md at build time, so it never drifts from the repo."
   }
 }
