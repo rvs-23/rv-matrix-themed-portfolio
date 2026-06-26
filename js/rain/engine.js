@@ -241,6 +241,8 @@ export default class RainEngine {
     // setup() if a newer start() has superseded it, so overlapping calls (boot
     // applyPreset + boot start, or a resize mid-setup) never spawn two rAF loops.
     this._startGen = 0;
+    // One-time canvas fade-in on the first start (smooth materialise vs pop).
+    this._introDone = false;
     this.lastDecayTime = 0;
     this.sentientPhrases = sentientPhrases;
     this.dpr = window.devicePixelRatio || 1;
@@ -734,32 +736,6 @@ export default class RainEngine {
     this.animationId = requestAnimationFrame(this.loop);
   };
 
-  /**
-   * Advance the simulation `frames` steps without rendering, so the grid is
-   * already populated and settled when the first visible frame paints. Prevents
-   * the empty-grid "cascade in" burst on initial load. Timestamps simulate the
-   * recent past so the live loop continues seamlessly.
-   */
-  warmUp(frames) {
-    const end = performance.now();
-    for (let f = frames; f > 0; f--) {
-      const ts = end - f * DECAY_INTERVAL_MS;
-      this.globalTick++;
-      this.decayGrid();
-      const glyphSyncInterval = this.activeConfig.glyphSyncInterval ?? 6;
-      if (this.globalTick % glyphSyncInterval === 0) this.mutateGrid();
-      this.stammerCounter++;
-      const stammerInterval = this.activeConfig.stammerInterval ?? 90;
-      const isStammerFrame = this.stammerCounter >= stammerInterval;
-      if (isStammerFrame) this.stammerCounter = 0;
-      for (const s of this.streams) {
-        s.step(this.activeConfig, this.grid, ts, isStammerFrame);
-        s.updateHead(this.grid, this.globalTick);
-        s.justLanded = false; // don't spawn landing glows from the pre-roll
-      }
-    }
-  }
-
   async start() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -777,9 +753,19 @@ export default class RainEngine {
     await this.setup();
     // A newer start() ran while we awaited setup() — let it own the loop.
     if (gen !== this._startGen) return;
-    // Pre-roll so the first visible frame is a full, settled field rather than
-    // an empty grid cascading in (the startup "burst").
-    this.warmUp(40);
+    // setup() already scatters + pre-illuminates a full field, so the first
+    // frame is complete. On the very first start, fade the canvas in so that
+    // full field *materialises* from black instead of popping in as the loader
+    // clears (the "burst"). Later starts (preset/resize) skip the fade.
+    if (!this._introDone && this.canvas) {
+      this._introDone = true;
+      this.canvas.style.opacity = "0";
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          if (this.canvas) this.canvas.style.opacity = "1";
+        }),
+      );
+    }
     const now = performance.now();
     this.lastDecayTime = now - DECAY_INTERVAL_MS;
     this.loop(now);
