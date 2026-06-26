@@ -56,6 +56,9 @@ body {
   padding: 0 0 var(--footer-height) 0;
   box-sizing: border-box;
   height: 100vh;
+  /* dvh tracks the *visible* viewport, so the on-screen keyboard shrinks the
+     layout instead of shoving the centred terminal (and its input) off-screen. */
+  height: 100dvh;
   width: 100vw;
   position: relative;
   display: flex;
@@ -750,8 +753,9 @@ body.crt-mode #matrix-canvas {
 @media (max-width: 767px) {
   .content-container {
     width: 90vw;
-    max-height: calc(100vh - var(--footer-height) - 2rem);
+    max-height: calc(100dvh - var(--footer-height) - 2rem);
     height: 65vh;
+    height: 65dvh;
     padding: 0.8rem;
   }
 
