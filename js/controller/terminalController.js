@@ -7,6 +7,7 @@ import {
   getLevenshteinDistance,
   getLongestCommonSubsequence,
 } from "../utils.js";
+import { recordEgg } from "../eggs.js";
 
 const MAX_HISTORY = 100;
 
@@ -105,7 +106,17 @@ export function initializeTerminalController(
     });
   }
 
+  // Tapping the rain (outside the terminal) blurs the input — the touch
+  // equivalent of Esc/Ctrl+\ for dismissing the mobile keyboard.
+  const canvasEl = document.getElementById("matrix-canvas");
+  if (canvasEl) {
+    canvasEl.addEventListener("pointerdown", () => {
+      state.elements.input?.blur();
+    });
+  }
+
   displayInitialWelcomeMessage();
+  renderCommandChips();
   document.body.classList.remove("terminal-hidden");
 
   reapplyTerminalSize();
@@ -134,6 +145,59 @@ export function appendToTerminal(htmlContent, type = "output-text-wrapper") {
   state.elements.output.appendChild(lineDiv);
   state.elements.output.scrollTop = state.elements.output.scrollHeight;
   return lineDiv;
+}
+
+/** Echo + record + dispatch a command line. Shared by Enter and runCommand. */
+function submitCommand(fullCommandText) {
+  if (!fullCommandText) return;
+  if (
+    state.history.entries.length === 0 ||
+    state.history.entries[state.history.entries.length - 1] !== fullCommandText
+  ) {
+    state.history.entries.push(fullCommandText);
+    if (state.history.entries.length > MAX_HISTORY) {
+      state.history.entries.shift();
+    }
+  }
+  state.history.index = state.history.entries.length;
+
+  const sanitizedCommandDisplay = fullCommandText
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  appendToTerminal(
+    `<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`,
+  );
+
+  processCommand(fullCommandText);
+}
+
+/** Run a command programmatically — used by click-to-run chips and deep links. */
+export function runCommand(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return;
+  if (state.elements.input) state.elements.input.value = "";
+  state.autocomplete.prefix = "";
+  state.autocomplete.suggestions = [];
+  state.autocomplete.index = 0;
+  submitCommand(trimmed);
+  focusInput();
+}
+
+/** Render clickable command chips above the input for quick discovery. */
+function renderCommandChips() {
+  const host = document.getElementById("command-chips");
+  if (!host) return;
+  const chips = ["whoami", "skills", "contact", "mission", "rain", "help"];
+  host.replaceChildren();
+  for (const cmd of chips) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "command-chip";
+    btn.textContent = cmd;
+    btn.setAttribute("aria-label", `Run ${cmd}`);
+    btn.addEventListener("click", () => runCommand(cmd));
+    host.appendChild(btn);
+  }
 }
 
 function handleCommandInputKeydown(e) {
@@ -167,27 +231,7 @@ function handleCommandInputKeydown(e) {
     state.autocomplete.suggestions = [];
     state.autocomplete.index = 0;
 
-    if (fullCommandText) {
-      if (
-        state.history.entries.length === 0 ||
-        state.history.entries[state.history.entries.length - 1] !== fullCommandText
-      ) {
-        state.history.entries.push(fullCommandText);
-        if (state.history.entries.length > MAX_HISTORY) {
-          state.history.entries.shift();
-        }
-      }
-      state.history.index = state.history.entries.length;
-
-      const sanitizedCommandDisplay = fullCommandText
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      appendToTerminal(
-        `<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`,
-      );
-
-      processCommand(fullCommandText);
-    }
+    submitCommand(fullCommandText);
   } else if (e.key === "ArrowUp") {
     e.preventDefault();
     if (state.history.entries.length > 0) {
@@ -402,6 +446,7 @@ async function processCommand(fullCommandText) {
       if (result && typeof result.then === "function") {
         await result;
       }
+      recordEgg(commandName); // no-op unless it's a tracked easter egg
     } catch (err) {
       console.error("Error executing command:", commandName, err);
       appendToTerminal(
@@ -409,6 +454,13 @@ async function processCommand(fullCommandText) {
       );
     }
   } else if (commandName) {
+    // Multi-word input that isn't a command reads like a question → route it
+    // through `ask` (local keyword matching) instead of a flat "not found".
+    if (parts.length > 1 && typeof state.commands.ask === "function") {
+      state.commands.ask(parts, commandContext);
+      return;
+    }
+
     const safeName = commandName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     appendToTerminal(
       `<div class="output-error">Command not found: ${safeName}</div>`,
@@ -540,6 +592,8 @@ export function toggleTerminalVisibility() {
 
   if (!state.terminal.visible) {
     // ---- HIDING ----
+    // Drop focus so the mobile on-screen keyboard dismisses with the terminal.
+    state.elements.input?.blur();
     state.elements.container.classList.add("is-hiding");
     document.body.classList.add("terminal-hidden");
 

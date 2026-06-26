@@ -299,6 +299,22 @@ export const screenshot = {
   },
 };
 
+// --- ASK: local natural-language routing (no LLM) ---
+export const ask = {
+  routes: [
+    { keywords: ["who", "about", "yourself", "name", "rishav"], command: "whoami" },
+    { keywords: ["skill", "tech", "stack", "python", "ml", "language", "tool", "framework"], command: "skills" },
+    { keywords: ["project", "built", "build", "made", "work", "experience", "done"], command: "mission" },
+    { keywords: ["contact", "reach", "email", "hire", "touch", "connect", "linkedin"], command: "contact" },
+    { keywords: ["hobby", "hobbies", "interest", "fun", "music", "guitar"], command: "hobbies" },
+    { keywords: ["resume", "cv", "download"], command: "download cv" },
+    { keywords: ["rain", "matrix", "animation", "background"], command: "rain" },
+    { keywords: ["theme", "color", "colour", "dark", "look"], command: "theme" },
+  ],
+  fallback:
+    "I don't have a direct answer for that. Try <span class='output-success'>help</span> for everything, or <span class='output-success'>whoami</span> to start.",
+};
+
 // --- SENTIENT RAIN DATA ---
 export const sentientRainPhrases = [
   // Classic Matrix quotes

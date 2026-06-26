@@ -56,6 +56,9 @@ body {
   padding: 0 0 var(--footer-height) 0;
   box-sizing: border-box;
   height: 100vh;
+  /* dvh tracks the *visible* viewport, so the on-screen keyboard shrinks the
+     layout instead of shoving the centred terminal (and its input) off-screen. */
+  height: 100dvh;
   width: 100vw;
   position: relative;
   display: flex;
@@ -349,6 +352,37 @@ body {
   content: "> ";
   color: var(--secondary-color);
   margin-right: 0.3em;
+}
+
+.command-chips {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  padding: 0.5em 0 0.2em;
+}
+
+.command-chip {
+  font-family: var(--font-mono-current);
+  font-size: 0.8em;
+  color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-color-rgb), 0.25);
+  border-radius: 999px;
+  padding: 0.15em 0.7em;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.command-chip:hover,
+.command-chip:focus-visible {
+  background: rgba(var(--primary-color-rgb), 0.18);
+  border-color: rgba(var(--primary-color-rgb), 0.5);
+  box-shadow: 0 0 8px rgba(var(--primary-color-rgb), 0.25);
+  outline: none;
 }
 
 .prompt-line {
@@ -750,8 +784,9 @@ body.crt-mode #matrix-canvas {
 @media (max-width: 767px) {
   .content-container {
     width: 90vw;
-    max-height: calc(100vh - var(--footer-height) - 2rem);
+    max-height: calc(100dvh - var(--footer-height) - 2rem);
     height: 65vh;
+    height: 65dvh;
     padding: 0.8rem;
   }
 

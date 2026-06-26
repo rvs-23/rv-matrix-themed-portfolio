@@ -202,5 +202,24 @@
     "arguments": "<command>: Any command string you wish to 'attempt' with sudo.",
     "examples": ["sudo reboot        - Attempts to reboot (denied)."],
     "notes": "For thematic effect only. Listed under the 'ee' (easter eggs) command."
+  },
+  "ask": {
+    "name": "ask - Ask a plain-English question.",
+    "synopsis": "ask <question>",
+    "description": "Maps a natural-language question to the most relevant command using local keyword matching (no AI/LLM — just string matching). Multi-word input that isn't a recognised command is routed here automatically.",
+    "arguments": "<question>: A plain-English question, e.g. 'what have you built'.",
+    "examples": [
+      "ask what have you built   - Routes to the projects/dossier.",
+      "ask how do I reach you    - Routes to contact."
+    ],
+    "notes": "Routing rules are defined in js/config/index.js (ask.routes)."
+  },
+  "changelog": {
+    "name": "changelog - Show the project's release history.",
+    "synopsis": "changelog",
+    "description": "Renders the site's own CHANGELOG.md in the terminal — the version history of this portfolio.",
+    "arguments": "None",
+    "examples": ["changelog          - Shows all releases."],
+    "notes": "Sourced from CHANGELOG.md at build time, so it never drifts from the repo."
   }
 }

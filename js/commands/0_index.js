@@ -4,7 +4,9 @@
  * Imports individual command modules and aggregates them.
  */
 
+import askCommand from "./ask.js";
 import bluepillCommand from "./bluepill.js";
+import changelogCommand from "./changelog.js";
 import clearCommand from "./clear.js";
 import contactCommand from "./contact.js";
 import dateCommand from "./date.js";
@@ -50,6 +52,8 @@ export function getAllCommands() {
     man: manCommand,
     clear: clearCommand,
     search: searchCommand,
+    ask: askCommand,
+    changelog: changelogCommand,
     date: dateCommand,
     download: downloadCvCommand,
     screenshot: screenshotCommand,

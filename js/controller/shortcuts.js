@@ -3,6 +3,7 @@
  * Manages global keyboard shortcuts like Konami code and terminal toggle.
  */
 import { toggleTerminalVisibility } from "./terminalController.js";
+import { recordEgg } from "../eggs.js";
 
 let konamiCodeSequence = [];
 let konamiCodeIndex = 0;
@@ -35,6 +36,7 @@ function globalKeydownHandler(e) {
       konamiCodeIndex++;
       if (konamiCodeIndex === konamiCodeSequence.length) {
         toggleCrtMode();
+        recordEgg("konami");
         konamiCodeIndex = 0; // Reset
         // Prevent default only if Konami completes AND input is NOT focused,
         // or if we always want to prevent 'a'/'b' from being typed at the end of sequence.
