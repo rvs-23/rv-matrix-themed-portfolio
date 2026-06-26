@@ -105,6 +105,15 @@ export function initializeTerminalController(
     });
   }
 
+  // Tapping the rain (outside the terminal) blurs the input — the touch
+  // equivalent of Esc/Ctrl+\ for dismissing the mobile keyboard.
+  const canvasEl = document.getElementById("matrix-canvas");
+  if (canvasEl) {
+    canvasEl.addEventListener("pointerdown", () => {
+      state.elements.input?.blur();
+    });
+  }
+
   displayInitialWelcomeMessage();
   document.body.classList.remove("terminal-hidden");
 
@@ -540,6 +549,8 @@ export function toggleTerminalVisibility() {
 
   if (!state.terminal.visible) {
     // ---- HIDING ----
+    // Drop focus so the mobile on-screen keyboard dismisses with the terminal.
+    state.elements.input?.blur();
     state.elements.container.classList.add("is-hiding");
     document.body.classList.add("terminal-hidden");
 
