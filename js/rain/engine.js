@@ -241,8 +241,6 @@ export default class RainEngine {
     // setup() if a newer start() has superseded it, so overlapping calls (boot
     // applyPreset + boot start, or a resize mid-setup) never spawn two rAF loops.
     this._startGen = 0;
-    // One-time canvas fade-in on the first start (smooth materialise vs pop).
-    this._introDone = false;
     this.lastDecayTime = 0;
     this.sentientPhrases = sentientPhrases;
     this.dpr = window.devicePixelRatio || 1;
@@ -753,19 +751,10 @@ export default class RainEngine {
     await this.setup();
     // A newer start() ran while we awaited setup() — let it own the loop.
     if (gen !== this._startGen) return;
-    // setup() already scatters + pre-illuminates a full field, so the first
-    // frame is complete. On the very first start, fade the canvas in so that
-    // full field *materialises* from black instead of popping in as the loader
-    // clears (the "burst"). Later starts (preset/resize) skip the fade.
-    if (!this._introDone && this.canvas) {
-      this._introDone = true;
-      this.canvas.style.opacity = "0";
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          if (this.canvas) this.canvas.style.opacity = "1";
-        }),
-      );
-    }
+    // setup() already scatters + pre-illuminates a full field. Combined with
+    // starting on fonts.ready (main.js), the rain runs behind the loader and is
+    // already established/mid-stream when the loader's fade-out reveals it — so
+    // there's no startup "burst". No canvas fade needed.
     const now = performance.now();
     this.lastDecayTime = now - DECAY_INTERVAL_MS;
     this.loop(now);

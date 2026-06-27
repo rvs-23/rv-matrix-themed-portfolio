@@ -59,10 +59,13 @@ export function hideLoadingScreen(callback) {
       decryptStatusEl.textContent =
         loadingMessages[loadingMessages.length - 1] || "SYSTEM ONLINE.";
 
+    // Short beat to let the rain (already started) paint a few frames before the
+    // loader fades out to reveal it. The minimum loader display time is enforced
+    // by the caller, so this stays small.
     setTimeout(() => {
       loadingScreenEl.classList.add("hidden");
       if (callback) callback();
-    }, 600);
+    }, 250);
   } else {
     if (callback) callback();
   }

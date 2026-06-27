@@ -146,9 +146,6 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 3;
-  /* The engine fades opacity 0 -> 1 once on first start, so the rain
-     materialises from black instead of popping in when the loader clears. */
-  transition: opacity 1.4s ease-out;
 }
 
 /* Content Container & Terminal Animations */
