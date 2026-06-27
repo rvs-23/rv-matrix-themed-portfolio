@@ -16,7 +16,11 @@
     "headCol": "#c8ffc8",
     "fontFamily": "MatrixA, MatrixB, monospace",
     "layers": 3,
-    "layerOp": [1, 0.88, 0.72],
+    "layerOp": [
+      1,
+      0.88,
+      0.72
+    ],
     "delChance": 0.04,
     "multiStream": 0.2,
     "highlightChance": 0.2,
@@ -30,22 +34,22 @@
     "sentientChance": 0.069,
     "minStreamGap": 12
   },
-  "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989",
+  "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊",
   "fontSets": {
     "classic": {
       "description": "Original Matrix trilogy (1999) — mirrored katakana, digits, symbols. 57 glyphs from Matrix-Code.ttf.",
       "fontFamily": "MatrixA, monospace",
-      "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937"
+      "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊"
     },
     "resurrections": {
       "description": "Matrix Resurrections (2021) — expanded glyph set. 138 glyphs from Matrix-Resurrected.ttf.",
       "fontFamily": "MatrixB, monospace",
-      "glyphs": "\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue937\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989"
+      "glyphs": ""
     },
     "combined": {
       "description": "Both classic and Resurrections glyphs combined. 194 glyphs from both fonts.",
       "fontFamily": "MatrixA, MatrixB, monospace",
-      "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊\ue937\ue900\ue901\ue902\ue903\ue904\ue905\ue906\ue907\ue908\ue909\ue90a\ue90b\ue90c\ue90d\ue90e\ue90f\ue910\ue911\ue912\ue913\ue914\ue915\ue916\ue917\ue918\ue919\ue91a\ue91b\ue91c\ue91d\ue91e\ue91f\ue920\ue921\ue922\ue923\ue924\ue925\ue926\ue927\ue928\ue929\ue92a\ue92b\ue92c\ue92d\ue92e\ue92f\ue930\ue931\ue932\ue933\ue934\ue935\ue936\ue938\ue939\ue93a\ue93b\ue93c\ue93d\ue93e\ue93f\ue940\ue941\ue942\ue943\ue944\ue945\ue946\ue947\ue948\ue949\ue94a\ue94b\ue94c\ue94d\ue94e\ue94f\ue950\ue951\ue952\ue953\ue954\ue955\ue956\ue957\ue958\ue959\ue95a\ue95b\ue95c\ue95d\ue95e\ue95f\ue960\ue961\ue962\ue963\ue964\ue965\ue966\ue967\ue968\ue969\ue96a\ue96b\ue96c\ue96d\ue96e\ue96f\ue970\ue971\ue972\ue973\ue974\ue975\ue976\ue977\ue978\ue979\ue97a\ue97b\ue97c\ue97d\ue97e\ue97f\ue980\ue981\ue982\ue983\ue984\ue985\ue986\ue987\ue988\ue989"
+      "glyphs": "\"*+012345789:<>z|¦©╌▪アウエオカキケコサシスセソタツテナニヌネハヒホマミムメモヤヨラリワー꞊"
     }
   },
   "presets": {
@@ -58,18 +62,35 @@
       "config": {
         "speed": 50,
         "font": 20,
+        "lineH": 1,
         "density": 0.35,
         "minTrail": 60,
         "maxTrail": 90,
         "headGlowMin": 7,
         "headGlowMax": 13,
         "blur": 7,
+        "bloomRadius": 8,
+        "bloomIntensity": 0.18,
         "decayBase": 0.965,
         "layers": 4,
-        "layerOp": [1, 0.7, 0.45, 0.25],
+        "layerOp": [
+          1,
+          0.7,
+          0.45,
+          0.25
+        ],
         "delChance": 0.02,
+        "multiStream": 0.2,
         "highlightChance": 0.4,
-        "headFlickerInterval": 2
+        "glyphSyncInterval": 6,
+        "mutationChance": 0.03,
+        "stammerInterval": 90,
+        "headFlickerInterval": 2,
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "storm": {
@@ -77,8 +98,8 @@
       "config": {
         "speed": 30,
         "font": 15,
-        "density": 1.15,
         "lineH": 0.85,
+        "density": 1.15,
         "minTrail": 10,
         "maxTrail": 25,
         "headGlowMin": 2,
@@ -87,12 +108,24 @@
         "bloomRadius": 3,
         "bloomIntensity": 0.04,
         "decayBase": 0.87,
-        "dimFloor": 0,
         "layers": 2,
+        "layerOp": [
+          1,
+          0.88,
+          0.72
+        ],
         "delChance": 0.1,
+        "multiStream": 0.2,
         "highlightChance": 0.35,
+        "glyphSyncInterval": 6,
         "mutationChance": 0.08,
-        "headFlickerInterval": 1
+        "stammerInterval": 90,
+        "headFlickerInterval": 1,
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "whisper": {
@@ -110,12 +143,24 @@
         "bloomRadius": 2,
         "bloomIntensity": 0.05,
         "decayBase": 0.94,
-        "dimFloor": 0.010,
         "layers": 3,
+        "layerOp": [
+          1,
+          0.88,
+          0.72
+        ],
         "delChance": 0.01,
+        "multiStream": 0.2,
         "highlightChance": 0.05,
+        "glyphSyncInterval": 12,
         "mutationChance": 0.01,
-        "glyphSyncInterval": 12
+        "stammerInterval": 90,
+        "headFlickerInterval": 3,
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0.01,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "pulse": {
@@ -123,6 +168,7 @@
       "config": {
         "speed": 85,
         "font": 18,
+        "lineH": 1,
         "density": 0.5,
         "minTrail": 20,
         "maxTrail": 35,
@@ -132,12 +178,26 @@
         "bloomRadius": 4,
         "bloomIntensity": 0.08,
         "decayBase": 0.91,
-        "dimFloor": 0.007,
         "layers": 5,
-        "layerOp": [1, 0.8, 0.6, 0.35, 0.15],
+        "layerOp": [
+          1,
+          0.8,
+          0.6,
+          0.35,
+          0.15
+        ],
         "delChance": 0.18,
+        "multiStream": 0.2,
+        "highlightChance": 0.2,
+        "glyphSyncInterval": 8,
         "mutationChance": 0.05,
-        "glyphSyncInterval": 8
+        "stammerInterval": 90,
+        "headFlickerInterval": 3,
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0.007,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "ancient": {
@@ -145,18 +205,34 @@
       "config": {
         "speed": 140,
         "font": 23,
+        "lineH": 1,
         "density": 0.45,
         "minTrail": 40,
         "maxTrail": 70,
         "headGlowMin": 2,
         "headGlowMax": 5,
         "blur": 3,
+        "bloomRadius": 8,
+        "bloomIntensity": 0.18,
         "decayBase": 0.95,
         "layers": 3,
+        "layerOp": [
+          1,
+          0.88,
+          0.72
+        ],
         "delChance": 0.03,
+        "multiStream": 0.2,
+        "highlightChance": 0.2,
         "glyphSyncInterval": 15,
         "mutationChance": 0.01,
-        "headFlickerInterval": 10
+        "stammerInterval": 90,
+        "headFlickerInterval": 10,
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "emberfall": {
@@ -164,20 +240,34 @@
       "config": {
         "speed": 70,
         "font": 17,
+        "lineH": 1,
         "density": 0.6,
         "minTrail": 5,
         "maxTrail": 15,
         "headGlowMin": 6,
         "headGlowMax": 12,
         "blur": 10,
+        "bloomRadius": 8,
+        "bloomIntensity": 0.18,
         "decayBase": 0.88,
-        "dimFloor": 0.004,
         "layers": 3,
-        "layerOp": [1, 0.6, 0.3],
+        "layerOp": [
+          1,
+          0.6,
+          0.3
+        ],
         "delChance": 0.01,
+        "multiStream": 0.2,
         "highlightChance": 0.6,
+        "glyphSyncInterval": 6,
+        "mutationChance": 0.06,
+        "stammerInterval": 90,
         "headFlickerInterval": 1,
-        "mutationChance": 0.06
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0.004,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "cascade": {
@@ -185,19 +275,34 @@
       "config": {
         "speed": 45,
         "font": 16,
+        "lineH": 1,
         "density": 1.3,
         "minTrail": 30,
         "maxTrail": 80,
         "headGlowMin": 10,
         "headGlowMax": 18,
         "blur": 12,
+        "bloomRadius": 8,
         "bloomIntensity": 0.22,
         "decayBase": 0.96,
         "layers": 3,
+        "layerOp": [
+          1,
+          0.88,
+          0.72
+        ],
         "delChance": 0.02,
         "multiStream": 0.4,
         "highlightChance": 0.5,
-        "sentientChance": 0
+        "glyphSyncInterval": 6,
+        "mutationChance": 0.03,
+        "stammerInterval": 90,
+        "headFlickerInterval": 3,
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0,
+        "sentientChance": 0,
+        "minStreamGap": 12
       }
     },
     "rainfall": {
@@ -205,17 +310,34 @@
       "config": {
         "speed": 50,
         "font": 16,
+        "lineH": 1,
         "density": 0.8,
         "minTrail": 25,
         "maxTrail": 60,
         "headGlowMin": 5,
         "headGlowMax": 10,
         "blur": 8,
+        "bloomRadius": 8,
+        "bloomIntensity": 0.18,
         "decayBase": 0.95,
         "layers": 3,
+        "layerOp": [
+          1,
+          0.88,
+          0.72
+        ],
         "delChance": 0.03,
+        "multiStream": 0.2,
+        "highlightChance": 0.2,
+        "glyphSyncInterval": 6,
+        "mutationChance": 0.03,
+        "stammerInterval": 90,
+        "headFlickerInterval": 3,
         "landingGlow": 0.7,
-        "landingGlowSize": 80
+        "landingGlowSize": 80,
+        "dimFloor": 0,
+        "sentientChance": 0.069,
+        "minStreamGap": 12
       }
     },
     "frozen": {
@@ -223,50 +345,172 @@
       "config": {
         "speed": 300,
         "font": 16,
+        "lineH": 1,
         "density": 0.95,
         "minTrail": 40,
         "maxTrail": 85,
         "headGlowMin": 3,
         "headGlowMax": 8,
         "blur": 5,
+        "bloomRadius": 8,
+        "bloomIntensity": 0.18,
         "decayBase": 0.985,
         "layers": 3,
+        "layerOp": [
+          1,
+          0.88,
+          0.72
+        ],
         "delChance": 0.02,
-        "mutationChance": 0.005,
+        "multiStream": 0.2,
         "highlightChance": 0.05,
         "glyphSyncInterval": 20,
+        "mutationChance": 0.005,
+        "stammerInterval": 90,
         "headFlickerInterval": 15,
-        "sentientChance": 0
+        "landingGlow": 0,
+        "landingGlowSize": 60,
+        "dimFloor": 0,
+        "sentientChance": 0,
+        "minStreamGap": 12
       }
     }
   },
   "validationRules": {
-    "speed": { "type": "int", "min": 10, "max": 500 },
-    "font": { "type": "int", "min": 8, "max": 40 },
-    "lineH": { "type": "float", "min": 0.5, "max": 2.0 },
-    "density": { "type": "float", "min": 0.1, "max": 2.0 },
-    "minTrail": { "type": "int", "min": 1, "max": 100 },
-    "maxTrail": { "type": "int", "min": 1, "max": 100 },
-    "headGlowMin": { "type": "int", "min": 0, "max": 20 },
-    "headGlowMax": { "type": "int", "min": 0, "max": 20 },
-    "blur": { "type": "int", "min": 0, "max": 20 },
-    "bloomRadius": { "type": "int", "min": 0, "max": 30 },
-    "bloomIntensity": { "type": "float", "min": 0, "max": 1.0 },
-    "decayBase": { "type": "float", "min": 0.7, "max": 0.99 },
-    "layers": { "type": "int", "min": 1, "max": 10 },
-    "layerOp": { "type": "array_float", "ele_min": 0, "ele_max": 1 },
-    "delChance": { "type": "float", "min": 0, "max": 1 },
-    "multiStream": { "type": "float", "min": 0, "max": 0.8 },
-    "highlightChance": { "type": "float", "min": 0, "max": 1 },
-    "glyphSyncInterval": { "type": "int", "min": 1, "max": 60 },
-    "mutationChance": { "type": "float", "min": 0, "max": 1 },
-    "stammerInterval": { "type": "int", "min": 10, "max": 500 },
-    "headFlickerInterval": { "type": "int", "min": 1, "max": 30 },
-    "landingGlow": { "type": "float", "min": 0, "max": 1 },
-    "landingGlowSize": { "type": "int", "min": 10, "max": 200 },
-    "dimFloor": { "type": "float", "min": 0, "max": 0.1 },
-    "sentientChance": { "type": "float", "min": 0, "max": 0.5 },
-    "minStreamGap": { "type": "int", "min": 0, "max": 40 },
-    "gravityAccel": { "type": "float", "min": 0, "max": 1 }
+    "speed": {
+      "type": "int",
+      "min": 10,
+      "max": 500
+    },
+    "font": {
+      "type": "int",
+      "min": 8,
+      "max": 40
+    },
+    "lineH": {
+      "type": "float",
+      "min": 0.5,
+      "max": 2.0
+    },
+    "density": {
+      "type": "float",
+      "min": 0.1,
+      "max": 2.0
+    },
+    "minTrail": {
+      "type": "int",
+      "min": 1,
+      "max": 100
+    },
+    "maxTrail": {
+      "type": "int",
+      "min": 1,
+      "max": 100
+    },
+    "headGlowMin": {
+      "type": "int",
+      "min": 0,
+      "max": 20
+    },
+    "headGlowMax": {
+      "type": "int",
+      "min": 0,
+      "max": 20
+    },
+    "blur": {
+      "type": "int",
+      "min": 0,
+      "max": 20
+    },
+    "bloomRadius": {
+      "type": "int",
+      "min": 0,
+      "max": 30
+    },
+    "bloomIntensity": {
+      "type": "float",
+      "min": 0,
+      "max": 1.0
+    },
+    "decayBase": {
+      "type": "float",
+      "min": 0.7,
+      "max": 0.99
+    },
+    "layers": {
+      "type": "int",
+      "min": 1,
+      "max": 10
+    },
+    "layerOp": {
+      "type": "array_float",
+      "ele_min": 0,
+      "ele_max": 1
+    },
+    "delChance": {
+      "type": "float",
+      "min": 0,
+      "max": 1
+    },
+    "multiStream": {
+      "type": "float",
+      "min": 0,
+      "max": 0.8
+    },
+    "highlightChance": {
+      "type": "float",
+      "min": 0,
+      "max": 1
+    },
+    "glyphSyncInterval": {
+      "type": "int",
+      "min": 1,
+      "max": 60
+    },
+    "mutationChance": {
+      "type": "float",
+      "min": 0,
+      "max": 1
+    },
+    "stammerInterval": {
+      "type": "int",
+      "min": 10,
+      "max": 500
+    },
+    "headFlickerInterval": {
+      "type": "int",
+      "min": 1,
+      "max": 30
+    },
+    "landingGlow": {
+      "type": "float",
+      "min": 0,
+      "max": 1
+    },
+    "landingGlowSize": {
+      "type": "int",
+      "min": 10,
+      "max": 200
+    },
+    "dimFloor": {
+      "type": "float",
+      "min": 0,
+      "max": 0.1
+    },
+    "sentientChance": {
+      "type": "float",
+      "min": 0,
+      "max": 0.5
+    },
+    "minStreamGap": {
+      "type": "int",
+      "min": 0,
+      "max": 40
+    },
+    "gravityAccel": {
+      "type": "float",
+      "min": 0,
+      "max": 1
+    }
   }
 }

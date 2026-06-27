@@ -797,29 +797,18 @@ export default class RainEngine {
     }
 
     if (preset.config) {
-      const needsRebuild =
-        preset.config.font !== undefined ||
-        preset.config.density !== undefined ||
-        preset.config.lineH !== undefined;
-
-      // Reset to defaults first so no stale values leak between presets.
-      this.activeConfig = { ...this.defaultConfig };
-      // The font set (glyphs + fontFamily, a matched pair) is owned by
-      // setFontSet, not by presets. Preserve the active set so switching presets
-      // never leaves glyphs and fontFamily out of sync; any fontFamily key in a
-      // preset is intentionally ignored (updateParameter has no rule for it).
+      // Presets are self-contained — every preset carries its full config, so
+      // use it directly with NO inheritance from defaultConfig (tuning the
+      // default can never leak into a preset). Colours come from refreshColors()
+      // (theme) and the font set (glyphs + fontFamily) is owned by setFontSet.
+      this.activeConfig = { ...preset.config };
       const activeSet = this.fontSets[this.activeFontSet];
       if (activeSet) this.activeConfig.fontFamily = activeSet.fontFamily;
-      Object.entries(preset.config).forEach(([param, value]) => {
-        this.updateParameter(param, value);
-      });
       this.activePresetName = presetName;
 
-      if (needsRebuild) {
-        this.start();
-      } else {
-        this.refreshColors();
-      }
+      // Presets define structural params (font/density/lineH), so always
+      // rebuild the grid; start() also applies the theme colours.
+      this.start();
 
       return {
         success: true,
