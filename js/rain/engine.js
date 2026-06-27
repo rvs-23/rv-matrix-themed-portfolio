@@ -4,9 +4,10 @@
  *
  * Rendering model: A persistent grid of characters covers the entire screen.
  * Streams are brightness cursors — they illuminate cells as they pass downward.
- * Cells decay toward a dim floor brightness, never fully black (except where
- * deletion streams erase). This eliminates the "streams on black" look and
- * creates the dense, luminous glyph field seen in the film.
+ * Cells decay toward `dimFloor`; when `dimFloor` is 0 (the current default and
+ * most presets) they reach true black, when it's > 0 they retain a faint
+ * persistent glyph field. Some presets (e.g. whisper, pulse) use a small floor
+ * for the dense, luminous look seen in the film.
  *
  * Film-inspired behaviors (Carl Newton's digital rain analysis):
  *  - Globally synchronized glyph mutations (all changes on the same frame)
@@ -394,7 +395,7 @@ export default class RainEngine {
     }
   }
 
-  /** Decay all grid cell brightnesses toward a dim floor (never fully black). */
+  /** Decay all grid cell brightnesses toward `dimFloor` (0 = fade to black). */
   decayGrid() {
     const decay = this.activeConfig.decayBase;
     const floor = this.activeConfig.dimFloor ?? 0;
@@ -751,6 +752,10 @@ export default class RainEngine {
     await this.setup();
     // A newer start() ran while we awaited setup() — let it own the loop.
     if (gen !== this._startGen) return;
+    // setup() already scatters + pre-illuminates a full field. Combined with
+    // starting on fonts.ready (main.js), the rain runs behind the loader and is
+    // already established/mid-stream when the loader's fade-out reveals it — so
+    // there's no startup "burst". No canvas fade needed.
     const now = performance.now();
     this.lastDecayTime = now - DECAY_INTERVAL_MS;
     this.loop(now);
@@ -779,9 +784,10 @@ export default class RainEngine {
   }
 
   /**
-   * Apply a named preset. Only rebuilds streams if structural parameters
-   * (font, density, lineH) change; otherwise streams adopt new values
-   * on their next natural reset cycle (preserves visual continuity).
+   * Apply a named preset. Presets are self-contained (each carries its full
+   * config), so this assigns the config directly — no inheritance from
+   * defaultConfig — then rebuilds the grid via start() (which also applies the
+   * current theme colours). The "default" preset resets to defaultConfig.
    */
   applyPreset(presetName) {
     const preset = this.presets[presetName];
@@ -793,29 +799,18 @@ export default class RainEngine {
     }
 
     if (preset.config) {
-      const needsRebuild =
-        preset.config.font !== undefined ||
-        preset.config.density !== undefined ||
-        preset.config.lineH !== undefined;
-
-      // Reset to defaults first so no stale values leak between presets.
-      this.activeConfig = { ...this.defaultConfig };
-      // The font set (glyphs + fontFamily, a matched pair) is owned by
-      // setFontSet, not by presets. Preserve the active set so switching presets
-      // never leaves glyphs and fontFamily out of sync; any fontFamily key in a
-      // preset is intentionally ignored (updateParameter has no rule for it).
+      // Presets are self-contained — every preset carries its full config, so
+      // use it directly with NO inheritance from defaultConfig (tuning the
+      // default can never leak into a preset). Colours come from refreshColors()
+      // (theme) and the font set (glyphs + fontFamily) is owned by setFontSet.
+      this.activeConfig = { ...preset.config };
       const activeSet = this.fontSets[this.activeFontSet];
       if (activeSet) this.activeConfig.fontFamily = activeSet.fontFamily;
-      Object.entries(preset.config).forEach(([param, value]) => {
-        this.updateParameter(param, value);
-      });
       this.activePresetName = presetName;
 
-      if (needsRebuild) {
-        this.start();
-      } else {
-        this.refreshColors();
-      }
+      // Presets define structural params (font/density/lineH), so always
+      // rebuild the grid; start() also applies the theme colours.
+      this.start();
 
       return {
         success: true,

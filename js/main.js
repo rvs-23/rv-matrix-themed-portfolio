@@ -104,13 +104,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const savedPreset = (() => {
     try { return localStorage.getItem("rv_preset"); } catch { return null; }
   })();
-  if (
-    rainEngine &&
-    savedPreset &&
-    rainEngine.presets &&
-    rainEngine.presets[savedPreset]
-  ) {
-    rainEngine.applyPreset(savedPreset);
+  if (rainEngine && savedPreset && rainEngine.presets) {
+    if (rainEngine.presets[savedPreset]) {
+      rainEngine.applyPreset(savedPreset);
+    } else {
+      // Saved preset no longer exists (e.g. removed in an update) — clear the
+      // stale value so it doesn't linger in localStorage.
+      try {
+        localStorage.removeItem("rv_preset");
+      } catch {
+        /* storage unavailable */
+      }
+    }
   }
 
   const commandContext = {
@@ -150,34 +155,40 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.hash === "#recruiter" ||
     new URLSearchParams(window.location.search).get("mode") === "recruiter";
 
-  Promise.all([
-    new Promise((resolve) => hideLoadingScreen(resolve)),
-    document.fonts.ready,
-  ])
-    .then(() => {
-      if (document.getElementById("contentContainer")) {
-        document.getElementById("contentContainer").style.opacity = "1";
-      }
-      if (rainEngine) rainEngine.start();
-      terminalController.focusInput();
+  // Reveal sequence — avoids the startup "burst" (incl. on hard refresh, where
+  // fonts reload): wait for fonts (so glyphs render) AND a minimum loader time,
+  // start the rain so it establishes behind the still-visible loader, then fade
+  // the loader out to reveal already-running, mid-stream rain.
+  const minLoaderTime = new Promise((resolve) => setTimeout(resolve, 700));
+  Promise.all([document.fonts.ready, minLoaderTime])
+    .then(async () => {
+      // Await the first render so the loader only fades onto a painted canvas
+      // (matters on slow / high-DPR devices); a rejection now hits .catch.
+      if (rainEngine) await rainEngine.start();
+      hideLoadingScreen(() => {
+        if (document.getElementById("contentContainer")) {
+          document.getElementById("contentContainer").style.opacity = "1";
+        }
+        terminalController.focusInput();
 
-      if (isRecruiterMode) {
-        setTimeout(() => {
-          registeredCommands.mission([], commandContext);
-        }, 400);
-      }
+        if (isRecruiterMode) {
+          setTimeout(() => {
+            registeredCommands.mission([], commandContext);
+          }, 400);
+        }
 
-      // Deep link: ?cmd=<name> runs one command on load. Allowlisted to
-      // registered, arg-less, [a-z]-only names — so a shared URL can never
-      // inject markup or run anything but a known command.
-      const deepLinkCmd = (
-        new URLSearchParams(window.location.search).get("cmd") || ""
-      )
-        .toLowerCase()
-        .replace(/[^a-z]/g, "");
-      if (deepLinkCmd && registeredCommands[deepLinkCmd]) {
-        setTimeout(() => terminalController.runCommand(deepLinkCmd), 500);
-      }
+        // Deep link: ?cmd=<name> runs one command on load. Allowlisted to
+        // registered, arg-less, [a-z]-only names — so a shared URL can never
+        // inject markup or run anything but a known command.
+        const deepLinkCmd = (
+          new URLSearchParams(window.location.search).get("cmd") || ""
+        )
+          .toLowerCase()
+          .replace(/[^a-z]/g, "");
+        if (deepLinkCmd && registeredCommands[deepLinkCmd]) {
+          setTimeout(() => terminalController.runCommand(deepLinkCmd), 500);
+        }
+      });
     })
     .catch((error) => {
       console.error("Error during final initialization step:", error);

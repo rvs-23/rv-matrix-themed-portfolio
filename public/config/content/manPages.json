@@ -78,7 +78,7 @@
     "name": "rain - Configure the Matrix rain animation.",
     "synopsis": "rain [subcommand] [value]",
     "description": "Umbrella command for all rain customisation. Run 'rain' with no arguments to see current config. Each subcommand controls a different aspect of the rain.\n\nSubcommands:\n  preset   — Apply a named visual preset\n  font     — Switch the glyph set\n  size     — Set glyph pixel size\n  gravity  — Control fall acceleration\n  glyphspeed — Control glyph mutation rate",
-    "arguments": "preset <name>             — Apply a preset. Options: default, comet, storm, whisper, pulse, ancient, emberfall, cascade, rainfall, frozen.\nfont <name>               — Switch font set: classic, resurrections, combined.\nsize <px> | reset         — Set glyph size (8–40px), or reset to default.\ngravity <level> | off     — Acceleration levels: moon, earth, jupiter.\nglyphspeed <1-30> | reset — Mutation rate. Lower = faster churn.",
+    "arguments": "preset <name>             — Apply a preset. Options: default, comet, storm, whisper, ancient, emberfall, rainfall, frozen.\nfont <name>               — Switch font set: classic, resurrections, combined.\nsize <px> | reset         — Set glyph size (8–40px), or reset to default.\ngravity <level> | off     — Acceleration levels: moon, earth, jupiter.\nglyphspeed <1-30> | reset — Mutation rate. Lower = faster churn.",
     "examples": [
       "rain                   - Shows current rain config.",
       "rain preset storm      - Applies the 'storm' preset.",
