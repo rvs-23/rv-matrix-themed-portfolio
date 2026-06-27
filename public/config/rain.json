@@ -328,12 +328,12 @@
     "minTrail": {
       "type": "int",
       "min": 1,
-      "max": 100
+      "max": 150
     },
     "maxTrail": {
       "type": "int",
       "min": 1,
-      "max": 100
+      "max": 150
     },
     "headGlowMin": {
       "type": "int",

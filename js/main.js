@@ -104,13 +104,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const savedPreset = (() => {
     try { return localStorage.getItem("rv_preset"); } catch { return null; }
   })();
-  if (
-    rainEngine &&
-    savedPreset &&
-    rainEngine.presets &&
-    rainEngine.presets[savedPreset]
-  ) {
-    rainEngine.applyPreset(savedPreset);
+  if (rainEngine && savedPreset && rainEngine.presets) {
+    if (rainEngine.presets[savedPreset]) {
+      rainEngine.applyPreset(savedPreset);
+    } else {
+      // Saved preset no longer exists (e.g. removed in an update) — clear the
+      // stale value so it doesn't linger in localStorage.
+      try {
+        localStorage.removeItem("rv_preset");
+      } catch {
+        /* storage unavailable */
+      }
+    }
   }
 
   const commandContext = {
@@ -156,8 +161,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // the loader out to reveal already-running, mid-stream rain.
   const minLoaderTime = new Promise((resolve) => setTimeout(resolve, 700));
   Promise.all([document.fonts.ready, minLoaderTime])
-    .then(() => {
-      if (rainEngine) rainEngine.start();
+    .then(async () => {
+      // Await the first render so the loader only fades onto a painted canvas
+      // (matters on slow / high-DPR devices); a rejection now hits .catch.
+      if (rainEngine) await rainEngine.start();
       hideLoadingScreen(() => {
         if (document.getElementById("contentContainer")) {
           document.getElementById("contentContainer").style.opacity = "1";

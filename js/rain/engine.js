@@ -4,9 +4,10 @@
  *
  * Rendering model: A persistent grid of characters covers the entire screen.
  * Streams are brightness cursors — they illuminate cells as they pass downward.
- * Cells decay toward a dim floor brightness, never fully black (except where
- * deletion streams erase). This eliminates the "streams on black" look and
- * creates the dense, luminous glyph field seen in the film.
+ * Cells decay toward `dimFloor`; when `dimFloor` is 0 (the current default and
+ * most presets) they reach true black, when it's > 0 they retain a faint
+ * persistent glyph field. Some presets (e.g. whisper, pulse) use a small floor
+ * for the dense, luminous look seen in the film.
  *
  * Film-inspired behaviors (Carl Newton's digital rain analysis):
  *  - Globally synchronized glyph mutations (all changes on the same frame)
@@ -394,7 +395,7 @@ export default class RainEngine {
     }
   }
 
-  /** Decay all grid cell brightnesses toward a dim floor (never fully black). */
+  /** Decay all grid cell brightnesses toward `dimFloor` (0 = fade to black). */
   decayGrid() {
     const decay = this.activeConfig.decayBase;
     const floor = this.activeConfig.dimFloor ?? 0;
@@ -783,9 +784,10 @@ export default class RainEngine {
   }
 
   /**
-   * Apply a named preset. Only rebuilds streams if structural parameters
-   * (font, density, lineH) change; otherwise streams adopt new values
-   * on their next natural reset cycle (preserves visual continuity).
+   * Apply a named preset. Presets are self-contained (each carries its full
+   * config), so this assigns the config directly — no inheritance from
+   * defaultConfig — then rebuilds the grid via start() (which also applies the
+   * current theme colours). The "default" preset resets to defaultConfig.
    */
   applyPreset(presetName) {
     const preset = this.presets[presetName];
