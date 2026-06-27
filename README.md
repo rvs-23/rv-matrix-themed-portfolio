@@ -251,7 +251,7 @@ The following commands are available. For detailed info, use `man <command_name>
 ### 5.2. Customization Options
 
 - **Themes:** `amber`, `crimson`, `ember`, `ghost`, `green` (default), `inferno`, `midnight`, `neuralstorm`, `phantom`, `reloaded`, `sakura`.
-- **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `pulse`, `ancient`, `emberfall`, `cascade`, `rainfall`, `frozen`.
+- **Rain Presets:** `default`, `comet`, `storm`, `whisper`, `ancient`, `emberfall`, `rainfall`, `frozen`.
 - **Rain Gravity:** `moon` (gentle), `earth` (natural), `jupiter` (heavy). Streams accelerate as they fall.
 - **Session Persistence:** Theme and rain preset are saved to localStorage and restored on reload. Use `reset` to clear.
 
