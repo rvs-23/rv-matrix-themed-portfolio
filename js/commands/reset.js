@@ -27,6 +27,9 @@ export default function resetCommand(_args, context) {
   // Reset terminal appearance (opacity, font size, window size) to defaults
   terminalController.resetTerminalAppearance();
 
+  // Exit recruiter mode (clears the highlighted bottom nav banner)
+  document.body.classList.remove("recruiter-mode");
+
   appendToTerminal(
     "<div class='output-success'>All preferences reset to defaults.</div>",
   );
