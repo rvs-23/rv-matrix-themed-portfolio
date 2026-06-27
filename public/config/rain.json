@@ -60,24 +60,24 @@
     "comet": {
       "description": "Fewer, long, bright-headed streams with slow fades.",
       "config": {
-        "speed": 50,
+        "speed": 38,
         "font": 20,
         "lineH": 1,
         "density": 0.35,
-        "minTrail": 60,
-        "maxTrail": 90,
-        "headGlowMin": 7,
-        "headGlowMax": 13,
-        "blur": 7,
+        "minTrail": 70,
+        "maxTrail": 120,
+        "headGlowMin": 9,
+        "headGlowMax": 18,
+        "blur": 10,
         "bloomRadius": 8,
         "bloomIntensity": 0.18,
         "decayBase": 0.965,
         "layers": 4,
         "layerOp": [
           1,
-          0.7,
-          0.45,
-          0.25
+          0.88,
+          0.65,
+          0.4
         ],
         "delChance": 0.02,
         "multiStream": 0.2,
