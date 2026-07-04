@@ -155,6 +155,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.hash === "#recruiter" ||
     new URLSearchParams(window.location.search).get("mode") === "recruiter";
 
+  // Shared by both the success and failure paths below so the terminal always
+  // becomes usable — even a failed rain start must not strand the loader.
+  function revealApp() {
+    if (document.getElementById("contentContainer")) {
+      document.getElementById("contentContainer").style.opacity = "1";
+    }
+    terminalController.focusInput();
+
+    if (isRecruiterMode) {
+      setTimeout(() => {
+        registeredCommands.mission([], commandContext);
+      }, 400);
+    }
+
+    // Deep link: ?cmd=<name> runs one command on load. Allowlisted to
+    // registered, arg-less, [a-z]-only names — so a shared URL can never
+    // inject markup or run anything but a known command.
+    const deepLinkCmd = (
+      new URLSearchParams(window.location.search).get("cmd") || ""
+    )
+      .toLowerCase()
+      .replace(/[^a-z]/g, "");
+    if (deepLinkCmd && registeredCommands[deepLinkCmd]) {
+      setTimeout(() => terminalController.runCommand(deepLinkCmd), 500);
+    }
+  }
+
   // Reveal sequence — avoids the startup "burst" (incl. on hard refresh, where
   // fonts reload): wait for fonts (so glyphs render) AND a minimum loader time,
   // start the rain so it establishes behind the still-visible loader, then fade
@@ -165,33 +192,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Await the first render so the loader only fades onto a painted canvas
       // (matters on slow / high-DPR devices); a rejection now hits .catch.
       if (rainEngine) await rainEngine.start();
-      hideLoadingScreen(() => {
-        if (document.getElementById("contentContainer")) {
-          document.getElementById("contentContainer").style.opacity = "1";
-        }
-        terminalController.focusInput();
-
-        if (isRecruiterMode) {
-          setTimeout(() => {
-            registeredCommands.mission([], commandContext);
-          }, 400);
-        }
-
-        // Deep link: ?cmd=<name> runs one command on load. Allowlisted to
-        // registered, arg-less, [a-z]-only names — so a shared URL can never
-        // inject markup or run anything but a known command.
-        const deepLinkCmd = (
-          new URLSearchParams(window.location.search).get("cmd") || ""
-        )
-          .toLowerCase()
-          .replace(/[^a-z]/g, "");
-        if (deepLinkCmd && registeredCommands[deepLinkCmd]) {
-          setTimeout(() => terminalController.runCommand(deepLinkCmd), 500);
-        }
-      });
+      hideLoadingScreen(revealApp);
     })
     .catch((error) => {
+      // Rain is non-essential — a rejection here must not strand the loader.
+      // Hide it, reveal the terminal exactly as the success path would, and
+      // say so on screen (the console.error alone is invisible to visitors).
       console.error("Error during final initialization step:", error);
+      hideLoadingScreen(() => {
+        revealApp();
+        terminalController.appendToTerminal(
+          '<div class="output-error">Rain failed to start — terminal still available.</div>',
+        );
+      });
     });
 
   window.addEventListener(
