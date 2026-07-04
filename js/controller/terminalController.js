@@ -627,6 +627,9 @@ export function resetTerminalAppearance() {
   }
 }
 
+const TERMINAL_HIDDEN_MSG = "Terminal hidden. Restore: Ctrl + \\ or nav icon.";
+const TERMINAL_RESTORED_MSG = "Terminal restored. Hide: Ctrl + \\ or nav icon.";
+
 export function toggleTerminalVisibility() {
   state.terminal.visible = !state.terminal.visible;
 
@@ -653,9 +656,7 @@ export function toggleTerminalVisibility() {
     );
 
     if (state.elements.output) {
-      appendToTerminal(
-        `<div>Terminal hidden. Restore: Ctrl + \\ or nav icon.</div>`,
-      );
+      appendToTerminal(`<div>${TERMINAL_HIDDEN_MSG}</div>`);
     }
   } else {
     // ---- SHOWING ----
@@ -689,13 +690,11 @@ export function toggleTerminalVisibility() {
       : "";
     if (
       !lastMessageText ||
-      (!lastMessageText.includes("Terminal interface hidden") &&
-        !lastMessageText.includes("Terminal interface restored"))
+      (!lastMessageText.includes(TERMINAL_HIDDEN_MSG) &&
+        !lastMessageText.includes(TERMINAL_RESTORED_MSG))
     ) {
       if (state.elements.output) {
-        appendToTerminal(
-          `<div>Terminal restored. Hide: Ctrl + \\ or nav icon.</div>`,
-        );
+        appendToTerminal(`<div>${TERMINAL_RESTORED_MSG}</div>`);
       }
     }
   }
