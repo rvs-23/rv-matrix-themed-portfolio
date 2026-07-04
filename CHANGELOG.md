@@ -32,6 +32,8 @@ issues found after 1.1.0.
   count.
 - **`screenshot`** now fails gracefully instead of leaking a raw
   `DOMException` when canvas capture isn't available.
+- **Mobile canvas sizing:** the rain canvas now sizes with `dvh` on mobile,
+  so browser-chrome show/hide (address bar, etc.) can't leave a sizing gap.
 
 ### Removed
 
