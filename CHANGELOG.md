@@ -3,6 +3,40 @@
 All notable changes to this project are documented here. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/); this project uses [SemVer](https://semver.org/).
 
+## [1.1.1] — 2026-07-04
+
+Follow-up fix release. Closes out boot-reliability and terminal-interaction
+issues found after 1.1.0.
+
+### Fixed
+
+- **Loader strand on rain failure:** if the rain engine failed to start, the
+  loader never hid. It now hides on failure just like on success, and reveals
+  the terminal with an on-screen notice.
+- **Silent rain death:** uncaught exceptions inside `start()` — including
+  those reachable from the resize and preset-apply paths — could kill the
+  rain loop with nothing shown on screen. Failures are now caught.
+- **`prefers-reduced-motion`:** users with reduced motion enabled saw a black
+  page instead of the rain; they now get one static rendered frame.
+- **Tab-completion lock:** repeated Tab presses could get stuck on the first
+  match instead of cycling (e.g. `s`+Tab never reached
+  `screenshot`/`skills`/`skilltree`/`sudo`; `theme `+Tab never moved past the
+  first theme). Tab now cycles through all completions sharing a prefix.
+- **`help`** now lists the `ask` command.
+- **Terminal-toggle duplicate messages:** the dedup guard didn't match the
+  actual appended text, so rapid toggling stacked duplicate lines.
+- **Command lookup ignoring inherited Object members:** `?cmd=constructor`
+  and typing `constructor` resolved to `Object`'s prototype instead of
+  hitting "command not found."
+- **`storm` preset** had one extra `layerOp` entry beyond its declared layer
+  count.
+- **`screenshot`** now fails gracefully instead of leaking a raw
+  `DOMException` when canvas capture isn't available.
+
+### Removed
+
+- The `changelog` terminal command. CHANGELOG.md itself is unaffected.
+
 ## [1.1.0] — 2026-06-11
 
 Review-driven fix release. A full-codebase review surfaced security,
