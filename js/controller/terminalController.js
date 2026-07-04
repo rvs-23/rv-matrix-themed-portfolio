@@ -20,7 +20,13 @@ const state = {
     defaultSize: { width: "50vw", height: "50vh" },
     opacity: 0.8,
   },
-  autocomplete: { prefix: "", suggestions: [], index: 0, commands: [] },
+  autocomplete: {
+    prefix: "",
+    suggestions: [],
+    index: 0,
+    commands: [],
+    lastApplied: "",
+  },
   config: { user: { userName: "User" }, welcomeMsg: "Welcome!" },
   commands: {},
   getContext: () => ({}),
@@ -94,6 +100,7 @@ export function initializeTerminalController(
         state.autocomplete.prefix = "";
         state.autocomplete.suggestions = [];
         state.autocomplete.index = 0;
+        state.autocomplete.lastApplied = "";
       }
     });
   }
@@ -179,6 +186,7 @@ export function runCommand(text) {
   state.autocomplete.prefix = "";
   state.autocomplete.suggestions = [];
   state.autocomplete.index = 0;
+  state.autocomplete.lastApplied = "";
   submitCommand(trimmed);
   focusInput();
 }
@@ -218,6 +226,7 @@ function handleCommandInputKeydown(e) {
       state.autocomplete.prefix = "";
       state.autocomplete.suggestions = [];
       state.autocomplete.index = 0;
+      state.autocomplete.lastApplied = "";
     }
   }
 
@@ -230,6 +239,7 @@ function handleCommandInputKeydown(e) {
     state.autocomplete.prefix = "";
     state.autocomplete.suggestions = [];
     state.autocomplete.index = 0;
+    state.autocomplete.lastApplied = "";
 
     submitCommand(fullCommandText);
   } else if (e.key === "ArrowUp") {
@@ -249,6 +259,7 @@ function handleCommandInputKeydown(e) {
     state.autocomplete.prefix = "";
     state.autocomplete.suggestions = [];
     state.autocomplete.index = 0;
+    state.autocomplete.lastApplied = "";
   } else if (e.key === "ArrowDown") {
     e.preventDefault();
     if (state.history.index < state.history.entries.length - 1) {
@@ -269,11 +280,36 @@ function handleCommandInputKeydown(e) {
     state.autocomplete.prefix = "";
     state.autocomplete.suggestions = [];
     state.autocomplete.index = 0;
+    state.autocomplete.lastApplied = "";
   }
 }
 
 function handleAutocomplete() {
   const currentFullInput = state.elements.input.value;
+
+  // A prior Tab writes a completion straight into input.value, which doesn't
+  // fire the 'input' listener (only real typing does), so lastApplied still
+  // matches here. Treat this as "keep cycling" instead of recomputing —
+  // otherwise the applied text gets reinterpreted as a brand-new prefix and
+  // the match list collapses to just itself, locking autocomplete on one word.
+  if (
+    currentFullInput === state.autocomplete.lastApplied &&
+    state.autocomplete.suggestions.length > 0
+  ) {
+    const baseCommand = currentFullInput.includes(" ")
+      ? currentFullInput.substring(0, currentFullInput.lastIndexOf(" ") + 1)
+      : "";
+    const suggestion =
+      baseCommand +
+      state.autocomplete.suggestions[
+        state.autocomplete.index % state.autocomplete.suggestions.length
+      ];
+    state.elements.input.value = suggestion;
+    state.autocomplete.lastApplied = suggestion;
+    state.autocomplete.index++;
+    return;
+  }
+
   const parts = currentFullInput.split(" ");
   const currentTypingPart =
     parts.length > 1 && !currentFullInput.endsWith(" ")
@@ -289,6 +325,7 @@ function handleAutocomplete() {
   ) {
     state.autocomplete.index = 0;
     state.autocomplete.prefix = currentFullInput;
+    state.autocomplete.lastApplied = "";
 
     const commandNamePart = currentFullInput.split(" ")[0].toLowerCase();
     if (
@@ -346,6 +383,7 @@ function handleAutocomplete() {
           suggestion = baseCommand + nextPotentialArg;
         } else {
           state.autocomplete.suggestions = [];
+          state.autocomplete.lastApplied = "";
           return;
         }
       }
@@ -353,11 +391,13 @@ function handleAutocomplete() {
 
     if (suggestion) {
       state.elements.input.value = suggestion;
+      state.autocomplete.lastApplied = suggestion;
       state.autocomplete.index++;
     }
   } else {
     state.autocomplete.index = 0;
     state.autocomplete.prefix = currentFullInput;
+    state.autocomplete.lastApplied = "";
   }
 }
 
@@ -437,7 +477,9 @@ async function processCommand(fullCommandText) {
   const commandName = parts[0] ? parts[0].toLowerCase() : "";
   const args = parts.slice(1);
 
-  const commandFunc = state.commands[commandName];
+  const commandFunc = Object.hasOwn(state.commands, commandName)
+    ? state.commands[commandName]
+    : undefined;
   const commandContext = state.getContext();
 
   if (typeof commandFunc === "function") {
@@ -585,6 +627,9 @@ export function resetTerminalAppearance() {
   }
 }
 
+const TERMINAL_HIDDEN_MSG = "Terminal hidden. Restore: Ctrl + \\ or nav icon.";
+const TERMINAL_RESTORED_MSG = "Terminal restored. Hide: Ctrl + \\ or nav icon.";
+
 export function toggleTerminalVisibility() {
   state.terminal.visible = !state.terminal.visible;
 
@@ -611,9 +656,7 @@ export function toggleTerminalVisibility() {
     );
 
     if (state.elements.output) {
-      appendToTerminal(
-        `<div>Terminal hidden. Restore: Ctrl + \\ or nav icon.</div>`,
-      );
+      appendToTerminal(`<div>${TERMINAL_HIDDEN_MSG}</div>`);
     }
   } else {
     // ---- SHOWING ----
@@ -647,13 +690,11 @@ export function toggleTerminalVisibility() {
       : "";
     if (
       !lastMessageText ||
-      (!lastMessageText.includes("Terminal interface hidden") &&
-        !lastMessageText.includes("Terminal interface restored"))
+      (!lastMessageText.includes(TERMINAL_HIDDEN_MSG) &&
+        !lastMessageText.includes(TERMINAL_RESTORED_MSG))
     ) {
       if (state.elements.output) {
-        appendToTerminal(
-          `<div>Terminal restored. Hide: Ctrl + \\ or nav icon.</div>`,
-        );
+        appendToTerminal(`<div>${TERMINAL_RESTORED_MSG}</div>`);
       }
     }
   }

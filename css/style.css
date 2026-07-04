@@ -144,6 +144,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
+  height: 100dvh;
   pointer-events: none;
   z-index: 3;
 }
@@ -904,10 +905,6 @@ body.crt-mode #matrix-canvas {
 
 /* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  #matrix-canvas {
-    display: none;
-  }
-
   .prompt-arrow {
     animation: none;
   }

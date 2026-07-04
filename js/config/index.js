@@ -205,6 +205,7 @@ export const help = {
     { cmd: "man <command>", display: "man <command>", desc: "Show detailed manual for a command." },
     { cmd: "clear", display: "clear", desc: "Clear terminal (keeps welcome)." },
     { cmd: "search [keyword]", display: "search [keyword]", desc: "Fuzzy search across hobbies, skills, and commands." },
+    { cmd: "ask <question>", display: "ask <question>", desc: "Plain-English question — routes to the best matching command." },
     { cmd: "date [timezone]", display: "date [timezone]", desc: "Display date/time. Optional: utc, est, etc." },
     { cmd: "screenshot", display: "screenshot", desc: "Save a PNG of the rain canvas." },
     { cmd: "reset", display: "reset", desc: "Reset all preferences to defaults." },

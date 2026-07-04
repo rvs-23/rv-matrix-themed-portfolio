@@ -49,26 +49,37 @@ export default function screenshotCommand(args, context) {
   const fileName = `matrix_rain_wallpaper_${userInitials}_${preset}_${theme}_${crt}_${time}.png`;
 
   // 3. Render at target resolution and download
-  rainEngine.captureHighRes(TARGET_W, TARGET_H).then((blob) => {
-    if (!blob) {
-      return appendToTerminal(
-        "<div class='output-error'>Screenshot failed.</div>",
-      );
-    }
+  const captureFailedMsg =
+    "<div class='output-error'>Screenshot failed — canvas capture isn't available in this browser.</div>";
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
+  // captureHighRes can throw synchronously (canvas InvalidStateError on some
+  // devices) as well as reject its promise — cover both instead of leaking a
+  // raw DOMException to the terminal.
+  try {
+    rainEngine
+      .captureHighRes(TARGET_W, TARGET_H)
+      .then((blob) => {
+        if (!blob) {
+          return appendToTerminal(captureFailedMsg);
+        }
 
-    setTimeout(() => {
-      URL.revokeObjectURL(link.href);
-      link.remove();
-    }, 4000);
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
 
-    appendToTerminal(
-      `<div class='output-success'>${messages.success(fileName, resolutionArg.toUpperCase())}</div>`,
-    );
-  });
+        setTimeout(() => {
+          URL.revokeObjectURL(link.href);
+          link.remove();
+        }, 4000);
+
+        appendToTerminal(
+          `<div class='output-success'>${messages.success(fileName, resolutionArg.toUpperCase())}</div>`,
+        );
+      })
+      .catch(() => appendToTerminal(captureFailedMsg));
+  } catch {
+    appendToTerminal(captureFailedMsg);
+  }
 }

@@ -621,8 +621,6 @@ export default class RainEngine {
    * Disables temporal dithering for a clean, stable capture.
    */
   captureHighRes(targetW, targetH) {
-    this.isCapturing = true;
-
     const offCanvas = document.createElement("canvas");
     offCanvas.width = targetW;
     offCanvas.height = targetH;
@@ -642,36 +640,41 @@ export default class RainEngine {
     const savedBloom = this.bloomCanvas;
     const savedBloomCtx = this.bloomCtx;
 
-    // Swap to offscreen canvas with scaled transform
-    this.canvas = offCanvas;
-    this.ctx = offCtx;
-    this.dpr = scale;
-    this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
-    this.ctx.textBaseline = "top";
+    try {
+      this.isCapturing = true;
 
-    // Scaled bloom canvas
-    this.bloomCanvas = document.createElement("canvas");
-    this.bloomCtx = this.bloomCanvas.getContext("2d");
-    this.bloomCanvas.width = Math.ceil(targetW * this.bloomScale);
-    this.bloomCanvas.height = Math.ceil(targetH * this.bloomScale);
+      // Swap to offscreen canvas with scaled transform
+      this.canvas = offCanvas;
+      this.ctx = offCtx;
+      this.dpr = scale;
+      this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
+      this.ctx.textBaseline = "top";
 
-    // Render current state at target resolution
-    const themeColors = getCurrentThemeColors();
-    this.renderGrid(themeColors);
+      // Scaled bloom canvas
+      this.bloomCanvas = document.createElement("canvas");
+      this.bloomCtx = this.bloomCanvas.getContext("2d");
+      this.bloomCanvas.width = Math.ceil(targetW * this.bloomScale);
+      this.bloomCanvas.height = Math.ceil(targetH * this.bloomScale);
 
-    const landingGlow = this.activeConfig.landingGlow ?? 0;
-    if (landingGlow > 0 && this.landingGlows.length > 0) {
-      this.renderLandingGlows(performance.now(), themeColors);
+      // Render current state at target resolution
+      const themeColors = getCurrentThemeColors();
+      this.renderGrid(themeColors);
+
+      const landingGlow = this.activeConfig.landingGlow ?? 0;
+      if (landingGlow > 0 && this.landingGlows.length > 0) {
+        this.renderLandingGlows(performance.now(), themeColors);
+      }
+    } finally {
+      // Restore engine state — even if a swap/render step above threw, the
+      // live engine must never keep pointing at the dead offscreen canvas.
+      this.canvas = savedCanvas;
+      this.ctx = savedCtx;
+      this.dpr = savedDpr;
+      this.bloomCanvas = savedBloom;
+      this.bloomCtx = savedBloomCtx;
+      this.isCapturing = false;
     }
-
-    // Restore engine state
-    this.canvas = savedCanvas;
-    this.ctx = savedCtx;
-    this.dpr = savedDpr;
-    this.bloomCanvas = savedBloom;
-    this.bloomCtx = savedBloomCtx;
-    this.isCapturing = false;
 
     return new Promise((resolve) => offCanvas.toBlob(resolve, "image/png"));
   }
@@ -739,26 +742,39 @@ export default class RainEngine {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (prefersReducedMotion) {
-      this.stop();
-      return;
-    }
 
     this.stop();
-    const gen = ++this._startGen;
-    this.refreshColors();
-    this.globalTick = 0;
-    this.stammerCounter = 0;
-    await this.setup();
-    // A newer start() ran while we awaited setup() — let it own the loop.
-    if (gen !== this._startGen) return;
-    // setup() already scatters + pre-illuminates a full field. Combined with
-    // starting on fonts.ready (main.js), the rain runs behind the loader and is
-    // already established/mid-stream when the loader's fade-out reveals it — so
-    // there's no startup "burst". No canvas fade needed.
-    const now = performance.now();
-    this.lastDecayTime = now - DECAY_INTERVAL_MS;
-    this.loop(now);
+    try {
+      const gen = ++this._startGen;
+      this.refreshColors();
+      this.globalTick = 0;
+      this.stammerCounter = 0;
+      await this.setup();
+      // A newer start() ran while we awaited setup() — let it own the loop.
+      if (gen !== this._startGen) return true;
+
+      if (prefersReducedMotion) {
+        // setup() already pre-illuminates a full field, so one static
+        // renderGrid() reads as paused rain rather than a blank canvas.
+        this.renderGrid(getCurrentThemeColors());
+        return true;
+      }
+      // setup() already scatters + pre-illuminates a full field. Combined with
+      // starting on fonts.ready (main.js), the rain runs behind the loader and is
+      // already established/mid-stream when the loader's fade-out reveals it — so
+      // there's no startup "burst". No canvas fade needed.
+      const now = performance.now();
+      this.lastDecayTime = now - DECAY_INTERVAL_MS;
+      this.loop(now);
+      return true;
+    } catch (err) {
+      // start() is fire-and-forget from every call site (resize, presets, font
+      // switches) — an uncaught rejection here would kill the rain with no
+      // trace. Fail loud but recoverable: log, stop cleanly, never throw.
+      console.error("RainEngine start failed:", err);
+      this.stop();
+      return false;
+    }
   }
 
   stop() {
