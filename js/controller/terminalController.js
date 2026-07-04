@@ -477,7 +477,9 @@ async function processCommand(fullCommandText) {
   const commandName = parts[0] ? parts[0].toLowerCase() : "";
   const args = parts.slice(1);
 
-  const commandFunc = state.commands[commandName];
+  const commandFunc = Object.hasOwn(state.commands, commandName)
+    ? state.commands[commandName]
+    : undefined;
   const commandContext = state.getContext();
 
   if (typeof commandFunc === "function") {

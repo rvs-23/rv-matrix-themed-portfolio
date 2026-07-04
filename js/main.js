@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     )
       .toLowerCase()
       .replace(/[^a-z]/g, "");
-    if (deepLinkCmd && registeredCommands[deepLinkCmd]) {
+    if (deepLinkCmd && Object.hasOwn(registeredCommands, deepLinkCmd)) {
       setTimeout(() => terminalController.runCommand(deepLinkCmd), 500);
     }
   }
