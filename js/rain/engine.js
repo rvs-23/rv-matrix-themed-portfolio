@@ -621,8 +621,6 @@ export default class RainEngine {
    * Disables temporal dithering for a clean, stable capture.
    */
   captureHighRes(targetW, targetH) {
-    this.isCapturing = true;
-
     const offCanvas = document.createElement("canvas");
     offCanvas.width = targetW;
     offCanvas.height = targetH;
@@ -642,36 +640,41 @@ export default class RainEngine {
     const savedBloom = this.bloomCanvas;
     const savedBloomCtx = this.bloomCtx;
 
-    // Swap to offscreen canvas with scaled transform
-    this.canvas = offCanvas;
-    this.ctx = offCtx;
-    this.dpr = scale;
-    this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
-    this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
-    this.ctx.textBaseline = "top";
+    try {
+      this.isCapturing = true;
 
-    // Scaled bloom canvas
-    this.bloomCanvas = document.createElement("canvas");
-    this.bloomCtx = this.bloomCanvas.getContext("2d");
-    this.bloomCanvas.width = Math.ceil(targetW * this.bloomScale);
-    this.bloomCanvas.height = Math.ceil(targetH * this.bloomScale);
+      // Swap to offscreen canvas with scaled transform
+      this.canvas = offCanvas;
+      this.ctx = offCtx;
+      this.dpr = scale;
+      this.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      this.ctx.font = `${this.activeConfig.font}px ${this.activeConfig.fontFamily}`;
+      this.ctx.textBaseline = "top";
 
-    // Render current state at target resolution
-    const themeColors = getCurrentThemeColors();
-    this.renderGrid(themeColors);
+      // Scaled bloom canvas
+      this.bloomCanvas = document.createElement("canvas");
+      this.bloomCtx = this.bloomCanvas.getContext("2d");
+      this.bloomCanvas.width = Math.ceil(targetW * this.bloomScale);
+      this.bloomCanvas.height = Math.ceil(targetH * this.bloomScale);
 
-    const landingGlow = this.activeConfig.landingGlow ?? 0;
-    if (landingGlow > 0 && this.landingGlows.length > 0) {
-      this.renderLandingGlows(performance.now(), themeColors);
+      // Render current state at target resolution
+      const themeColors = getCurrentThemeColors();
+      this.renderGrid(themeColors);
+
+      const landingGlow = this.activeConfig.landingGlow ?? 0;
+      if (landingGlow > 0 && this.landingGlows.length > 0) {
+        this.renderLandingGlows(performance.now(), themeColors);
+      }
+    } finally {
+      // Restore engine state — even if a swap/render step above threw, the
+      // live engine must never keep pointing at the dead offscreen canvas.
+      this.canvas = savedCanvas;
+      this.ctx = savedCtx;
+      this.dpr = savedDpr;
+      this.bloomCanvas = savedBloom;
+      this.bloomCtx = savedBloomCtx;
+      this.isCapturing = false;
     }
-
-    // Restore engine state
-    this.canvas = savedCanvas;
-    this.ctx = savedCtx;
-    this.dpr = savedDpr;
-    this.bloomCanvas = savedBloom;
-    this.bloomCtx = savedBloomCtx;
-    this.isCapturing = false;
 
     return new Promise((resolve) => offCanvas.toBlob(resolve, "image/png"));
   }
