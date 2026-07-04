@@ -748,13 +748,13 @@ export default class RainEngine {
       this.stammerCounter = 0;
       await this.setup();
       // A newer start() ran while we awaited setup() — let it own the loop.
-      if (gen !== this._startGen) return;
+      if (gen !== this._startGen) return true;
 
       if (prefersReducedMotion) {
         // setup() already pre-illuminates a full field, so one static
         // renderGrid() reads as paused rain rather than a blank canvas.
         this.renderGrid(getCurrentThemeColors());
-        return;
+        return true;
       }
       // setup() already scatters + pre-illuminates a full field. Combined with
       // starting on fonts.ready (main.js), the rain runs behind the loader and is
@@ -763,12 +763,14 @@ export default class RainEngine {
       const now = performance.now();
       this.lastDecayTime = now - DECAY_INTERVAL_MS;
       this.loop(now);
+      return true;
     } catch (err) {
       // start() is fire-and-forget from every call site (resize, presets, font
       // switches) — an uncaught rejection here would kill the rain with no
       // trace. Fail loud but recoverable: log, stop cleanly, never throw.
       console.error("RainEngine start failed:", err);
       this.stop();
+      return false;
     }
   }
 

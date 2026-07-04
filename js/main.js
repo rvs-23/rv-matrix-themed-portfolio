@@ -191,8 +191,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     .then(async () => {
       // Await the first render so the loader only fades onto a painted canvas
       // (matters on slow / high-DPR devices); a rejection now hits .catch.
-      if (rainEngine) await rainEngine.start();
-      hideLoadingScreen(revealApp);
+      let rainOk = true;
+      if (rainEngine) rainOk = (await rainEngine.start()) !== false;
+      hideLoadingScreen(() => {
+        revealApp();
+        if (!rainOk) {
+          terminalController.appendToTerminal(
+            '<div class="output-error">Rain failed to start — terminal still available.</div>',
+          );
+        }
+      });
     })
     .catch((error) => {
       // Rain is non-essential — a rejection here must not strand the loader.
@@ -202,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       hideLoadingScreen(() => {
         revealApp();
         terminalController.appendToTerminal(
-          '<div class="output-error">Rain failed to start — terminal still available.</div>',
+          '<div class="output-error">Startup error — terminal still available.</div>',
         );
       });
     });
