@@ -745,20 +745,28 @@ export default class RainEngine {
     }
 
     this.stop();
-    const gen = ++this._startGen;
-    this.refreshColors();
-    this.globalTick = 0;
-    this.stammerCounter = 0;
-    await this.setup();
-    // A newer start() ran while we awaited setup() — let it own the loop.
-    if (gen !== this._startGen) return;
-    // setup() already scatters + pre-illuminates a full field. Combined with
-    // starting on fonts.ready (main.js), the rain runs behind the loader and is
-    // already established/mid-stream when the loader's fade-out reveals it — so
-    // there's no startup "burst". No canvas fade needed.
-    const now = performance.now();
-    this.lastDecayTime = now - DECAY_INTERVAL_MS;
-    this.loop(now);
+    try {
+      const gen = ++this._startGen;
+      this.refreshColors();
+      this.globalTick = 0;
+      this.stammerCounter = 0;
+      await this.setup();
+      // A newer start() ran while we awaited setup() — let it own the loop.
+      if (gen !== this._startGen) return;
+      // setup() already scatters + pre-illuminates a full field. Combined with
+      // starting on fonts.ready (main.js), the rain runs behind the loader and is
+      // already established/mid-stream when the loader's fade-out reveals it — so
+      // there's no startup "burst". No canvas fade needed.
+      const now = performance.now();
+      this.lastDecayTime = now - DECAY_INTERVAL_MS;
+      this.loop(now);
+    } catch (err) {
+      // start() is fire-and-forget from every call site (resize, presets, font
+      // switches) — an uncaught rejection here would kill the rain with no
+      // trace. Fail loud but recoverable: log, stop cleanly, never throw.
+      console.error("RainEngine start failed:", err);
+      this.stop();
+    }
   }
 
   stop() {
