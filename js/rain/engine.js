@@ -739,10 +739,6 @@ export default class RainEngine {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (prefersReducedMotion) {
-      this.stop();
-      return;
-    }
 
     this.stop();
     try {
@@ -753,6 +749,13 @@ export default class RainEngine {
       await this.setup();
       // A newer start() ran while we awaited setup() — let it own the loop.
       if (gen !== this._startGen) return;
+
+      if (prefersReducedMotion) {
+        // setup() already pre-illuminates a full field, so one static
+        // renderGrid() reads as paused rain rather than a blank canvas.
+        this.renderGrid(getCurrentThemeColors());
+        return;
+      }
       // setup() already scatters + pre-illuminates a full field. Combined with
       // starting on fonts.ready (main.js), the rain runs behind the loader and is
       // already established/mid-stream when the loader's fade-out reveals it — so

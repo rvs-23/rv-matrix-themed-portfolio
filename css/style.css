@@ -904,10 +904,6 @@ body.crt-mode #matrix-canvas {
 
 /* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  #matrix-canvas {
-    display: none;
-  }
-
   .prompt-arrow {
     animation: none;
   }
