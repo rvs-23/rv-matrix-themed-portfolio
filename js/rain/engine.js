@@ -331,10 +331,12 @@ export default class RainEngine {
     this.isCapturing = false;
 
     /**
-     * Brightness→colour lookup table (LUT_SIZE "#rrggbb" strings). Rebuilt only
-     * on palette change in refreshColors(); renderGrid indexes it per cell. Null
-     * until the first refreshColors()/render.
+     * Cached resolved theme colours + the brightness→colour LUT derived from
+     * them. Both are rebuilt only on palette change (refreshColors, which the
+     * `theme` command calls on every switch), so the render loop reads these
+     * instead of calling getComputedStyle ~60×/s. Null until first refresh.
      */
+    this.themeColors = null;
     this.colorLUT = null;
 
     this._resizeTimeout = null;
@@ -767,7 +769,10 @@ export default class RainEngine {
   }
 
   loop = (timestamp) => {
-    const themeColors = getCurrentThemeColors();
+    // Theme colours are cached (refreshColors on every theme change) so the
+    // render path never calls getComputedStyle. Fallback only if the cache is
+    // somehow unset — refreshColors() always runs in start() before the loop.
+    const themeColors = this.themeColors || getCurrentThemeColors();
     this.globalTick++;
 
     // Decay brightness at ~30fps
@@ -843,7 +848,8 @@ export default class RainEngine {
       if (prefersReducedMotion) {
         // setup() already pre-illuminates a full field, so one static
         // renderGrid() reads as paused rain rather than a blank canvas.
-        this.renderGrid(getCurrentThemeColors());
+        // refreshColors() ran above, so the cached colours are current.
+        this.renderGrid(this.themeColors || getCurrentThemeColors());
         return true;
       }
       // setup() already scatters + pre-illuminates a full field. Combined with
@@ -949,6 +955,9 @@ export default class RainEngine {
 
   refreshColors() {
     const themeColors = getCurrentThemeColors();
+    // Cache the resolved colours so the render path (loop/renderGrid) never
+    // re-reads getComputedStyle; this is the only place they're refreshed.
+    this.themeColors = themeColors;
     this.activeConfig.baseCol = themeColors.primary;
     this.activeConfig.headCol = themeColors.glow;
     this._buildColorLUT(themeColors);
