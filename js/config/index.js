@@ -178,6 +178,32 @@ export const matrixQuotes = [
   "You are not the anomaly. You are the expected exception.",
 ];
 
+// -- THEME REGISTRY --
+// Single source of truth for the theme *name list*. The actual colours live in
+// css/themes.css (`body.theme-<name>`) — CSS is presentation. This registry is
+// the authority for which theme names exist, so `availableThemes`, the `theme`
+// tab-completion, and the `theme` man page all derive from it instead of each
+// keeping their own hardcoded copy.
+//
+// Keys are the theme names (used as `theme-<name>` body classes and in
+// `theme <name>`). `label` is a human-friendly display name for future UI.
+// A `palette` key is intentionally left out for now: without one, the rain
+// engine derives each theme's palette from its existing CSS variables, so
+// every theme keeps its current look. (Reserved for hand-tuned palettes later.)
+export const themes = {
+  amber: { label: "Amber" },
+  crimson: { label: "Crimson" },
+  ember: { label: "Ember" },
+  ghost: { label: "Ghost" },
+  green: { label: "Matrix Green" },
+  inferno: { label: "Inferno" },
+  midnight: { label: "Midnight" },
+  neuralstorm: { label: "Neural Storm" },
+  phantom: { label: "Phantom" },
+  reloaded: { label: "Reloaded" },
+  sakura: { label: "Sakura" },
+};
+
 // -- COMMAND: HELP --
 export const help = {
   title: "AVAILABLE COMMANDS",
@@ -210,19 +236,11 @@ export const help = {
     { cmd: "screenshot", display: "screenshot", desc: "Save a PNG of the rain canvas." },
     { cmd: "reset", display: "reset", desc: "Reset all preferences to defaults." },
   ],
-  availableThemes: [
-    "amber",
-    "crimson",
-    "ember",
-    "ghost",
-    "green",
-    "inferno",
-    "midnight",
-    "neuralstorm",
-    "phantom",
-    "reloaded",
-    "sakura",
-  ],
+  // Derived from the theme registry — the single source for theme names.
+  // Runtime shape is unchanged (an array of theme-name strings), so every
+  // existing reader (applyTheme validation, tab-completion, help text) works
+  // as before.
+  availableThemes: Object.keys(themes),
 };
 
 export const rainfont = {

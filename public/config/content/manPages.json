@@ -72,7 +72,7 @@
       "theme neuralstorm  - Switches to the neural-storm theme."
     ],
     "available_themes": "amber, crimson, ember, ghost, green (default), inferno, midnight, neuralstorm, phantom, reloaded, sakura.",
-    "notes": "Theme changes also update the rain colors. Use 'reset' to revert to defaults."
+    "notes": "Theme changes also update the rain colors. Use 'reset' to revert to defaults. The theme list above mirrors the config theme registry — press Tab after 'theme' to autocomplete the full set."
   },
   "rain": {
     "name": "rain - Configure the Matrix rain animation.",
