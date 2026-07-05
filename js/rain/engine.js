@@ -225,14 +225,14 @@ export default class RainEngine {
     this.activePresetName = "default";
     this.fontSets = rainConfig.fontSets || {};
 
-    // Default to classic (original 1999 Matrix) font set
-    const defaultFontSet = this.fontSets.classic;
+    // Default to the combined set (1999 katakana + the Resurrections glyphs).
+    const defaultFontSet = this.fontSets.combined;
     if (defaultFontSet) {
       this.glyphs = defaultFontSet.glyphs;
       this.activeConfig.fontFamily = defaultFontSet.fontFamily;
       this.defaultConfig.fontFamily = defaultFontSet.fontFamily;
     }
-    this.activeFontSet = "classic";
+    this.activeFontSet = "combined";
     this.streams = [];
     this.grid = [];
     this.totalCols = 0;
@@ -787,13 +787,13 @@ export default class RainEngine {
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
-    // Factory reset also restores the default (classic) font set so glyphs and
+    // Factory reset also restores the default (combined) font set so glyphs and
     // fontFamily can't be left desynced by an earlier `rain font` switch.
-    const classic = this.fontSets.classic;
-    if (classic) {
-      this.glyphs = classic.glyphs;
-      this.activeConfig.fontFamily = classic.fontFamily;
-      this.activeFontSet = "classic";
+    const combined = this.fontSets.combined;
+    if (combined) {
+      this.glyphs = combined.glyphs;
+      this.activeConfig.fontFamily = combined.fontFamily;
+      this.activeFontSet = "combined";
     }
     this.start();
     return { success: true, message: "Rain reset to defaults." };
