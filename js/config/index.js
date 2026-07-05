@@ -377,4 +377,9 @@ export const sentientRainPhrases = [
   "This is your last chance",
   "After this, there is no going back",
   "Remember, all I'm offering is the truth",
+  // The stack, woven into the rain (Latin renders via the monospace fallback).
+  "PYTHON",
+  "PYTORCH",
+  "SQL",
+  "SPARK",
 ];
