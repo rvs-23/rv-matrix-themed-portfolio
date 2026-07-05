@@ -33,6 +33,78 @@ const randRange = (min, max) => min + randInt(max - min + 1);
 /** Brightness decay runs at this interval (~30fps). */
 const DECAY_INTERVAL_MS = 33;
 
+/** Size of the brightness→colour lookup table (one entry per ~1.5% of range). */
+const LUT_SIZE = 64;
+const LUT_LAST = LUT_SIZE - 1;
+
+/**
+ * Parse a CSS colour string (#rgb, #rrggbb, or rgb()/rgba()) to {r,g,b}.
+ * Falls back to the supplied colour if it can't be parsed. Used only when the
+ * palette LUT is (re)built, never on the per-frame render path.
+ */
+function parseColorRGB(str, fallback) {
+  if (typeof str === "string") {
+    const s = str.trim();
+    if (s[0] === "#") {
+      const hex = s.slice(1);
+      if (hex.length === 3) {
+        const r = parseInt(hex[0] + hex[0], 16);
+        const g = parseInt(hex[1] + hex[1], 16);
+        const b = parseInt(hex[2] + hex[2], 16);
+        if (!isNaN(r) && !isNaN(g) && !isNaN(b)) return { r, g, b };
+      } else if (hex.length === 6) {
+        const r = parseInt(hex.slice(0, 2), 16);
+        const g = parseInt(hex.slice(2, 4), 16);
+        const b = parseInt(hex.slice(4, 6), 16);
+        if (!isNaN(r) && !isNaN(g) && !isNaN(b)) return { r, g, b };
+      }
+    } else {
+      const m = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i.exec(s);
+      if (m) return { r: +m[1], g: +m[2], b: +m[3] };
+    }
+  }
+  return fallback;
+}
+
+/** Format 0..255 channels as a "#rrggbb" string. */
+function rgbToHex(r, g, b) {
+  const h = (n) => {
+    const v = n < 0 ? 0 : n > 255 ? 255 : Math.round(n);
+    return v < 16 ? "0" + v.toString(16) : v.toString(16);
+  };
+  return "#" + h(r) + h(g) + h(b);
+}
+
+/**
+ * Build a 64-entry brightness→colour lookup table by linearly interpolating an
+ * ordered list of palette stops. Colours below the first stop and above the
+ * last clamp to those endpoints (so the head stays a flat cursor colour). Runs
+ * only on palette change — the render loop just indexes the result.
+ * @param {{at:number, c:{r:number,g:number,b:number}}[]} stops ascending `at`
+ * @returns {string[]} LUT_SIZE "#rrggbb" strings
+ */
+function buildLUT(stops) {
+  const lut = new Array(LUT_SIZE);
+  const last = stops.length - 1;
+  for (let i = 0; i < LUT_SIZE; i++) {
+    const pos = i / LUT_LAST; // 0..1 across the table
+    // Advance to the segment [stops[s], stops[s+1]] that contains `pos`.
+    let s = 0;
+    while (s < last && pos > stops[s + 1].at) s++;
+    const a = stops[s];
+    const bStop = stops[s + 1] ?? a;
+    const span = bStop.at - a.at;
+    const t = span > 0 ? (pos - a.at) / span : 0;
+    const tc = t < 0 ? 0 : t > 1 ? 1 : t;
+    lut[i] = rgbToHex(
+      a.c.r + (bStop.c.r - a.c.r) * tc,
+      a.c.g + (bStop.c.g - a.c.g) * tc,
+      a.c.b + (bStop.c.b - a.c.b) * tc,
+    );
+  }
+  return lut;
+}
+
 /* ── Stream (brightness cursor) ──────────────────────────────────────── */
 
 class Stream {
@@ -258,6 +330,13 @@ export default class RainEngine {
     /** True during high-res capture — disables temporal dithering. */
     this.isCapturing = false;
 
+    /**
+     * Brightness→colour lookup table (LUT_SIZE "#rrggbb" strings). Rebuilt only
+     * on palette change in refreshColors(); renderGrid indexes it per cell. Null
+     * until the first refreshColors()/render.
+     */
+    this.colorLUT = null;
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
@@ -442,11 +521,14 @@ export default class RainEngine {
    * Brighter cells glow more intensely, creating the luminous cascade
    * seen in the film.
    *
-   * Color mapping:
-   *  [0.85, 1.0] → white          (head)
-   *  [0.2, 0.85) → headCol/glow   (neon glow region)
-   *  (0.01, 0.2) → baseCol        (trail body)
-   *  ≤ 0.01       → skip          (black / not drawn)
+   * Color mapping: the colour comes from the precomputed brightness→colour LUT
+   * (built per palette change, indexed by brightness here), which ramps
+   * background → primary → glow → white cursor. Alpha stays keyed off the same
+   * brightness bands as before:
+   *  [0.85, 1.0] → alpha 1.0                (head)
+   *  [0.2, 0.85) → alpha 0.7..1.0           (neon glow region)
+   *  (0.01, 0.2) → alpha 0..0.8 (b * 4)     (trail body)
+   *  ≤ 0.01       → skip                     (black / not drawn)
    *
    * Second pass: full-screen bloom (offscreen blur + additive composite).
    */
@@ -477,6 +559,11 @@ export default class RainEngine {
     const maxBlur = blurScale * 0.65;
     const capturing = this.isCapturing;
 
+    // Palette LUT — normally built in refreshColors(); guard covers a render
+    // that somehow precedes the first refreshColors().
+    if (!this.colorLUT) this._buildColorLUT(themeColors);
+    const lut = this.colorLUT;
+
     for (let c = 0; c < this.totalCols; c++) {
       const x = c * colW;
       const col = this.grid[c];
@@ -493,20 +580,20 @@ export default class RainEngine {
           b += 0.15 + Math.random() * 0.1;
         }
 
-        let color, alpha;
+        let alpha;
 
         if (b >= 0.85) {
-          color = "#ffffff";
           alpha = 1.0;
         } else if (b >= 0.2) {
-          color = CFG.headCol;
           alpha = 0.7 + ((b - 0.2) / 0.65) * 0.3;
         } else if (b > 0.01) {
-          color = CFG.baseCol;
           alpha = Math.min(1.0, b * 4.0);
         } else {
           continue;
         }
+
+        // Colour from the LUT (background → primary → glow → white cursor).
+        const color = lut[Math.min(LUT_LAST, (b * LUT_SIZE) | 0)];
 
         // Per-cell glow with clamp to preserve glyph legibility
         ctx.shadowBlur = b > 0.15 ? Math.min(b * blurScale, maxBlur) : 0;
@@ -864,6 +951,35 @@ export default class RainEngine {
     const themeColors = getCurrentThemeColors();
     this.activeConfig.baseCol = themeColors.primary;
     this.activeConfig.headCol = themeColors.glow;
+    this._buildColorLUT(themeColors);
+  }
+
+  /**
+   * Rebuild the brightness→colour LUT for the current theme. Called only on
+   * palette change (refreshColors / theme apply), never per frame, so the
+   * render loop stays allocation-free.
+   *
+   * No per-theme palette is authored yet, so the palette is DERIVED from the
+   * theme's existing colours: a gradient from the background at brightness 0,
+   * through the primary trail colour, up into the glow band, ending in a white
+   * cursor at the head (clamped flat for brightness >= ~0.85). This reproduces
+   * the previous three-band mapping (primary → glow → white) as a smooth ramp.
+   * A future explicit `palette` in the theme registry would replace these stops.
+   */
+  _buildColorLUT(themeColors) {
+    const bg = parseColorRGB(themeColors.background, { r: 0, g: 0, b: 0 });
+    const primary = parseColorRGB(themeColors.primary, { r: 0, g: 255, b: 0 });
+    const glow = parseColorRGB(themeColors.glow, { r: 159, g: 255, b: 159 });
+    const cursor = { r: 255, g: 255, b: 255 }; // white head
+
+    // Ordered stops (ascending `at`). Positions mirror the old bands: primary
+    // owns the low-mid trail, glow the upper-mid, white the head from ~0.85 up.
+    this.colorLUT = buildLUT([
+      { at: 0.0, c: bg },
+      { at: 0.08, c: primary },
+      { at: 0.5, c: glow },
+      { at: 0.85, c: cursor },
+    ]);
   }
 
   /**
