@@ -69,11 +69,16 @@ the name up, and calls it (trimmed here for clarity):
 ```js
 const commandName = parts[0].toLowerCase();
 const args = parts.slice(1);
-const commandFunc = state.commands[commandName];
+const commandFunc = Object.hasOwn(state.commands, commandName)
+  ? state.commands[commandName]
+  : undefined;
 if (typeof commandFunc === "function") {
   commandFunc(args, commandContext);
 }
 ```
+
+The `Object.hasOwn` guard rejects names like `constructor` that exist on every
+JavaScript object but were never registered as commands.
 
 Every command finally prints by calling `appendToTerminal`, which is the one
 function that touches the output DOM:

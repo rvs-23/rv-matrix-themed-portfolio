@@ -5,9 +5,7 @@ read the profile, and a full-screen digital-rain animation runs behind it.
 
 Live: [rvs23.dev](https://rvs23.dev/)
 
-<!-- TODO: generate via the screenshot command (run `screenshot` in the live
-     terminal, then save the PNG here as media/rain-capture.png) -->
-![The terminal over the Matrix rain](media/rain-capture.png)
+![Matrix digital rain](primer/assets/rain-capture.png)
 
 ## Quick start
 
