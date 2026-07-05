@@ -8,6 +8,7 @@ import {
   getLongestCommonSubsequence,
 } from "../utils.js";
 import { recordEgg } from "../eggs.js";
+import { decodeReveal } from "../effects/decode.js";
 
 const MAX_HISTORY = 100;
 
@@ -122,7 +123,7 @@ export function initializeTerminalController(
     });
   }
 
-  displayInitialWelcomeMessage();
+  displayInitialWelcomeMessage(true);
   renderCommandChips();
   document.body.classList.remove("terminal-hidden");
 
@@ -560,13 +561,43 @@ async function processCommand(fullCommandText) {
   }
 }
 
-function displayInitialWelcomeMessage() {
-  if (state.elements.output && state.config.welcomeMsg) {
-    appendToTerminal(
-      state.config.welcomeMsg.replace(/\n/g, "<br/>"),
-      "output-welcome-wrapper",
-    );
+// Holds the deferred decode-on-load tagline animation until the loader fades.
+let pendingWelcomeDecode = null;
+
+function displayInitialWelcomeMessage(animate = false) {
+  if (!state.elements.output || !state.config.welcomeMsg) return;
+
+  // welcomeMsg is "<name banner>\n<tagline>". Show the banner instantly; the
+  // tagline can decode-reveal on first load only (not on every `clear`).
+  const [nameHtml, ...taglineParts] = state.config.welcomeMsg.split("\n");
+  const tagline = taglineParts.join(" ");
+  const wrapper = appendToTerminal(
+    `${nameHtml}<br/><span class="welcome-tagline"></span>`,
+    "output-welcome-wrapper",
+  );
+  const taglineEl = wrapper?.querySelector(".welcome-tagline");
+  if (!taglineEl) return;
+
+  const reduce = window.matchMedia?.(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  if (animate && !reduce) {
+    // Stash the decode rather than running it now: init happens behind the
+    // still-visible loader, so playing it here would finish unseen. main.js
+    // calls playWelcomeDecode() once the loader fades and the terminal shows.
+    pendingWelcomeDecode = () =>
+      decodeReveal(taglineEl, tagline, { duration: 900 });
+  } else {
+    taglineEl.textContent = tagline;
   }
+}
+
+/** Play the deferred decode-on-load tagline (once, after the loader hides). */
+export function playWelcomeDecode() {
+  if (!pendingWelcomeDecode) return;
+  const run = pendingWelcomeDecode;
+  pendingWelcomeDecode = null;
+  run(); // fire-and-forget: decoration, never blocks input
 }
 
 export function clearTerminalOutput() {

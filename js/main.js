@@ -163,6 +163,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     terminalController.focusInput();
 
+    // Now that the loader has faded and the terminal is visible, play the
+    // decode-on-load tagline (no-op if reduced motion / already played).
+    terminalController.playWelcomeDecode();
+
     if (isRecruiterMode) {
       setTimeout(() => {
         registeredCommands.mission([], commandContext);
