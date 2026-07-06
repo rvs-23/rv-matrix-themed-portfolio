@@ -298,7 +298,7 @@
         "landingGlow": 0,
         "landingGlowSize": 60,
         "dimFloor": 0,
-        "sentientChance": 0,
+        "sentientChance": 0.25,
         "minStreamGap": 12
       }
     }

@@ -208,14 +208,17 @@ class Stream {
         // Deletion streams erase ~50% of cells they pass through
         if (Math.random() < 0.5) {
           cell.brightness = 0;
+          cell.sentient = false;
         }
       } else {
         // Set character at head position
         if (this.isSentient && this.sentientIndex < this.sentientText.length) {
           cell.char = this.sentientText[this.sentientIndex++];
+          cell.sentient = true; // protect this glyph from the mutation pass
         } else {
           this.headChar = this.randChar();
           cell.char = this.headChar;
+          cell.sentient = false;
         }
         // Peak brightness from layer opacity (sentient = ghostly 60%)
         cell.brightness = this.isSentient
@@ -402,6 +405,9 @@ export default class RainEngine {
         char: this.randChar(),
         prevChar: null,
         brightness: 0,
+        // Set while a sentient stream owns this cell (spelling a phrase); the
+        // glyph mutation pass skips these so the words stay readable.
+        sentient: false,
       })),
     );
 
@@ -491,9 +497,13 @@ export default class RainEngine {
           // creating gritty analogue fade instead of smooth decay
           if (cell.brightness < 0.12 && cell.brightness > floorThreshold && Math.random() < 0.15) {
             cell.brightness = floor;
+            cell.sentient = false; // phrase has faded; release the cell
             continue;
           }
-          if (cell.brightness < floorThreshold) cell.brightness = floor;
+          if (cell.brightness < floorThreshold) {
+            cell.brightness = floor;
+            cell.sentient = false;
+          }
         }
       }
     }
@@ -507,6 +517,11 @@ export default class RainEngine {
       const col = this.grid[c];
       for (let r = 0; r < this.gridRows; r++) {
         const cell = col[r];
+        // Sentient cells spell a phrase — never mutate them or the words scramble.
+        if (cell.sentient) {
+          cell.prevChar = null;
+          continue;
+        }
         if (Math.random() < mutationChance) {
           cell.prevChar = cell.char;
           cell.char = this.randChar();
