@@ -57,7 +57,7 @@ function _showOverview(appendToTerminal, rainEngine) {
     `<div><span class="output-line-label">Glyph cycle:</span> every ${cfg.glyphSyncInterval ?? 6} frames</div>` +
     `</div>` +
     `<div class="mt-section output-text-small">` +
-    `rain preset &lt;name&gt; &middot; rain font &lt;name&gt; &middot; rain size &lt;px&gt; &middot; rain gravity &lt;level&gt; &middot; rain glyphspeed &lt;1-30&gt; &middot; rain torch` +
+    `rain preset &lt;name&gt; &middot; rain font &lt;name&gt; &middot; rain size &lt;px&gt; &middot; rain gravity &lt;level&gt; &middot; rain glyphspeed &lt;1-30&gt; &middot; rain torch [px]` +
     `</div>`;
   appendToTerminal(output);
 }
@@ -66,11 +66,27 @@ function _showOverview(appendToTerminal, rainEngine) {
 
 function _torch(args, appendToTerminal, rainEngine) {
   const input = args[0]?.toLowerCase();
+
+  // Numeric arg → set the reveal radius (and turn the torch on).
+  if (input !== undefined && /^\d+$/.test(input)) {
+    const px = parseInt(input, 10);
+    if (px < 40 || px > 600) {
+      return appendToTerminal(
+        "<div class='output-error'>Torch radius must be 40–600 (px).</div>",
+      );
+    }
+    rainEngine.setTorchRadius(px);
+    rainEngine.setTorch(true);
+    return appendToTerminal(
+      `<div class='output-success'>Torch on — reveal radius ${px}px. Move your cursor to reveal the rain.</div>`,
+    );
+  }
+
   const on = input === "on" ? true : input === "off" ? false : !rainEngine.torch;
   rainEngine.setTorch(on);
   appendToTerminal(
     on
-      ? `<div class='output-success'>Torch on — the rain hides in the dark; move your cursor to reveal it.</div>`
+      ? `<div class='output-success'>Torch on — the rain hides in the dark; move your cursor to reveal it. Set the radius with 'rain torch &lt;px&gt;'.</div>`
       : `<div class='output-success'>Torch off — the full field returns.</div>`,
   );
 }

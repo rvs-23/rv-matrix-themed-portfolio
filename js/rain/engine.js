@@ -300,14 +300,15 @@ export default class RainEngine {
     this.activePresetName = "default";
     this.fontSets = rainConfig.fontSets || {};
 
-    // Default to the combined set (1999 katakana + the Resurrections glyphs).
-    const defaultFontSet = this.fontSets.combined;
+    // Default to the classic 1999 katakana set (combined/resurrections opt-in
+    // via `rain font`).
+    const defaultFontSet = this.fontSets.classic;
     if (defaultFontSet) {
       this.glyphs = defaultFontSet.glyphs;
       this.activeConfig.fontFamily = defaultFontSet.fontFamily;
       this.defaultConfig.fontFamily = defaultFontSet.fontFamily;
     }
-    this.activeFontSet = "combined";
+    this.activeFontSet = "classic";
     this.streams = [];
     this.grid = [];
     this.totalCols = 0;
@@ -351,17 +352,32 @@ export default class RainEngine {
      * we track the pointer on `window`; `torchX/Y` eases toward it for a trail.
      */
     this.torch = false;
-    this.torchRadius = 220;
+    this.torchRadius = 160;
+    this.torchRadiusUser = null; // px override, or null = auto (scales w/ viewport)
     this.pointerX = window.innerWidth / 2;
     this.pointerY = window.innerHeight / 2;
     this.torchX = this.pointerX;
     this.torchY = this.pointerY;
+    this.pointerInside = true; // false when the pointer leaves the window → dark
     this._onPointer = (e) => {
       this.pointerX = e.clientX;
       this.pointerY = e.clientY;
+      this.pointerInside = true;
+    };
+    // relatedTarget null → the pointer left the window entirely (not just an
+    // element boundary). window blur covers tab/app switches.
+    this._onPointerLeave = (e) => {
+      if (!e || !e.relatedTarget) this.pointerInside = false;
+    };
+    this._onBlur = () => {
+      this.pointerInside = false;
     };
     window.addEventListener("pointermove", this._onPointer, { passive: true });
     window.addEventListener("pointerdown", this._onPointer, { passive: true });
+    window.addEventListener("pointerout", this._onPointerLeave, {
+      passive: true,
+    });
+    window.addEventListener("blur", this._onBlur);
 
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
@@ -372,6 +388,8 @@ export default class RainEngine {
     window.removeEventListener("resize", this._handleResize);
     window.removeEventListener("pointermove", this._onPointer);
     window.removeEventListener("pointerdown", this._onPointer);
+    window.removeEventListener("pointerout", this._onPointerLeave);
+    window.removeEventListener("blur", this._onBlur);
     this.stop();
   }
 
@@ -411,12 +429,11 @@ export default class RainEngine {
     // Use at least font size (CJK glyphs are ~square), add 10% gap
     const colW = Math.max(maxGlyphWidth, this.activeConfig.font) * 1.1;
 
-    // Torch radius scales with the smaller viewport dimension (recomputed here
-    // so it tracks resizes / orientation changes).
-    this.torchRadius = Math.max(
-      150,
-      Math.min(window.innerWidth, window.innerHeight) * 0.26,
-    );
+    // Torch radius: a user override wins; otherwise it scales with the smaller
+    // viewport dimension (recomputed here so it tracks resizes / orientation).
+    this.torchRadius =
+      this.torchRadiusUser ??
+      Math.max(90, Math.min(window.innerWidth, window.innerHeight) * 0.15);
 
     this.activeConfig.colW = colW;
     this.totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
@@ -701,18 +718,33 @@ export default class RainEngine {
    */
   _renderTorch(themeColors) {
     const ctx = this.ctx;
-    // Ease the light toward the pointer for a trailing feel.
-    this.torchX += (this.pointerX - this.torchX) * 0.18;
-    this.torchY += (this.pointerY - this.torchY) * 0.18;
-
-    const R = this.torchRadius;
+    const w = this.canvas.width / this.dpr;
+    const h = this.canvas.height / this.dpr;
     const c = parseColorRGB(themeColors.background || "#000", {
       r: 0,
       g: 0,
       b: 0,
     });
-    const clear = `rgba(${c.r},${c.g},${c.b},0)`;
     const solid = `rgba(${c.r},${c.g},${c.b},1)`;
+
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+
+    // Pointer left the window (or the app lost focus) → no light, full veil.
+    if (!this.pointerInside) {
+      ctx.fillStyle = solid;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+      return;
+    }
+
+    // Ease the light toward the pointer for a trailing feel.
+    this.torchX += (this.pointerX - this.torchX) * 0.18;
+    this.torchY += (this.pointerY - this.torchY) * 0.18;
+
+    const R = this.torchRadius;
+    const clear = `rgba(${c.r},${c.g},${c.b},0)`;
     const grad = ctx.createRadialGradient(
       this.torchX,
       this.torchY,
@@ -724,17 +756,8 @@ export default class RainEngine {
     grad.addColorStop(0, clear);
     grad.addColorStop(0.6, clear);
     grad.addColorStop(1, solid); // fully veiled by the outer radius (and beyond)
-
-    ctx.save();
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = grad;
-    ctx.fillRect(
-      0,
-      0,
-      this.canvas.width / this.dpr,
-      this.canvas.height / this.dpr,
-    );
+    ctx.fillRect(0, 0, w, h);
     ctx.restore();
   }
 
@@ -745,6 +768,15 @@ export default class RainEngine {
       this.renderGrid(this.themeColors || getCurrentThemeColors());
     }
     return this.torch;
+  }
+
+  /** Set the torch radius in px (overrides the viewport-scaled default). */
+  setTorchRadius(px) {
+    this.torchRadiusUser = px;
+    this.torchRadius = px;
+    if (!this.animationId && this.grid && this.grid.length && this.ctx) {
+      this.renderGrid(this.themeColors || getCurrentThemeColors());
+    }
   }
 
   /**
@@ -986,13 +1018,14 @@ export default class RainEngine {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
     this.torch = false; // reset clears torch/spotlight mode
-    // Factory reset also restores the default (combined) font set so glyphs and
+    this.torchRadiusUser = null; // and its custom radius
+    // Factory reset also restores the default (classic) font set so glyphs and
     // fontFamily can't be left desynced by an earlier `rain font` switch.
-    const combined = this.fontSets.combined;
-    if (combined) {
-      this.glyphs = combined.glyphs;
-      this.activeConfig.fontFamily = combined.fontFamily;
-      this.activeFontSet = "combined";
+    const classic = this.fontSets.classic;
+    if (classic) {
+      this.glyphs = classic.glyphs;
+      this.activeConfig.fontFamily = classic.fontFamily;
+      this.activeFontSet = "classic";
     }
     this.start();
     return { success: true, message: "Rain reset to defaults." };
