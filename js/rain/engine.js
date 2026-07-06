@@ -342,6 +342,9 @@ export default class RainEngine {
     this.themeColors = null;
     this.colorLUT = null;
 
+    /** Active transient colour pulse (redpill/bluepill/wake/theme swell) or null. */
+    this.pulseState = null;
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
@@ -787,7 +790,11 @@ export default class RainEngine {
     // Theme colours are cached (refreshColors on every theme change) so the
     // render path never calls getComputedStyle. Fallback only if the cache is
     // somehow unset — refreshColors() always runs in start() before the loop.
-    const themeColors = this.themeColors || getCurrentThemeColors();
+    let themeColors = this.themeColors || getCurrentThemeColors();
+    // Transient colour pulse: blend toward the pulse colour on a quick-attack /
+    // fade envelope, rebuilding the LUT for that frame only. Colour-only (no
+    // grid rebuild) and auto-expiring, so it can't disturb the active preset.
+    if (this.pulseState) themeColors = this._applyPulse(timestamp, themeColors);
     this.globalTick++;
 
     // Decay brightness at ~30fps
@@ -966,6 +973,57 @@ export default class RainEngine {
     }
     this.activeConfig[param] = parsedValue;
     return true;
+  }
+
+  /**
+   * Trigger a transient colour pulse: the rain blends toward `colors` on a
+   * quick attack, then fades back to the theme over `durationMs`. Colour-only
+   * (no grid rebuild), so it never disturbs the active preset; a no-op if the
+   * loop is stopped (reduced motion). Used by the easter eggs and theme switch.
+   * @param {{background?:string, primary?:string, glow?:string}} colors
+   * @param {number} [durationMs=2600]
+   */
+  pulse(colors, durationMs = 2600) {
+    if (!colors) return;
+    this.pulseState = {
+      colors,
+      start: performance.now(),
+      duration: durationMs,
+    };
+  }
+
+  /** Per-frame: fold the active pulse into the theme colours + LUT. Returns the
+   *  effective colours to render this frame; clears the pulse when it expires. */
+  _applyPulse(timestamp, base) {
+    const ps = this.pulseState;
+    const elapsed = timestamp - ps.start;
+    if (elapsed >= ps.duration) {
+      this.pulseState = null;
+      this._buildColorLUT(base); // restore the base palette
+      return base;
+    }
+    const p = elapsed / ps.duration;
+    const k = p < 0.12 ? p / 0.12 : 1 - (p - 0.12) / 0.88; // attack, then fade
+    const eff = this._blendColors(base, ps.colors, k);
+    this._buildColorLUT(eff);
+    return eff;
+  }
+
+  /** Lerp {background,primary,glow} from `base` toward `target` by `k` (0..1).
+   *  Keys absent from `target` pass through unchanged. */
+  _blendColors(base, target, k) {
+    const out = { ...base };
+    for (const key of ["background", "primary", "glow"]) {
+      if (!target[key]) continue;
+      const a = parseColorRGB(base[key], { r: 0, g: 0, b: 0 });
+      const b = parseColorRGB(target[key], a);
+      out[key] = rgbToHex(
+        a.r + (b.r - a.r) * k,
+        a.g + (b.g - a.g) * k,
+        a.b + (b.b - a.b) * k,
+      );
+    }
+    return out;
   }
 
   refreshColors() {

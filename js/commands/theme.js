@@ -13,6 +13,8 @@ export default function themeCommand(args, context) {
   if (themeApplied) {
     if (rainEngine && typeof rainEngine.refreshColors === "function") {
       rainEngine.refreshColors();
+      // A brief brightness swell so the theme change reads as a mood shift.
+      rainEngine.pulse?.({ glow: "#ffffff" }, 850);
     } else {
       appendToTerminal(
         "<div class='output-warning'>Rain engine not available to apply theme colors.</div>",
