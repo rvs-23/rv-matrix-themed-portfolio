@@ -345,6 +345,24 @@ export default class RainEngine {
     /** Active transient colour pulse (redpill/bluepill/wake/theme swell) or null. */
     this.pulseState = null;
 
+    /**
+     * Torch/spotlight mode: when on, the rain is veiled black except a soft
+     * radius that follows the pointer. The canvas is `pointer-events: none`, so
+     * we track the pointer on `window`; `torchX/Y` eases toward it for a trail.
+     */
+    this.torch = false;
+    this.torchRadius = 220;
+    this.pointerX = window.innerWidth / 2;
+    this.pointerY = window.innerHeight / 2;
+    this.torchX = this.pointerX;
+    this.torchY = this.pointerY;
+    this._onPointer = (e) => {
+      this.pointerX = e.clientX;
+      this.pointerY = e.clientY;
+    };
+    window.addEventListener("pointermove", this._onPointer, { passive: true });
+    window.addEventListener("pointerdown", this._onPointer, { passive: true });
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
@@ -352,6 +370,8 @@ export default class RainEngine {
 
   destroy() {
     window.removeEventListener("resize", this._handleResize);
+    window.removeEventListener("pointermove", this._onPointer);
+    window.removeEventListener("pointerdown", this._onPointer);
     this.stop();
   }
 
@@ -390,6 +410,13 @@ export default class RainEngine {
     }
     // Use at least font size (CJK glyphs are ~square), add 10% gap
     const colW = Math.max(maxGlyphWidth, this.activeConfig.font) * 1.1;
+
+    // Torch radius scales with the smaller viewport dimension (recomputed here
+    // so it tracks resizes / orientation changes).
+    this.torchRadius = Math.max(
+      150,
+      Math.min(window.innerWidth, window.innerHeight) * 0.26,
+    );
 
     this.activeConfig.colW = colW;
     this.totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
@@ -662,6 +689,62 @@ export default class RainEngine {
       ctx.restore();
       ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     }
+
+    // Torch/spotlight veil: hide everything except a soft radius at the pointer.
+    if (this.torch && !this.isCapturing) this._renderTorch(themeColors);
+  }
+
+  /**
+   * Composite a background-coloured veil over the finished frame with a soft
+   * transparent hole that eases toward the pointer, so only the rain around the
+   * cursor shows. Cheap: one radial gradient + one fillRect per frame.
+   */
+  _renderTorch(themeColors) {
+    const ctx = this.ctx;
+    // Ease the light toward the pointer for a trailing feel.
+    this.torchX += (this.pointerX - this.torchX) * 0.18;
+    this.torchY += (this.pointerY - this.torchY) * 0.18;
+
+    const R = this.torchRadius;
+    const c = parseColorRGB(themeColors.background || "#000", {
+      r: 0,
+      g: 0,
+      b: 0,
+    });
+    const clear = `rgba(${c.r},${c.g},${c.b},0)`;
+    const solid = `rgba(${c.r},${c.g},${c.b},1)`;
+    const grad = ctx.createRadialGradient(
+      this.torchX,
+      this.torchY,
+      R * 0.12,
+      this.torchX,
+      this.torchY,
+      R,
+    );
+    grad.addColorStop(0, clear);
+    grad.addColorStop(0.6, clear);
+    grad.addColorStop(1, solid); // fully veiled by the outer radius (and beyond)
+
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.fillStyle = grad;
+    ctx.fillRect(
+      0,
+      0,
+      this.canvas.width / this.dpr,
+      this.canvas.height / this.dpr,
+    );
+    ctx.restore();
+  }
+
+  /** Toggle torch/spotlight mode. Repaints once if the loop is stopped. */
+  setTorch(on) {
+    this.torch = !!on;
+    if (!this.animationId && this.grid && this.grid.length && this.ctx) {
+      this.renderGrid(this.themeColors || getCurrentThemeColors());
+    }
+    return this.torch;
   }
 
   /**
@@ -902,6 +985,7 @@ export default class RainEngine {
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
+    this.torch = false; // reset clears torch/spotlight mode
     // Factory reset also restores the default (combined) font set so glyphs and
     // fontFamily can't be left desynced by an earlier `rain font` switch.
     const combined = this.fontSets.combined;
