@@ -382,6 +382,29 @@ export default class RainEngine {
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
+
+    /**
+     * Pause the loop while the tab is hidden — rAF is throttled but the work
+     * isn't free, and there's nothing to see. Resume only if *we* paused it,
+     * so an intentionally-stopped engine (reduced motion, failed start) is
+     * never force-started by a tab switch.
+     */
+    this._pausedByVisibility = false;
+    this._onVisibility = () => {
+      if (document.hidden) {
+        if (this.animationId) {
+          this.stop();
+          this._pausedByVisibility = true;
+        }
+      } else if (this._pausedByVisibility) {
+        this._pausedByVisibility = false;
+        // Re-enter the loop directly — grid/streams are intact, no setup()
+        // needed. Reset the decay clock so the hidden time isn't "caught up".
+        this.lastDecayTime = performance.now() - DECAY_INTERVAL_MS;
+        this.loop(performance.now());
+      }
+    };
+    document.addEventListener("visibilitychange", this._onVisibility);
   }
 
   destroy() {
@@ -390,6 +413,7 @@ export default class RainEngine {
     window.removeEventListener("pointerdown", this._onPointer);
     window.removeEventListener("pointerout", this._onPointerLeave);
     window.removeEventListener("blur", this._onBlur);
+    document.removeEventListener("visibilitychange", this._onVisibility);
     this.stop();
   }
 
@@ -994,6 +1018,12 @@ export default class RainEngine {
         // renderFrame() reads as paused rain rather than a blank canvas.
         // refreshColors() ran above, so the cached colours are current.
         this.renderFrame(this.themeColors || getCurrentThemeColors());
+        return true;
+      }
+      // Started in a hidden tab (link opened in background): don't spin the
+      // loop unseen — mark it paused so visibilitychange resumes it on view.
+      if (document.hidden) {
+        this._pausedByVisibility = true;
         return true;
       }
       // setup() already scatters + pre-illuminates a full field. Combined with
