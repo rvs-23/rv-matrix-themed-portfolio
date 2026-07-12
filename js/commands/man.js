@@ -6,7 +6,8 @@
 import { escapeHtml } from "../utils.js";
 
 // Command aliases that share another command's manual page.
-const MAN_ALIASES = { hire: "mission" };
+// Exported for the contract smoke test.
+export const MAN_ALIASES = { hire: "mission" };
 
 export default function manCommand(args, context) {
   const { appendToTerminal, manPages } = context;
