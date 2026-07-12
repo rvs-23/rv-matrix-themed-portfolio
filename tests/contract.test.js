@@ -66,6 +66,12 @@ describe("command registry ↔ help", () => {
     const leaked = helpBaseCmds.filter((cmd) => HIDDEN_COMMANDS.has(cmd));
     expect(leaked).toEqual([]);
   });
+
+  it("every hidden command actually exists in the registry", () => {
+    // A typo'd name in HIDDEN_COMMANDS would silently exclude nothing.
+    const phantom = [...HIDDEN_COMMANDS].filter((cmd) => !(cmd in commands));
+    expect(phantom).toEqual([]);
+  });
 });
 
 describe("rain.json shape", () => {

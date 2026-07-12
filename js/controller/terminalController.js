@@ -499,8 +499,17 @@ async function processCommand(fullCommandText) {
   } else if (commandName) {
     // Multi-word input that isn't a command reads like a question → route it
     // through `ask` (local keyword matching) instead of a flat "not found".
+    // Same containment as the normal dispatch path: a throw here would
+    // otherwise reject processCommand's promise unhandled.
     if (parts.length > 1 && typeof state.commands.ask === "function") {
-      state.commands.ask(parts, commandContext);
+      try {
+        state.commands.ask(parts, commandContext);
+      } catch (err) {
+        console.error("Error executing command: ask", err);
+        appendToTerminal(
+          `<div class="output-error">Command Error: ${err.message || "Unknown error"}</div>`,
+        );
+      }
       return;
     }
 

@@ -4,6 +4,7 @@
  */
 
 import { getLevenshteinDistance, escapeHtml } from "../utils.js";
+import { HIDDEN_COMMANDS } from "./0_index.js";
 
 /**
  * Calculates a relevance score for a search term against a candidate string.
@@ -59,9 +60,11 @@ export default function searchCommand(args, context) {
     }
   };
 
-  // 1. Search through commands
+  // 1. Search through commands. Hidden easter eggs are excluded even when
+  // they have man pages (decode, sudo) — search must not spoil them.
   if (manPages) {
     Object.keys(manPages).forEach((commandName) => {
+      if (HIDDEN_COMMANDS.has(commandName)) return;
       processItem(commandName, "COMMAND", manPages[commandName].description);
     });
   }

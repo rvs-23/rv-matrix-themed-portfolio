@@ -1108,6 +1108,7 @@ export default class RainEngine {
     this.activePresetName = "default";
     this.torch = false; // reset clears torch/spotlight mode
     this.torchRadiusUser = null; // and its custom radius
+    this.pulseState = null; // an in-flight colour pulse must not survive reset
     // Factory reset also restores the default (classic) font set so glyphs and
     // fontFamily can't be left desynced by an earlier `rain font` switch.
     const classic = this.fontSets.classic;
@@ -1240,6 +1241,11 @@ export default class RainEngine {
     this.activeConfig.baseCol = themeColors.primary;
     this.activeConfig.headCol = themeColors.glow;
     this._buildColorLUT(themeColors);
+    // No loop running (reduced motion / paused): repaint the static frame so a
+    // theme switch recolours the visible rain instead of leaving stale colours.
+    if (!this.animationId && this.grid.length && this.ctx) {
+      this.renderFrame(themeColors);
+    }
   }
 
   /**
