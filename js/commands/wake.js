@@ -14,7 +14,7 @@ const SEQUENCE = [
 ];
 
 export default async function wakeCommand(args, context) {
-  const { appendToTerminal, config, terminalController } = context;
+  const { appendToTerminal, config, terminalController, rainEngine } = context;
   const name = escapeHtml(config.user.name?.split(" ")[0] || "Neo");
 
   // Disable input during the cinematic sequence
@@ -23,6 +23,8 @@ export default async function wakeCommand(args, context) {
 
   // Clear terminal for cinematic feel
   terminalController.clearTerminalOutput();
+  // The system stirs — a bright surge through the rain as it wakes.
+  rainEngine?.pulse?.({ primary: "#dfffdf", glow: "#ffffff" }, 1800);
   await sleep(600);
 
   for (const step of SEQUENCE) {

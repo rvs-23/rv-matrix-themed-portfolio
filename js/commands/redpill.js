@@ -21,6 +21,11 @@ export default async function redpillCommand(args, context) {
   terminalController.applyTheme("crimson");
   if (rainEngine?.refreshColors) rainEngine.refreshColors();
   if (rainEngine?.applyPreset) rainEngine.applyPreset("storm");
+  // Reality tears red — bleed the rain crimson for a few seconds.
+  rainEngine?.pulse?.(
+    { background: "#1a0000", primary: "#ff2a2a", glow: "#ff9a9a" },
+    3000,
+  );
 
   await sleep(400);
 

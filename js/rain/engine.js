@@ -208,14 +208,17 @@ class Stream {
         // Deletion streams erase ~50% of cells they pass through
         if (Math.random() < 0.5) {
           cell.brightness = 0;
+          cell.sentient = false;
         }
       } else {
         // Set character at head position
         if (this.isSentient && this.sentientIndex < this.sentientText.length) {
           cell.char = this.sentientText[this.sentientIndex++];
+          cell.sentient = true; // protect this glyph from the mutation pass
         } else {
           this.headChar = this.randChar();
           cell.char = this.headChar;
+          cell.sentient = false;
         }
         // Peak brightness from layer opacity (sentient = ghostly 60%)
         cell.brightness = this.isSentient
@@ -297,14 +300,15 @@ export default class RainEngine {
     this.activePresetName = "default";
     this.fontSets = rainConfig.fontSets || {};
 
-    // Default to the combined set (1999 katakana + the Resurrections glyphs).
-    const defaultFontSet = this.fontSets.combined;
+    // Default to the classic 1999 katakana set (combined/resurrections opt-in
+    // via `rain font`).
+    const defaultFontSet = this.fontSets.classic;
     if (defaultFontSet) {
       this.glyphs = defaultFontSet.glyphs;
       this.activeConfig.fontFamily = defaultFontSet.fontFamily;
       this.defaultConfig.fontFamily = defaultFontSet.fontFamily;
     }
-    this.activeFontSet = "combined";
+    this.activeFontSet = "classic";
     this.streams = [];
     this.grid = [];
     this.totalCols = 0;
@@ -339,6 +343,42 @@ export default class RainEngine {
     this.themeColors = null;
     this.colorLUT = null;
 
+    /** Active transient colour pulse (redpill/bluepill/wake/theme swell) or null. */
+    this.pulseState = null;
+
+    /**
+     * Torch/spotlight mode: when on, the rain is veiled black except a soft
+     * radius that follows the pointer. The canvas is `pointer-events: none`, so
+     * we track the pointer on `window`; `torchX/Y` eases toward it for a trail.
+     */
+    this.torch = false;
+    this.torchRadius = 160;
+    this.torchRadiusUser = null; // px override, or null = auto (scales w/ viewport)
+    this.pointerX = window.innerWidth / 2;
+    this.pointerY = window.innerHeight / 2;
+    this.torchX = this.pointerX;
+    this.torchY = this.pointerY;
+    this.pointerInside = true; // false when the pointer leaves the window → dark
+    this._onPointer = (e) => {
+      this.pointerX = e.clientX;
+      this.pointerY = e.clientY;
+      this.pointerInside = true;
+    };
+    // relatedTarget null → the pointer left the window entirely (not just an
+    // element boundary). window blur covers tab/app switches.
+    this._onPointerLeave = (e) => {
+      if (!e || !e.relatedTarget) this.pointerInside = false;
+    };
+    this._onBlur = () => {
+      this.pointerInside = false;
+    };
+    window.addEventListener("pointermove", this._onPointer, { passive: true });
+    window.addEventListener("pointerdown", this._onPointer, { passive: true });
+    window.addEventListener("pointerout", this._onPointerLeave, {
+      passive: true,
+    });
+    window.addEventListener("blur", this._onBlur);
+
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
@@ -346,6 +386,10 @@ export default class RainEngine {
 
   destroy() {
     window.removeEventListener("resize", this._handleResize);
+    window.removeEventListener("pointermove", this._onPointer);
+    window.removeEventListener("pointerdown", this._onPointer);
+    window.removeEventListener("pointerout", this._onPointerLeave);
+    window.removeEventListener("blur", this._onBlur);
     this.stop();
   }
 
@@ -385,6 +429,12 @@ export default class RainEngine {
     // Use at least font size (CJK glyphs are ~square), add 10% gap
     const colW = Math.max(maxGlyphWidth, this.activeConfig.font) * 1.1;
 
+    // Torch radius: a user override wins; otherwise it scales with the smaller
+    // viewport dimension (recomputed here so it tracks resizes / orientation).
+    this.torchRadius =
+      this.torchRadiusUser ??
+      Math.max(90, Math.min(window.innerWidth, window.innerHeight) * 0.15);
+
     this.activeConfig.colW = colW;
     this.totalCols = Math.max(1, Math.floor(window.innerWidth / colW));
     this.gridRows = Math.max(
@@ -402,6 +452,9 @@ export default class RainEngine {
         char: this.randChar(),
         prevChar: null,
         brightness: 0,
+        // Set while a sentient stream owns this cell (spelling a phrase); the
+        // glyph mutation pass skips these so the words stay readable.
+        sentient: false,
       })),
     );
 
@@ -491,9 +544,13 @@ export default class RainEngine {
           // creating gritty analogue fade instead of smooth decay
           if (cell.brightness < 0.12 && cell.brightness > floorThreshold && Math.random() < 0.15) {
             cell.brightness = floor;
+            cell.sentient = false; // phrase has faded; release the cell
             continue;
           }
-          if (cell.brightness < floorThreshold) cell.brightness = floor;
+          if (cell.brightness < floorThreshold) {
+            cell.brightness = floor;
+            cell.sentient = false;
+          }
         }
       }
     }
@@ -507,6 +564,11 @@ export default class RainEngine {
       const col = this.grid[c];
       for (let r = 0; r < this.gridRows; r++) {
         const cell = col[r];
+        // Sentient cells spell a phrase — never mutate them or the words scramble.
+        if (cell.sentient) {
+          cell.prevChar = null;
+          continue;
+        }
         if (Math.random() < mutationChance) {
           cell.prevChar = cell.char;
           cell.char = this.randChar();
@@ -647,6 +709,89 @@ export default class RainEngine {
   }
 
   /**
+   * Paint one full frame in composite order: grid, then landing-glow bursts,
+   * then the torch veil LAST so nothing (bloom, glows) bleeds through the dark.
+   * The animation loop and the static repaint callers both route through here.
+   */
+  renderFrame(themeColors, timestamp = performance.now()) {
+    this.renderGrid(themeColors);
+    const landingGlow = this.activeConfig.landingGlow ?? 0;
+    if (landingGlow > 0 && this.landingGlows.length > 0) {
+      this.renderLandingGlows(timestamp, themeColors);
+    }
+    // Torch/spotlight veil: hide everything except a soft radius at the pointer.
+    if (this.torch && !this.isCapturing) this._renderTorch(themeColors);
+  }
+
+  /**
+   * Composite a background-coloured veil over the finished frame with a soft
+   * transparent hole that eases toward the pointer, so only the rain around the
+   * cursor shows. Cheap: one radial gradient + one fillRect per frame.
+   */
+  _renderTorch(themeColors) {
+    const ctx = this.ctx;
+    const w = this.canvas.width / this.dpr;
+    const h = this.canvas.height / this.dpr;
+    const c = parseColorRGB(themeColors.background || "#000", {
+      r: 0,
+      g: 0,
+      b: 0,
+    });
+    const solid = `rgba(${c.r},${c.g},${c.b},1)`;
+
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+
+    // Pointer left the window (or the app lost focus) → no light, full veil.
+    if (!this.pointerInside) {
+      ctx.fillStyle = solid;
+      ctx.fillRect(0, 0, w, h);
+      ctx.restore();
+      return;
+    }
+
+    // Ease the light toward the pointer for a trailing feel.
+    this.torchX += (this.pointerX - this.torchX) * 0.18;
+    this.torchY += (this.pointerY - this.torchY) * 0.18;
+
+    const R = this.torchRadius;
+    const clear = `rgba(${c.r},${c.g},${c.b},0)`;
+    const grad = ctx.createRadialGradient(
+      this.torchX,
+      this.torchY,
+      R * 0.12,
+      this.torchX,
+      this.torchY,
+      R,
+    );
+    grad.addColorStop(0, clear);
+    grad.addColorStop(0.6, clear);
+    grad.addColorStop(1, solid); // fully veiled by the outer radius (and beyond)
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
+
+  /** Toggle torch/spotlight mode. Repaints once if the loop is stopped. */
+  setTorch(on) {
+    this.torch = !!on;
+    if (!this.animationId && this.grid && this.grid.length && this.ctx) {
+      this.renderFrame(this.themeColors || getCurrentThemeColors());
+    }
+    return this.torch;
+  }
+
+  /** Set the torch radius in px (overrides the viewport-scaled default). */
+  setTorchRadius(px) {
+    this.torchRadiusUser = px;
+    this.torchRadius = px;
+    if (!this.animationId && this.grid && this.grid.length && this.ctx) {
+      this.renderFrame(this.themeColors || getCurrentThemeColors());
+    }
+  }
+
+  /**
    * Render multi-layered elliptical glow bursts at the canvas bottom.
    * Three concentric layers with exponential decay (~120ms half-life)
    * create a phosphor-persistence effect rather than a cartoonish pop.
@@ -772,7 +917,11 @@ export default class RainEngine {
     // Theme colours are cached (refreshColors on every theme change) so the
     // render path never calls getComputedStyle. Fallback only if the cache is
     // somehow unset — refreshColors() always runs in start() before the loop.
-    const themeColors = this.themeColors || getCurrentThemeColors();
+    let themeColors = this.themeColors || getCurrentThemeColors();
+    // Transient colour pulse: blend toward the pulse colour on a quick-attack /
+    // fade envelope, rebuilding the LUT for that frame only. Colour-only (no
+    // grid rebuild) and auto-expiring, so it can't disturb the active preset.
+    if (this.pulseState) themeColors = this._applyPulse(timestamp, themeColors);
     this.globalTick++;
 
     // Decay brightness at ~30fps
@@ -819,13 +968,8 @@ export default class RainEngine {
 
     }
 
-    // Render entire grid
-    this.renderGrid(themeColors);
-
-    // Render landing glow bursts at canvas bottom
-    if (landingGlow > 0 && this.landingGlows.length > 0) {
-      this.renderLandingGlows(timestamp, themeColors);
-    }
+    // Render the frame (grid → landing glows → torch veil, in that order)
+    this.renderFrame(themeColors, timestamp);
 
     this.animationId = requestAnimationFrame(this.loop);
   };
@@ -847,9 +991,9 @@ export default class RainEngine {
 
       if (prefersReducedMotion) {
         // setup() already pre-illuminates a full field, so one static
-        // renderGrid() reads as paused rain rather than a blank canvas.
+        // renderFrame() reads as paused rain rather than a blank canvas.
         // refreshColors() ran above, so the cached colours are current.
-        this.renderGrid(this.themeColors || getCurrentThemeColors());
+        this.renderFrame(this.themeColors || getCurrentThemeColors());
         return true;
       }
       // setup() already scatters + pre-illuminates a full field. Combined with
@@ -880,13 +1024,15 @@ export default class RainEngine {
   resetToDefaults() {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
-    // Factory reset also restores the default (combined) font set so glyphs and
+    this.torch = false; // reset clears torch/spotlight mode
+    this.torchRadiusUser = null; // and its custom radius
+    // Factory reset also restores the default (classic) font set so glyphs and
     // fontFamily can't be left desynced by an earlier `rain font` switch.
-    const combined = this.fontSets.combined;
-    if (combined) {
-      this.glyphs = combined.glyphs;
-      this.activeConfig.fontFamily = combined.fontFamily;
-      this.activeFontSet = "combined";
+    const classic = this.fontSets.classic;
+    if (classic) {
+      this.glyphs = classic.glyphs;
+      this.activeConfig.fontFamily = classic.fontFamily;
+      this.activeFontSet = "classic";
     }
     this.start();
     return { success: true, message: "Rain reset to defaults." };
@@ -951,6 +1097,57 @@ export default class RainEngine {
     }
     this.activeConfig[param] = parsedValue;
     return true;
+  }
+
+  /**
+   * Trigger a transient colour pulse: the rain blends toward `colors` on a
+   * quick attack, then fades back to the theme over `durationMs`. Colour-only
+   * (no grid rebuild), so it never disturbs the active preset; a no-op if the
+   * loop is stopped (reduced motion). Used by the easter eggs and theme switch.
+   * @param {{background?:string, primary?:string, glow?:string}} colors
+   * @param {number} [durationMs=2600]
+   */
+  pulse(colors, durationMs = 2600) {
+    if (!colors) return;
+    this.pulseState = {
+      colors,
+      start: performance.now(),
+      duration: durationMs,
+    };
+  }
+
+  /** Per-frame: fold the active pulse into the theme colours + LUT. Returns the
+   *  effective colours to render this frame; clears the pulse when it expires. */
+  _applyPulse(timestamp, base) {
+    const ps = this.pulseState;
+    const elapsed = timestamp - ps.start;
+    if (elapsed >= ps.duration) {
+      this.pulseState = null;
+      this._buildColorLUT(base); // restore the base palette
+      return base;
+    }
+    const p = elapsed / ps.duration;
+    const k = p < 0.12 ? p / 0.12 : 1 - (p - 0.12) / 0.88; // attack, then fade
+    const eff = this._blendColors(base, ps.colors, k);
+    this._buildColorLUT(eff);
+    return eff;
+  }
+
+  /** Lerp {background,primary,glow} from `base` toward `target` by `k` (0..1).
+   *  Keys absent from `target` pass through unchanged. */
+  _blendColors(base, target, k) {
+    const out = { ...base };
+    for (const key of ["background", "primary", "glow"]) {
+      if (!target[key]) continue;
+      const a = parseColorRGB(base[key], { r: 0, g: 0, b: 0 });
+      const b = parseColorRGB(target[key], a);
+      out[key] = rgbToHex(
+        a.r + (b.r - a.r) * k,
+        a.g + (b.g - a.g) * k,
+        a.b + (b.b - a.b) * k,
+      );
+    }
+    return out;
   }
 
   refreshColors() {

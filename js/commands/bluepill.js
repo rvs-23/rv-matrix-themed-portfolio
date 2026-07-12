@@ -16,6 +16,8 @@ export default async function bluepillCommand(args, context) {
   terminalController.applyTheme("neuralstorm");
   if (rainEngine?.refreshColors) rainEngine.refreshColors();
   if (rainEngine?.applyPreset) rainEngine.applyPreset("whisper");
+  // A calm blue wash as the story ends.
+  rainEngine?.pulse?.({ primary: "#88b4ff", glow: "#d0e4ff" }, 3000);
 
   await sleep(400);
 
