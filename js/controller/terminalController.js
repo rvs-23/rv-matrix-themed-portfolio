@@ -120,13 +120,14 @@ export function initializeTerminalController(
   }
 
   // Tapping the rain (outside the terminal) blurs the input — the touch
-  // equivalent of Esc/Ctrl+\ for dismissing the mobile keyboard.
-  const canvasEl = document.getElementById("matrix-canvas");
-  if (canvasEl) {
-    canvasEl.addEventListener("pointerdown", () => {
-      state.elements.input?.blur();
-    });
-  }
+  // equivalent of Esc/Ctrl+\ for dismissing the mobile keyboard. Listen on
+  // document, not the canvas: #matrix-canvas is pointer-events:none, so taps
+  // pass straight through it and a canvas listener never fires.
+  document.addEventListener("pointerdown", (e) => {
+    if (document.activeElement !== state.elements.input) return;
+    if (state.elements.container?.contains(e.target)) return;
+    state.elements.input?.blur();
+  });
 
   displayInitialWelcomeMessage(true);
   renderCommandChips();
