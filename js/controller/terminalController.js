@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file terminalController.js
  * Manages terminal DOM elements, input, output, history, and related functionalities.
@@ -182,7 +183,7 @@ function submitCommand(fullCommandText) {
     `<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`,
   );
 
-  processCommand(fullCommandText);
+  void processCommand(fullCommandText);
 }
 
 /** Run a command programmatically — used by click-to-run chips and deep links. */
@@ -574,7 +575,9 @@ function displayInitialWelcomeMessage(animate = false) {
     `${nameHtml}<br/><span class="welcome-tagline"></span>`,
     "output-welcome-wrapper",
   );
-  const taglineEl = wrapper?.querySelector(".welcome-tagline");
+  const taglineEl = /** @type {HTMLElement|null} */ (
+    wrapper?.querySelector(".welcome-tagline")
+  );
   if (!taglineEl) return;
 
   const reduce = window.matchMedia?.(

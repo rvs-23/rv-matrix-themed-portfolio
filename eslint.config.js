@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
 export default [
   js.configs.recommended,
@@ -7,6 +8,13 @@ export default [
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
+      // Type-aware parsing (backed by tsconfig.json) — needed only for
+      // no-floating-promises below; no other typed rules are enabled.
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
       globals: {
         window: "readonly",
         document: "readonly",
@@ -37,9 +45,19 @@ export default [
         localStorage: "readonly",
       },
     },
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+    },
     rules: {
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": ["warn", { allow: ["warn", "error"] }],
+      // Flags fire-and-forget promises (the un-awaited start() family that
+      // v1.1.1 fixed by hand). Intentional fire-and-forget must say so with
+      // `void`.
+      "@typescript-eslint/no-floating-promises": [
+        "error",
+        { ignoreVoid: true },
+      ],
     },
   },
 ];

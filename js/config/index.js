@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file Main configuration file for the application.
  */

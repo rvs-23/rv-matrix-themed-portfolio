@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file js/commands/man.js
  * Handles the 'man' command, displaying manual pages for other commands.

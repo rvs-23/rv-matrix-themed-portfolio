@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file js/commands/rain.js
  * Umbrella command for all rain customization.

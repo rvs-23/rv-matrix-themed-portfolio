@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file js/rain/engine.js
  * Matrix digital rain engine with persistent glyph grid.
@@ -288,7 +289,9 @@ export default class RainEngine {
         "RainEngine: rain.json is missing or invalid (no defaultConfig).",
       );
     }
-    this.canvas = document.getElementById("matrix-canvas");
+    this.canvas = /** @type {HTMLCanvasElement} */ (
+      document.getElementById("matrix-canvas")
+    );
     this.ctx = this.canvas?.getContext("2d");
     // Defensive copy — never mutate the shared parsed-JSON object in place.
     this.defaultConfig = { ...rainConfig.defaultConfig };
@@ -1113,7 +1116,7 @@ export default class RainEngine {
       this.activeConfig.fontFamily = classic.fontFamily;
       this.activeFontSet = "classic";
     }
-    this.start();
+    void this.start();
     return { success: true, message: "Rain reset to defaults." };
   }
 
@@ -1144,7 +1147,7 @@ export default class RainEngine {
 
       // Presets define structural params (font/density/lineH), so always
       // rebuild the grid; start() also applies the theme colours.
-      this.start();
+      void this.start();
 
       return {
         success: true,
@@ -1284,7 +1287,7 @@ export default class RainEngine {
     this.glyphs = fontSet.glyphs;
     this.activeConfig.fontFamily = fontSet.fontFamily;
     this.activeFontSet = name;
-    this.start();
+    void this.start();
 
     return {
       success: true,

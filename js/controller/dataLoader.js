@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file dataLoader.js
  * Handles fetching all necessary JSON configuration and asset data.

@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file js/eggs.js
  * Tracks which easter eggs the visitor has discovered, in localStorage.

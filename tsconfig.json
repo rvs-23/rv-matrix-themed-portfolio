@@ -1,0 +1,19 @@
+{
+  // Type-checking for plain JS, opt-in per file: only files carrying a
+  // `// @ts-check` pragma are checked (checkJs is off). Lenient by design —
+  // this catches real type misuse (wrong argument shapes, typo'd properties),
+  // not missing annotations. Run with `npm run typecheck`. No emit, no build
+  // impact; full TS migration stays optional.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "strict": false,
+    "skipLibCheck": true
+  },
+  "include": ["js", "tests"]
+}
