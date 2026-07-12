@@ -300,6 +300,11 @@ export default class RainEngine {
     this.activePresetName = "default";
     this.fontSets = rainConfig.fontSets || {};
 
+    // Schema sanity for whatever config actually reached this browser (a stale
+    // CDN/HTTP-cache copy included) — turns the silent-visual-death family
+    // (blank font, NaN rain) into a loud boot error that main.js catches.
+    this._validateConfig();
+
     // Default to the classic 1999 katakana set (combined/resurrections opt-in
     // via `rain font`).
     const defaultFontSet = this.fontSets.classic;
@@ -405,6 +410,50 @@ export default class RainEngine {
       }
     };
     document.addEventListener("visibilitychange", this._onVisibility);
+  }
+
+  /**
+   * Boot-time schema validation for the loaded rain config. Hand-rolled (~30
+   * lines, zero deps) rather than a schema library — the Vitest contract test
+   * guards the repo's own data at dev time; this guards whatever config a
+   * visitor's browser actually loaded. Throws with a precise message; the
+   * constructor's caller already degrades to terminal-without-rain.
+   */
+  _validateConfig() {
+    const fail = (msg) => {
+      throw new Error(`RainEngine config invalid: ${msg}`);
+    };
+
+    if (typeof this.defaultConfig.font !== "number" || this.defaultConfig.font <= 0) {
+      fail(`defaultConfig.font must be a positive number, got ${this.defaultConfig.font}`);
+    }
+
+    for (const [name, set] of Object.entries(this.fontSets)) {
+      if (typeof set.glyphs !== "string" || set.glyphs.length === 0) {
+        fail(`fontSet '${name}' has empty or missing glyphs`);
+      }
+      if (typeof set.fontFamily !== "string" || set.fontFamily.length === 0) {
+        fail(`fontSet '${name}' has empty or missing fontFamily`);
+      }
+    }
+
+    // Colours and font family are engine/theme-owned at runtime; a preset
+    // carrying them would desync theme or font state (the v1.1.0 bug class).
+    const engineOwned = ["baseCol", "headCol", "fontFamily"];
+    const knownKeys = new Set([...Object.keys(this.defaultConfig), "gravityAccel"]);
+    for (const [name, preset] of Object.entries(this.presets)) {
+      const cfg = preset.config;
+      if (!cfg || Object.keys(cfg).length === 0) continue; // reset presets
+      for (const key of Object.keys(cfg)) {
+        if (!knownKeys.has(key)) fail(`preset '${name}' has unknown key '${key}'`);
+      }
+      for (const key of engineOwned) {
+        if (key in cfg) fail(`preset '${name}' must not set engine-owned key '${key}'`);
+      }
+      if (typeof cfg.layers === "number" && Array.isArray(cfg.layerOp) && cfg.layerOp.length !== cfg.layers) {
+        fail(`preset '${name}': layerOp has ${cfg.layerOp.length} entries but layers is ${cfg.layers}`);
+      }
+    }
   }
 
   destroy() {
