@@ -706,7 +706,19 @@ export default class RainEngine {
       ctx.restore();
       ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     }
+  }
 
+  /**
+   * Paint one full frame in composite order: grid, then landing-glow bursts,
+   * then the torch veil LAST so nothing (bloom, glows) bleeds through the dark.
+   * The animation loop and the static repaint callers both route through here.
+   */
+  renderFrame(themeColors, timestamp = performance.now()) {
+    this.renderGrid(themeColors);
+    const landingGlow = this.activeConfig.landingGlow ?? 0;
+    if (landingGlow > 0 && this.landingGlows.length > 0) {
+      this.renderLandingGlows(timestamp, themeColors);
+    }
     // Torch/spotlight veil: hide everything except a soft radius at the pointer.
     if (this.torch && !this.isCapturing) this._renderTorch(themeColors);
   }
@@ -765,7 +777,7 @@ export default class RainEngine {
   setTorch(on) {
     this.torch = !!on;
     if (!this.animationId && this.grid && this.grid.length && this.ctx) {
-      this.renderGrid(this.themeColors || getCurrentThemeColors());
+      this.renderFrame(this.themeColors || getCurrentThemeColors());
     }
     return this.torch;
   }
@@ -775,7 +787,7 @@ export default class RainEngine {
     this.torchRadiusUser = px;
     this.torchRadius = px;
     if (!this.animationId && this.grid && this.grid.length && this.ctx) {
-      this.renderGrid(this.themeColors || getCurrentThemeColors());
+      this.renderFrame(this.themeColors || getCurrentThemeColors());
     }
   }
 
@@ -956,13 +968,8 @@ export default class RainEngine {
 
     }
 
-    // Render entire grid
-    this.renderGrid(themeColors);
-
-    // Render landing glow bursts at canvas bottom
-    if (landingGlow > 0 && this.landingGlows.length > 0) {
-      this.renderLandingGlows(timestamp, themeColors);
-    }
+    // Render the frame (grid → landing glows → torch veil, in that order)
+    this.renderFrame(themeColors, timestamp);
 
     this.animationId = requestAnimationFrame(this.loop);
   };
@@ -984,9 +991,9 @@ export default class RainEngine {
 
       if (prefersReducedMotion) {
         // setup() already pre-illuminates a full field, so one static
-        // renderGrid() reads as paused rain rather than a blank canvas.
+        // renderFrame() reads as paused rain rather than a blank canvas.
         // refreshColors() ran above, so the cached colours are current.
-        this.renderGrid(this.themeColors || getCurrentThemeColors());
+        this.renderFrame(this.themeColors || getCurrentThemeColors());
         return true;
       }
       // setup() already scatters + pre-illuminates a full field. Combined with
