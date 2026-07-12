@@ -22,7 +22,9 @@ export function initializeLoaderScreen(loaderConfig) {
     loaderCharInterval = setInterval(animateLoaderMatrixChars, 120);
     animateLoaderMatrixChars();
     updateLoadingStatusMessage();
-    statusCyclingInterval = setInterval(updateLoadingStatusMessage, 800);
+    // Fast enough that the staged boot beats read inside the ~1s loader window
+    // (main.js enforces a ~700ms minimum); the last line then rests as it fades.
+    statusCyclingInterval = setInterval(updateLoadingStatusMessage, 340);
   }
 }
 

@@ -62,11 +62,14 @@ export const fonts = {
 
 // -- LOADER SCREEN SETTINGS --
 export const loader = {
+  // A short boot handshake — staged beats paced to land inside the ~1s loader
+  // window (see statusCyclingInterval), resting on the final line as it fades.
   messages: [
-    "DECRYPTING DATA STREAMS...",
-    "CALIBRATING REALITY MATRIX...",
     "ESTABLISHING SECURE LINK...",
-    "WELCOME TO THE GRID, USER.",
+    "DECRYPTING DATA STREAMS...",
+    "COMPILING THE CONSTRUCT...",
+    "REALITY MATRIX ONLINE.",
+    "WELCOME TO THE GRID.",
   ],
   matrixChars:
     "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッンFUKZVRC0123456789!?@#$%^&*()[]{};:'\"<>,./\\|",
