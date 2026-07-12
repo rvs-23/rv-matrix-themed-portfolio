@@ -9,6 +9,8 @@ import {
 } from "../utils.js";
 import { recordEgg } from "../eggs.js";
 import { decodeReveal } from "../effects/decode.js";
+import { HIDDEN_COMMANDS } from "../commands/0_index.js";
+import { RAIN_SUBCOMMANDS, GRAVITY_LEVELS } from "../commands/rain.js";
 
 const MAX_HISTORY = 100;
 
@@ -59,8 +61,11 @@ export function initializeTerminalController(
   state.commands = commands;
   state.getContext = commandContextFunc;
 
-  // Initialize available commands for autocomplete
-  state.autocomplete.commands = Object.keys(state.commands).sort();
+  // Initialize available commands for autocomplete + did-you-mean. Hidden
+  // easter eggs are excluded from both — discoverable by lore only.
+  state.autocomplete.commands = Object.keys(state.commands)
+    .filter((cmd) => !HIDDEN_COMMANDS.has(cmd))
+    .sort();
 
   // Setup initial styles and welcome message
   document.documentElement.style.setProperty(
@@ -330,15 +335,23 @@ function handleAutocomplete() {
 
     const commandNamePart = currentFullInput.split(" ")[0].toLowerCase();
     if (
-      currentFullInput.endsWith(" ") &&
+      currentFullInput.includes(" ") &&
       state.autocomplete.commands.includes(commandNamePart)
     ) {
+      // Argument completion — also mid-word ("rain preset c" + Tab), not only
+      // after a trailing space. Pre-filtering by the partly-typed word keeps
+      // Tab-cycling on actual matches instead of the whole argument list.
       const context = state.getContext();
-      state.autocomplete.suggestions = getArgumentSuggestions(
+      let suggestions = getArgumentSuggestions(
         commandNamePart,
         context,
         currentFullInput,
       );
+      if (currentTypingPart) {
+        const typed = currentTypingPart.toLowerCase();
+        suggestions = suggestions.filter((s) => s.startsWith(typed));
+      }
+      state.autocomplete.suggestions = suggestions;
     } else if (!currentFullInput.includes(" ")) {
       state.autocomplete.suggestions = state.autocomplete.commands.filter((cmd) =>
         cmd.startsWith(currentFullInput.toLowerCase()),
@@ -350,44 +363,20 @@ function handleAutocomplete() {
 
   if (state.autocomplete.suggestions.length > 0) {
     let suggestion;
-    if (currentFullInput.endsWith(" ") && !currentTypingPart) {
-      suggestion =
-        currentFullInput +
-        state.autocomplete.suggestions[
-          state.autocomplete.index % state.autocomplete.suggestions.length
-        ];
-    } else if (!currentFullInput.includes(" ")) {
-      suggestion =
-        state.autocomplete.suggestions[
-          state.autocomplete.index % state.autocomplete.suggestions.length
-        ];
+    const pick =
+      state.autocomplete.suggestions[
+        state.autocomplete.index % state.autocomplete.suggestions.length
+      ];
+    if (!currentFullInput.includes(" ")) {
+      suggestion = pick;
     } else {
+      // Argument position: suggestions are already filtered to the typed part,
+      // so completing is always "everything up to the last space" + the pick.
       const baseCommand = currentFullInput.substring(
         0,
         currentFullInput.lastIndexOf(" ") + 1,
       );
-      const potentialArg =
-        state.autocomplete.suggestions[
-          state.autocomplete.index % state.autocomplete.suggestions.length
-        ];
-      if (potentialArg.startsWith(currentTypingPart)) {
-        suggestion = baseCommand + potentialArg;
-      } else {
-        state.autocomplete.index++;
-        if (state.autocomplete.index >= state.autocomplete.suggestions.length)
-          state.autocomplete.index = 0;
-        const nextPotentialArg =
-          state.autocomplete.suggestions[
-            state.autocomplete.index % state.autocomplete.suggestions.length
-          ];
-        if (nextPotentialArg.startsWith(currentTypingPart)) {
-          suggestion = baseCommand + nextPotentialArg;
-        } else {
-          state.autocomplete.suggestions = [];
-          state.autocomplete.lastApplied = "";
-          return;
-        }
-      }
+      suggestion = baseCommand + pick;
     }
 
     if (suggestion) {
@@ -402,14 +391,22 @@ function handleAutocomplete() {
   }
 }
 
-function getArgumentSuggestions(commandName, context, currentInput) {
-  const inputParts = currentInput.trim().split(" ");
+// Exported for the contract smoke test — pure function of (command, context, input).
+export function getArgumentSuggestions(commandName, context, currentInput) {
+  const inputParts = currentInput.trim().split(/\s+/);
+  // Words the user has finished typing: a trailing space commits the last word,
+  // otherwise it's still being typed. Fixes "rain preset " + Tab suggesting
+  // subcommands (the old trim-then-split dropped the trailing space, so a
+  // committed 2-word input was indistinguishable from a mid-word one).
+  const completedParts = currentInput.endsWith(" ")
+    ? inputParts.length
+    : inputParts.length - 1;
   switch (commandName) {
     case "theme":
       return (context.config?.help?.availableThemes || []).sort();
     case "rain": {
-      if (inputParts.length <= 2) {
-        return ["preset", "font", "size", "gravity", "glyphspeed"];
+      if (completedParts <= 1) {
+        return [...RAIN_SUBCOMMANDS];
       }
       const rainSub = inputParts[1]?.toLowerCase();
       if (rainSub === "preset") {
@@ -421,12 +418,13 @@ function getArgumentSuggestions(commandName, context, currentInput) {
         return fontSets.sort();
       }
       if (rainSub === "size") return ["reset"];
-      if (rainSub === "gravity") return ["off", "moon", "earth", "jupiter"];
+      if (rainSub === "gravity") return ["off", ...Object.keys(GRAVITY_LEVELS)];
       if (rainSub === "glyphspeed") return ["reset", "1", "3", "6", "10", "15", "20"];
+      if (rainSub === "torch") return ["on", "off"];
       return [];
     }
     case "term": {
-      if (inputParts.length <= 2) {
+      if (completedParts <= 1) {
         return ["opacity", "fontsize", "size"];
       }
       const termSub = inputParts[1]?.toLowerCase();
@@ -440,7 +438,7 @@ function getArgumentSuggestions(commandName, context, currentInput) {
       return manPageKeys.sort();
     }
     case "download":
-      if (inputParts.length === 1) return ["cv"];
+      if (completedParts <= 1) return ["cv"];
       return [];
     case "date": {
       const timezoneAliases = context.dateCommandTimezoneAliases || [

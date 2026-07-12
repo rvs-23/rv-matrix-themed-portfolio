@@ -6,7 +6,11 @@
 
 import { escapeHtml } from "../utils.js";
 
-const GRAVITY_LEVELS = {
+// Single source for the subcommand set — tab-completion derives from this, so
+// adding a subcommand here (and to the switch below) updates both surfaces.
+export const RAIN_SUBCOMMANDS = ["preset", "font", "size", "gravity", "glyphspeed", "torch"];
+
+export const GRAVITY_LEVELS = {
   moon:    { value: 0.15, desc: "Gentle drift — barely noticeable acceleration." },
   earth:   { value: 0.4,  desc: "Natural pull — streams visibly pick up speed." },
   jupiter: { value: 0.75, desc: "Heavy pull — streams crawl at top, race at bottom." },
