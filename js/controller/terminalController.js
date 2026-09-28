@@ -7,6 +7,7 @@
 import {
   getLevenshteinDistance,
   getLongestCommonSubsequence,
+  own,
 } from "../utils.js";
 import { recordEgg } from "../eggs.js";
 import { decodeReveal } from "../effects/decode.js";
@@ -775,36 +776,52 @@ export function setTerminalOpacity(opacityValue) {
   );
 }
 
-export function setTerminalFontSize(sizeInput) {
-  const context = state.getContext();
-  const fontSizesConfig = context.config.terminal.fontSizes;
-
-  let newSize = "";
+/**
+ * Resolve a `term fontsize` argument to a CSS size — pure, so the contract
+ * test can feed it hostile keys. Named sizes are own-property lookups.
+ * @param {string} sizeInput
+ * @param {Record<string, any>} fontSizesConfig
+ * @returns {{ size: string } | { error: string }}
+ */
+export function resolveTerminalFontSize(sizeInput, fontSizesConfig) {
   const inputSize = sizeInput.toLowerCase();
+  const named = own(fontSizesConfig, inputSize);
 
-  if (fontSizesConfig[inputSize]) {
-    newSize = fontSizesConfig[inputSize];
-  } else if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
+  if (typeof named === "string") {
+    return { size: named };
+  }
+  if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
     const sizeValue = parseFloat(inputSize);
     if (
       inputSize.endsWith("px") &&
       (sizeValue < fontSizesConfig.minPx || sizeValue > fontSizesConfig.maxPx)
     ) {
-      appendToTerminal(
-        `<div class='output-error'>Pixel size out of reasonable range (${fontSizesConfig.minPx}px-${fontSizesConfig.maxPx}px).</div>`,
-      );
-      return;
+      return {
+        error: `Pixel size out of reasonable range (${fontSizesConfig.minPx}px-${fontSizesConfig.maxPx}px).`,
+      };
     }
-    newSize = inputSize;
-  } else {
-    appendToTerminal(
-      "<div class='output-error'>Invalid size. Use 'small', 'default', 'large', or a value like '10px', '1.2em'.</div>",
-    );
+    return { size: inputSize };
+  }
+  return {
+    error:
+      "Invalid size. Use 'small', 'default', 'large', or a value like '10px', '1.2em'.",
+  };
+}
+
+export function setTerminalFontSize(sizeInput) {
+  const context = state.getContext();
+  const result = resolveTerminalFontSize(
+    sizeInput,
+    context.config.terminal.fontSizes,
+  );
+
+  if ("error" in result) {
+    appendToTerminal(`<div class='output-error'>${result.error}</div>`);
     return;
   }
-  document.documentElement.style.setProperty("--terminal-font-size", newSize);
+  document.documentElement.style.setProperty("--terminal-font-size", result.size);
   appendToTerminal(
-    `<div class='output-success'>Terminal font size set to ${newSize}.</div>`,
+    `<div class='output-success'>Terminal font size set to ${result.size}.</div>`,
   );
 }
 

@@ -10,10 +10,22 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { getAllCommands, HIDDEN_COMMANDS } from "../js/commands/0_index.js";
-import { MAN_ALIASES } from "../js/commands/man.js";
-import { GRAVITY_LEVELS, RAIN_SUBCOMMANDS } from "../js/commands/rain.js";
+import dateCommand from "../js/commands/date.js";
+import downloadCommand from "../js/commands/download.js";
+import manCommand, { MAN_ALIASES } from "../js/commands/man.js";
+import rainCommand, {
+  GRAVITY_LEVELS,
+  RAIN_SUBCOMMANDS,
+} from "../js/commands/rain.js";
+import screenshotCommand from "../js/commands/screenshot.js";
+import * as config from "../js/config/index.js";
 import { help, themes } from "../js/config/index.js";
-import { getArgumentSuggestions } from "../js/controller/terminalController.js";
+import {
+  getArgumentSuggestions,
+  resolveTerminalFontSize,
+} from "../js/controller/terminalController.js";
+import RainEngine from "../js/rain/engine.js";
+import { own } from "../js/utils.js";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const rainJson = JSON.parse(read("../public/config/rain.json"));
@@ -170,5 +182,78 @@ describe("tab-completion contracts", () => {
       Object.keys(rainJson.presets).sort(),
     );
     expect(getArgumentSuggestions("download", context, "download c")).toEqual(["cv"]);
+  });
+});
+
+describe("typed keys never resolve through the prototype chain", () => {
+  const HOSTILE = ["constructor", "__proto__", "toString", "hasOwnProperty"];
+
+  // Runs a command with a fake context and returns everything it printed.
+  const run = (cmd, args, extra = {}) => {
+    const out = [];
+    const context = {
+      appendToTerminal: (html) => out.push(html),
+      config,
+      userConfig: config.user,
+      manPages,
+      ...extra,
+    };
+    cmd(args, context);
+    return out.join("\n");
+  };
+
+  it("own() misses inherited keys", () => {
+    for (const key of HOSTILE) expect(own({ a: 1 }, key)).toBeUndefined();
+    expect(own({ a: 1 }, "a")).toBe(1);
+    expect(own(null, "a")).toBeUndefined();
+  });
+
+  it("commands report hostile keys as unknown instead of garbling", () => {
+    const calls = [];
+    const rainEngine = {
+      presets: rainJson.presets,
+      fontSets: rainJson.fontSets,
+      activeConfig: { ...rainJson.defaultConfig },
+      applyPreset: (n) => calls.push(`preset:${n}`),
+      setFontSet: (n) => calls.push(`font:${n}`),
+    };
+    for (const key of HOSTILE) {
+      const outputs = [
+        run(manCommand, [key]),
+        run(rainCommand, ["font", key], { rainEngine }),
+        run(rainCommand, ["preset", key], { rainEngine }),
+        run(rainCommand, ["gravity", key], { rainEngine }),
+        run(dateCommand, [key]),
+        run(downloadCommand, [key]),
+        run(screenshotCommand, [key], { rainEngine }),
+      ];
+      for (const html of outputs) {
+        expect(html, key).toMatch(/output-error/);
+        expect(html, key).not.toMatch(/function|native code|undefined/);
+      }
+    }
+    expect(calls).toEqual([]);
+    expect(rainEngine.activeConfig.gravityAccel).toBe(
+      rainJson.defaultConfig.gravityAccel,
+    );
+  });
+
+  it("term fontsize rejects hostile keys", () => {
+    for (const key of HOSTILE) {
+      expect(resolveTerminalFontSize(key, config.terminal.fontSizes)).toHaveProperty(
+        "error",
+      );
+    }
+    expect(resolveTerminalFontSize("large", config.terminal.fontSizes)).toEqual({
+      size: config.terminal.fontSizes.large,
+    });
+  });
+
+  it("engine setFontSet/applyPreset reject hostile keys", () => {
+    const fake = { presets: rainJson.presets, fontSets: rainJson.fontSets };
+    for (const key of HOSTILE) {
+      expect(RainEngine.prototype.setFontSet.call(fake, key).success).toBe(false);
+      expect(RainEngine.prototype.applyPreset.call(fake, key).success).toBe(false);
+    }
   });
 });

@@ -3,7 +3,7 @@
  * Handles the 'date' command.
  */
 
-import { escapeHtml } from "../utils.js";
+import { escapeHtml, own } from "../utils.js";
 
 function getFormattedDateTime(date, timeZoneIana, locale, options) {
   const finalOptions = { ...options };
@@ -40,7 +40,7 @@ export default function dateCommand(args, context) {
       `<div class="output-text-small">${dateConfig.messages.hint}</div>`,
     );
   } else {
-    const tzInfo = timezoneData[requestedTimezoneKey];
+    const tzInfo = own(timezoneData, requestedTimezoneKey);
     if (tzInfo) {
       const foreignTime = getFormattedDateTime(
         now,

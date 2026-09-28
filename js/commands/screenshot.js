@@ -3,7 +3,7 @@
  * Handles the 'screenshot' command — renders rain at target resolution.
  */
 
-import { escapeHtml } from "../utils.js";
+import { escapeHtml, own } from "../utils.js";
 
 export default function screenshotCommand(args, context) {
   const {
@@ -25,7 +25,7 @@ export default function screenshotCommand(args, context) {
 
   // 1. Determine Resolution
   const resolutionArg = args[0]?.toLowerCase() || "fhd";
-  const resolution = screenshotConfig.resolutions[resolutionArg];
+  const resolution = own(screenshotConfig.resolutions, resolutionArg);
 
   if (!resolution) {
     return appendToTerminal(

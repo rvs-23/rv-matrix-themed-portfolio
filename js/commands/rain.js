@@ -5,7 +5,7 @@
  * Subcommands: preset, font, size, gravity, glyphspeed, torch
  */
 
-import { escapeHtml } from "../utils.js";
+import { escapeHtml, own } from "../utils.js";
 
 // Single source for the subcommand set — tab-completion derives from this, so
 // adding a subcommand here (and to the switch below) updates both surfaces.
@@ -119,7 +119,7 @@ function _preset(args, appendToTerminal, rainEngine, config) {
   }
 
   const presetName = args[0].toLowerCase();
-  const presetData = presets[presetName];
+  const presetData = own(presets, presetName);
 
   if (!presetData) {
     return appendToTerminal(
@@ -161,7 +161,7 @@ function _font(args, appendToTerminal, rainEngine, config) {
 
   const name = args[0].toLowerCase();
 
-  if (!fontSets[name]) {
+  if (!own(fontSets, name)) {
     appendToTerminal(
       `<div class='output-error'>${messages.unknown(escapeHtml(name))}</div>` +
         `<div>Available: ${fontSetNames.join(", ")}</div>`,
@@ -241,7 +241,7 @@ function _gravity(args, appendToTerminal, rainEngine) {
     return;
   }
 
-  const level = GRAVITY_LEVELS[input];
+  const level = own(GRAVITY_LEVELS, input);
   if (level) {
     rainEngine.activeConfig.gravityAccel = level.value;
     appendToTerminal(

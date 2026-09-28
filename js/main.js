@@ -18,7 +18,7 @@ import {
 } from "./controller/shortcuts.js";
 
 import { getAllCommands } from "./commands/0_index.js";
-import { debounce, renderTree } from "./utils.js";
+import { debounce, own, renderTree } from "./utils.js";
 import { sentientRainPhrases } from "./config/index.js";
 
 function initTitleBarDots(tc) {
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try { return localStorage.getItem("rv_preset"); } catch { return null; }
   })();
   if (rainEngine && savedPreset && rainEngine.presets) {
-    if (rainEngine.presets[savedPreset]) {
+    if (own(rainEngine.presets, savedPreset)) {
       rainEngine.applyPreset(savedPreset);
     } else {
       // Saved preset no longer exists (e.g. removed in an update) — clear the

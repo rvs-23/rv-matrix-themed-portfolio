@@ -25,6 +25,7 @@
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
+import { own } from "../utils.js";
 
 const randInt = (n) => Math.floor(Math.random() * n);
 const randRange = (min, max) => min + randInt(max - min + 1);
@@ -1128,7 +1129,7 @@ export default class RainEngine {
    * current theme colours). The "default" preset resets to defaultConfig.
    */
   applyPreset(presetName) {
-    const preset = this.presets[presetName];
+    const preset = own(this.presets, presetName);
     if (!preset)
       return { success: false, message: `Unknown preset: '${presetName}'.` };
 
@@ -1283,7 +1284,7 @@ export default class RainEngine {
    * @returns {{ success: boolean, message: string }}
    */
   setFontSet(name) {
-    const fontSet = this.fontSets[name];
+    const fontSet = own(this.fontSets, name);
     if (!fontSet) {
       return {
         success: false,

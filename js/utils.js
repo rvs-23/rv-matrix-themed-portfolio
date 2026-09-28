@@ -110,6 +110,20 @@ export function debounce(func, wait) {
 }
 
 /**
+ * Own-property lookup for user-typed keys. A plain `obj[key]` walks the
+ * prototype chain, so "constructor" or "__proto__" would resolve to
+ * Object.prototype members instead of missing.
+ * @param {object | null | undefined} obj The lookup table.
+ * @param {string | null | undefined} key The (untrusted) key.
+ * @returns {any} The own property value, or undefined.
+ */
+export function own(obj, key) {
+  return obj != null && key != null && Object.hasOwn(obj, key)
+    ? obj[key]
+    : undefined;
+}
+
+/**
  * Escapes a string for safe insertion into HTML.
  * @param {string} str The string to escape.
  * @returns {string} The escaped string.

@@ -4,7 +4,7 @@
  * Handles the 'man' command, displaying manual pages for other commands.
  */
 
-import { escapeHtml } from "../utils.js";
+import { escapeHtml, own } from "../utils.js";
 
 // Command aliases that share another command's manual page.
 // Exported for the contract smoke test.
@@ -35,8 +35,8 @@ export default function manCommand(args, context) {
   }
 
   const requested = args[0].toLowerCase();
-  const commandName = MAN_ALIASES[requested] || requested;
-  const page = manPages ? manPages[commandName] : null;
+  const commandName = own(MAN_ALIASES, requested) || requested;
+  const page = own(manPages, commandName);
 
   if (!page) {
     appendToTerminal(
