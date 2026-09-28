@@ -410,6 +410,7 @@ export default class RainEngine {
         // Re-enter the loop directly — grid/streams are intact, no setup()
         // needed. Reset the decay clock so the hidden time isn't "caught up".
         this.lastDecayTime = performance.now() - DECAY_INTERVAL_MS;
+        this.stop(); // never stack a second rAF chain on a running one
         this.loop(performance.now());
       }
     };
@@ -445,11 +446,20 @@ export default class RainEngine {
     // carrying them would desync theme or font state (the v1.1.0 bug class).
     const engineOwned = ["baseCol", "headCol", "fontFamily"];
     const knownKeys = new Set([...Object.keys(this.defaultConfig), "gravityAccel"]);
+    // Presets are self-contained (no inheritance from defaultConfig), so a
+    // missing tunable key would leave it undefined → NaN in the render path.
+    const tunableKeys = Object.keys(this.defaultConfig).filter(
+      (key) => !engineOwned.includes(key),
+    );
     for (const [name, preset] of Object.entries(this.presets)) {
+      if (preset.isReset) continue;
       const cfg = preset.config;
-      if (!cfg || Object.keys(cfg).length === 0) continue; // reset presets
+      if (!cfg || typeof cfg !== "object") fail(`preset '${name}' has no config`);
       for (const key of Object.keys(cfg)) {
         if (!knownKeys.has(key)) fail(`preset '${name}' has unknown key '${key}'`);
+      }
+      for (const key of tunableKeys) {
+        if (!(key in cfg)) fail(`preset '${name}' is missing key '${key}'`);
       }
       for (const key of engineOwned) {
         if (key in cfg) fail(`preset '${name}' must not set engine-owned key '${key}'`);
@@ -1057,9 +1067,14 @@ export default class RainEngine {
     ).matches;
 
     this.stop();
+    // start() owns resuming from here: a stale pause flag would let a
+    // visibilitychange mid-setup() enter loop() alongside ours (2x rain).
+    this._pausedByVisibility = false;
     try {
       const gen = ++this._startGen;
-      this.refreshColors();
+      // No repaint: the grid is about to be rebuilt by setup(), so a frame
+      // of the old grid here would be thrown away.
+      this.refreshColors({ repaint: false });
       this.globalTick = 0;
       this.stammerCounter = 0;
       await this.setup();
@@ -1085,6 +1100,7 @@ export default class RainEngine {
       // there's no startup "burst". No canvas fade needed.
       const now = performance.now();
       this.lastDecayTime = now - DECAY_INTERVAL_MS;
+      this.stop(); // single loop entry point — see _onVisibility
       this.loop(now);
       return true;
     } catch (err) {
@@ -1235,7 +1251,11 @@ export default class RainEngine {
     return out;
   }
 
-  refreshColors() {
+  /**
+   * @param {{ repaint?: boolean }} [opts] - `repaint: false` skips the static
+   *   repaint (start() rebuilds the grid right after).
+   */
+  refreshColors({ repaint = true } = {}) {
     const themeColors = getCurrentThemeColors();
     // Cache the resolved colours so the render path (loop/renderGrid) never
     // re-reads getComputedStyle; this is the only place they're refreshed.
@@ -1245,7 +1265,7 @@ export default class RainEngine {
     this._buildColorLUT(themeColors);
     // No loop running (reduced motion / paused): repaint the static frame so a
     // theme switch recolours the visible rain instead of leaving stale colours.
-    if (!this.animationId && this.grid.length && this.ctx) {
+    if (repaint && !this.animationId && this.grid.length && this.ctx) {
       this.renderFrame(themeColors);
     }
   }

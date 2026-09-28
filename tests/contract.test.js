@@ -112,6 +112,35 @@ describe("rain.json shape", () => {
     }
   });
 
+  it("every non-reset preset carries every tunable defaultConfig key", () => {
+    // Presets are self-contained — no inheritance — so a missing key would
+    // reach the render path as undefined (the stale-cache NaN family).
+    const tunable = Object.keys(defaultConfig).filter(
+      (k) => !engineOwned.includes(k),
+    );
+    for (const [name, preset] of Object.entries(presets)) {
+      if (preset.isReset) continue;
+      const cfg = preset.config ?? {};
+      const missing = tunable.filter((k) => !(k in cfg));
+      expect(missing, `preset ${name} missing keys`).toEqual([]);
+    }
+  });
+
+  it("the engine's boot validation rejects a preset missing a key", () => {
+    const [name, preset] = Object.entries(presets).find(([, p]) => !p.isReset);
+    const { speed: _dropped, ...partial } = preset.config;
+    const validate = (cfgPresets) =>
+      RainEngine.prototype._validateConfig.call({
+        defaultConfig,
+        fontSets,
+        presets: cfgPresets,
+      });
+    expect(() => validate(presets)).not.toThrow();
+    expect(() => validate({ ...presets, [name]: { ...preset, config: partial } })).toThrow(
+      /missing key 'speed'/,
+    );
+  });
+
   it("every tunable defaultConfig key has a validation rule", () => {
     const tunable = Object.keys(defaultConfig).filter(
       (k) => !engineOwned.includes(k),

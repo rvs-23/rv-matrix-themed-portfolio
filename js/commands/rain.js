@@ -176,6 +176,12 @@ function _font(args, appendToTerminal, rainEngine, config) {
 
 /* ── size ───────────────────────────────────────────────────────────── */
 
+/**
+ * Typed so the floating-promise lint sees start() is async.
+ * @param {string[]} args
+ * @param {(html: string) => void} appendToTerminal
+ * @param {import("../rain/engine.js").default} rainEngine
+ */
 function _size(args, appendToTerminal, rainEngine) {
   if (args.length === 0) {
     const current = rainEngine.activeConfig.font;
@@ -191,7 +197,7 @@ function _size(args, appendToTerminal, rainEngine) {
   if (input === "reset") {
     const defaultSize = rainEngine.defaultConfig.font;
     rainEngine.updateParameter("font", defaultSize);
-    rainEngine.start();
+    void rainEngine.start();
     appendToTerminal(
       `<div class='output-success'>Rain size reset to ${defaultSize}px.</div>`,
     );
@@ -207,7 +213,7 @@ function _size(args, appendToTerminal, rainEngine) {
   }
 
   rainEngine.updateParameter("font", size);
-  rainEngine.start();
+  void rainEngine.start();
   appendToTerminal(
     `<div class='output-success'>Rain glyph size set to ${size}px.</div>`,
   );
