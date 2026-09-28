@@ -45,7 +45,7 @@
   "mission": {
     "name": "mission - Display recruiter dossier.",
     "synopsis": "mission",
-    "description": "Displays a professional dossier summary with identity, role, and status. Includes clickable quick links for CV, LinkedIn, GitHub, and Email. Alias: 'hire'.",
+    "description": "Displays a professional dossier summary with identity, role, and current focus. Includes clickable quick links for CV, LinkedIn, GitHub, and Email. Alias: 'hire'.",
     "arguments": "None",
     "examples": [
       "mission            - Shows the recruiter dossier with quick links.",
