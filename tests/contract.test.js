@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { getAllCommands, HIDDEN_COMMANDS } from "../js/commands/0_index.js";
+import { matchAskRoute } from "../js/commands/ask.js";
 import dateCommand from "../js/commands/date.js";
 import downloadCommand from "../js/commands/download.js";
 import manCommand, { listedManPages, MAN_ALIASES } from "../js/commands/man.js";
@@ -206,6 +207,26 @@ describe("tab-completion contracts", () => {
     ]);
   });
 
+  it("single-argument commands stop completing after their argument", () => {
+    const ctx = { ...context, dateCommandTimezoneAliases: ["utc", "ist"] };
+    for (const input of ["theme green ", "man rain ", "date utc "]) {
+      expect(getArgumentSuggestions(input.split(" ")[0], ctx, input), input).toEqual([]);
+    }
+  });
+
+  it("completion never reorders the shared config arrays", () => {
+    const themesList = ["green", "amber"];
+    const aliases = ["utc", "ist"];
+    const ctx = {
+      config: { help: { availableThemes: themesList } },
+      dateCommandTimezoneAliases: aliases,
+    };
+    expect(getArgumentSuggestions("theme", ctx, "theme ")).toEqual(["amber", "green"]);
+    expect(getArgumentSuggestions("date", ctx, "date ")).toEqual(["ist", "utc"]);
+    expect(themesList).toEqual(["green", "amber"]);
+    expect(aliases).toEqual(["utc", "ist"]);
+  });
+
   it("mid-word arg input still yields the full candidate list (filtering happens at apply)", () => {
     expect(getArgumentSuggestions("rain", context, "rain preset c")).toEqual(
       Object.keys(rainJson.presets).sort(),
@@ -316,5 +337,21 @@ describe("man never advertises hidden eggs", () => {
     for (const egg of hiddenWithPages) {
       expect(run([egg])).toMatch(/output-manpage-wrapper/);
     }
+  });
+});
+
+describe("ask routing", () => {
+  const route = (q) => matchAskRoute(q, config.ask.routes)?.command ?? null;
+
+  it("matches whole words, not substrings", () => {
+    expect(route("is this a function")).toBeNull(); // "fun"
+    expect(route("do you write html")).toBeNull(); // "ml"
+    expect(route("the whole thing")).toBeNull(); // "who"
+  });
+
+  it("still routes plain and plural keywords", () => {
+    expect(route("who are you")).toBe("whoami");
+    expect(route("what are your skills")).toBe("skills");
+    expect(route("any hobbies")).toBe("hobbies");
   });
 });

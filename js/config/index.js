@@ -225,7 +225,7 @@ export const help = {
       cmd: "theme <name>",
       display: "theme <name>",
       desc: (context) =>
-        `Change color scheme. Available: ${context.config.help.availableThemes.sort().join(", ")}.`,
+        `Change color scheme. Available: ${[...context.config.help.availableThemes].sort().join(", ")}.`,
     },
     { cmd: "rain", display: "rain <subcommand>", desc: "Rain config: preset, font, size, gravity, glyphspeed, torch." },
     { cmd: "term", display: "term <subcommand>", desc: "Terminal config: opacity, fontsize, size." },

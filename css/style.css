@@ -242,7 +242,7 @@ body {
   pointer-events: none;
 }
 
-/* Terminal title bar with traffic-light dots (decorative) */
+/* Terminal title bar with traffic-light dot buttons (hide, dim, reset size) */
 .terminal-titlebar {
   display: flex;
   align-items: center;
@@ -254,6 +254,9 @@ body {
 .terminal-dot {
   width: 10px;
   height: 10px;
+  padding: 0;
+  border: 0;
+  appearance: none;
   border-radius: 50%;
   opacity: 0.5;
   cursor: pointer;
@@ -274,21 +277,30 @@ body {
   background-color: #666;
 }
 
-/* Reveal color on hover over the title bar */
-.terminal-titlebar:hover .terminal-dot {
+/* Reveal color on hover over the title bar (or keyboard focus within it) */
+.terminal-titlebar:hover .terminal-dot,
+.terminal-titlebar:focus-within .terminal-dot {
   opacity: 0.9;
 }
 
-.terminal-titlebar:hover .terminal-dot:nth-child(1) {
+.terminal-titlebar:hover .terminal-dot:nth-child(1),
+.terminal-titlebar:focus-within .terminal-dot:nth-child(1) {
   background-color: #ff5f57;
 }
 
-.terminal-titlebar:hover .terminal-dot:nth-child(2) {
+.terminal-titlebar:hover .terminal-dot:nth-child(2),
+.terminal-titlebar:focus-within .terminal-dot:nth-child(2) {
   background-color: #febc2e;
 }
 
-.terminal-titlebar:hover .terminal-dot:nth-child(3) {
+.terminal-titlebar:hover .terminal-dot:nth-child(3),
+.terminal-titlebar:focus-within .terminal-dot:nth-child(3) {
   background-color: #28c840;
+}
+
+.terminal-dot:focus-visible {
+  outline: 1px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 #terminal-output {

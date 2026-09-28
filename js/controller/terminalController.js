@@ -420,9 +420,12 @@ export function getArgumentSuggestions(commandName, context, currentInput) {
   const completedParts = currentInput.endsWith(" ")
     ? inputParts.length
     : inputParts.length - 1;
+  // Copies before sorting: these lists are shared config arrays.
   switch (commandName) {
     case "theme":
-      return (context.config?.help?.availableThemes || []).sort();
+      // Single-argument commands: nothing to complete after the first arg.
+      if (completedParts >= 2) return [];
+      return [...(context.config?.help?.availableThemes || [])].sort();
     case "rain": {
       if (completedParts <= 1) {
         return [...RAIN_SUBCOMMANDS];
@@ -453,11 +456,13 @@ export function getArgumentSuggestions(commandName, context, currentInput) {
       return [];
     }
     case "man":
+      if (completedParts >= 2) return [];
       return listedManPages(context.manPages);
     case "download":
       if (completedParts <= 1) return ["cv"];
       return [];
     case "date": {
+      if (completedParts >= 2) return [];
       const timezoneAliases = context.dateCommandTimezoneAliases || [
         "utc",
         "est",
@@ -466,7 +471,7 @@ export function getArgumentSuggestions(commandName, context, currentInput) {
         "jst",
         "gmt",
       ];
-      return timezoneAliases.sort();
+      return [...timezoneAliases].sort();
     }
     default:
       return [];
@@ -940,7 +945,7 @@ export function applyTheme(themeNameInput, { quiet = false } = {}) {
       "<div class='output-error'>Usage: theme &lt;name&gt;</div>",
     );
     appendToTerminal(
-      `<div>Available themes: ${validSpecificThemes.sort().join(", ")}.</div>`,
+      `<div>Available themes: ${[...validSpecificThemes].sort().join(", ")}.</div>`,
     );
     appendToTerminal(
       `<div>Current theme: ${currentThemeClass.replace("theme-", "")}</div>`,
@@ -974,10 +979,6 @@ export function applyTheme(themeNameInput, { quiet = false } = {}) {
     showThemeUsage();
     return false;
   }
-}
-
-export function getFullWelcomeMessage() {
-  return state.config.welcomeMsg;
 }
 
 export function getCurrentThemeName() {

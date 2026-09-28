@@ -117,7 +117,7 @@ export default function skillTreeCommand(args, context) {
 
   if (!pathArg && skillsData.children && skillsData.children.length > 0) {
     appendToTerminal(
-      "<div>Hint: Navigate deeper using names or aliases (e.g., `skilltree se`, `skilltree ai > genai`). Check `public/config/content/skills.json` for defined aliases.</div>",
+      "<div>Hint: Navigate deeper using names or aliases (e.g., `skilltree se`, `skilltree ai > genai`).</div>",
       "output-text-wrapper",
     );
   }
