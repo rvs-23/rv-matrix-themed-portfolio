@@ -6,6 +6,13 @@
 
 const GLYPHS = "アァカサタナハマヤャラワガザダバパ0123456789ABCDEF";
 
+/** True when the visitor asked for reduced motion. */
+export function prefersReducedMotion() {
+  return Boolean(
+    globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+  );
+}
+
 /**
  * Animate text decoding into a DOM element.
  * @param {HTMLElement} element — target element (textContent will be overwritten)
@@ -16,6 +23,11 @@ const GLYPHS = "アァカサタナハマヤャラワガザダバパ0123456789ABC
  * @returns {Promise<void>} resolves when animation completes
  */
 export function decodeReveal(element, text, opts = {}) {
+  // Reduced motion: no scramble, just the final text.
+  if (prefersReducedMotion()) {
+    element.textContent = text;
+    return Promise.resolve();
+  }
   const { duration = 1000, stagger = 0.65 } = opts;
   const chars = [...text];
   const len = chars.length;

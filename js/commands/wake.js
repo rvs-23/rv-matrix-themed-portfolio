@@ -4,7 +4,6 @@
  */
 
 import { decodeReveal, sleep } from "../effects/decode.js";
-import { escapeHtml } from "../utils.js";
 
 const SEQUENCE = [
   { text: (name) => `Wake up, ${name}...`, delay: 1000, duration: 1000 },
@@ -15,27 +14,25 @@ const SEQUENCE = [
 
 export default async function wakeCommand(args, context) {
   const { appendToTerminal, config, terminalController, rainEngine } = context;
-  const name = escapeHtml(config.user.name?.split(" ")[0] || "Neo");
+  // Plain text: decodeReveal writes textContent, so no HTML escaping.
+  const name = config.user.name?.split(" ")[0] || "Neo";
 
-  // Disable input during the cinematic sequence
-  const input = document.getElementById("command-input");
-  if (input) input.disabled = true;
+  // Lock input (and the command chips) during the cinematic sequence
+  terminalController.setInputLocked(true);
+  try {
+    // Clear terminal for cinematic feel
+    terminalController.clearTerminalOutput();
+    // The system stirs — a bright surge through the rain as it wakes.
+    rainEngine?.pulse?.({ primary: "#dfffdf", glow: "#ffffff" }, 1800);
+    await sleep(600);
 
-  // Clear terminal for cinematic feel
-  terminalController.clearTerminalOutput();
-  // The system stirs — a bright surge through the rain as it wakes.
-  rainEngine?.pulse?.({ primary: "#dfffdf", glow: "#ffffff" }, 1800);
-  await sleep(600);
-
-  for (const step of SEQUENCE) {
-    const el = appendToTerminal("");
-    await decodeReveal(el, step.text(name), { duration: step.duration });
-    await sleep(step.delay);
-  }
-
-  // Re-enable input
-  if (input) {
-    input.disabled = false;
-    input.focus();
+    for (const step of SEQUENCE) {
+      const el = appendToTerminal("");
+      await decodeReveal(el, step.text(name), { duration: step.duration });
+      await sleep(step.delay);
+    }
+  } finally {
+    // Always re-enable, even if a step throws
+    terminalController.setInputLocked(false);
   }
 }

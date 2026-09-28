@@ -201,6 +201,21 @@ export function runCommand(text) {
   focusInput();
 }
 
+/**
+ * Lock or unlock command entry — the input and the click-to-run chips — for
+ * cinematic sequences (`wake`). Unlocking also refocuses the input.
+ * @param {boolean} locked
+ */
+export function setInputLocked(locked) {
+  if (state.elements.input) state.elements.input.disabled = locked;
+  document
+    .querySelectorAll("#command-chips .command-chip")
+    .forEach((chip) => {
+      /** @type {HTMLButtonElement} */ (chip).disabled = locked;
+    });
+  if (!locked) focusInput();
+}
+
 /** Render clickable command chips above the input for quick discovery. */
 function renderCommandChips() {
   const host = document.getElementById("command-chips");

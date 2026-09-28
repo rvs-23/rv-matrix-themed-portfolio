@@ -378,6 +378,12 @@ body {
     box-shadow 0.2s ease;
 }
 
+.command-chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
 .command-chip:hover,
 .command-chip:focus-visible {
   background: rgba(var(--primary-color-rgb), 0.18);
@@ -934,6 +940,11 @@ body.crt-mode #matrix-canvas {
   }
 
   .content-container.is-hiding {
+    animation: none;
+    opacity: 0;
+  }
+
+  body.redpill-flash::after {
     animation: none;
     opacity: 0;
   }
