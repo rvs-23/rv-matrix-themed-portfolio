@@ -31,12 +31,19 @@ function initTitleBarDots(tc) {
     tc.toggleTerminalVisibility();
   });
 
-  // Yellow dot: toggle between reduced opacity (30%) and default
-  let dimmed = false;
+  // Yellow dot: toggle between reduced opacity (30%) and default. "Dimmed"
+  // is read from the live opacity, not a local flag, so `reset` and
+  // `term opacity` can't desync it.
+  const DIM_OPACITY = 0.3;
   dots[1].addEventListener("click", (e) => {
     e.stopPropagation();
-    dimmed = !dimmed;
-    tc.setTerminalOpacity(dimmed ? 0.3 : "reset");
+    const current = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--terminal-opacity",
+      ),
+    );
+    const dimmed = Math.abs(current - DIM_OPACITY) < 0.005;
+    tc.setTerminalOpacity(dimmed ? "reset" : DIM_OPACITY);
   });
 
   // Green dot: reset terminal size to defaults

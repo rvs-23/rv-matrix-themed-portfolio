@@ -908,7 +908,11 @@ function updatePrimaryColorRGB() {
   }
 }
 
-export function applyTheme(themeNameInput) {
+/**
+ * @param {string} themeNameInput
+ * @param {{ quiet?: boolean }} [opts] - `quiet` skips the success line.
+ */
+export function applyTheme(themeNameInput, { quiet = false } = {}) {
   const context = state.getContext();
   const validSpecificThemes = context.config.help.availableThemes;
 
@@ -942,9 +946,11 @@ export function applyTheme(themeNameInput) {
     const targetThemeClass = `theme-${themeNameInput}`;
     document.body.classList.add(targetThemeClass);
     updatePrimaryColorRGB();
-    appendToTerminal(
-      `<div class='output-success'>Theme set to ${targetThemeClass.replace("theme-", "")}.</div>`,
-    );
+    if (!quiet) {
+      appendToTerminal(
+        `<div class='output-success'>Theme set to ${targetThemeClass.replace("theme-", "")}.</div>`,
+      );
+    }
     return true;
   } else {
     appendToTerminal(

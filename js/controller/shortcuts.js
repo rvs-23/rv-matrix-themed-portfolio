@@ -19,9 +19,14 @@ export function initializeShortcuts(config, onCrtToggleCb) {
   document.addEventListener("keydown", globalKeydownHandler);
 }
 
-function toggleCrtMode(activate) {
-  crtModeActive = typeof activate === "boolean" ? activate : !crtModeActive;
+/** Set CRT mode silently (no terminal feedback) — used by `reset`. */
+export function setCrtMode(active) {
+  crtModeActive = active;
   document.body.classList.toggle("crt-mode", crtModeActive);
+}
+
+function toggleCrtMode(activate) {
+  setCrtMode(typeof activate === "boolean" ? activate : !crtModeActive);
   if (typeof onCrtToggleFeedback === "function") {
     onCrtToggleFeedback(crtModeActive);
   }
