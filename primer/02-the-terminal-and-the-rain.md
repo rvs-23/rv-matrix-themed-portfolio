@@ -267,7 +267,8 @@ Hints only.
    `js/commands/0_index.js` and add a line to the returned object. Add a help row
    in `help.commandList` (`js/config/index.js`) and a manual entry in
    `public/config/content/manPages.json`. Which of those four files does the
-   command *need* to run, and which just make it discoverable?
+   command *need* to run, and which just make it discoverable? (Then run
+   `npm test` without the help row or man page and read what fails.)
 
 2. **Add a rain preset in pure JSON.** In `public/config/rain.json`, copy one
    entry under `presets`, rename it, and change some numbers in its `config`. No

@@ -26,6 +26,9 @@
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
 
     <link rel="stylesheet" href="/css/style.css" />
@@ -58,10 +61,10 @@
     </noscript>
 
     <div id="contentContainer" class="content-container">
-      <div class="terminal-titlebar" aria-hidden="true">
-        <span class="terminal-dot"></span>
-        <span class="terminal-dot"></span>
-        <span class="terminal-dot"></span>
+      <div class="terminal-titlebar">
+        <button type="button" class="terminal-dot" aria-label="Hide terminal"></button>
+        <button type="button" class="terminal-dot" aria-label="Toggle terminal dimming"></button>
+        <button type="button" class="terminal-dot" aria-label="Reset terminal size"></button>
       </div>
       <pre id="terminal-output" role="log" aria-live="polite" aria-label="Terminal output"></pre>
       <div class="command-chips" id="command-chips" aria-label="Quick commands"></div>

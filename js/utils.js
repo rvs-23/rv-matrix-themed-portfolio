@@ -1,3 +1,4 @@
+// @ts-check
 // js/utils.js
 
 /**
@@ -64,11 +65,11 @@ export function getLevenshteinDistance(s1, s2) {
 /**
  * Renders a hierarchical data structure (with `name` and `children` fields)
  * as a text-based tree, pushing HTML lines into an output array.
- * @param {object} node - The current node ({ name, children?, aliases? }).
+ * @param {{ name?: string, children?: Array<object> }} node - The current node.
  * @param {string} prefix - The visual prefix for the current line.
  * @param {boolean} isLast - Whether this node is the last sibling.
  * @param {string[]} outputLines - Array to push formatted lines into.
- * @param {boolean} isRoot - Whether this is the root node (unused, kept for call-site compat).
+ * @param {boolean} _isRoot - Whether this is the root node (unused, kept for call-site compat).
  */
 export function renderTree(node, prefix, isLast, outputLines, _isRoot) {
   const connector = isLast ? "└── " : "├── ";
@@ -106,6 +107,20 @@ export function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+/**
+ * Own-property lookup for user-typed keys. A plain `obj[key]` walks the
+ * prototype chain, so "constructor" or "__proto__" would resolve to
+ * Object.prototype members instead of missing.
+ * @param {object | null | undefined} obj The lookup table.
+ * @param {string | null | undefined} key The (untrusted) key.
+ * @returns {any} The own property value, or undefined.
+ */
+export function own(obj, key) {
+  return obj != null && key != null && Object.hasOwn(obj, key)
+    ? obj[key]
+    : undefined;
 }
 
 /**

@@ -3,7 +3,11 @@
  * Hidden easter egg — "there is no spoon" with terminal warp.
  */
 
-import { decodeReveal, sleep } from "../effects/decode.js";
+import {
+  decodeReveal,
+  prefersReducedMotion,
+  sleep,
+} from "../effects/decode.js";
 
 export default async function nospoonCommand(args, context) {
   const { appendToTerminal, mainContentContainer } = context;
@@ -16,8 +20,8 @@ export default async function nospoonCommand(args, context) {
   );
   await sleep(500);
 
-  // Warp the terminal
-  if (mainContentContainer) {
+  // Warp the terminal (skipped under reduced motion)
+  if (mainContentContainer && !prefersReducedMotion()) {
     mainContentContainer.style.transition = "transform 0.4s ease";
     mainContentContainer.style.transform =
       "perspective(800px) rotateY(2deg) skewY(0.5deg)";

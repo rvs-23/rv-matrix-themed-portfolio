@@ -1,12 +1,17 @@
+// @ts-check
 /**
  * @file js/commands/rain.js
  * Umbrella command for all rain customization.
- * Subcommands: preset, font, size, gravity, glyphspeed
+ * Subcommands: preset, font, size, gravity, glyphspeed, torch
  */
 
-import { escapeHtml } from "../utils.js";
+import { escapeHtml, own } from "../utils.js";
 
-const GRAVITY_LEVELS = {
+// Single source for the subcommand set — tab-completion derives from this, so
+// adding a subcommand here (and to the switch below) updates both surfaces.
+export const RAIN_SUBCOMMANDS = ["preset", "font", "size", "gravity", "glyphspeed", "torch"];
+
+export const GRAVITY_LEVELS = {
   moon:    { value: 0.15, desc: "Gentle drift — barely noticeable acceleration." },
   earth:   { value: 0.4,  desc: "Natural pull — streams visibly pick up speed." },
   jupiter: { value: 0.75, desc: "Heavy pull — streams crawl at top, race at bottom." },
@@ -114,7 +119,7 @@ function _preset(args, appendToTerminal, rainEngine, config) {
   }
 
   const presetName = args[0].toLowerCase();
-  const presetData = presets[presetName];
+  const presetData = own(presets, presetName);
 
   if (!presetData) {
     return appendToTerminal(
@@ -156,7 +161,7 @@ function _font(args, appendToTerminal, rainEngine, config) {
 
   const name = args[0].toLowerCase();
 
-  if (!fontSets[name]) {
+  if (!own(fontSets, name)) {
     appendToTerminal(
       `<div class='output-error'>${messages.unknown(escapeHtml(name))}</div>` +
         `<div>Available: ${fontSetNames.join(", ")}</div>`,
@@ -171,6 +176,12 @@ function _font(args, appendToTerminal, rainEngine, config) {
 
 /* ── size ───────────────────────────────────────────────────────────── */
 
+/**
+ * Typed so the floating-promise lint sees start() is async.
+ * @param {string[]} args
+ * @param {(html: string) => void} appendToTerminal
+ * @param {import("../rain/engine.js").default} rainEngine
+ */
 function _size(args, appendToTerminal, rainEngine) {
   if (args.length === 0) {
     const current = rainEngine.activeConfig.font;
@@ -186,7 +197,7 @@ function _size(args, appendToTerminal, rainEngine) {
   if (input === "reset") {
     const defaultSize = rainEngine.defaultConfig.font;
     rainEngine.updateParameter("font", defaultSize);
-    rainEngine.start();
+    void rainEngine.start();
     appendToTerminal(
       `<div class='output-success'>Rain size reset to ${defaultSize}px.</div>`,
     );
@@ -202,7 +213,7 @@ function _size(args, appendToTerminal, rainEngine) {
   }
 
   rainEngine.updateParameter("font", size);
-  rainEngine.start();
+  void rainEngine.start();
   appendToTerminal(
     `<div class='output-success'>Rain glyph size set to ${size}px.</div>`,
   );
@@ -236,7 +247,7 @@ function _gravity(args, appendToTerminal, rainEngine) {
     return;
   }
 
-  const level = GRAVITY_LEVELS[input];
+  const level = own(GRAVITY_LEVELS, input);
   if (level) {
     rainEngine.activeConfig.gravityAccel = level.value;
     appendToTerminal(

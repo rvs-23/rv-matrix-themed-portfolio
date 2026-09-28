@@ -45,7 +45,7 @@
   "mission": {
     "name": "mission - Display recruiter dossier.",
     "synopsis": "mission",
-    "description": "Displays a professional dossier summary with identity, role, and status. Includes clickable quick links for CV, LinkedIn, GitHub, and Email. Alias: 'hire'.",
+    "description": "Displays a professional dossier summary with identity, role, and current focus. Includes clickable quick links for CV, LinkedIn, GitHub, and Email. Alias: 'hire'.",
     "arguments": "None",
     "examples": [
       "mission            - Shows the recruiter dossier with quick links.",
@@ -77,8 +77,8 @@
   "rain": {
     "name": "rain - Configure the Matrix rain animation.",
     "synopsis": "rain [subcommand] [value]",
-    "description": "Umbrella command for all rain customisation. Run 'rain' with no arguments to see current config. Each subcommand controls a different aspect of the rain.\n\nSubcommands:\n  preset   — Apply a named visual preset\n  font     — Switch the glyph set\n  size     — Set glyph pixel size\n  gravity  — Control fall acceleration\n  glyphspeed — Control glyph mutation rate",
-    "arguments": "preset <name>             — Apply a preset. Options: default, comet, storm, whisper, ancient, emberfall, rainfall, frozen.\nfont <name>               — Switch font set: classic, resurrections, combined.\nsize <px> | reset         — Set glyph size (8–40px), or reset to default.\ngravity <level> | off     — Acceleration levels: moon, earth, jupiter.\nglyphspeed <1-30> | reset — Mutation rate. Lower = faster churn.",
+    "description": "Umbrella command for all rain customisation. Run 'rain' with no arguments to see current config. Each subcommand controls a different aspect of the rain.\n\nSubcommands:\n  preset   — Apply a named visual preset\n  font     — Switch the glyph set\n  size     — Set glyph pixel size\n  gravity  — Control fall acceleration\n  glyphspeed — Control glyph mutation rate\n  torch    — Hide the rain except a spotlight around the cursor",
+    "arguments": "preset <name>             — Apply a preset. Options: default, comet, storm, whisper, ancient, emberfall, rainfall, frozen.\nfont <name>               — Switch font set: classic, resurrections, combined.\nsize <px> | reset         — Set glyph size (8–40px), or reset to default.\ngravity <level> | off     — Acceleration levels: moon, earth, jupiter.\nglyphspeed <1-30> | reset — Mutation rate. Lower = faster churn.\ntorch [on|off|<px>]       — Toggle the spotlight, or set its radius (40–600px, turns it on).",
     "examples": [
       "rain                   - Shows current rain config.",
       "rain preset storm      - Applies the 'storm' preset.",
@@ -89,9 +89,11 @@
       "rain gravity earth     - Natural gravitational pull.",
       "rain gravity off       - Disables gravity.",
       "rain glyphspeed 15     - Glyphs hold steady (deliberate pace).",
-      "rain glyphspeed 1      - Rapid character churn."
+      "rain glyphspeed 1      - Rapid character churn.",
+      "rain torch             - Toggles the cursor spotlight.",
+      "rain torch 250         - Spotlight on, 250px radius."
     ],
-    "notes": "Preset choice is saved to localStorage and restored on reload. Gravity and glyphspeed are session-only — they reset when the preset changes."
+    "notes": "Preset choice is saved to localStorage and restored on reload. Font set, gravity, glyphspeed and torch are session-only; gravity and glyphspeed also reset when the preset changes."
   },
   "term": {
     "name": "term - Configure the terminal appearance.",
@@ -181,9 +183,11 @@
   "reset": {
     "name": "reset - Reset all preferences to defaults.",
     "synopsis": "reset",
-    "description": "Clears all saved preferences from localStorage and restores: green theme, default rain preset, and default rain/terminal settings. Session-only settings (gravity, glyphspeed) are also cleared.",
+    "description": "Clears all saved preferences from localStorage (theme, rain preset, discovered easter eggs) and restores: green theme, default rain preset and font, torch off, default terminal opacity / font size / window size, and exits recruiter mode. Session-only settings (gravity, glyphspeed) are also cleared.",
     "arguments": "None",
-    "examples": ["reset              - Restores everything to factory defaults."]
+    "examples": [
+      "reset              - Restores everything to factory defaults."
+    ]
   },
   "decode": {
     "name": "decode - Decode-reveal text with a Matrix effect.",

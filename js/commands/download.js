@@ -2,12 +2,17 @@
  * @file js/commands/download.js
  * Handles the 'download' command.
  */
+
+import { own } from "../utils.js";
+
 export default function downloadCvCommand(args, context) {
   const { appendToTerminal, userConfig, config } = context;
   const downloadConfig = config.download;
   const messages = downloadConfig.messages;
   const fileKey = args[0] ? args[0].toLowerCase() : null;
-  const fileConfig = downloadConfig[fileKey];
+  // `messages` shares the table with the file entries — never a file.
+  const fileConfig =
+    fileKey === "messages" ? undefined : own(downloadConfig, fileKey);
 
   if (fileConfig) {
     const fileUrl = userConfig[fileConfig.userConfigKey];

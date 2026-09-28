@@ -4,6 +4,7 @@
  */
 
 import { clearEggs } from "../eggs.js";
+import { setCrtMode } from "../controller/shortcuts.js";
 
 export default function resetCommand(_args, context) {
   const { appendToTerminal, terminalController, rainEngine } = context;
@@ -15,8 +16,8 @@ export default function resetCommand(_args, context) {
   } catch { /* storage unavailable */ }
   clearEggs();
 
-  // Reset theme to green
-  terminalController.applyTheme("green");
+  // Reset theme to green (quietly — the summary line below covers it)
+  terminalController.applyTheme("green", { quiet: true });
   if (rainEngine) rainEngine.refreshColors();
 
   // Reset rain preset to default (also restores the default rain font set)
@@ -29,6 +30,9 @@ export default function resetCommand(_args, context) {
 
   // Exit recruiter mode (clears the highlighted bottom nav banner)
   document.body.classList.remove("recruiter-mode");
+
+  // Turn off CRT mode (Konami egg)
+  setCrtMode(false);
 
   appendToTerminal(
     "<div class='output-success'>All preferences reset to defaults.</div>",

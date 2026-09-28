@@ -18,7 +18,7 @@ import {
 } from "./controller/shortcuts.js";
 
 import { getAllCommands } from "./commands/0_index.js";
-import { debounce, renderTree } from "./utils.js";
+import { debounce, own, renderTree } from "./utils.js";
 import { sentientRainPhrases } from "./config/index.js";
 
 function initTitleBarDots(tc) {
@@ -31,12 +31,19 @@ function initTitleBarDots(tc) {
     tc.toggleTerminalVisibility();
   });
 
-  // Yellow dot: toggle between reduced opacity (30%) and default
-  let dimmed = false;
+  // Yellow dot: toggle between reduced opacity (30%) and default. "Dimmed"
+  // is read from the live opacity, not a local flag, so `reset` and
+  // `term opacity` can't desync it.
+  const DIM_OPACITY = 0.3;
   dots[1].addEventListener("click", (e) => {
     e.stopPropagation();
-    dimmed = !dimmed;
-    tc.setTerminalOpacity(dimmed ? 0.3 : "reset");
+    const current = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--terminal-opacity",
+      ),
+    );
+    const dimmed = Math.abs(current - DIM_OPACITY) < 0.005;
+    tc.setTerminalOpacity(dimmed ? "reset" : DIM_OPACITY);
   });
 
   // Green dot: reset terminal size to defaults
@@ -105,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try { return localStorage.getItem("rv_preset"); } catch { return null; }
   })();
   if (rainEngine && savedPreset && rainEngine.presets) {
-    if (rainEngine.presets[savedPreset]) {
+    if (own(rainEngine.presets, savedPreset)) {
       rainEngine.applyPreset(savedPreset);
     } else {
       // Saved preset no longer exists (e.g. removed in an update) — clear the

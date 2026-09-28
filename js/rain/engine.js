@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file js/rain/engine.js
  * Matrix digital rain engine with persistent glyph grid.
@@ -6,13 +7,13 @@
  * Streams are brightness cursors — they illuminate cells as they pass downward.
  * Cells decay toward `dimFloor`; when `dimFloor` is 0 (the current default and
  * most presets) they reach true black, when it's > 0 they retain a faint
- * persistent glyph field. Some presets (e.g. whisper, pulse) use a small floor
+ * persistent glyph field. Some presets (whisper, emberfall) use a small floor
  * for the dense, luminous look seen in the film.
  *
  * Film-inspired behaviors (Carl Newton's digital rain analysis):
  *  - Globally synchronized glyph mutations (all changes on the same frame)
- *  - Selective head highlighting (~1 in 5 streams get extra glow)
- *  - Head stammer (highlighted heads periodically pause in unison)
+ *  - Head stammer (a `highlightChance` share of heads pause in unison;
+ *    head brightness itself comes from `layerOp`, not highlightChance)
  *  - Depth conveyed via opacity layers only (uniform font size)
  *  - Head character flickers (throttled); grid characters are near-static
  *  - Brightness-based color mapping (white → glow → green → dim)
@@ -24,6 +25,7 @@
  */
 
 import { getCurrentThemeColors } from "../controller/terminalController.js";
+import { own } from "../utils.js";
 
 const randInt = (n) => Math.floor(Math.random() * n);
 const randRange = (min, max) => min + randInt(max - min + 1);
@@ -288,7 +290,9 @@ export default class RainEngine {
         "RainEngine: rain.json is missing or invalid (no defaultConfig).",
       );
     }
-    this.canvas = document.getElementById("matrix-canvas");
+    this.canvas = /** @type {HTMLCanvasElement} */ (
+      document.getElementById("matrix-canvas")
+    );
     this.ctx = this.canvas?.getContext("2d");
     // Defensive copy — never mutate the shared parsed-JSON object in place.
     this.defaultConfig = { ...rainConfig.defaultConfig };
@@ -299,6 +303,11 @@ export default class RainEngine {
     this.activeConfig = { ...this.defaultConfig };
     this.activePresetName = "default";
     this.fontSets = rainConfig.fontSets || {};
+
+    // Schema sanity for whatever config actually reached this browser (a stale
+    // CDN/HTTP-cache copy included) — turns the silent-visual-death family
+    // (blank font, NaN rain) into a loud boot error that main.js catches.
+    this._validateConfig();
 
     // Default to the classic 1999 katakana set (combined/resurrections opt-in
     // via `rain font`).
@@ -382,6 +391,83 @@ export default class RainEngine {
     this._resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
     window.addEventListener("resize", this._handleResize, { passive: true });
+
+    /**
+     * Pause the loop while the tab is hidden — rAF is throttled but the work
+     * isn't free, and there's nothing to see. Resume only if *we* paused it,
+     * so an intentionally-stopped engine (reduced motion, failed start) is
+     * never force-started by a tab switch.
+     */
+    this._pausedByVisibility = false;
+    this._onVisibility = () => {
+      if (document.hidden) {
+        if (this.animationId) {
+          this.stop();
+          this._pausedByVisibility = true;
+        }
+      } else if (this._pausedByVisibility) {
+        this._pausedByVisibility = false;
+        // Re-enter the loop directly — grid/streams are intact, no setup()
+        // needed. Reset the decay clock so the hidden time isn't "caught up".
+        this.lastDecayTime = performance.now() - DECAY_INTERVAL_MS;
+        this.stop(); // never stack a second rAF chain on a running one
+        this.loop(performance.now());
+      }
+    };
+    document.addEventListener("visibilitychange", this._onVisibility);
+  }
+
+  /**
+   * Boot-time schema validation for the loaded rain config. Hand-rolled (~30
+   * lines, zero deps) rather than a schema library — the Vitest contract test
+   * guards the repo's own data at dev time; this guards whatever config a
+   * visitor's browser actually loaded. Throws with a precise message; the
+   * constructor's caller already degrades to terminal-without-rain.
+   */
+  _validateConfig() {
+    const fail = (msg) => {
+      throw new Error(`RainEngine config invalid: ${msg}`);
+    };
+
+    if (typeof this.defaultConfig.font !== "number" || this.defaultConfig.font <= 0) {
+      fail(`defaultConfig.font must be a positive number, got ${this.defaultConfig.font}`);
+    }
+
+    for (const [name, set] of Object.entries(this.fontSets)) {
+      if (typeof set.glyphs !== "string" || set.glyphs.length === 0) {
+        fail(`fontSet '${name}' has empty or missing glyphs`);
+      }
+      if (typeof set.fontFamily !== "string" || set.fontFamily.length === 0) {
+        fail(`fontSet '${name}' has empty or missing fontFamily`);
+      }
+    }
+
+    // Colours and font family are engine/theme-owned at runtime; a preset
+    // carrying them would desync theme or font state (the v1.1.0 bug class).
+    const engineOwned = ["baseCol", "headCol", "fontFamily"];
+    const knownKeys = new Set([...Object.keys(this.defaultConfig), "gravityAccel"]);
+    // Presets are self-contained (no inheritance from defaultConfig), so a
+    // missing tunable key would leave it undefined → NaN in the render path.
+    const tunableKeys = Object.keys(this.defaultConfig).filter(
+      (key) => !engineOwned.includes(key),
+    );
+    for (const [name, preset] of Object.entries(this.presets)) {
+      if (preset.isReset) continue;
+      const cfg = preset.config;
+      if (!cfg || typeof cfg !== "object") fail(`preset '${name}' has no config`);
+      for (const key of Object.keys(cfg)) {
+        if (!knownKeys.has(key)) fail(`preset '${name}' has unknown key '${key}'`);
+      }
+      for (const key of tunableKeys) {
+        if (!(key in cfg)) fail(`preset '${name}' is missing key '${key}'`);
+      }
+      for (const key of engineOwned) {
+        if (key in cfg) fail(`preset '${name}' must not set engine-owned key '${key}'`);
+      }
+      if (typeof cfg.layers === "number" && Array.isArray(cfg.layerOp) && cfg.layerOp.length !== cfg.layers) {
+        fail(`preset '${name}': layerOp has ${cfg.layerOp.length} entries but layers is ${cfg.layers}`);
+      }
+    }
   }
 
   destroy() {
@@ -390,6 +476,7 @@ export default class RainEngine {
     window.removeEventListener("pointerdown", this._onPointer);
     window.removeEventListener("pointerout", this._onPointerLeave);
     window.removeEventListener("blur", this._onBlur);
+    document.removeEventListener("visibilitychange", this._onVisibility);
     this.stop();
   }
 
@@ -980,9 +1067,14 @@ export default class RainEngine {
     ).matches;
 
     this.stop();
+    // start() owns resuming from here: a stale pause flag would let a
+    // visibilitychange mid-setup() enter loop() alongside ours (2x rain).
+    this._pausedByVisibility = false;
     try {
       const gen = ++this._startGen;
-      this.refreshColors();
+      // No repaint: the grid is about to be rebuilt by setup(), so a frame
+      // of the old grid here would be thrown away.
+      this.refreshColors({ repaint: false });
       this.globalTick = 0;
       this.stammerCounter = 0;
       await this.setup();
@@ -996,12 +1088,19 @@ export default class RainEngine {
         this.renderFrame(this.themeColors || getCurrentThemeColors());
         return true;
       }
+      // Started in a hidden tab (link opened in background): don't spin the
+      // loop unseen — mark it paused so visibilitychange resumes it on view.
+      if (document.hidden) {
+        this._pausedByVisibility = true;
+        return true;
+      }
       // setup() already scatters + pre-illuminates a full field. Combined with
       // starting on fonts.ready (main.js), the rain runs behind the loader and is
       // already established/mid-stream when the loader's fade-out reveals it — so
       // there's no startup "burst". No canvas fade needed.
       const now = performance.now();
       this.lastDecayTime = now - DECAY_INTERVAL_MS;
+      this.stop(); // single loop entry point — see _onVisibility
       this.loop(now);
       return true;
     } catch (err) {
@@ -1026,6 +1125,7 @@ export default class RainEngine {
     this.activePresetName = "default";
     this.torch = false; // reset clears torch/spotlight mode
     this.torchRadiusUser = null; // and its custom radius
+    this.pulseState = null; // an in-flight colour pulse must not survive reset
     // Factory reset also restores the default (classic) font set so glyphs and
     // fontFamily can't be left desynced by an earlier `rain font` switch.
     const classic = this.fontSets.classic;
@@ -1034,7 +1134,7 @@ export default class RainEngine {
       this.activeConfig.fontFamily = classic.fontFamily;
       this.activeFontSet = "classic";
     }
-    this.start();
+    void this.start();
     return { success: true, message: "Rain reset to defaults." };
   }
 
@@ -1045,7 +1145,7 @@ export default class RainEngine {
    * current theme colours). The "default" preset resets to defaultConfig.
    */
   applyPreset(presetName) {
-    const preset = this.presets[presetName];
+    const preset = own(this.presets, presetName);
     if (!preset)
       return { success: false, message: `Unknown preset: '${presetName}'.` };
 
@@ -1065,7 +1165,7 @@ export default class RainEngine {
 
       // Presets define structural params (font/density/lineH), so always
       // rebuild the grid; start() also applies the theme colours.
-      this.start();
+      void this.start();
 
       return {
         success: true,
@@ -1102,8 +1202,9 @@ export default class RainEngine {
   /**
    * Trigger a transient colour pulse: the rain blends toward `colors` on a
    * quick attack, then fades back to the theme over `durationMs`. Colour-only
-   * (no grid rebuild), so it never disturbs the active preset; a no-op if the
-   * loop is stopped (reduced motion). Used by the easter eggs and theme switch.
+   * (no grid rebuild), so it never disturbs the active preset. With the loop
+   * stopped (reduced motion) it has no visible effect and simply expires on the
+   * next start(). Used by the easter eggs and theme switch.
    * @param {{background?:string, primary?:string, glow?:string}} colors
    * @param {number} [durationMs=2600]
    */
@@ -1150,7 +1251,11 @@ export default class RainEngine {
     return out;
   }
 
-  refreshColors() {
+  /**
+   * @param {{ repaint?: boolean }} [opts] - `repaint: false` skips the static
+   *   repaint (start() rebuilds the grid right after).
+   */
+  refreshColors({ repaint = true } = {}) {
     const themeColors = getCurrentThemeColors();
     // Cache the resolved colours so the render path (loop/renderGrid) never
     // re-reads getComputedStyle; this is the only place they're refreshed.
@@ -1158,6 +1263,11 @@ export default class RainEngine {
     this.activeConfig.baseCol = themeColors.primary;
     this.activeConfig.headCol = themeColors.glow;
     this._buildColorLUT(themeColors);
+    // No loop running (reduced motion / paused): repaint the static frame so a
+    // theme switch recolours the visible rain instead of leaving stale colours.
+    if (repaint && !this.animationId && this.grid.length && this.ctx) {
+      this.renderFrame(themeColors);
+    }
   }
 
   /**
@@ -1194,7 +1304,7 @@ export default class RainEngine {
    * @returns {{ success: boolean, message: string }}
    */
   setFontSet(name) {
-    const fontSet = this.fontSets[name];
+    const fontSet = own(this.fontSets, name);
     if (!fontSet) {
       return {
         success: false,
@@ -1205,7 +1315,7 @@ export default class RainEngine {
     this.glyphs = fontSet.glyphs;
     this.activeConfig.fontFamily = fontSet.fontFamily;
     this.activeFontSet = name;
-    this.start();
+    void this.start();
 
     return {
       success: true,

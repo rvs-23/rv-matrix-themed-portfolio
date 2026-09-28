@@ -32,6 +32,20 @@ import wakeCommand from "./wake.js";
 import whoamiCommand from "./whoami.js";
 
 /**
+ * Commands that exist but must stay discoverable only by lore: excluded from
+ * tab-completion and "Did you mean…?" so the easter eggs aren't spoiled.
+ */
+export const HIDDEN_COMMANDS = new Set([
+  "ee",
+  "decode",
+  "sudo",
+  "wake",
+  "redpill",
+  "bluepill",
+  "nospoon",
+]);
+
+/**
  * Assembles all command functions into a single object.
  * @returns {object} An object mapping command names to their functions.
  */

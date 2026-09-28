@@ -4,7 +4,6 @@
  */
 
 import { decodeReveal } from "../effects/decode.js";
-import { escapeHtml } from "../utils.js";
 
 export default async function decodeCommand(args, context) {
   const { appendToTerminal, config } = context;
@@ -15,10 +14,8 @@ export default async function decodeCommand(args, context) {
   } else {
     const quotes = config.matrixQuotes;
     let quote = quotes[Math.floor(Math.random() * quotes.length)];
-    quote = quote.replace(
-      "{{userName}}",
-      escapeHtml(config.user.name || "User"),
-    );
+    // Plain text: decodeReveal writes textContent, so no HTML escaping.
+    quote = quote.replace("{{userName}}", config.user.name || "User");
     text = quote;
   }
 

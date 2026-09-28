@@ -100,3 +100,6 @@ media/
 # misc
 *.tgz                 # Packaged modules
 
+
+# Claude Code local session config
+.claude/

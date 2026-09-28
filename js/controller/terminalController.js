@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file terminalController.js
  * Manages terminal DOM elements, input, output, history, and related functionalities.
@@ -6,9 +7,13 @@
 import {
   getLevenshteinDistance,
   getLongestCommonSubsequence,
+  own,
 } from "../utils.js";
 import { recordEgg } from "../eggs.js";
 import { decodeReveal } from "../effects/decode.js";
+import { HIDDEN_COMMANDS } from "../commands/0_index.js";
+import { listedManPages } from "../commands/man.js";
+import { RAIN_SUBCOMMANDS, GRAVITY_LEVELS } from "../commands/rain.js";
 
 const MAX_HISTORY = 100;
 
@@ -59,8 +64,11 @@ export function initializeTerminalController(
   state.commands = commands;
   state.getContext = commandContextFunc;
 
-  // Initialize available commands for autocomplete
-  state.autocomplete.commands = Object.keys(state.commands).sort();
+  // Initialize available commands for autocomplete + did-you-mean. Hidden
+  // easter eggs are excluded from both — discoverable by lore only.
+  state.autocomplete.commands = Object.keys(state.commands)
+    .filter((cmd) => !HIDDEN_COMMANDS.has(cmd))
+    .sort();
 
   // Setup initial styles and welcome message
   document.documentElement.style.setProperty(
@@ -115,13 +123,14 @@ export function initializeTerminalController(
   }
 
   // Tapping the rain (outside the terminal) blurs the input — the touch
-  // equivalent of Esc/Ctrl+\ for dismissing the mobile keyboard.
-  const canvasEl = document.getElementById("matrix-canvas");
-  if (canvasEl) {
-    canvasEl.addEventListener("pointerdown", () => {
-      state.elements.input?.blur();
-    });
-  }
+  // equivalent of Esc/Ctrl+\ for dismissing the mobile keyboard. Listen on
+  // document, not the canvas: #matrix-canvas is pointer-events:none, so taps
+  // pass straight through it and a canvas listener never fires.
+  document.addEventListener("pointerdown", (e) => {
+    if (document.activeElement !== state.elements.input) return;
+    if (state.elements.container?.contains(e.target)) return;
+    state.elements.input?.blur();
+  });
 
   displayInitialWelcomeMessage(true);
   renderCommandChips();
@@ -176,7 +185,7 @@ function submitCommand(fullCommandText) {
     `<div><span class="prompt-arrow">&gt;</span> <span class="output-command">${sanitizedCommandDisplay}</span></div>`,
   );
 
-  processCommand(fullCommandText);
+  void processCommand(fullCommandText);
 }
 
 /** Run a command programmatically — used by click-to-run chips and deep links. */
@@ -190,6 +199,21 @@ export function runCommand(text) {
   state.autocomplete.lastApplied = "";
   submitCommand(trimmed);
   focusInput();
+}
+
+/**
+ * Lock or unlock command entry — the input and the click-to-run chips — for
+ * cinematic sequences (`wake`). Unlocking also refocuses the input.
+ * @param {boolean} locked
+ */
+export function setInputLocked(locked) {
+  if (state.elements.input) state.elements.input.disabled = locked;
+  document
+    .querySelectorAll("#command-chips .command-chip")
+    .forEach((chip) => {
+      /** @type {HTMLButtonElement} */ (chip).disabled = locked;
+    });
+  if (!locked) focusInput();
 }
 
 /** Render clickable command chips above the input for quick discovery. */
@@ -330,15 +354,23 @@ function handleAutocomplete() {
 
     const commandNamePart = currentFullInput.split(" ")[0].toLowerCase();
     if (
-      currentFullInput.endsWith(" ") &&
+      currentFullInput.includes(" ") &&
       state.autocomplete.commands.includes(commandNamePart)
     ) {
+      // Argument completion — also mid-word ("rain preset c" + Tab), not only
+      // after a trailing space. Pre-filtering by the partly-typed word keeps
+      // Tab-cycling on actual matches instead of the whole argument list.
       const context = state.getContext();
-      state.autocomplete.suggestions = getArgumentSuggestions(
+      let suggestions = getArgumentSuggestions(
         commandNamePart,
         context,
         currentFullInput,
       );
+      if (currentTypingPart) {
+        const typed = currentTypingPart.toLowerCase();
+        suggestions = suggestions.filter((s) => s.startsWith(typed));
+      }
+      state.autocomplete.suggestions = suggestions;
     } else if (!currentFullInput.includes(" ")) {
       state.autocomplete.suggestions = state.autocomplete.commands.filter((cmd) =>
         cmd.startsWith(currentFullInput.toLowerCase()),
@@ -350,44 +382,20 @@ function handleAutocomplete() {
 
   if (state.autocomplete.suggestions.length > 0) {
     let suggestion;
-    if (currentFullInput.endsWith(" ") && !currentTypingPart) {
-      suggestion =
-        currentFullInput +
-        state.autocomplete.suggestions[
-          state.autocomplete.index % state.autocomplete.suggestions.length
-        ];
-    } else if (!currentFullInput.includes(" ")) {
-      suggestion =
-        state.autocomplete.suggestions[
-          state.autocomplete.index % state.autocomplete.suggestions.length
-        ];
+    const pick =
+      state.autocomplete.suggestions[
+        state.autocomplete.index % state.autocomplete.suggestions.length
+      ];
+    if (!currentFullInput.includes(" ")) {
+      suggestion = pick;
     } else {
+      // Argument position: suggestions are already filtered to the typed part,
+      // so completing is always "everything up to the last space" + the pick.
       const baseCommand = currentFullInput.substring(
         0,
         currentFullInput.lastIndexOf(" ") + 1,
       );
-      const potentialArg =
-        state.autocomplete.suggestions[
-          state.autocomplete.index % state.autocomplete.suggestions.length
-        ];
-      if (potentialArg.startsWith(currentTypingPart)) {
-        suggestion = baseCommand + potentialArg;
-      } else {
-        state.autocomplete.index++;
-        if (state.autocomplete.index >= state.autocomplete.suggestions.length)
-          state.autocomplete.index = 0;
-        const nextPotentialArg =
-          state.autocomplete.suggestions[
-            state.autocomplete.index % state.autocomplete.suggestions.length
-          ];
-        if (nextPotentialArg.startsWith(currentTypingPart)) {
-          suggestion = baseCommand + nextPotentialArg;
-        } else {
-          state.autocomplete.suggestions = [];
-          state.autocomplete.lastApplied = "";
-          return;
-        }
-      }
+      suggestion = baseCommand + pick;
     }
 
     if (suggestion) {
@@ -402,14 +410,25 @@ function handleAutocomplete() {
   }
 }
 
-function getArgumentSuggestions(commandName, context, currentInput) {
-  const inputParts = currentInput.trim().split(" ");
+// Exported for the contract smoke test — pure function of (command, context, input).
+export function getArgumentSuggestions(commandName, context, currentInput) {
+  const inputParts = currentInput.trim().split(/\s+/);
+  // Words the user has finished typing: a trailing space commits the last word,
+  // otherwise it's still being typed. Fixes "rain preset " + Tab suggesting
+  // subcommands (the old trim-then-split dropped the trailing space, so a
+  // committed 2-word input was indistinguishable from a mid-word one).
+  const completedParts = currentInput.endsWith(" ")
+    ? inputParts.length
+    : inputParts.length - 1;
+  // Copies before sorting: these lists are shared config arrays.
   switch (commandName) {
     case "theme":
-      return (context.config?.help?.availableThemes || []).sort();
+      // Single-argument commands: nothing to complete after the first arg.
+      if (completedParts >= 2) return [];
+      return [...(context.config?.help?.availableThemes || [])].sort();
     case "rain": {
-      if (inputParts.length <= 2) {
-        return ["preset", "font", "size", "gravity", "glyphspeed"];
+      if (completedParts <= 1) {
+        return [...RAIN_SUBCOMMANDS];
       }
       const rainSub = inputParts[1]?.toLowerCase();
       if (rainSub === "preset") {
@@ -421,12 +440,13 @@ function getArgumentSuggestions(commandName, context, currentInput) {
         return fontSets.sort();
       }
       if (rainSub === "size") return ["reset"];
-      if (rainSub === "gravity") return ["off", "moon", "earth", "jupiter"];
+      if (rainSub === "gravity") return ["off", ...Object.keys(GRAVITY_LEVELS)];
       if (rainSub === "glyphspeed") return ["reset", "1", "3", "6", "10", "15", "20"];
+      if (rainSub === "torch") return ["on", "off"];
       return [];
     }
     case "term": {
-      if (inputParts.length <= 2) {
+      if (completedParts <= 1) {
         return ["opacity", "fontsize", "size"];
       }
       const termSub = inputParts[1]?.toLowerCase();
@@ -435,14 +455,14 @@ function getArgumentSuggestions(commandName, context, currentInput) {
       if (termSub === "size") return ["reset"];
       return [];
     }
-    case "man": {
-      const manPageKeys = context.manPages ? Object.keys(context.manPages) : [];
-      return manPageKeys.sort();
-    }
+    case "man":
+      if (completedParts >= 2) return [];
+      return listedManPages(context.manPages);
     case "download":
-      if (inputParts.length === 1) return ["cv"];
+      if (completedParts <= 1) return ["cv"];
       return [];
     case "date": {
+      if (completedParts >= 2) return [];
       const timezoneAliases = context.dateCommandTimezoneAliases || [
         "utc",
         "est",
@@ -451,7 +471,7 @@ function getArgumentSuggestions(commandName, context, currentInput) {
         "jst",
         "gmt",
       ];
-      return timezoneAliases.sort();
+      return [...timezoneAliases].sort();
     }
     default:
       return [];
@@ -499,8 +519,17 @@ async function processCommand(fullCommandText) {
   } else if (commandName) {
     // Multi-word input that isn't a command reads like a question → route it
     // through `ask` (local keyword matching) instead of a flat "not found".
+    // Same containment as the normal dispatch path: a throw here would
+    // otherwise reject processCommand's promise unhandled.
     if (parts.length > 1 && typeof state.commands.ask === "function") {
-      state.commands.ask(parts, commandContext);
+      try {
+        state.commands.ask(parts, commandContext);
+      } catch (err) {
+        console.error("Error executing command: ask", err);
+        appendToTerminal(
+          `<div class="output-error">Command Error: ${err.message || "Unknown error"}</div>`,
+        );
+      }
       return;
     }
 
@@ -575,7 +604,9 @@ function displayInitialWelcomeMessage(animate = false) {
     `${nameHtml}<br/><span class="welcome-tagline"></span>`,
     "output-welcome-wrapper",
   );
-  const taglineEl = wrapper?.querySelector(".welcome-tagline");
+  const taglineEl = /** @type {HTMLElement|null} */ (
+    wrapper?.querySelector(".welcome-tagline")
+  );
   if (!taglineEl) return;
 
   const reduce = window.matchMedia?.(
@@ -661,53 +692,64 @@ export function resetTerminalAppearance() {
 const TERMINAL_HIDDEN_MSG = "Terminal hidden. Restore: Ctrl + \\ or nav icon.";
 const TERMINAL_RESTORED_MSG = "Terminal restored. Hide: Ctrl + \\ or nav icon.";
 
+// The in-flight show/hide animationend handler. Every toggle drops it first,
+// so a hide handler can't outlive a fast re-show and fire on the show
+// animation's animationend (which stranded a "visible" terminal as .hidden).
+let pendingToggleEnd = null;
+
+/** Run `finish` when the container's own toggle animation ends. */
+function onToggleAnimationEnd(container, finish) {
+  if (pendingToggleEnd) {
+    container.removeEventListener("animationend", pendingToggleEnd);
+    pendingToggleEnd = null;
+  }
+  // Reduced motion sets `animation: none`, so animationend never fires —
+  // apply the end state now instead of leaking a listener that never runs.
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    finish();
+    return;
+  }
+  pendingToggleEnd = (e) => {
+    if (e.target !== container) return; // bubbled from a child animation
+    container.removeEventListener("animationend", pendingToggleEnd);
+    pendingToggleEnd = null;
+    finish();
+  };
+  container.addEventListener("animationend", pendingToggleEnd);
+}
+
 export function toggleTerminalVisibility() {
   state.terminal.visible = !state.terminal.visible;
 
-  state.elements.container.classList.remove("is-appearing", "is-hiding");
+  const container = state.elements.container;
+  container.classList.remove("is-appearing", "is-hiding");
 
   if (!state.terminal.visible) {
     // ---- HIDING ----
     // Drop focus so the mobile on-screen keyboard dismisses with the terminal.
     state.elements.input?.blur();
-    state.elements.container.classList.add("is-hiding");
+    container.classList.add("is-hiding");
     document.body.classList.add("terminal-hidden");
 
-    state.elements.container.addEventListener(
-      "animationend",
-      function handleHideAnimationEnd() {
-        state.elements.container.classList.add("hidden");
-        state.elements.container.classList.remove("is-hiding");
-        state.elements.container.removeEventListener(
-          "animationend",
-          handleHideAnimationEnd,
-        );
-      },
-      { once: true },
-    );
+    onToggleAnimationEnd(container, () => {
+      container.classList.add("hidden");
+      container.classList.remove("is-hiding");
+    });
 
     if (state.elements.output) {
       appendToTerminal(`<div>${TERMINAL_HIDDEN_MSG}</div>`);
     }
   } else {
     // ---- SHOWING ----
-    state.elements.container.classList.remove("hidden");
-    state.elements.container.style.display = "flex";
+    container.classList.remove("hidden");
+    container.style.display = "flex";
 
-    state.elements.container.classList.add("is-appearing");
+    container.classList.add("is-appearing");
     document.body.classList.remove("terminal-hidden");
 
-    state.elements.container.addEventListener(
-      "animationend",
-      function handleShowAnimationEnd() {
-        state.elements.container.classList.remove("is-appearing");
-        state.elements.container.removeEventListener(
-          "animationend",
-          handleShowAnimationEnd,
-        );
-      },
-      { once: true },
-    );
+    onToggleAnimationEnd(container, () => {
+      container.classList.remove("is-appearing");
+    });
 
     setTimeout(() => {
       if (state.elements.input) state.elements.input.focus();
@@ -764,36 +806,52 @@ export function setTerminalOpacity(opacityValue) {
   );
 }
 
-export function setTerminalFontSize(sizeInput) {
-  const context = state.getContext();
-  const fontSizesConfig = context.config.terminal.fontSizes;
-
-  let newSize = "";
+/**
+ * Resolve a `term fontsize` argument to a CSS size — pure, so the contract
+ * test can feed it hostile keys. Named sizes are own-property lookups.
+ * @param {string} sizeInput
+ * @param {Record<string, any>} fontSizesConfig
+ * @returns {{ size: string } | { error: string }}
+ */
+export function resolveTerminalFontSize(sizeInput, fontSizesConfig) {
   const inputSize = sizeInput.toLowerCase();
+  const named = own(fontSizesConfig, inputSize);
 
-  if (fontSizesConfig[inputSize]) {
-    newSize = fontSizesConfig[inputSize];
-  } else if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
+  if (typeof named === "string") {
+    return { size: named };
+  }
+  if (/^\d+(\.\d+)?(px|em|rem)$/i.test(inputSize)) {
     const sizeValue = parseFloat(inputSize);
     if (
       inputSize.endsWith("px") &&
       (sizeValue < fontSizesConfig.minPx || sizeValue > fontSizesConfig.maxPx)
     ) {
-      appendToTerminal(
-        `<div class='output-error'>Pixel size out of reasonable range (${fontSizesConfig.minPx}px-${fontSizesConfig.maxPx}px).</div>`,
-      );
-      return;
+      return {
+        error: `Pixel size out of reasonable range (${fontSizesConfig.minPx}px-${fontSizesConfig.maxPx}px).`,
+      };
     }
-    newSize = inputSize;
-  } else {
-    appendToTerminal(
-      "<div class='output-error'>Invalid size. Use 'small', 'default', 'large', or a value like '10px', '1.2em'.</div>",
-    );
+    return { size: inputSize };
+  }
+  return {
+    error:
+      "Invalid size. Use 'small', 'default', 'large', or a value like '10px', '1.2em'.",
+  };
+}
+
+export function setTerminalFontSize(sizeInput) {
+  const context = state.getContext();
+  const result = resolveTerminalFontSize(
+    sizeInput,
+    context.config.terminal.fontSizes,
+  );
+
+  if ("error" in result) {
+    appendToTerminal(`<div class='output-error'>${result.error}</div>`);
     return;
   }
-  document.documentElement.style.setProperty("--terminal-font-size", newSize);
+  document.documentElement.style.setProperty("--terminal-font-size", result.size);
   appendToTerminal(
-    `<div class='output-success'>Terminal font size set to ${newSize}.</div>`,
+    `<div class='output-success'>Terminal font size set to ${result.size}.</div>`,
   );
 }
 
@@ -870,7 +928,11 @@ function updatePrimaryColorRGB() {
   }
 }
 
-export function applyTheme(themeNameInput) {
+/**
+ * @param {string} themeNameInput
+ * @param {{ quiet?: boolean }} [opts] - `quiet` skips the success line.
+ */
+export function applyTheme(themeNameInput, { quiet = false } = {}) {
   const context = state.getContext();
   const validSpecificThemes = context.config.help.availableThemes;
 
@@ -883,7 +945,7 @@ export function applyTheme(themeNameInput) {
       "<div class='output-error'>Usage: theme &lt;name&gt;</div>",
     );
     appendToTerminal(
-      `<div>Available themes: ${validSpecificThemes.sort().join(", ")}.</div>`,
+      `<div>Available themes: ${[...validSpecificThemes].sort().join(", ")}.</div>`,
     );
     appendToTerminal(
       `<div>Current theme: ${currentThemeClass.replace("theme-", "")}</div>`,
@@ -904,9 +966,11 @@ export function applyTheme(themeNameInput) {
     const targetThemeClass = `theme-${themeNameInput}`;
     document.body.classList.add(targetThemeClass);
     updatePrimaryColorRGB();
-    appendToTerminal(
-      `<div class='output-success'>Theme set to ${targetThemeClass.replace("theme-", "")}.</div>`,
-    );
+    if (!quiet) {
+      appendToTerminal(
+        `<div class='output-success'>Theme set to ${targetThemeClass.replace("theme-", "")}.</div>`,
+      );
+    }
     return true;
   } else {
     appendToTerminal(
@@ -915,10 +979,6 @@ export function applyTheme(themeNameInput) {
     showThemeUsage();
     return false;
   }
-}
-
-export function getFullWelcomeMessage() {
-  return state.config.welcomeMsg;
 }
 
 export function getCurrentThemeName() {

@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @file dataLoader.js
  * Handles fetching all necessary JSON configuration and asset data.
@@ -12,7 +13,7 @@ async function fetchJson(url, fileNameForError) {
       // More specific error for rain.json
       if (fileNameForError.includes("rain.json")) {
         console.error(
-          `CRITICAL ERROR: Failed to fetch ${fileNameForError}: ${response.status} ${response.statusText}. Rain presets and default rain configuration will be missing or incorrect. This will affect 'rainpreset' command and rain appearance.`,
+          `CRITICAL ERROR: Failed to fetch ${fileNameForError}: ${response.status} ${response.statusText}. Rain presets and default rain configuration will be missing or incorrect. This will affect the 'rain' command and rain appearance.`,
         );
       } else {
         console.warn(

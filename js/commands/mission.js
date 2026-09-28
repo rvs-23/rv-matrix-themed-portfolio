@@ -24,12 +24,13 @@ export default function missionCommand(args, context) {
   const name = escapeHtml(user.name || "OPERATOR");
   const title = escapeHtml(user.title || "System Analyst");
   const bio = escapeHtml(user.bio || "");
+  const focus = escapeHtml(user.focus || "");
 
   // Build quick-action links
   const quickLinks = [];
   if (user.cvLink) {
     quickLinks.push(
-      `<a href="${encodeURI(user.cvLink)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Download CV</a>`,
+      `<a href="${encodeURI(user.cvLink)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> CV</a>`,
     );
   }
   if (user.linkedin) {
@@ -53,7 +54,9 @@ export default function missionCommand(args, context) {
     `<div class="output-section">` +
     `<div class="output-line"><span class="output-line-label">Identity:</span> ${name}</div>` +
     `<div class="output-line"><span class="output-line-label">Role:</span> ${title}</div>` +
-    `<div class="output-line"><span class="output-line-label">Status:</span> <span class="output-success">AVAILABLE FOR HIRE</span></div>` +
+    (focus
+      ? `<div class="output-line"><span class="output-line-label">Focus:</span> ${focus}</div>`
+      : "") +
     `</div>` +
     `<div class="output-section">` +
     `<div class="output-line">${bio}</div>` +

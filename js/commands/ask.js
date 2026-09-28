@@ -4,6 +4,30 @@
  * via local keyword routing. No LLM; pure string matching against config.ask.
  */
 
+/**
+ * Best route for a question: most keywords matched as whole words (a plain
+ * plural "-s"/"-es" also counts), so "fun" never hits "function" nor "ml"
+ * hit "html". Pure — exported for the contract test.
+ * @param {string} question - Lower-cased question text.
+ * @param {Array<{ keywords: string[], command: string }>} routes
+ * @returns {{ keywords: string[], command: string } | null}
+ */
+export function matchAskRoute(question, routes) {
+  const words = new Set(question.split(/[^a-z0-9]+/).filter(Boolean));
+  const hit = (kw) =>
+    words.has(kw) || words.has(`${kw}s`) || words.has(`${kw}es`);
+  let best = null;
+  let bestScore = 0;
+  for (const route of routes) {
+    const score = route.keywords.filter(hit).length;
+    if (score > bestScore) {
+      bestScore = score;
+      best = route;
+    }
+  }
+  return best;
+}
+
 export default function askCommand(args, context) {
   const { appendToTerminal, config, terminalController } = context;
   const question = (args || []).join(" ").toLowerCase().trim();
@@ -17,20 +41,9 @@ export default function askCommand(args, context) {
     return;
   }
 
-  let best = null;
-  let bestScore = 0;
-  for (const route of cfg.routes) {
-    let score = 0;
-    for (const kw of route.keywords) {
-      if (question.includes(kw)) score++;
-    }
-    if (score > bestScore) {
-      bestScore = score;
-      best = route;
-    }
-  }
+  const best = matchAskRoute(question, cfg.routes);
 
-  if (best && bestScore > 0 && best.command) {
+  if (best && best.command) {
     appendToTerminal(
       `<div class='output-text-small'>↳ best match: <span class="output-success">${best.command}</span></div>`,
     );

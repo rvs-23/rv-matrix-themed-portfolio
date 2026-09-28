@@ -4,11 +4,11 @@
  */
 
 import { decodeReveal, sleep } from "../effects/decode.js";
-import { escapeHtml } from "../utils.js";
 
 export default async function redpillCommand(args, context) {
   const { appendToTerminal, terminalController, rainEngine, config } = context;
-  const name = escapeHtml(config.user.name?.split(" ")[0] || "Neo");
+  // Plain text: decodeReveal writes textContent, so no HTML escaping.
+  const name = config.user.name?.split(" ")[0] || "Neo";
 
   // Red flash overlay
   document.body.classList.add("redpill-flash");

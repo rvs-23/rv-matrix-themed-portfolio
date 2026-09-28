@@ -15,6 +15,8 @@ Needs [Node.js](https://nodejs.org/) 18 or newer (for the Vite dev server and bu
 npm install      # install dev dependencies
 npm run dev      # start the local dev server (http://localhost:5173)
 npm run build    # produce a static site in dist/
+npm test         # contract smoke test (registry, man pages, help, rain.json)
+npm run lint     # ESLint, incl. the floating-promise check
 ```
 
 The site itself is plain HTML, CSS, and JavaScript. Vite only provides the dev
@@ -56,7 +58,8 @@ public/config/
 ## Rain parameters
 
 The rain reads its defaults from `public/config/rain.json` (`defaultConfig`).
-Presets override these; the same keys and ranges apply.
+Each preset carries its own full set of these keys (no inheritance from the
+defaults); the same ranges apply.
 
 | Key                 | Type / range          | Effect                                                 |
 | ------------------- | --------------------- | ------------------------------------------------------ |
@@ -73,10 +76,10 @@ Presets override these; the same keys and ranges apply.
 | `bloomIntensity`    | float 0–1             | Strength of the bloom layer (0 = off).                 |
 | `decayBase`         | float 0.7–0.99        | Trail fade rate; lower fades quicker.                  |
 | `layers`            | int 1–10              | Number of depth (opacity) layers.                      |
-| `layerOp`           | float[] 0–1           | Opacity per layer; length must equal `layers`.         |
+| `layerOp`           | float[] 0–1           | Opacity per layer (≥0.85 = white heads); length = `layers`. |
 | `delChance`         | float 0–1             | Fraction of streams that erase instead of draw.        |
 | `multiStream`       | float 0–0.8           | Chance a column runs a second stream.                  |
-| `highlightChance`   | float 0–1             | Fraction of streams with bright white heads.           |
+| `highlightChance`   | float 0–1             | Fraction of heads that stammer (pause in unison).      |
 | `glyphSyncInterval` | int 1–60 (frames)     | Frames between globally synced glyph changes.          |
 | `mutationChance`    | float 0–1             | Per-cell chance to change glyph on a sync frame.       |
 | `stammerInterval`   | int 10–500 (frames)   | Frames between head-stammer pauses.                    |
