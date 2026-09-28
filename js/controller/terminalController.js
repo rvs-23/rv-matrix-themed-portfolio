@@ -12,6 +12,7 @@ import {
 import { recordEgg } from "../eggs.js";
 import { decodeReveal } from "../effects/decode.js";
 import { HIDDEN_COMMANDS } from "../commands/0_index.js";
+import { listedManPages } from "../commands/man.js";
 import { RAIN_SUBCOMMANDS, GRAVITY_LEVELS } from "../commands/rain.js";
 
 const MAX_HISTORY = 100;
@@ -436,10 +437,8 @@ export function getArgumentSuggestions(commandName, context, currentInput) {
       if (termSub === "size") return ["reset"];
       return [];
     }
-    case "man": {
-      const manPageKeys = context.manPages ? Object.keys(context.manPages) : [];
-      return manPageKeys.sort();
-    }
+    case "man":
+      return listedManPages(context.manPages);
     case "download":
       if (completedParts <= 1) return ["cv"];
       return [];

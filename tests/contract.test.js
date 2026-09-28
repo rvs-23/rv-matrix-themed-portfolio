@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
 import { getAllCommands, HIDDEN_COMMANDS } from "../js/commands/0_index.js";
 import dateCommand from "../js/commands/date.js";
 import downloadCommand from "../js/commands/download.js";
-import manCommand, { MAN_ALIASES } from "../js/commands/man.js";
+import manCommand, { listedManPages, MAN_ALIASES } from "../js/commands/man.js";
 import rainCommand, {
   GRAVITY_LEVELS,
   RAIN_SUBCOMMANDS,
@@ -254,6 +254,38 @@ describe("typed keys never resolve through the prototype chain", () => {
     for (const key of HOSTILE) {
       expect(RainEngine.prototype.setFontSet.call(fake, key).success).toBe(false);
       expect(RainEngine.prototype.applyPreset.call(fake, key).success).toBe(false);
+    }
+  });
+});
+
+describe("man never advertises hidden eggs", () => {
+  const hiddenWithPages = [...HIDDEN_COMMANDS].filter((c) => c in manPages);
+  const run = (args) => {
+    const out = [];
+    manCommand(args, { appendToTerminal: (h) => out.push(h), manPages });
+    return out.join("\n");
+  };
+  const words = (html) => new Set(html.match(/[a-z]+/g));
+
+  it("some hidden egg has a man page (else this suite tests nothing)", () => {
+    expect(hiddenWithPages.length).toBeGreaterThan(0);
+  });
+
+  it("the no-arg listing, completion and did-you-mean exclude them", () => {
+    const listing = words(run([]));
+    const completion = getArgumentSuggestions("man", { manPages }, "man ");
+    for (const egg of hiddenWithPages) {
+      expect(listing.has(egg), `listing leaks ${egg}`).toBe(false);
+      expect(completion, "completion").not.toContain(egg);
+      // A partial name must not suggest the egg either.
+      expect(run([egg.slice(0, -1)]), "did-you-mean").not.toContain(egg);
+    }
+    expect(listedManPages(manPages)).toEqual(completion);
+  });
+
+  it("an egg's man page still opens when typed in full", () => {
+    for (const egg of hiddenWithPages) {
+      expect(run([egg])).toMatch(/output-manpage-wrapper/);
     }
   });
 });

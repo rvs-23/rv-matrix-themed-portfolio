@@ -5,10 +5,24 @@
  */
 
 import { escapeHtml, own } from "../utils.js";
+import { HIDDEN_COMMANDS } from "./0_index.js";
 
 // Command aliases that share another command's manual page.
 // Exported for the contract smoke test.
 export const MAN_ALIASES = { hire: "mission" };
+
+/**
+ * Man page names safe to advertise: hidden eggs (decode, sudo) keep their
+ * pages for `man decode` typed in full, but never appear in lists,
+ * suggestions or completion.
+ * @param {object | null | undefined} manPages
+ * @returns {string[]} Sorted page names.
+ */
+export function listedManPages(manPages) {
+  return Object.keys(manPages || {})
+    .filter((key) => !HIDDEN_COMMANDS.has(key))
+    .sort();
+}
 
 export default function manCommand(args, context) {
   const { appendToTerminal, manPages } = context;
@@ -19,8 +33,9 @@ export default function manCommand(args, context) {
       "output-error-wrapper",
     );
     appendToTerminal("<div>Example: man theme</div>", "output-text-wrapper");
-    if (manPages && Object.keys(manPages).length > 0) {
-      const availableManPages = Object.keys(manPages).sort().join(", ");
+    const listed = listedManPages(manPages);
+    if (listed.length > 0) {
+      const availableManPages = listed.join(", ");
       appendToTerminal(
         `<div>Available man pages for: ${escapeHtml(availableManPages)}</div>`,
         "output-text-wrapper",
@@ -43,16 +58,14 @@ export default function manCommand(args, context) {
       `<div class='output-error'>No manual entry for ${escapeHtml(commandName)}</div>`,
       "output-error-wrapper",
     );
-    if (manPages && Object.keys(manPages).length > 0) {
-      const suggestions = Object.keys(manPages).filter((key) =>
-        key.includes(commandName),
+    const suggestions = listedManPages(manPages).filter((key) =>
+      key.includes(commandName),
+    );
+    if (suggestions.length > 0) {
+      appendToTerminal(
+        `<div>Did you mean one of these: ${suggestions.join(", ")}?</div>`,
+        "output-text-wrapper",
       );
-      if (suggestions.length > 0) {
-        appendToTerminal(
-          `<div>Did you mean one of these: ${suggestions.join(", ")}?</div>`,
-          "output-text-wrapper",
-        );
-      }
     }
     return;
   }
