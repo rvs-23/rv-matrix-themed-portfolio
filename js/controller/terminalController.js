@@ -673,53 +673,64 @@ export function resetTerminalAppearance() {
 const TERMINAL_HIDDEN_MSG = "Terminal hidden. Restore: Ctrl + \\ or nav icon.";
 const TERMINAL_RESTORED_MSG = "Terminal restored. Hide: Ctrl + \\ or nav icon.";
 
+// The in-flight show/hide animationend handler. Every toggle drops it first,
+// so a hide handler can't outlive a fast re-show and fire on the show
+// animation's animationend (which stranded a "visible" terminal as .hidden).
+let pendingToggleEnd = null;
+
+/** Run `finish` when the container's own toggle animation ends. */
+function onToggleAnimationEnd(container, finish) {
+  if (pendingToggleEnd) {
+    container.removeEventListener("animationend", pendingToggleEnd);
+    pendingToggleEnd = null;
+  }
+  // Reduced motion sets `animation: none`, so animationend never fires —
+  // apply the end state now instead of leaking a listener that never runs.
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    finish();
+    return;
+  }
+  pendingToggleEnd = (e) => {
+    if (e.target !== container) return; // bubbled from a child animation
+    container.removeEventListener("animationend", pendingToggleEnd);
+    pendingToggleEnd = null;
+    finish();
+  };
+  container.addEventListener("animationend", pendingToggleEnd);
+}
+
 export function toggleTerminalVisibility() {
   state.terminal.visible = !state.terminal.visible;
 
-  state.elements.container.classList.remove("is-appearing", "is-hiding");
+  const container = state.elements.container;
+  container.classList.remove("is-appearing", "is-hiding");
 
   if (!state.terminal.visible) {
     // ---- HIDING ----
     // Drop focus so the mobile on-screen keyboard dismisses with the terminal.
     state.elements.input?.blur();
-    state.elements.container.classList.add("is-hiding");
+    container.classList.add("is-hiding");
     document.body.classList.add("terminal-hidden");
 
-    state.elements.container.addEventListener(
-      "animationend",
-      function handleHideAnimationEnd() {
-        state.elements.container.classList.add("hidden");
-        state.elements.container.classList.remove("is-hiding");
-        state.elements.container.removeEventListener(
-          "animationend",
-          handleHideAnimationEnd,
-        );
-      },
-      { once: true },
-    );
+    onToggleAnimationEnd(container, () => {
+      container.classList.add("hidden");
+      container.classList.remove("is-hiding");
+    });
 
     if (state.elements.output) {
       appendToTerminal(`<div>${TERMINAL_HIDDEN_MSG}</div>`);
     }
   } else {
     // ---- SHOWING ----
-    state.elements.container.classList.remove("hidden");
-    state.elements.container.style.display = "flex";
+    container.classList.remove("hidden");
+    container.style.display = "flex";
 
-    state.elements.container.classList.add("is-appearing");
+    container.classList.add("is-appearing");
     document.body.classList.remove("terminal-hidden");
 
-    state.elements.container.addEventListener(
-      "animationend",
-      function handleShowAnimationEnd() {
-        state.elements.container.classList.remove("is-appearing");
-        state.elements.container.removeEventListener(
-          "animationend",
-          handleShowAnimationEnd,
-        );
-      },
-      { once: true },
-    );
+    onToggleAnimationEnd(container, () => {
+      container.classList.remove("is-appearing");
+    });
 
     setTimeout(() => {
       if (state.elements.input) state.elements.input.focus();
