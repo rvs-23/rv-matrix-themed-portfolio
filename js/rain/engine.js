@@ -7,13 +7,13 @@
  * Streams are brightness cursors — they illuminate cells as they pass downward.
  * Cells decay toward `dimFloor`; when `dimFloor` is 0 (the current default and
  * most presets) they reach true black, when it's > 0 they retain a faint
- * persistent glyph field. Some presets (e.g. whisper, pulse) use a small floor
+ * persistent glyph field. Some presets (whisper, emberfall) use a small floor
  * for the dense, luminous look seen in the film.
  *
  * Film-inspired behaviors (Carl Newton's digital rain analysis):
  *  - Globally synchronized glyph mutations (all changes on the same frame)
- *  - Selective head highlighting (~1 in 5 streams get extra glow)
- *  - Head stammer (highlighted heads periodically pause in unison)
+ *  - Head stammer (a `highlightChance` share of heads pause in unison;
+ *    head brightness itself comes from `layerOp`, not highlightChance)
  *  - Depth conveyed via opacity layers only (uniform font size)
  *  - Head character flickers (throttled); grid characters are near-static
  *  - Brightness-based color mapping (white → glow → green → dim)
@@ -1185,8 +1185,9 @@ export default class RainEngine {
   /**
    * Trigger a transient colour pulse: the rain blends toward `colors` on a
    * quick attack, then fades back to the theme over `durationMs`. Colour-only
-   * (no grid rebuild), so it never disturbs the active preset; a no-op if the
-   * loop is stopped (reduced motion). Used by the easter eggs and theme switch.
+   * (no grid rebuild), so it never disturbs the active preset. With the loop
+   * stopped (reduced motion) it has no visible effect and simply expires on the
+   * next start(). Used by the easter eggs and theme switch.
    * @param {{background?:string, primary?:string, glow?:string}} colors
    * @param {number} [durationMs=2600]
    */

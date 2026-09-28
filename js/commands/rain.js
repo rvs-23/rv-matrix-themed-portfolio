@@ -2,7 +2,7 @@
 /**
  * @file js/commands/rain.js
  * Umbrella command for all rain customization.
- * Subcommands: preset, font, size, gravity, glyphspeed
+ * Subcommands: preset, font, size, gravity, glyphspeed, torch
  */
 
 import { escapeHtml } from "../utils.js";

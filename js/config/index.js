@@ -48,7 +48,7 @@ export const terminal = {
     opacity_current: (val) => `Current terminal opacity: ${val}`,
     opacity_unavailable: "Terminal opacity control not available.",
     text_examples:
-      "Examples: termtext 13px, termtext small, termtext default, termtext large",
+      "Examples: term fontsize 13px, term fontsize small, term fontsize default, term fontsize large",
     text_current: (val) => `Current terminal font size: ${val}`,
     text_unavailable: "Terminal font size control not available.",
   },
@@ -227,7 +227,7 @@ export const help = {
       desc: (context) =>
         `Change color scheme. Available: ${context.config.help.availableThemes.sort().join(", ")}.`,
     },
-    { cmd: "rain", display: "rain <subcommand>", desc: "Rain config: preset, font, size, gravity, glyphspeed." },
+    { cmd: "rain", display: "rain <subcommand>", desc: "Rain config: preset, font, size, gravity, glyphspeed, torch." },
     { cmd: "term", display: "term <subcommand>", desc: "Terminal config: opacity, fontsize, size." },
     { cmd: "toggleterm", display: "toggleterm", desc: "Hide/show terminal (Shortcut: Ctrl + \\)." },
     // Utility
@@ -272,8 +272,6 @@ export const resize = {
     resize_unavailable: "Terminal resize function not available.",
     invalid_units:
       "Invalid size units. Use px, %, vw, vh, em, or rem (e.g., 600px, 80%).",
-    usage:
-      "Usage: resize term &lt;width&gt; &lt;height&gt; OR resize term reset",
   },
 };
 
