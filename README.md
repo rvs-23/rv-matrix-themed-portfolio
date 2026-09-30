@@ -38,6 +38,18 @@ Once the terminal is open, type any of these and press Enter:
 `help` lists all commands, and `man <command>` prints its full manual. Those two
 are the complete in-terminal reference.
 
+## The about page
+
+`/about` is a plain, readable companion to the terminal, generated at build
+time from `content/timeline.json` (work, plates, learn) and
+`content/notes/*.md`, with SVG figures from `content/figures/`. Code lives in
+`paper/`.
+
+It ships only when `PAPER_PUBLISH` is set: `preview` shows drafts and is not
+indexed, `production` refuses to build while any entry is still `draft`.
+Unset, the build contains no trace of it. `npm run dev` always serves it at
+http://localhost:5173/about/.
+
 ## Repo map
 
 ```
@@ -50,6 +62,8 @@ js/
   commands/0_index.js   Registry mapping every command name to its module
   controller/           Terminal DOM, input, output, history, theming
   rain/engine.js        The digital-rain animation (canvas, self-contained)
+paper/                  The /about page: Markdown, templates, styles, Vite plugin
+content/                What /about says: timeline.json, notes/, figures/
 public/config/
   rain.json             Rain defaults, glyphs, presets, validation rules
   content/              Data that drives commands (skills, hobbies, man pages)
