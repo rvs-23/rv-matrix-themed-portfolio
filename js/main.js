@@ -144,6 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     dateCommandTimezoneAliases: Object.keys(allData.config.date.aliases),
     isCrtActive: isCrtModeActive,
     getCurrentTheme: terminalController.getCurrentThemeName,
+    paper: allData.paperIndex,
   };
 
   const registeredCommands = getAllCommands();

@@ -180,3 +180,26 @@ describe("rendered pages", () => {
     expect(about).not.toMatch(/style\.css|themes\.css|main\.js|matrix-canvas/);
   });
 });
+
+describe("terminal commands for the paper site", async () => {
+  const { default: about } = await import("../js/commands/about.js");
+  const { default: notes } = await import("../js/commands/notes.js");
+  const run = (cmd, paper) => {
+    const out = [];
+    cmd([], { appendToTerminal: (h) => out.push(h), paper });
+    return out.join("");
+  };
+
+  it("say 'not yet' when the build didn't publish", () => {
+    expect(run(about, null)).toContain("isn't published yet");
+    expect(run(notes, null)).toContain("No notes published yet");
+  });
+
+  it("link to the page and escape note fields", () => {
+    const paper = { about: "/about/", notes: [{ title: "<b>x</b>", date: "2026-01-01", summary: "s", url: "/about/x/" }] };
+    expect(run(about, paper)).toContain('href="/about/"');
+    const html = run(notes, paper);
+    expect(html).toContain("&lt;b&gt;x&lt;/b&gt;");
+    expect(html).not.toContain("<b>x</b>");
+  });
+});

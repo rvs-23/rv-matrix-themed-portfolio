@@ -42,6 +42,21 @@
     "examples": ["contact            - Displays all contact information."],
     "notes": "Includes Email, LinkedIn, GitHub, and Medium (if configured)."
   },
+  "about": {
+    "name": "about - Open the plain, readable version of this site.",
+    "synopsis": "about",
+    "description": "Links to rvs23.dev/about: a single page with the work timeline, things built, notes and short explanations of the ideas behind them. It reads top to bottom and works without JavaScript.",
+    "arguments": "None",
+    "examples": ["about              - Prints the link."]
+  },
+  "notes": {
+    "name": "notes - List published notes.",
+    "synopsis": "notes",
+    "description": "Lists the notes and primers published on the about page, newest first, each with a link.",
+    "arguments": "None",
+    "examples": ["notes              - Lists notes with links."],
+    "notes": "Also available as an RSS feed at /feed.xml."
+  },
   "download": {
     "name": "download - Download files.",
     "synopsis": "download cv",
