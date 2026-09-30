@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 210" role="img" aria-label="A fixed grid of characters; each stream lights cells as its head moves down, and cells fade behind it" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+<text class="fig-label" x="20" y="32" text-anchor="middle" fill-opacity="0.13">7</text>
+<text class="fig-label" x="20" y="54" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="20" y="76" text-anchor="middle" fill-opacity="0.13">4</text>
+<text class="fig-label" x="20" y="98" text-anchor="middle" fill-opacity="0.13">B</text>
+<text class="fig-label" x="20" y="120" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="20" y="142" text-anchor="middle" fill-opacity="0.13">2</text>
+<text class="fig-label" x="20" y="164" text-anchor="middle" fill-opacity="0.13">0</text>
+<text class="fig-label" x="20" y="186" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="42" y="32" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="42" y="54" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="42" y="76" text-anchor="middle" fill-opacity="0.13">7</text>
+<text class="fig-label" x="42" y="98" text-anchor="middle" fill-opacity="0.13">6</text>
+<text class="fig-label" x="42" y="120" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="42" y="142" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="42" y="164" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="42" y="186" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="64" y="32" text-anchor="middle" fill-opacity="0.24">C</text>
+<text class="fig-label" x="64" y="54" text-anchor="middle" fill-opacity="0.34">4</text>
+<text class="fig-label" x="64" y="76" text-anchor="middle" fill-opacity="0.5">7</text>
+<text class="fig-label" x="64" y="98" text-anchor="middle" fill-opacity="0.72">4</text>
+<text class="fig-label" x="64" y="120" text-anchor="middle" fill-opacity="1">X</text>
+<text class="fig-label" x="64" y="142" text-anchor="middle" fill-opacity="0.13">C</text>
+<text class="fig-label" x="64" y="164" text-anchor="middle" fill-opacity="0.13">0</text>
+<text class="fig-label" x="64" y="186" text-anchor="middle" fill-opacity="0.13">2</text>
+<text class="fig-label" x="86" y="32" text-anchor="middle" fill-opacity="0.13">5</text>
+<text class="fig-label" x="86" y="54" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="86" y="76" text-anchor="middle" fill-opacity="0.13">9</text>
+<text class="fig-label" x="86" y="98" text-anchor="middle" fill-opacity="0.13">0</text>
+<text class="fig-label" x="86" y="120" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="86" y="142" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="86" y="164" text-anchor="middle" fill-opacity="0.13">C</text>
+<text class="fig-label" x="86" y="186" text-anchor="middle" fill-opacity="0.13">D</text>
+<text class="fig-label" x="108" y="32" text-anchor="middle" fill-opacity="0.13">C</text>
+<text class="fig-label" x="108" y="54" text-anchor="middle" fill-opacity="0.13">E</text>
+<text class="fig-label" x="108" y="76" text-anchor="middle" fill-opacity="0.13">4</text>
+<text class="fig-label" x="108" y="98" text-anchor="middle" fill-opacity="0.13">B</text>
+<text class="fig-label" x="108" y="120" text-anchor="middle" fill-opacity="0.13">3</text>
+<text class="fig-label" x="108" y="142" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="108" y="164" text-anchor="middle" fill-opacity="0.13">4</text>
+<text class="fig-label" x="108" y="186" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="130" y="32" text-anchor="middle" fill-opacity="0.13">6</text>
+<text class="fig-label" x="130" y="54" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="130" y="76" text-anchor="middle" fill-opacity="0.17">D</text>
+<text class="fig-label" x="130" y="98" text-anchor="middle" fill-opacity="0.24">9</text>
+<text class="fig-label" x="130" y="120" text-anchor="middle" fill-opacity="0.34">D</text>
+<text class="fig-label" x="130" y="142" text-anchor="middle" fill-opacity="0.5">X</text>
+<text class="fig-label" x="130" y="164" text-anchor="middle" fill-opacity="0.72">C</text>
+<text class="fig-label" x="130" y="186" text-anchor="middle" fill-opacity="1">B</text>
+<text class="fig-label" x="152" y="32" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="152" y="54" text-anchor="middle" fill-opacity="0.13">D</text>
+<text class="fig-label" x="152" y="76" text-anchor="middle" fill-opacity="0.13">7</text>
+<text class="fig-label" x="152" y="98" text-anchor="middle" fill-opacity="0.13">A</text>
+<text class="fig-label" x="152" y="120" text-anchor="middle" fill-opacity="0.13">0</text>
+<text class="fig-label" x="152" y="142" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="152" y="164" text-anchor="middle" fill-opacity="0.13">5</text>
+<text class="fig-label" x="152" y="186" text-anchor="middle" fill-opacity="0.13">A</text>
+<text class="fig-label" x="174" y="32" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="174" y="54" text-anchor="middle" fill-opacity="0.13">3</text>
+<text class="fig-label" x="174" y="76" text-anchor="middle" fill-opacity="0.13">6</text>
+<text class="fig-label" x="174" y="98" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="174" y="120" text-anchor="middle" fill-opacity="0.13">9</text>
+<text class="fig-label" x="174" y="142" text-anchor="middle" fill-opacity="0.13">3</text>
+<text class="fig-label" x="174" y="164" text-anchor="middle" fill-opacity="0.13">2</text>
+<text class="fig-label" x="174" y="186" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="196" y="32" text-anchor="middle" fill-opacity="0.13">F</text>
+<text class="fig-label" x="196" y="54" text-anchor="middle" fill-opacity="0.13">2</text>
+<text class="fig-label" x="196" y="76" text-anchor="middle" fill-opacity="0.13">B</text>
+<text class="fig-label" x="196" y="98" text-anchor="middle" fill-opacity="0.13">2</text>
+<text class="fig-label" x="196" y="120" text-anchor="middle" fill-opacity="0.13">D</text>
+<text class="fig-label" x="196" y="142" text-anchor="middle" fill-opacity="0.13">4</text>
+<text class="fig-label" x="196" y="164" text-anchor="middle" fill-opacity="0.13">0</text>
+<text class="fig-label" x="196" y="186" text-anchor="middle" fill-opacity="0.13">9</text>
+<text class="fig-label" x="218" y="32" text-anchor="middle" fill-opacity="0.5">D</text>
+<text class="fig-label" x="218" y="54" text-anchor="middle" fill-opacity="0.72">D</text>
+<text class="fig-label" x="218" y="76" text-anchor="middle" fill-opacity="1">3</text>
+<text class="fig-label" x="218" y="98" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="218" y="120" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="218" y="142" text-anchor="middle" fill-opacity="0.13">C</text>
+<text class="fig-label" x="218" y="164" text-anchor="middle" fill-opacity="0.13">A</text>
+<text class="fig-label" x="218" y="186" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="240" y="32" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="240" y="54" text-anchor="middle" fill-opacity="0.13">X</text>
+<text class="fig-label" x="240" y="76" text-anchor="middle" fill-opacity="0.13">7</text>
+<text class="fig-label" x="240" y="98" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="240" y="120" text-anchor="middle" fill-opacity="0.13">9</text>
+<text class="fig-label" x="240" y="142" text-anchor="middle" fill-opacity="0.13">0</text>
+<text class="fig-label" x="240" y="164" text-anchor="middle" fill-opacity="0.13">2</text>
+<text class="fig-label" x="240" y="186" text-anchor="middle" fill-opacity="0.13">3</text>
+<text class="fig-label" x="262" y="32" text-anchor="middle" fill-opacity="0.13">Z</text>
+<text class="fig-label" x="262" y="54" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="262" y="76" text-anchor="middle" fill-opacity="0.13">6</text>
+<text class="fig-label" x="262" y="98" text-anchor="middle" fill-opacity="0.13">D</text>
+<text class="fig-label" x="262" y="120" text-anchor="middle" fill-opacity="0.13">9</text>
+<text class="fig-label" x="262" y="142" text-anchor="middle" fill-opacity="0.13">8</text>
+<text class="fig-label" x="262" y="164" text-anchor="middle" fill-opacity="0.13">4</text>
+<text class="fig-label" x="262" y="186" text-anchor="middle" fill-opacity="0.13">1</text>
+<text class="fig-label" x="284" y="32" text-anchor="middle" fill-opacity="0.13">A</text>
+<text class="fig-label" x="284" y="54" text-anchor="middle" fill-opacity="0.13">A</text>
+<text class="fig-label" x="284" y="76" text-anchor="middle" fill-opacity="0.13">B</text>
+<text class="fig-label" x="284" y="98" text-anchor="middle" fill-opacity="0.13">4</text>
+<text class="fig-label" x="284" y="120" text-anchor="middle" fill-opacity="0.13">C</text>
+<text class="fig-label" x="284" y="142" text-anchor="middle" fill-opacity="0.13">C</text>
+<text class="fig-label" x="284" y="164" text-anchor="middle" fill-opacity="0.13">E</text>
+<text class="fig-label" x="284" y="186" text-anchor="middle" fill-opacity="0.13">X</text>
+<text class="fig-label" x="306" y="32" text-anchor="middle" fill-opacity="0.17">C</text>
+<text class="fig-label" x="306" y="54" text-anchor="middle" fill-opacity="0.24">Z</text>
+<text class="fig-label" x="306" y="76" text-anchor="middle" fill-opacity="0.34">3</text>
+<text class="fig-label" x="306" y="98" text-anchor="middle" fill-opacity="0.5">X</text>
+<text class="fig-label" x="306" y="120" text-anchor="middle" fill-opacity="0.72">8</text>
+<text class="fig-label" x="306" y="142" text-anchor="middle" fill-opacity="1">D</text>
+<text class="fig-label" x="306" y="164" text-anchor="middle" fill-opacity="0.13">7</text>
+<text class="fig-label" x="306" y="186" text-anchor="middle" fill-opacity="0.13">9</text>
+<circle class="d" pathLength="1" cx="306" cy="137" r="11"/>
+<path class="d" pathLength="1" d="M322 21H328V123H322"/>
+<path class="d" pathLength="1" d="M328 72.0H358"/>
+<text class="fig-note" x="366" y="77.0" text-anchor="start">trail: fades back to black</text>
+<path class="d" pathLength="1" d="M318 137H358"/>
+<text class="fig-note" x="366" y="142" text-anchor="start">head: the brightest cell</text>
+<path class="d" pathLength="1" d="M342 159L342 189"/><path class="d" pathLength="1" d="M339.0 182.7L342 189L345.0 182.7"/>
+<text class="fig-note" x="366" y="181" text-anchor="start">moves down one row a tick</text>
+<text class="fig-note" x="366" y="32" text-anchor="start">the letters never move;</text>
+<text class="fig-note" x="366" y="52" text-anchor="start">only the light does</text>
+</svg>

@@ -7,9 +7,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node scripts/check-dist.mjs",
     "preview": "vite preview",
-    "lint": "eslint \"js/**/*.js\"",
-    "lint:fix": "eslint \"js/**/*.js\" --fix",
+    "lint": "eslint \"js/**/*.js\" \"paper/**/*.js\" \"scripts/**/*.mjs\"",
+    "lint:fix": "eslint \"js/**/*.js\" \"paper/**/*.js\" \"scripts/**/*.mjs\" --fix",
     "format": "prettier --write .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
@@ -17,10 +18,21 @@
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "eslint": "^9.31.0",
+    "gray-matter": "^4.0.3",
     "prettier": "^3.5.3",
+    "rehype-stringify": "^10.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "typescript": "~5.9",
     "typescript-eslint": "^8.63.0",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
     "vite": "^6.3.5",
     "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

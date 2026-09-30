@@ -15,5 +15,5 @@
     "strict": false,
     "skipLibCheck": true
   },
-  "include": ["js", "tests"]
+  "include": ["js", "tests", "paper", "scripts"]
 }

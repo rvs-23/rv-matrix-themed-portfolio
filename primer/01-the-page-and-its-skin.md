@@ -18,6 +18,7 @@ CSS paints the tree; JavaScript manipulates it.
 
 ```mermaid
 flowchart LR
+    %% caption: A browser reads the HTML, builds the DOM, fetches what it links, paints, then lets JavaScript change it.
     A[Read index.html] --> B[Build the DOM tree]
     B --> C[Fetch CSS + JS it links]
     C --> D[Paint the styled page]

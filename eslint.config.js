@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 export default [
   js.configs.recommended,
   {
-    files: ["js/**/*.js"],
+    files: ["js/**/*.js", "paper/**/*.js", "scripts/**/*.mjs"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -43,6 +43,9 @@ export default [
         String: "readonly",
         fetch: "readonly",
         localStorage: "readonly",
+        IntersectionObserver: "readonly",
+        location: "readonly",
+        process: "readonly",
       },
     },
     plugins: {

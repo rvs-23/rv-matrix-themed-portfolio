@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220" role="img" aria-label="Two groups of users separated by a straight line; a user's distance from the line becomes their score" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+<path class="d soft" pathLength="1" d="M60 190V20M60 190H420"/>
+<path class="d" pathLength="1" d="M410 190L420 190"/><path class="d" pathLength="1" d="M413.7 193.0L420 190L413.7 187.0"/>
+<path class="d" pathLength="1" d="M60 30L60 20"/><path class="d" pathLength="1" d="M63.0 26.3L60 20L57.0 26.3"/>
+<text class="fig-note" x="420" y="210" text-anchor="end">sessions</text>
+<text class="fig-note" x="50" y="34" text-anchor="end">payments</text>
+<path class="d" pathLength="1" d="M110 189.5L400 30.0"/>
+<circle cx="385.0" cy="99.8" r="3.2"/>
+<circle class="fill" cx="140.9" cy="106.8" r="3.2"/>
+<circle cx="287.9" cy="148.9" r="3.2"/>
+<circle class="fill" cx="111.1" cy="75.5" r="3.2"/>
+<circle class="fill" cx="109.9" cy="151.4" r="3.2"/>
+<circle class="fill" cx="308.8" cy="36.3" r="3.2"/>
+<circle cx="404.1" cy="174.7" r="3.2"/>
+<circle cx="295.8" cy="122.3" r="3.2"/>
+<circle class="fill" cx="132.0" cy="32.3" r="3.2"/>
+<circle class="fill" cx="254.4" cy="38.9" r="3.2"/>
+<circle class="fill" cx="142.8" cy="66.3" r="3.2"/>
+<circle class="fill" cx="89.9" cy="99.6" r="3.2"/>
+<circle cx="225.4" cy="156.4" r="3.2"/>
+<circle cx="251.3" cy="126.0" r="3.2"/>
+<circle cx="244.9" cy="129.4" r="3.2"/>
+<circle class="fill" cx="230.9" cy="71.7" r="3.2"/>
+<circle cx="409.2" cy="179.4" r="3.2"/>
+<circle cx="357.3" cy="136.2" r="3.2"/>
+<circle class="fill" cx="184.0" cy="64.4" r="3.2"/>
+<circle class="fill" cx="175.4" cy="40.5" r="3.2"/>
+<circle cx="332.9" cy="90.1" r="3.2"/>
+<circle cx="359.4" cy="88.0" r="3.2"/>
+<circle cx="396.2" cy="157.1" r="3.2"/>
+<circle class="fill" cx="80.2" cy="61.5" r="3.2"/>
+<circle cx="380.4" cy="100.5" r="3.2"/>
+<circle cx="403.5" cy="89.6" r="3.2"/>
+<circle class="fill" cx="104.1" cy="124.4" r="3.2"/>
+<circle class="fill" cx="108.8" cy="79.9" r="3.2"/>
+<circle cx="398.1" cy="143.7" r="3.2"/>
+<circle class="fill" cx="118.9" cy="67.0" r="3.2"/>
+<circle class="fill" cx="113.3" cy="39.0" r="3.2"/>
+<circle class="fill" cx="142.9" cy="139.8" r="3.2"/>
+<circle class="fill" cx="123.2" cy="126.6" r="3.2"/>
+<circle class="fill" cx="118.4" cy="93.1" r="3.2"/>
+<circle class="fill" cx="150.2" cy="70.5" r="3.2"/>
+<circle cx="400.4" cy="150.5" r="3.2"/>
+<circle class="fill" cx="149.5" cy="89.1" r="3.2"/>
+<circle cx="361.9" cy="126.3" r="3.2"/>
+<circle class="fill" cx="150.4" cy="68.7" r="3.2"/>
+<circle cx="335.0" cy="79.3" r="3.2"/>
+<circle class="fill" cx="177.8" cy="41.0" r="3.2"/>
+<circle class="fill" cx="109.7" cy="117.4" r="3.2"/>
+<circle class="fill" cx="160.2" cy="120.2" r="3.2"/>
+<circle class="fill" cx="202.7" cy="98.0" r="3.2"/>
+<circle class="fill" cx="330" cy="48" r="4.2"/>
+<path d="M330 48L338.7 63.7" stroke-dasharray="3 3"/>
+<text class="fig-note" x="452" y="46" text-anchor="start">score = distance</text>
+<text class="fig-note" x="452" y="66" text-anchor="start">from the line</text>
+<circle class="fill" cx="462" cy="120" r="3.2"/><text class="fig-note" x="474" y="124" text-anchor="start">bought</text>
+<circle cx="462" cy="142" r="3.2"/><text class="fig-note" x="474" y="146" text-anchor="start">didn’t</text>
+</svg>
