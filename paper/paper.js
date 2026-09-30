@@ -50,11 +50,12 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   document.querySelectorAll(".fig").forEach((f) => drawer.observe(f));
 }
 
-// A link to an inline note (/about/#note-x) opens it.
+// A link to a collapsed entry, question or note (/about/#nebula) opens it.
 function openLinkedNote() {
   if (!location.hash) return;
   const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-  target?.querySelector("details")?.setAttribute("open", "");
+  const details = target?.matches("details") ? target : target?.querySelector("details");
+  details?.setAttribute("open", "");
 }
 window.addEventListener("hashchange", openLinkedNote);
 openLinkedNote();

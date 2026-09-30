@@ -77,14 +77,14 @@ describe("content", () => {
   });
 
   it("collects every timeline problem at once", () => {
-    const bad = { site: {}, work: [{ id: "Bad Id", start: "May" }], plates: [], learn: [] };
+    const bad = { site: {}, entries: [{ id: "Bad Id", kind: "job", start: "May" }], learn: [] };
     let message = "";
     try {
       validateTimeline(bad);
     } catch (err) {
       message = err.message;
     }
-    for (const part of ["site.name", "site.intro", "work[0].id", "work[0].start", "work[0].label"]) {
+    for (const part of ["site.name", "site.intro", "entries[0].id", "entries[0].kind", "entries[0].start", "entries[0].label"]) {
       expect(message).toContain(part);
     }
   });

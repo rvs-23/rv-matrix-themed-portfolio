@@ -1,8 +1,9 @@
 /*
  * paper/paper.css — the paper site (/about + notes).
- * Starting palette and fonts borrowed from rv-markdown-paper; a single ink on
- * light-grey paper. Layout is three columns — date · text · rail — collapsing
- * to one below 62rem. Nothing here is shared with the terminal's style.css.
+ * Fonts borrowed from rv-markdown-paper; a single ink on platinum-grey paper.
+ * Two columns, after the Diátaxis "start here" page and Cornell notes: a wide
+ * right-aligned cue column (headings, years, labels) and the body column,
+ * joined on the timeline by a spine. One column below 58rem.
  */
 
 /* ── Fonts ─────────────────────────────────────────────────────────────── */
@@ -18,23 +19,23 @@
 /* ── Tokens ────────────────────────────────────────────────────────────── */
 
 :root {
-  --paper: #f4f4f4;
+  /* Platinum paper. Muted text is tuned to stay ≥4.5:1 against it. */
+  --paper: #e5e4e2;
   --ink: #11131a;
   --ink-2: #2a2d36;
-  --ink-3: #4a4d57;
-  --muted: #686c76;
-  --mute-2: #8b8e97; /* large numerals only — too light for small text */
-  --hairline: #c1c1c1;
-  --surface: #e3e3e3;
+  --ink-3: #464952;
+  --muted: #5b5f68;
+  --mute-2: #84878f; /* large numerals only — too light for small text */
+  --hairline: #b5b4b0;
+  --surface: #d7d6d3;
 
   --sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --serif: "Instrument Serif", ui-serif, Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --date: 6rem;
-  --text: 35rem;
-  --rail: 13rem;
-  --gap: 2.5rem;
+  --cue: 14rem;
+  --text: 36rem;
+  --gap: 3.5rem;
 }
 
 /* ── Base ──────────────────────────────────────────────────────────────── */
@@ -60,6 +61,11 @@ body.paper {
   font-kerning: normal;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Jump targets clear the sticky running header. */
+[id] {
+  scroll-margin-top: 4.5rem;
 }
 
 ::selection {
@@ -145,16 +151,15 @@ a:hover {
 
 /* ── Grid ──────────────────────────────────────────────────────────────── */
 
-/* Every block spans all three columns and passes them down (subgrid), so a
- * year, a paragraph and its margin note line up across the whole page. */
+/* Every block spans both columns and passes them down (subgrid), so a year,
+ * a heading and the text beside it line up down the whole page. */
 main,
 .runhead {
   display: grid;
   grid-template-columns:
-    [date-start] var(--date)
-    [date-end text-start] minmax(0, var(--text))
-    [text-end rail-start] var(--rail)
-    [rail-end];
+    [cue-start] var(--cue)
+    [cue-end text-start] minmax(0, var(--text))
+    [text-end];
   column-gap: var(--gap);
   justify-content: center;
   padding-inline: 1.25rem;
@@ -164,11 +169,7 @@ main > *,
 .sec > *,
 .timeline,
 .entry,
-.notes,
-.note,
-.plates,
 .learn,
-.learn-item,
 .post {
   grid-column: 1 / -1;
 }
@@ -178,21 +179,26 @@ main > *,
 .sec-head,
 .timeline,
 .entry,
-.notes,
-.note,
-.plates,
 .learn,
-.learn-item,
+.sec-summary,
 .colophon,
 .post {
   display: grid;
   grid-template-columns: subgrid;
 }
 
-.masthead > *,
-.colophon > *,
-.post > *,
-.learn-item > * {
+.cue {
+  grid-column: cue;
+  text-align: right;
+}
+
+.masthead-body,
+.sec-meta,
+.entry-main,
+.learn-item,
+.sec-summary-text,
+.colophon-body,
+.post > * {
   grid-column: text;
 }
 
@@ -215,7 +221,8 @@ html:not(.js) .runhead {
 }
 
 .runhead-name {
-  grid-column: text;
+  grid-column: cue;
+  justify-self: end;
   font-weight: 600;
   font-size: 0.9rem;
   text-decoration: none;
@@ -223,8 +230,7 @@ html:not(.js) .runhead {
 }
 
 .runhead-sec {
-  grid-column: rail;
-  justify-self: end;
+  grid-column: text;
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.14em;
@@ -235,28 +241,33 @@ html:not(.js) .runhead {
 /* ── Masthead ──────────────────────────────────────────────────────────── */
 
 .masthead {
-  padding-block: clamp(3.5rem, 9vw, 7rem) 1rem;
+  align-items: start;
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) 0;
 }
 
-.name {
-  margin: 0.9rem 0 0;
-  font-size: clamp(2.2rem, 1.3rem + 3.9vw, 4.1rem);
-  font-weight: 600;
-  line-height: 0.98;
-  letter-spacing: -0.03em;
+.masthead .cue {
+  padding-top: 0.9rem;
 }
 
 .dek {
   margin: 0.8rem 0 0;
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
-  line-height: 1.2;
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.6rem);
+  line-height: 1.22;
   color: var(--ink-2);
 }
 
+.name {
+  margin: 0;
+  font-size: clamp(2.2rem, 1.3rem + 3.9vw, 4.1rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
 .intro {
-  margin-top: 2.25rem;
+  margin-top: 1.5rem;
 }
 
 /* The one drop cap on the page. */
@@ -300,42 +311,85 @@ html:not(.js) .runhead {
 /* ── Sections ──────────────────────────────────────────────────────────── */
 
 .sec {
-  padding-top: clamp(4rem, 8vw, 6.5rem);
+  margin-top: clamp(2.75rem, 5vw, 4rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ink);
 }
 
 .sec-head {
   align-items: baseline;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.75rem;
 }
 
-.sec-no {
-  grid-column: date;
-  justify-self: end;
-  font-size: 3.4rem;
-  font-weight: 300;
-  line-height: 0.8;
-  letter-spacing: -0.04em;
-  color: var(--mute-2);
-  font-variant-numeric: lining-nums tabular-nums;
+/* Section headings sit in the cue column, big and right-aligned. */
+.sec-title {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 1.5rem + 1.6vw, 2.75rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 .sec-head .kicker {
-  grid-column: text / -1;
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--ink);
+  margin-top: 0.5rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  column-gap: 0.8rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.legend .mark {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  color: var(--ink);
+}
+
+.sec-feed {
+  margin-top: 0.35rem;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* Cornell close: folio in the cue column, one-line summary beside it. */
+.sec-summary {
+  align-items: baseline;
+  margin: 1.5rem 0 0;
 }
 
 .folio {
-  grid-column: text;
-  margin: 3.25rem 0 0;
-  text-align: center;
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: var(--mute-2);
 }
 
-/* ── Work timeline ─────────────────────────────────────────────────────── */
+.sec-summary-text {
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--hairline);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+.sec-summary-text .kicker {
+  margin-right: 0.7em;
+  font-style: normal;
+  vertical-align: 0.15em;
+}
+
+/* ── Timeline ──────────────────────────────────────────────────────────── */
 
 .timeline {
   margin: 0;
@@ -343,21 +397,35 @@ html:not(.js) .runhead {
   list-style: none;
 }
 
-.entry-date {
-  grid-column: date;
+/* The spine runs down the gutter between the columns; each entry draws its
+ * own segment and a node whose shape says what kind of entry it is. */
+.entry {
   position: relative;
-  margin: 0;
-  padding-right: 1.1rem;
-  text-align: right;
-  border-right: 1px solid var(--hairline);
 }
 
-/* The node where the entry meets the spine. */
-.entry-date::after {
+.entry::before {
   content: "";
   position: absolute;
-  top: 0.62rem;
-  right: -4px;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--cue) + var(--gap) / 2);
+  border-left: 1px solid var(--hairline);
+}
+
+.entry:first-child::before {
+  top: 0.9rem;
+}
+
+.entry:last-child::before {
+  bottom: auto;
+  height: 0.9rem;
+}
+
+.entry::after {
+  content: "";
+  position: absolute;
+  top: 0.58rem;
+  left: calc(var(--cue) + var(--gap) / 2 - 4px);
   width: 7px;
   height: 7px;
   border: 1px solid var(--ink);
@@ -365,45 +433,121 @@ html:not(.js) .runhead {
   background: var(--paper);
 }
 
-.entry-date time {
+.kind-built::after {
+  border-radius: 0;
+}
+
+.kind-wrote::after {
+  background: var(--ink);
+}
+
+.entry-cue {
+  padding-bottom: 1.4rem;
+}
+
+.entry-year {
   display: block;
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.7rem;
+  font-size: 1.75rem;
   line-height: 1;
   color: var(--ink-2);
 }
 
-.entry-end {
+.entry-when {
   display: block;
-  margin-top: 0.45rem;
+  margin-top: 0.3rem;
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.06em;
   color: var(--muted);
 }
 
-.entry-main {
-  grid-column: text;
-  padding-bottom: 3rem;
+.entry-when:empty {
+  display: none;
 }
 
-.entry-title,
-.plate-title {
-  margin: 0.35rem 0 0.6rem;
-  font-size: 1.3rem;
+.entry-cue .kicker {
+  margin-top: 0.3rem;
+  font-size: 0.64rem;
+  line-height: 1.35;
+  letter-spacing: 0.1em;
+}
+
+.entry-main {
+  padding-bottom: 1.4rem;
+}
+
+.entry-main summary {
+  display: block;
+  cursor: pointer;
+  list-style: none;
+}
+
+.entry-main summary::-webkit-details-marker {
+  display: none;
+}
+
+.entry-title {
+  font-size: 1.2rem;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.3;
   letter-spacing: -0.01em;
 }
 
-.entry-rail {
-  grid-column: rail;
-  padding-top: 1.5rem;
+.entry-summary {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--ink-2);
 }
 
-.entry:last-child .entry-date {
-  border-right-color: transparent;
+.entry-link {
+  text-decoration: none;
+}
+
+.entry-link:hover .entry-title,
+.entry-main summary:hover .entry-title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.entry-link .entry-title::after {
+  content: " →";
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.more {
+  margin-left: 0.3em;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.more::before {
+  content: "+ ";
+}
+
+.entry-main[open] .more {
+  display: none;
+}
+
+.entry-main[open] {
+  padding-bottom: 2.5rem;
+}
+
+.entry-main[open] > .prose {
+  margin-top: 1rem;
+}
+
+.entry-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  column-gap: 1.5rem;
+  margin-top: 1.25rem;
 }
 
 /* ── Margin notes ──────────────────────────────────────────────────────── */
@@ -429,13 +573,6 @@ html:not(.js) .runhead {
   color: var(--ink-2);
 }
 
-/* Inside running prose (notes), a margin note floats out into the rail. */
-.prose .margin-note {
-  float: right;
-  clear: right;
-  width: var(--rail);
-  margin-right: calc(-1 * (var(--rail) + var(--gap)));
-}
 
 /* ── Figures ───────────────────────────────────────────────────────────── */
 
@@ -506,139 +643,60 @@ html:not(.js) .runhead {
   stroke-dashoffset: 0;
 }
 
-/* ── Plates ────────────────────────────────────────────────────────────── */
+/* ── Learn ─────────────────────────────────────────────────────────────── */
 
-.plate {
-  grid-column: text / -1;
-  padding-bottom: 3.5rem;
-}
-
-.plate .fig {
-  margin: 0 0 0.25rem;
-}
-
-/* Plates after the first are separated by a hairline; the first sits under
- * the section rule already. */
-.plate + .plate .fig {
-  padding-top: 2rem;
+.learn-item {
   border-top: 1px solid var(--hairline);
 }
 
-.plate .prose,
-.plate .plate-title,
-.plate .links {
-  max-width: var(--text);
-}
-
-/* ── Notes ─────────────────────────────────────────────────────────────── */
-
-.notes {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.note {
-  align-items: baseline;
-  padding-bottom: 1.4rem;
-}
-
-.note > p,
-.note > details {
-  grid-column: text;
-  margin: 0;
-}
-
-.note-date {
-  grid-column: date;
-  justify-self: end;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.note-title {
-  font-weight: 600;
-}
-
-.note-summary {
-  display: block;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.note-inline summary {
+.learn-item summary {
+  padding: 0.6rem 0;
   cursor: pointer;
   list-style: none;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  line-height: 1.25;
 }
 
-.note-inline summary::-webkit-details-marker {
+.learn-item summary::-webkit-details-marker {
   display: none;
 }
 
-.note-inline summary .note-title::after {
+.learn-item summary::after {
   content: " +";
   font-family: var(--mono);
-  font-weight: 400;
+  font-style: normal;
+  font-size: 0.8rem;
   color: var(--muted);
 }
 
-.note-inline[open] summary .note-title::after {
+.learn-item[open] summary::after {
   content: " −";
 }
 
-.note-inline .prose {
-  margin-top: 0.9rem;
-  padding-left: 1rem;
-  border-left: 1px solid var(--hairline);
-}
-
-.empty {
-  grid-column: text;
-  color: var(--muted);
-}
-
-/* ── Learn ─────────────────────────────────────────────────────────────── */
-
-.learn {
-  margin: 0;
-}
-
-.learn dt {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  color: var(--ink);
-}
-
-.learn dd {
-  margin: 0.5rem 0 2.25rem;
+.learn-answer {
+  padding-bottom: 1rem;
   color: var(--ink-2);
 }
 
 .learn .links {
-  margin-top: 0.5rem;
+  margin-top: 0.4rem;
 }
 
 /* ── Colophon ──────────────────────────────────────────────────────────── */
 
 .colophon {
-  margin-top: clamp(4rem, 8vw, 6rem);
-  padding-block: 1.5rem 5rem;
+  align-items: baseline;
+  margin-top: clamp(2.75rem, 5vw, 4rem);
+  padding-block: 1.25rem 5rem;
   border-top: 1px solid var(--hairline);
   font-size: 0.85rem;
   color: var(--muted);
 }
 
-.colophon > p {
-  margin: 0.6rem 0 0;
-}
-
-.colophon .kicker {
-  margin: 0;
+.colophon-body p {
+  margin: 0 0 0.6rem;
 }
 
 .to-terminal {
@@ -728,11 +786,6 @@ html:not(.js) .runhead {
   background: var(--surface);
   font-size: 0.82rem;
   line-height: 1.55;
-}
-
-/* On wide screens long code may run on into the empty margin rail. */
-.post .prose pre {
-  margin-right: calc(-1 * (var(--rail) + var(--gap)));
 }
 
 .prose pre code {
@@ -834,98 +887,94 @@ html:not(.js) .runhead {
 
 /* ── One column ────────────────────────────────────────────────────────── */
 
-@media (max-width: 62rem) {
+@media (max-width: 58rem) {
   main,
   .runhead {
-    grid-template-columns: [date-start text-start rail-start] minmax(0, 38rem) [date-end text-end rail-end];
+    grid-template-columns: [cue-start text-start] minmax(0, 38rem) [cue-end text-end];
     column-gap: 0;
+  }
+
+  .cue {
+    text-align: left;
+  }
+
+  .runhead-name,
+  .runhead-sec {
+    grid-row: 1;
+  }
+
+  .runhead-name {
+    justify-self: start;
   }
 
   .runhead-sec {
     justify-self: end;
   }
 
-  .runhead-name {
-    grid-row: 1;
+  .masthead .cue {
+    padding: 0 0 0.6rem;
   }
 
-  .runhead-sec {
-    grid-row: 1;
+  .dek {
+    margin-top: 0.4rem;
   }
 
-  .sec-head {
+  .sec-head .cue {
     display: flex;
-    gap: 0.9rem;
-    align-items: flex-end;
-  }
-
-  .sec-no {
-    font-size: 2.4rem;
-  }
-
-  .sec-head .kicker {
-    flex: 1;
-  }
-
-  /* The spine moves to the left edge; the year sits above the entry. */
-  .entry {
-    padding-left: 1.1rem;
-    border-left: 1px solid var(--hairline);
-    position: relative;
-  }
-
-  .entry:last-child {
-    border-left-color: transparent;
-  }
-
-  .entry-date {
-    padding: 0 0 0.35rem;
-    text-align: left;
-    border: 0;
-    position: static;
-    display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.6rem;
+    column-gap: 1rem;
   }
 
-  .entry-date::after {
-    top: 0.55rem;
-    left: -4px;
-    right: auto;
+  .legend {
+    justify-content: flex-start;
+    flex-basis: 100%;
+    margin-top: 0.5rem;
   }
 
-  .entry-date time {
-    font-size: 1.45rem;
+  /* The spine moves to the left edge; cue and body stack beside it. */
+  .entry {
+    padding-left: 1.2rem;
   }
 
-  .entry-end {
-    margin: 0;
+  .entry::before {
+    left: 0;
   }
 
-  .entry-main {
-    padding-bottom: 0.5rem;
+  .entry::after {
+    left: -3px;
   }
 
-  .entry-rail {
-    padding: 0 0 2.5rem;
+  .entry-cue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.6rem;
+    padding-bottom: 0.3rem;
   }
 
-  .post .prose pre {
-    margin-right: 0;
+  .entry-year {
+    font-size: 1.4rem;
   }
 
-  .margin-note,
-  .prose .margin-note {
-    float: none;
-    width: auto;
+  .entry-when,
+  .entry-cue .kicker {
+    margin-top: 0;
+  }
+
+  .margin-note {
     margin: 0 0 1rem;
     padding: 0.1rem 0 0.1rem 0.9rem;
     border-top: 0;
     border-left: 1px solid var(--hairline);
   }
 
-  .note-date {
-    justify-self: start;
+  .sec-summary .cue {
+    display: none;
+  }
+
+  .learn-item summary {
+    font-size: 1.2rem;
   }
 
   /* Keep figure labels legible: scroll sideways rather than shrink. */
@@ -936,10 +985,6 @@ html:not(.js) .runhead {
 
   .fig-art svg {
     min-width: min(calc(var(--fig-w, 0px) * 0.82), 40rem);
-  }
-
-  .learn dt {
-    font-size: 1.3rem;
   }
 }
 
@@ -959,12 +1004,12 @@ html:not(.js) .runhead {
   .preview-banner,
   .skip,
   .to-terminal,
-  .folio {
+  .more,
+  .sec-feed {
     display: none;
   }
 
   .entry,
-  .plate,
   .fig,
   .learn-item {
     break-inside: avoid;
@@ -972,6 +1017,12 @@ html:not(.js) .runhead {
 
   .sec-head {
     break-after: avoid;
+  }
+
+  /* Keep the filled "wrote" node filled; printers drop backgrounds. */
+  .entry::after {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
   /* The draw-in never runs on paper: print every stroke. */

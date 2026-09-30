@@ -41,9 +41,9 @@ are the complete in-terminal reference.
 ## The about page
 
 `/about` is a plain, readable companion to the terminal, generated at build
-time from `content/timeline.json` (work, plates, learn) and
-`content/notes/*.md`, with SVG figures from `content/figures/`. Code lives in
-`paper/`.
+time from `content/timeline.json` (dated entries and a few learn questions)
+and `content/notes/*.md`, which join the same timeline, with SVG figures from
+`content/figures/`. Code lives in `paper/`.
 
 It ships only when `PAPER_PUBLISH` is set: `preview` shows drafts and is not
 indexed, `production` refuses to build while any entry is still `draft`.
