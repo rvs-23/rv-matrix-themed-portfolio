@@ -20,6 +20,11 @@ import {
 import { getAllCommands } from "./commands/0_index.js";
 import { debounce, own, renderTree } from "./utils.js";
 import { sentientRainPhrases } from "./config/index.js";
+import { cleanLegacyUrl } from "./legacyLinks.js";
+
+// Retired recruiter-mode links land on a plain terminal visit.
+const legacyTarget = cleanLegacyUrl(window.location.href);
+if (legacyTarget) window.history.replaceState(null, "", legacyTarget);
 
 function initTitleBarDots(tc) {
   const dots = document.querySelectorAll(".terminal-dot");
@@ -156,12 +161,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   });
 
-  // Detect recruiter mode via URL path, hash, or query param
-  const isRecruiterMode =
-    window.location.pathname.replace(/\/$/, "").endsWith("/recruiter") ||
-    window.location.hash === "#recruiter" ||
-    new URLSearchParams(window.location.search).get("mode") === "recruiter";
-
   // Shared by both the success and failure paths below so the terminal always
   // becomes usable — even a failed rain start must not strand the loader.
   function revealApp() {
@@ -173,12 +172,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Now that the loader has faded and the terminal is visible, play the
     // decode-on-load tagline (no-op if reduced motion / already played).
     terminalController.playWelcomeDecode();
-
-    if (isRecruiterMode) {
-      setTimeout(() => {
-        registeredCommands.mission([], commandContext);
-      }, 400);
-    }
 
     // Deep link: ?cmd=<name> runs one command on load. Allowlisted to
     // registered, arg-less, [a-z]-only names — so a shared URL can never

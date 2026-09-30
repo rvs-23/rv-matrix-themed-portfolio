@@ -9,7 +9,7 @@ import { HIDDEN_COMMANDS } from "./0_index.js";
 
 // Command aliases that share another command's manual page.
 // Exported for the contract smoke test.
-export const MAN_ALIASES = { hire: "mission" };
+export const MAN_ALIASES = {};
 
 /**
  * Man page names safe to advertise: hidden eggs (decode, sudo) keep their

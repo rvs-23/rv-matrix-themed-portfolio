@@ -220,7 +220,7 @@ export function setInputLocked(locked) {
 function renderCommandChips() {
   const host = document.getElementById("command-chips");
   if (!host) return;
-  const chips = ["whoami", "skills", "contact", "mission", "rain", "help"];
+  const chips = ["whoami", "skills", "contact", "rain", "help"];
   host.replaceChildren();
   for (const cmd of chips) {
     const btn = document.createElement("button");
