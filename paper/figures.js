@@ -7,19 +7,18 @@
 const esc = (s) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-const LINE = `class="d" pathLength="1"`;
 const CHAR_W = 7.3; // JetBrains Mono at 12px
 const H = 40;
 
 function arrowHead(x, y, dir) {
   const [a, b] = dir === "down" ? [[-5, -6], [5, -6]] : dir === "up" ? [[-5, 6], [5, 6]] : [[-6, -5], [-6, 5]];
-  return `<path ${LINE} d="M${x + a[0]} ${y + a[1]}L${x} ${y}L${x + b[0]} ${y + b[1]}"/>`;
+  return `<path d="M${x + a[0]} ${y + a[1]}L${x} ${y}L${x + b[0]} ${y + b[1]}"/>`;
 }
 
 function station(x, y, w, label, note) {
   const cx = x + w / 2;
   return (
-    `<rect ${LINE} x="${x}" y="${y}" width="${w}" height="${H}" rx="3"/>` +
+    `<rect x="${x}" y="${y}" width="${w}" height="${H}" rx="3"/>` +
     `<text class="fig-label" x="${cx}" y="${y + H / 2 + 4}" text-anchor="middle">${esc(label)}</text>` +
     (note ? `<text class="fig-note" x="${cx}" y="${y + H + 18}" text-anchor="middle">${esc(note)}</text>` : "")
   );
@@ -48,7 +47,7 @@ export function pipelineSvg({ steps, loop = false }) {
       parts.push(station(x, pad, w, s.label, s.note));
       if (i < items.length - 1) {
         const y = pad + H / 2;
-        parts.push(`<path ${LINE} d="M${x + w + 6} ${y}H${x + w + gap - 6}"/>`, arrowHead(x + w + gap - 6, y, "right"));
+        parts.push(`<path d="M${x + w + 6} ${y}H${x + w + gap - 6}"/>`, arrowHead(x + w + gap - 6, y, "right"));
       }
       x += w + gap;
     });
@@ -59,7 +58,7 @@ export function pipelineSvg({ steps, loop = false }) {
       const x0 = pad + widthOf(items[0]) / 2;
       const x1 = width - pad - widthOf(items.at(-1)) / 2;
       parts.push(
-        `<path ${LINE} d="M${x1} ${pad + H + 4}V${y}H${x0}V${pad + H + 6}"/>`,
+        `<path d="M${x1} ${pad + H + 4}V${y}H${x0}V${pad + H + 6}"/>`,
         arrowHead(x0, pad + H + 6, "up"),
       );
     }
@@ -71,7 +70,7 @@ export function pipelineSvg({ steps, loop = false }) {
       const y = pad + i * (H + gap);
       parts.push(station(x, y, w, s.label));
       if (i < items.length - 1) {
-        parts.push(`<path ${LINE} d="M${x + w / 2} ${y + H + 5}V${y + H + gap - 5}"/>`, arrowHead(x + w / 2, y + H + gap - 5, "down"));
+        parts.push(`<path d="M${x + w / 2} ${y + H + 5}V${y + H + gap - 5}"/>`, arrowHead(x + w / 2, y + H + gap - 5, "down"));
       }
       // Vertical layout puts notes to the right of their station.
       if (s.note) {
@@ -84,8 +83,8 @@ export function pipelineSvg({ steps, loop = false }) {
       const lastY = pad + (items.length - 1) * (H + gap) + H / 2;
       const rx = x + w + 26;
       parts.push(
-        `<path ${LINE} d="M${x + w + 4} ${lastY}H${rx}V${pad + H / 2}H${x + w + 6}"/>`,
-        `<path ${LINE} d="M${x + w + 12} ${pad + H / 2 - 5}L${x + w + 6} ${pad + H / 2}L${x + w + 12} ${pad + H / 2 + 5}"/>`,
+        `<path d="M${x + w + 4} ${lastY}H${rx}V${pad + H / 2}H${x + w + 6}"/>`,
+        `<path d="M${x + w + 12} ${pad + H / 2 - 5}L${x + w + 6} ${pad + H / 2}L${x + w + 12} ${pad + H / 2 + 5}"/>`,
       );
     }
   }

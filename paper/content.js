@@ -73,11 +73,6 @@ export function validateTimeline(data) {
   check(errors, isStr(site?.name), "site.name is required");
   check(errors, isStr(site?.intro), "site.intro is required");
   checkLinks(errors, "site", site?.links);
-  // Optional one-line "In short" summaries closing each section.
-  for (const [key, text] of Object.entries(site?.sections ?? {})) {
-    check(errors, ["timeline", "learn"].includes(key), `site.sections.${key} is not a section`);
-    check(errors, isStr(text), `site.sections.${key} must be a non-empty string`);
-  }
 
   check(errors, Array.isArray(data?.entries), "entries must be an array");
   (data?.entries || []).forEach((e, i) => checkEntry(errors, `entries[${i}]`, e));

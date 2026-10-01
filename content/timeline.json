@@ -31,11 +31,7 @@
         "href": "/feed.xml"
       }
     ],
-    "draft": true,
-    "sections": {
-      "timeline": "From mathematics and teaching to shipping machine-learning tools for underwriters, with side projects and notes along the way.",
-      "learn": "Questions a curious reader might ask, answered in a few lines and linked to more."
-    }
+    "draft": true
   },
   "entries": [
     {

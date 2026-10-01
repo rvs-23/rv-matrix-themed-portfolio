@@ -1,8 +1,8 @@
 /**
  * @file paper/paper.js
  * Progressive touches for the paper site. The page is complete without this:
- * it only names the current section in the running header, draws figures in
- * once, and opens collapsed notes for printing or when linked directly.
+ * it only names the current section in the running header and opens collapsed
+ * entries for printing or when linked directly.
  */
 
 const root = document.documentElement;
@@ -32,22 +32,6 @@ if (label && sections.length) {
     { rootMargin: "-15% 0px -70% 0px" },
   );
   sections.forEach((s) => observer.observe(s));
-}
-
-// Figures draw themselves in once, unless the reader prefers less motion.
-if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  root.classList.add("draw");
-  const drawer = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        e.target.classList.add("is-drawn");
-        drawer.unobserve(e.target);
-      }
-    },
-    { threshold: 0.35 },
-  );
-  document.querySelectorAll(".fig").forEach((f) => drawer.observe(f));
 }
 
 // A link to a collapsed entry, question or note (/about/#nebula) opens it.

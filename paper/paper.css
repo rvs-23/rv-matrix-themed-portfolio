@@ -1,6 +1,6 @@
 /*
  * paper/paper.css — the paper site (/about + notes).
- * Fonts borrowed from rv-markdown-paper; a single ink on platinum-grey paper.
+ * Fonts borrowed from rv-markdown-paper; a single ink on white.
  * Two columns, after the Diátaxis "start here" page and Cornell notes: a wide
  * right-aligned cue column (headings, years, labels) and the body column,
  * joined on the timeline by a spine. One column below 58rem.
@@ -19,15 +19,13 @@
 /* ── Tokens ────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Platinum paper. Muted text is tuned to stay ≥4.5:1 against it. */
-  --paper: #e5e4e2;
+  --paper: #fff;
   --ink: #11131a;
   --ink-2: #2a2d36;
   --ink-3: #464952;
-  --muted: #5b5f68;
-  --mute-2: #84878f; /* large numerals only — too light for small text */
-  --hairline: #b5b4b0;
-  --surface: #d7d6d3;
+  --muted: #5f636c;
+  --hairline: #d9d9d7;
+  --surface: #f3f3f2;
 
   --sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --serif: "Instrument Serif", ui-serif, Georgia, serif;
@@ -180,7 +178,6 @@ main > *,
 .timeline,
 .entry,
 .learn,
-.sec-summary,
 .colophon,
 .post {
   display: grid;
@@ -196,7 +193,6 @@ main > *,
 .sec-meta,
 .entry-main,
 .learn-item,
-.sec-summary-text,
 .colophon-body,
 .post > * {
   grid-column: text;
@@ -268,16 +264,6 @@ html:not(.js) .runhead {
 
 .intro {
   margin-top: 1.5rem;
-}
-
-/* The one drop cap on the page. */
-.intro > p:first-child::first-letter {
-  float: left;
-  margin: 0.08em 0.1em 0 -0.02em;
-  font-family: var(--serif);
-  font-size: 3.55em;
-  line-height: 0.8;
-  color: var(--ink);
 }
 
 .now {
@@ -358,35 +344,6 @@ html:not(.js) .runhead {
   margin-top: 0.35rem;
   font-size: 0.7rem;
   color: var(--muted);
-}
-
-/* Cornell close: folio in the cue column, one-line summary beside it. */
-.sec-summary {
-  align-items: baseline;
-  margin: 1.5rem 0 0;
-}
-
-.folio {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.1rem;
-  color: var(--mute-2);
-}
-
-.sec-summary-text {
-  padding-top: 0.6rem;
-  border-top: 1px solid var(--hairline);
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.15rem;
-  line-height: 1.35;
-  color: var(--ink-2);
-}
-
-.sec-summary-text .kicker {
-  margin-right: 0.7em;
-  font-style: normal;
-  vertical-align: 0.15em;
 }
 
 /* ── Timeline ──────────────────────────────────────────────────────────── */
@@ -630,17 +587,6 @@ html:not(.js) .runhead {
   font-style: italic;
   font-size: 1.08rem;
   color: var(--ink-2);
-}
-
-/* Figures draw themselves in once, only when JS runs and motion is welcome. */
-.draw .fig .d {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 1.4s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.draw .fig.is-drawn .d {
-  stroke-dashoffset: 0;
 }
 
 /* ── Learn ─────────────────────────────────────────────────────────────── */
@@ -969,10 +915,6 @@ html:not(.js) .runhead {
     border-left: 1px solid var(--hairline);
   }
 
-  .sec-summary .cue {
-    display: none;
-  }
-
   .learn-item summary {
     font-size: 1.2rem;
   }
@@ -1023,12 +965,6 @@ html:not(.js) .runhead {
   .entry::after {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-  }
-
-  /* The draw-in never runs on paper: print every stroke. */
-  .fig .d {
-    stroke-dasharray: none !important;
-    stroke-dashoffset: 0 !important;
   }
 
   /* Links in running text print their address; the link rows stay short. */

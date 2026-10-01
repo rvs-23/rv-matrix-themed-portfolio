@@ -22,7 +22,6 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-const ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
 
 const year = (d) => d.slice(0, 4);
 
@@ -111,7 +110,7 @@ ${body}
 }
 
 /**
- * Page layout, after the Diátaxis "start here" page and Cornell notes: a wide
+ * Page layout, after the Diátaxis "start here" page: a wide
  * right-aligned cue column (headings, years, labels) beside the body column.
  * On the timeline the two are joined by a spine whose node shape says what
  * kind of entry it is.
@@ -121,15 +120,6 @@ const KINDS = {
   built: { mark: "□", label: "built" },
   wrote: { mark: "●", label: "wrote" },
 };
-
-/** Cornell close: folio numeral in the cue column, "In short" beside it. */
-function sectionClose(id, no, ctx) {
-  const summary = ctx.site.sections?.[id];
-  return `        <p class="sec-summary"><span class="cue"><span class="folio" aria-hidden="true">${ROMAN[no - 1]}</span></span>${
-    summary ? `<span class="sec-summary-text"><span class="kicker">In short</span> ${esc(summary)}</span>` : ""
-  }</p>
-      </section>`;
-}
 
 /** First sentence of a Markdown body, as plain text — the fallback summary. */
 function firstSentence(markdown) {
@@ -231,7 +221,7 @@ function timelineSection(ctx) {
         <ol class="timeline">
 ${rows.join("\n")}
         </ol>
-${sectionClose("timeline", 1, ctx)}`;
+      </section>`;
 }
 
 /** Learn: the question is the cue; the answer opens beneath it. */
@@ -252,7 +242,7 @@ function learnSection(learn, ctx) {
         <div class="learn">
 ${items.join("\n")}
         </div>
-${sectionClose("learn", 2, ctx)}`;
+      </section>`;
 }
 
 function colophon(ctx) {
