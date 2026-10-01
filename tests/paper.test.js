@@ -229,51 +229,35 @@ describe("terminal commands for the paper site", async () => {
   });
 });
 
-describe("timeline axis and lanes", async () => {
-  const { axisRows, TRACKS } = await import("../paper/timeview.js");
+describe("timeline eras", async () => {
+  const { eraGroups } = await import("../paper/timeview.js");
+  const eras = [
+    { id: "now", start: "2025-08" },
+    { id: "college", start: "2017-05" },
+  ];
   const items = [
-    { id: "job-now", kind: "work", start: "2025-08", end: "present" },
+    { id: "job-now", kind: "work", start: "2025-08", end: "present", main: true },
+    { id: "pet", kind: "project", start: "2026-04" },
     { id: "side", kind: "project", start: "2021-05" },
     { id: "tutor", kind: "work", start: "2020-11", end: "2021-12" },
-    { id: "masters", kind: "study", start: "2020-08", end: "2022-05" },
+    { id: "masters", kind: "study", start: "2020-08", end: "2022-05", main: true },
+    { id: "early", kind: "learn", start: "2016" },
   ];
-  const rows = axisRows(items, "2026-10");
-  const k = (id) => TRACKS.findIndex((t) => t.id === id);
-  const rowOf = (id) => rows.find((r) => r.entry?.id === id);
-  const monthRow = (y, m) => rows.find((r) => r.type === "month" && !r.entry && r.idx === y * 12 + m - 1);
+  const [now, college] = eraGroups(items, eras);
+  const ids = (group, col) => group.columns.find((c) => c.column.id === col)?.items.map((e) => e.id);
 
-  it("has every year from now back to the first entry, even empty ones", () => {
-    const years = rows.filter((r) => r.type === "year").map((r) => r.year);
-    expect(years).toEqual([2026, 2025, 2024, 2023, 2022, 2021, 2020]);
+  it("puts each item in the era it began in; older than all goes to the oldest", () => {
+    expect(ids(now, "side")).toEqual(["pet"]);
+    expect(ids(college, "side")).toEqual(["side", "early"]);
   });
 
-  it("puts each entry in the month it started, newest first", () => {
-    const order = rows.filter((r) => r.entry).map((r) => r.entry.id);
-    expect(order).toEqual(["job-now", "side", "tutor", "masters"]);
-    expect(rowOf("tutor").month).toBe(11);
+  it("leads an era with its main events, kept out of the columns", () => {
+    expect(now.mains.map((e) => e.id)).toEqual(["job-now"]);
+    expect(college.mains.map((e) => e.id)).toEqual(["masters"]);
+    expect(ids(college, "work")).toEqual(["tutor"]);
   });
 
-  it("puts each node on its own lane", () => {
-    expect(rowOf("job-now").lanes[k("work")].node).toBe(true);
-    expect(rowOf("side").lanes[k("projects")].node).toBe(true);
-    expect(rowOf("masters").lanes[k("learn")].node).toBe(true);
-  });
-
-  it("draws a solid line for exactly the months something ran", () => {
-    // The master's (Aug 2020 → May 2022) is solid through Jan 2022 …
-    const jan22 = monthRow(2022, 1).lanes[k("learn")];
-    expect(jan22.up && jan22.down).toBe(true);
-    // … and dotted again by Sep 2022.
-    const sep22 = monthRow(2022, 9).lanes[k("learn")];
-    expect(sep22.up || sep22.down).toBe(false);
-  });
-
-  it("shows overlap: the master's runs beside the tutoring", () => {
-    expect(rowOf("tutor").lanes[k("learn")].up).toBe(true);
-  });
-
-  it("keeps a one-off project a dot, with no line", () => {
-    const side = rowOf("side").lanes[k("projects")];
-    expect(side.up || side.down).toBe(false);
+  it("leaves out a column with nothing in it", () => {
+    expect(now.columns.map((c) => c.column.id)).toEqual(["side"]);
   });
 });

@@ -7,7 +7,7 @@
 
 import { renderMarkdown, renderInline, loadFigureSvg } from "./markdown.js";
 import { dataFigureSvg } from "./figures.js";
-import { axisRows, lanesHtml, lanesKeyHtml } from "./timeview.js";
+import { eraGroups } from "./timeview.js";
 import { posix } from "node:path";
 
 export const SITE_URL = "https://rvs23.dev";
@@ -22,8 +22,6 @@ const esc = (s) =>
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-
-
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -115,34 +113,17 @@ ${body}
 `;
 }
 
-
-
 const sortKey = (d) => (d.length === 4 ? `${d}-00` : d);
 
-const monthOf = (d) => (d.length > 4 ? MONTHS[Number(d.slice(5, 7)) - 1] : "");
+const fmtDate = (d) => (d.length > 4 ? `${MONTHS[Number(d.slice(5, 7)) - 1]} ${d.slice(0, 4)}` : d);
 
 /** "Aug 2025 → now", "2024 → 2025", "May 2021": an entry's span, compactly. */
 function when(e) {
-  const fmt = (d) => (d.length > 4 ? `${monthOf(d)} ${d.slice(0, 4)}` : d);
-  if (!e.end) return fmt(e.start);
-  return `${fmt(e.start)} → ${e.end === "present" ? "now" : fmt(e.end)}`;
+  if (!e.end) return fmtDate(e.start);
+  return `${fmtDate(e.start)} → ${e.end === "present" ? "now" : fmtDate(e.end)}`;
 }
 
-/** Date cell beside an entry: the month it began (or its year, when only the
- *  year is known) and, for a span, when it ended. */
-function dateCue(e) {
-  const fmt = (d) => (d.length > 4 ? monthOf(d) : d);
-  const start = `<span class="entry-month">${fmt(e.start)}</span>`;
-  if (!e.end) return start;
-  const end = e.end === "present" ? "now" : e.end.length > 4 ? `${monthOf(e.end)} ${e.end.slice(0, 4)}` : e.end;
-  return `${start}<span class="entry-end">→ ${esc(end)}</span>`;
-}
-
-/**
- * Everything dated, newest first: timeline.json entries plus the notes. Each
- * row is one line of title and one of summary; depth lives on the walkthrough
- * or note it links to.
- */
+/** Everything dated, newest first: timeline.json entries plus the notes. */
 function timelineItems(ctx) {
   const notes = ctx.notes.map((n) => ({
     id: `note-${n.slug}`,
@@ -156,13 +137,6 @@ function timelineItems(ctx) {
     note: n,
   }));
   return [...ctx.timeline.entries, ...notes].sort((a, b) => sortKey(b.start).localeCompare(sortKey(a.start)));
-}
-
-/** Logo tile, or a plain glyph tile for things that have no organisation. */
-function tileHtml(e) {
-  if (e.logo) return logoHtml(e);
-  const glyph = e.kind === "writing" ? "¶" : e.kind === "learn" ? "+" : "{ }";
-  return `<span class="logo glyph" aria-hidden="true">${glyph}</span>`;
 }
 
 /**
@@ -190,47 +164,95 @@ function walkLink(e) {
   return `<a class="walk" href="${esc(e.walkthrough)}"${external ? ' rel="noopener"' : ""}>${label}${where} ${external ? "↗" : "→"}</a>`;
 }
 
-function rowHtml(e, ctx, lanes) {
-  const title = renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
-  const titleHtml = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${title}</a>` : title;
-  // Short notes still open in place; everything else is one line plus a link.
-  const inlineNote =
-    e.note?.inline
-      ? `<details class="note-inline"><summary>Read it here</summary><div class="prose">${md(e.note.body, ctx, `notes/${e.note.file}`)}</div></details>`
-      : "";
+function entryLinks(e) {
   const code = e.repo ? `<a class="walk" href="${esc(e.repo)}" rel="noopener">Code ↗</a>` : "";
-  return `          <li class="entry kind-${e.kind}" id="${esc(e.id)}">
-            <p class="entry-date"><time datetime="${esc(e.start)}">${dateCue(e)}</time>${lanes}</p>
-            <div class="entry-main has-logo">
-              ${tileHtml(e)}
-              <div class="entry-body">
-                <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
-                <h3 class="entry-title">${titleHtml}</h3>
-                <p class="entry-summary">${esc(e.summary)}</p>
-                ${thumbHtml(e, ctx)}
-                ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
-                ${inlineNote}
-              </div>
-            </div>
-            <div class="entry-rail">${skillsHtml(e.skills)}${walkLink(e) || code ? `<p class="rail-links">${walkLink(e)}${code}</p>` : ""}</div>
-          </li>`;
+  return walkLink(e) || code ? `<p class="entry-links">${walkLink(e)}${code}</p>` : "";
 }
 
+const titleHtml = (e, ctx) => renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
+
+/** "2022 — 2025" for an era: from its start to the next era's (or now). */
+function eraYears(era, eras) {
+  const n = eras.indexOf(era);
+  return `${era.start.slice(0, 4)} — ${n === 0 ? "now" : eras[n - 1].start.slice(0, 4)}`;
+}
+
+/** The time line's segment beside a row; a main event puts a ring on it. */
+const spineHtml = (inner = "") => `<div class="spine" aria-hidden="true">${inner}</div>`;
+
+/** A main event: logo and headline in the text column, its skills as the
+ *  Cornell cue beside it. */
+function heroHtml(e, ctx) {
+  return `          <article class="hero" id="${esc(e.id)}">
+            ${spineHtml('<i class="ring"></i>')}
+            <div class="hero-main">
+              ${logoHtml(e)}
+              <div class="hero-body">
+                <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
+                <h3 class="hero-title">${titleHtml(e, ctx)}</h3>
+                <p class="hero-when">${esc(when(e))}</p>
+                <p class="hero-summary">${esc(e.summary)}</p>
+                ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
+                ${entryLinks(e)}
+              </div>
+            </div>
+            <div class="hero-rail">${skillsHtml(e.skills)}</div>
+          </article>`;
+}
+
+/** A supporting item: a project, a side role, a note. */
+function cardHtml(e, ctx) {
+  const title = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${titleHtml(e, ctx)}</a>` : titleHtml(e, ctx);
+  // Short notes open in place; everything else is one line plus a link.
+  const inlineNote = e.note?.inline
+    ? `<details class="note-inline"><summary>Read it here</summary><div class="prose">${md(e.note.body, ctx, `notes/${e.note.file}`)}</div></details>`
+    : "";
+  return `<article class="card" id="${esc(e.id)}">
+                  <p class="card-when">${esc(when(e))}</p>
+                  <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
+                  <h3 class="card-title">${title}</h3>
+                  <p class="card-summary">${esc(e.summary)}</p>
+                  ${thumbHtml(e, ctx)}
+                  ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
+                  ${inlineNote}
+                  ${skillsHtml(e.skills, "skills-inline")}
+                  ${entryLinks(e)}
+                </article>`;
+}
+
+/**
+ * The timeline: one block per era, on a single line running down the left.
+ * An era leads with its main events, then shows what ran alongside in two
+ * columns of cards.
+ */
 function timelineSection(ctx) {
-  const rows = axisRows(timelineItems(ctx), ctx.buildDate.slice(0, 7)).map((row) => {
-    const lanes = lanesHtml(row.lanes);
-    if (row.type === "year") {
-      return `          <li class="axis-year" id="y${row.year}"><p class="entry-date"><span class="year-label">${row.year}</span>${lanes}</p></li>`;
-    }
-    if (!row.entry) return `          <li class="axis-month"><p class="entry-date">${lanes}</p></li>`;
-    return rowHtml(row.entry, ctx, lanes);
+  const { eras } = ctx.timeline;
+  const blocks = eraGroups(timelineItems(ctx), eras).map(({ era, mains, columns }) => {
+    const cols = columns.map(
+      ({ column, items }) => `              <div class="era-col">
+                <p class="kicker era-col-name">${column.label}</p>
+                ${items.map((e) => cardHtml(e, ctx)).join("\n                ")}
+              </div>`,
+    );
+    const support = cols.length
+      ? `          <div class="era-support">
+            ${spineHtml()}
+            <div class="era-grid">
+${cols.join("\n")}
+            </div>
+          </div>`
+      : "";
+    return `        <div class="era" id="era-${esc(era.id)}">
+          <div class="era-head">
+            ${spineHtml(`<span class="era-years">${eraYears(era, eras)}</span>`)}
+            <h2 class="era-title">${esc(era.title)}</h2>
+          </div>
+${mains.map((e) => heroHtml(e, ctx)).join("\n")}
+${support}
+        </div>`;
   });
-  // Straight from the masthead into the axis: the labels say what each lane is.
   return `      <section class="sec" id="timeline" data-title="Timeline">
-        ${lanesKeyHtml()}
-        <ol class="timeline">
-${rows.join("\n")}
-        </ol>
+${blocks.join("\n")}
       </section>`;
 }
 

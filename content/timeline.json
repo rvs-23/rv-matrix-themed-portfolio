@@ -2,7 +2,7 @@
   "site": {
     "name": "Rishav Sharma",
     "dek": "Teacher, Palantir & AIP Engineer, Data Scientist",
-    "intro": "I teach and build on Palantir Foundry at Ontologize, after three years of machine learning at Swiss Re. Below is what I've worked on, built and learned, newest first.",
+    "intro": "A guy who hates randomness. I teach people to build on Palantir Foundry, and I like turning intuition into something you can measure. Away from the screen it's guitar and John Mayer, chess, GeoGuessr, and the occasional attempt at stand-up.",
     "description": "Rishav Sharma — teacher, data scientist, Palantir & AIP engineer. Work, study and projects, with walkthroughs.",
     "links": [
       {
@@ -26,8 +26,27 @@
         "href": "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
       }
     ],
-    "draft": false
+    "draft": true
   },
+  "eras": [
+    {
+      "id": "ontologize",
+      "title": "Ontologize",
+      "start": "2025-08",
+      "logo": "ontologize.svg"
+    },
+    {
+      "id": "swiss-re",
+      "title": "Swiss Re",
+      "start": "2022-10",
+      "logo": "swissre.svg"
+    },
+    {
+      "id": "college",
+      "title": "College",
+      "start": "2017-05"
+    }
+  ],
   "entries": [
     {
       "id": "ontologize",
@@ -46,7 +65,8 @@
         "AIP",
         "Teaching"
       ],
-      "draft": true
+      "draft": true,
+      "main": true
     },
     {
       "id": "rv-markdown-paper",
@@ -94,7 +114,7 @@
     {
       "id": "nebula",
       "kind": "work",
-      "start": "2024",
+      "start": "2024-02",
       "end": "2025",
       "label": "Swiss Re",
       "title": "Nebula, a retrieval assistant",
@@ -109,7 +129,8 @@
         "Semantic search",
         "Palantir AIP"
       ],
-      "draft": true
+      "draft": true,
+      "under": "swiss-re"
     },
     {
       "id": "loss-ratio-hotspots",
@@ -128,16 +149,17 @@
         "SHAP",
         "Pandas"
       ],
-      "draft": true
+      "draft": true,
+      "under": "swiss-re"
     },
     {
       "id": "swiss-re",
       "kind": "work",
       "start": "2022-10",
-      "end": "2025",
+      "end": "2025-08",
       "label": "Swiss Re GBS",
-      "title": "Data Scientist I → Data Science Specialist II",
-      "summary": "Joined as Data Scientist I and was promoted to Data Science Specialist II. Data-science and language-model pipelines on Palantir Foundry for underwriting, operations and finance; underwriters about 30% more productive.",
+      "title": "Data Science Specialist II",
+      "summary": "Data-science and language-model pipelines on Palantir Foundry for underwriting, operations and finance; underwriters about 30% more productive.",
       "logo": "swissre.svg",
       "skills": [
         "Palantir Foundry",
@@ -147,7 +169,8 @@
         "SQL",
         "LLMs"
       ],
-      "draft": true
+      "draft": true,
+      "main": true
     },
     {
       "id": "songs-database",
@@ -181,7 +204,8 @@
         "Queueing theory",
         "Forecasting"
       ],
-      "draft": true
+      "draft": true,
+      "main": true
     },
     {
       "id": "code-young",
@@ -266,7 +290,8 @@
         "Statistics",
         "Computer science"
       ],
-      "draft": true
+      "draft": true,
+      "main": true
     }
   ]
 }
