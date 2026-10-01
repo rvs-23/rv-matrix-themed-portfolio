@@ -25,14 +25,10 @@
       {
         "label": "CV",
         "href": "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
-      },
-      {
-        "label": "RSS",
-        "href": "/feed.xml"
       }
     ],
     "draft": true,
-    "guide": "This page is one timeline, newest first: work, pet projects and writing. Projects open into a walkthrough; the right-hand column lists the skills each one used. The [terminal](/) is the playful version of the same."
+    "guide": "This page is one timeline, newest first: work, study and pet projects. Projects open into a walkthrough; the right-hand column lists the skills each one used. The [terminal](/) is the playful version of the same."
   },
   "entries": [
     {

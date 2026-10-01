@@ -207,7 +207,7 @@ function timelineSection(ctx) {
   });
   const years = items.map((e) => Number(year(e.start)));
   // The spine reads top to bottom: "now" at the head, an arrow to "earlier".
-  return `${sectionOpen("timeline", 1, "Timeline", ` <span class="kicker-span">${Math.min(...years)} — now · work, projects, writing</span>`)}
+  return `${sectionOpen("timeline", 1, "Timeline", ` <span class="kicker-span">${Math.min(...years)} — now · work, study, projects</span>`)}
         <ol class="timeline">
           <li class="spine-cap spine-now" aria-hidden="true"><span>now</span></li>
 ${rows.join("\n")}

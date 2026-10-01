@@ -23,4 +23,4 @@ About sixty times a second the loop decays the grid, mutates a few glyphs, advan
 
 ## Going deeper
 
-Two longer primers walk through the code for someone who can program but is new to the web: [the page and its skin](/about/the-page-and-its-skin/) (HTML and CSS) and [the terminal and the rain](/about/the-terminal-and-the-rain/) (the JavaScript).
+Two longer primers in the repo walk through the code for someone who can program but is new to the web: [the page and its skin](https://github.com/rvs-23/rv-matrix-themed-portfolio/blob/main/primer/01-the-page-and-its-skin.md) (HTML and CSS) and [the terminal and the rain](https://github.com/rvs-23/rv-matrix-themed-portfolio/blob/main/primer/02-the-terminal-and-the-rain.md) (the JavaScript).
