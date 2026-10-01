@@ -57,6 +57,15 @@
       "label": "Pet project",
       "title": "rv-markdown-paper",
       "summary": "Markdown in, a print-quality PDF out, with a fixed editorial design.",
+      "thumb": {
+        "type": "pipeline",
+        "steps": [
+          "input.md",
+          "syntax tree",
+          "Typst",
+          "PDF"
+        ]
+      },
       "skills": [
         "TypeScript",
         "unified / remark",
@@ -73,6 +82,7 @@
       "label": "Pet project",
       "title": "The terminal on this site",
       "summary": "A command line over falling-code rain, in plain JavaScript.",
+      "thumb": "rain.svg",
       "skills": [
         "JavaScript",
         "Canvas 2D",
@@ -91,6 +101,8 @@
       "label": "Swiss Re",
       "title": "Nebula, a retrieval assistant",
       "summary": "Answers from news, filings and financial documents; underwriter research went from days to minutes.",
+      "walkthrough": "/about/nebula/",
+      "thumb": "rag.svg",
       "logo": "swissre.svg",
       "skills": [
         "Python",
@@ -109,6 +121,8 @@
       "label": "Swiss Re",
       "title": "Loss-ratio hotspots",
       "summary": "A model of portfolio losses, explained with SHAP, that pointed at the drivers; loss ratios fell 5%.",
+      "walkthrough": "/about/loss-ratio-hotspots/",
+      "thumb": "shap.svg",
       "logo": "swissre.svg",
       "skills": [
         "Python",
@@ -194,6 +208,7 @@
       "label": "Pet project · Packt",
       "title": "Customer prioritization",
       "summary": "Rank trial users by how likely they are to buy, so sales calls 83% fewer people.",
+      "thumb": "boundary.svg",
       "logo": "packt.png",
       "skills": [
         "Python",

@@ -560,11 +560,13 @@ html:not(.js) .runhead {
   fill: var(--muted) !important;
 }
 
-.fig-art .soft {
+.fig-art .soft,
+.thumb .soft {
   stroke: var(--hairline);
 }
 
-.fig-art .fill {
+.fig-art .fill,
+.thumb .fill {
   fill: currentColor;
   stroke: none;
 }
@@ -584,13 +586,15 @@ html:not(.js) .runhead {
 }
 
 /* Figures draw themselves in once, only when JS runs and motion is welcome. */
-.draw .fig .d {
+.draw .fig .d,
+.draw .thumb .d {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   transition: stroke-dashoffset 1.4s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.draw .fig.is-drawn .d {
+.draw .fig.is-drawn .d,
+.draw .thumb.is-drawn .d {
   stroke-dashoffset: 0;
 }
 
@@ -630,6 +634,35 @@ html:not(.js) .runhead {
   flex-wrap: wrap;
   column-gap: 1rem;
   row-gap: 0.2rem;
+}
+
+/* Inline figure: a small version of the walkthrough's picture. */
+.thumb {
+  display: block;
+  max-width: 22rem;
+  margin: 0.9rem 0 0.2rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.thumb svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.thumb text {
+  stroke: none;
+  fill: currentColor;
+}
+
+a.thumb {
+  transition: opacity 0.15s;
+}
+
+a.thumb:hover {
+  opacity: 0.7;
 }
 
 .walk {

@@ -5,7 +5,8 @@
  * of renderMarkdown (which rejects raw HTML).
  */
 
-import { renderMarkdown, renderInline } from "./markdown.js";
+import { renderMarkdown, renderInline, loadFigureSvg } from "./markdown.js";
+import { dataFigureSvg } from "./figures.js";
 import { posix } from "node:path";
 
 export const SITE_URL = "https://rvs23.dev";
@@ -163,6 +164,22 @@ function tileHtml(e) {
   return `<span class="logo glyph" aria-hidden="true">${glyph}</span>`;
 }
 
+/**
+ * A small inline version of the entry's figure, linking to its walkthrough.
+ * Decorative here (the walkthrough has it full size, with a caption).
+ */
+function thumbHtml(e, ctx) {
+  if (!e.thumb) return "";
+  const svg =
+    typeof e.thumb === "string"
+      ? loadFigureSvg(ctx.figuresDir, e.thumb, `entries.${e.id}`)
+      : dataFigureSvg(e.thumb);
+  const art = svg.replace("<svg", '<svg aria-hidden="true" focusable="false"');
+  return e.walkthrough
+    ? `<a class="thumb" href="${esc(e.walkthrough)}" tabindex="-1" aria-hidden="true">${art}</a>`
+    : `<div class="thumb" aria-hidden="true">${art}</div>`;
+}
+
 /** The link that opens an entry's depth: our walkthrough, a note, or Medium. */
 function walkLink(e) {
   if (!e.walkthrough) return "";
@@ -189,6 +206,7 @@ function rowHtml(e, showYear, ctx) {
                 <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
                 <h3 class="entry-title">${titleHtml}</h3>
                 <p class="entry-summary">${esc(e.summary)}</p>
+                ${thumbHtml(e, ctx)}
                 ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
                 ${inlineNote}
               </div>

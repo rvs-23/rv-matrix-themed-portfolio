@@ -47,7 +47,7 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     },
     { threshold: 0.35 },
   );
-  document.querySelectorAll(".fig").forEach((f) => drawer.observe(f));
+  document.querySelectorAll(".fig, .thumb").forEach((f) => drawer.observe(f));
 }
 
 // A link to an inline note (/about/#note-x) opens it.

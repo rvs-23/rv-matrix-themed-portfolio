@@ -92,7 +92,7 @@ describe("content", () => {
   it("rejects a logo that isn't in content/logos", () => {
     const data = JSON.parse(JSON.stringify(loadContent(contentDir).timeline));
     data.entries[0].logo = "nope.svg";
-    expect(() => validateTimeline(data, join(contentDir, "logos"))).toThrow(/logo 'nope\.svg'/);
+    expect(() => validateTimeline(data, contentDir)).toThrow(/logo 'nope\.svg'/);
   });
 
   it("rejects an entry whose on-site walkthrough has no page", () => {
@@ -101,6 +101,7 @@ describe("content", () => {
     data.entries[0].walkthrough = "/about/missing/";
     writeFileSync(join(dir, "timeline.json"), JSON.stringify(data));
     symlinkSync(join(contentDir, "logos"), join(dir, "logos"));
+    symlinkSync(join(contentDir, "figures"), join(dir, "figures"));
     expect(() => loadContent(dir)).toThrow(/no content\/projects page for \/about\/missing\//);
   });
 

@@ -39,7 +39,8 @@ function checkLinks(errors, where, links) {
 export const ENTRY_KINDS = ["work", "study", "project"];
 const PROJECT_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 
-function checkEntry(errors, where, e, logosDir) {
+function checkEntry(errors, where, e, contentDir) {
+  const logosDir = join(contentDir, "logos");
   check(errors, isStr(e?.id) && /^[a-z0-9-]+$/.test(e.id), `${where}.id must be kebab-case`);
   check(errors, ENTRY_KINDS.includes(e?.kind), `${where}.kind must be one of ${ENTRY_KINDS.join(", ")}`);
   check(errors, MONTH.test(e?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
@@ -71,10 +72,20 @@ function checkEntry(errors, where, e, logosDir) {
     `${where}.walkthrough must be /about/<slug>/ or an https URL`,
   );
   check(errors, e?.repo === undefined || /^https:\/\//.test(e.repo), `${where}.repo must be an https URL`);
+  // A small inline figure: a file in content/figures, or a pipeline drawn from data.
+  if (e?.thumb !== undefined) {
+    const t = e.thumb;
+    check(
+      errors,
+      (isStr(t) && /^[a-z0-9-]+\.svg$/.test(t) && existsSync(join(contentDir, "figures", t))) ||
+        (t?.type === "pipeline" && Array.isArray(t.steps) && t.steps.length > 1),
+      `${where}.thumb must be a file in content/figures or a pipeline`,
+    );
+  }
   check(errors, e?.draft === undefined || typeof e.draft === "boolean", `${where}.draft must be boolean`);
 }
 /** Validate the parsed timeline.json; returns it unchanged or throws. */
-export function validateTimeline(data, logosDir = "") {
+export function validateTimeline(data, contentDir = "") {
   const errors = [];
   const site = data?.site;
   check(errors, isStr(site?.name), "site.name is required");
@@ -82,7 +93,7 @@ export function validateTimeline(data, logosDir = "") {
   checkLinks(errors, "site", site?.links);
 
   check(errors, Array.isArray(data?.entries), "entries must be an array");
-  (data?.entries || []).forEach((e, i) => checkEntry(errors, `entries[${i}]`, e, logosDir));
+  (data?.entries || []).forEach((e, i) => checkEntry(errors, `entries[${i}]`, e, contentDir));
 
   const ids = (data?.entries || []).map((e) => e?.id);
   const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
@@ -165,7 +176,7 @@ function readMarkdownDir(dir, parse, errors) {
 export function loadContent(contentDir) {
   const timeline = validateTimeline(
     JSON.parse(readFileSync(join(contentDir, "timeline.json"), "utf8")),
-    join(contentDir, "logos"),
+    contentDir,
   );
   const errors = [];
   const repoRoot = join(contentDir, "..");
