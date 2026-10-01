@@ -52,7 +52,7 @@
   "notes": {
     "name": "notes - List published notes.",
     "synopsis": "notes",
-    "description": "Lists the notes and primers published on the about page, newest first, each with a link.",
+    "description": "Lists the notes and primers published on the home page, newest first, each with a link.",
     "arguments": "None",
     "examples": ["notes              - Lists notes with links."],
     "notes": "Also available as an RSS feed at /feed.xml."

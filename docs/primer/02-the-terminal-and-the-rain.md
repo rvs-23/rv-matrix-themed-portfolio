@@ -283,4 +283,4 @@ Hints only.
    glow before editing.)
 
 For the full list of rain parameters and their ranges, see the parameter table in
-the [README](../README.md#rain-parameters).
+the [terminal guide](../matrix.md#rain-parameters).

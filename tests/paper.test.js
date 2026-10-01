@@ -111,7 +111,7 @@ describe("content", () => {
   });
 
   it("borrows a note body from its source file, dropping the H1", () => {
-    const raw = "---\ntitle: T\ndate: 2026-01-01\nsummary: S\nsource: primer/01-the-page-and-its-skin.md\n---\n";
+    const raw = "---\ntitle: T\ndate: 2026-01-01\nsummary: S\nsource: docs/primer/01-the-page-and-its-skin.md\n---\n";
     const note = parseNote("2026-01-01-t.md", raw, root);
     expect(note.body.startsWith("# ")).toBe(false);
     expect(note.body.length).toBeGreaterThan(1000);

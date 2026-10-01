@@ -115,7 +115,7 @@ export function validateTimeline(data, contentDir = "") {
 }
 /**
  * Parse + validate one note file. A note may borrow its body from a Markdown
- * file elsewhere in the repo (`source: primer/01-….md`), so a primer is
+ * file elsewhere in the repo (`source: docs/primer/01-….md`), so a primer is
  * written once and published as-is; its leading `# Title` is dropped.
  */
 export function parseNote(file, raw, repoRoot) {

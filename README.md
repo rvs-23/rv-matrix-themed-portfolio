@@ -1,125 +1,85 @@
-# Matrix Terminal Portfolio
+# rv-portfolio-matrix
 
-A personal portfolio built as a Matrix-themed command line: type commands to
-read the profile, and a full-screen digital-rain animation runs behind it.
+My personal site, [rvs23.dev](https://rvs23.dev/). It has two faces:
 
-Live: [rvs23.dev](https://rvs23.dev/)
+- **The timeline** at `/`: a plain page of work, study and projects, year by year, with walkthroughs for the projects worth explaining.
+- **The Matrix terminal** at `/matrix`: a command line over the falling-code rain from the film. Nothing on the timeline links to it.
 
-![Matrix digital rain](primer/assets/rain-capture.png)
+![The timeline: one centre line of years, work on the left, projects and learning on the right](docs/images/timeline.png)
+
+![The Matrix terminal's digital rain](docs/images/rain.png)
+
+Both are plain HTML, CSS and JavaScript. Vite provides the dev server and the bundle; there is no framework and no backend.
 
 ## Quick start
 
-Needs [Node.js](https://nodejs.org/) 18 or newer (for the Vite dev server and build).
+You need [Node.js](https://nodejs.org/) 20 or newer.
 
 ```bash
-npm install      # install dev dependencies
-npm run dev      # start the local dev server (http://localhost:5173)
-npm run build    # produce a static site in dist/
-npm test         # contract smoke test (registry, man pages, help, rain.json)
-npm run lint     # ESLint, incl. the floating-promise check
+git clone https://github.com/rvs-23/rv-portfolio-matrix.git
+cd rv-portfolio-matrix
+npm install
+npm run dev      # http://localhost:5173/ (timeline) and /matrix/ (terminal)
 ```
 
-The site itself is plain HTML, CSS, and JavaScript. Vite only provides the dev
-server and the production bundle; there is no framework to learn.
-
-## Try these
-
-Once the terminal is open, type any of these and press Enter:
-
-| Command      | What it does                                          |
-| ------------ | ----------------------------------------------------- |
-| `whoami`     | Print the profile: identity, brief, links.            |
-| `skills`     | List key skills (use `skilltree` to drill in).        |
-| `rain`       | Show rain settings; subcommands tune the animation.   |
-| `theme`      | Switch the color scheme (e.g. `theme amber`).         |
-| `screenshot` | Save the current rain frame as a PNG wallpaper.       |
-| `help`       | List every command.                                   |
-
-`help` lists all commands, and `man <command>` prints its full manual. Those two
-are the complete in-terminal reference.
-
-## The about page
-
-`/about` is a plain, readable companion to the terminal, generated at build
-time from `content/timeline.json` (work, plates, learn) and
-`content/notes/*.md`, with SVG figures from `content/figures/`. Code lives in
-`paper/`.
-
-It ships only when `PAPER_PUBLISH` is set: `preview` shows drafts and is not
-indexed, `production` refuses to build while any entry is still `draft`.
-Unset, the build contains no trace of it. `npm run dev` always serves it at
-http://localhost:5173/about/.
-
-## Repo map
-
-```
-index.html              Page shell: loader, canvas, terminal, nav
-css/
-  style.css             Layout, the glass terminal, media queries, reduced-motion
-  themes.css            One CSS-variable set per color theme
-js/
-  main.js               Boot: load data, build context, start terminal + rain
-  commands/0_index.js   Registry mapping every command name to its module
-  controller/           Terminal DOM, input, output, history, theming
-  rain/engine.js        The digital-rain animation (canvas, self-contained)
-paper/                  The /about page: Markdown, templates, styles, Vite plugin
-content/                What /about says: timeline.json, notes/, figures/
-public/config/
-  rain.json             Rain defaults, glyphs, presets, validation rules
-  content/              Data that drives commands (skills, hobbies, man pages)
+```bash
+npm test         # content validation, rendered pages, terminal contracts
+npm run lint
+npm run build    # static site in dist/, then a check that dist/ is consistent
 ```
 
-## Rain parameters
+## The two parts
 
-The rain reads its defaults from `public/config/rain.json` (`defaultConfig`).
-Each preset carries its own full set of these keys (no inheritance from the
-defaults); the same ranges apply.
+| | Timeline | Matrix terminal |
+|---|---|---|
+| URL | `/`, and `/<slug>/` per walkthrough | `/matrix/` |
+| What you edit | `content/timeline.json`, `content/projects/*.md` | `public/config/content/*.json`, `js/commands/` |
+| Code | `paper/` | `matrix/index.html`, `js/`, `css/` |
+| Built how | Generated at build time by a Vite plugin | A normal Vite page |
+| Guide | [docs/timeline.md](docs/timeline.md) | [docs/matrix.md](docs/matrix.md) |
 
-| Key                 | Type / range          | Effect                                                 |
-| ------------------- | --------------------- | ------------------------------------------------------ |
-| `speed`             | int 10–500 (ms/frame) | Time between drops falling one row; lower = faster.    |
-| `font`              | int 8–40 (px)         | Glyph size, which also sets column width.              |
-| `lineH`             | float 0.5–2           | Row-height multiplier.                                 |
-| `density`           | float 0.1–2           | Fraction of columns that carry rain.                   |
-| `minTrail`          | int 1–150             | Shortest trail length for a stream.                    |
-| `maxTrail`          | int 1–150             | Longest trail length.                                  |
-| `headGlowMin`       | int 0–20              | Fewest glowing cells behind a head.                    |
-| `headGlowMax`       | int 0–20              | Most glowing cells behind a head.                      |
-| `blur`              | int 0–20 (px)         | Per-glyph glow radius.                                 |
-| `bloomRadius`       | int 0–30 (px)         | Blur radius of the full-screen bloom pass.             |
-| `bloomIntensity`    | float 0–1             | Strength of the bloom layer (0 = off).                 |
-| `decayBase`         | float 0.7–0.99        | Trail fade rate; lower fades quicker.                  |
-| `layers`            | int 1–10              | Number of depth (opacity) layers.                      |
-| `layerOp`           | float[] 0–1           | Opacity per layer (≥0.85 = white heads); length = `layers`. |
-| `delChance`         | float 0–1             | Fraction of streams that erase instead of draw.        |
-| `multiStream`       | float 0–0.8           | Chance a column runs a second stream.                  |
-| `highlightChance`   | float 0–1             | Fraction of heads that stammer (pause in unison).      |
-| `glyphSyncInterval` | int 1–60 (frames)     | Frames between globally synced glyph changes.          |
-| `mutationChance`    | float 0–1             | Per-cell chance to change glyph on a sync frame.       |
-| `stammerInterval`   | int 10–500 (frames)   | Frames between head-stammer pauses.                    |
-| `headFlickerInterval` | int 1–30 (frames)   | Frames between head-glyph changes; lower = faster.     |
-| `landingGlow`       | float 0–1             | Glow burst when a stream exits the bottom (0 = off).   |
-| `landingGlowSize`   | int 10–200 (px)       | Radius of the landing-glow burst.                      |
-| `dimFloor`          | float 0–0.1           | Minimum brightness cells decay toward (0 = true black).|
-| `sentientChance`    | float 0–0.5           | Chance a stream spells a hidden phrase.                |
-| `minStreamGap`      | int 0–40 (rows)       | Extra spacing before a column's second stream restarts.|
-| `gravityAccel`      | float 0–1             | Downward acceleration near the bottom; set via `rain gravity`. |
+The two share nothing but the build: no common styles, scripts or fonts.
 
-Reduced motion: with the browser's "reduce motion" setting on, the rain paints
-one static frame instead of animating.
+## Publishing
 
-## Learn from this repo
+The timeline ships only when the build is told to, through `PAPER_PUBLISH`:
 
-This project doubles as a worked example of a browser app with no framework. The
-[`primer/`](primer/) folder walks through it for someone who knows basic
-programming but is new to the web: [part 1](primer/01-the-page-and-its-skin.md)
-covers the HTML page and its CSS skin, and
-[part 2](primer/02-the-terminal-and-the-rain.md) covers the JavaScript that runs
-the terminal and the rain.
+| `PAPER_PUBLISH` | What is built |
+|---|---|
+| unset | The terminal only. `/` redirects to `/matrix/`. |
+| `preview` | The timeline with drafts shown and labelled; pages are not indexed. |
+| `production` | The timeline. The build fails while any entry is still a draft. |
+
+`npm run dev` always behaves as `preview`. [docs/development.md](docs/development.md) covers the gate, the checks and deployment.
+
+## Repository map
+
+```
+content/                What the timeline says
+  timeline.json         Header, links, and every dated entry
+  projects/             One Markdown walkthrough per project page
+  notes/                Dated notes (none yet)
+  figures/  logos/      SVG figures and organisation logos
+paper/                  The timeline's code: content loader, Markdown,
+                        templates, styles, fonts, and the Vite plugin
+matrix/index.html       The terminal's page: loader, canvas, terminal, nav
+js/                     The terminal's code: commands, controller, rain engine
+css/                    The terminal's styles and colour themes
+public/config/          The terminal's data: rain.json, skills, hobbies, man pages
+scripts/check-dist.mjs  Post-build check that dist/ matches the release gate
+tests/                  Vitest suites for both parts
+docs/                   Guides, and a primer on how the terminal is built
+```
+
+## Docs
+
+- [docs/timeline.md](docs/timeline.md): add an entry, write a walkthrough, draw a figure, and how the page is generated.
+- [docs/matrix.md](docs/matrix.md): the commands, how to add one, the rain engine and its parameters.
+- [docs/development.md](docs/development.md): commands, tests, the release gate, deployment, and the URL map.
+- [docs/primer/](docs/primer/01-the-page-and-its-skin.md): a two-part walk through the terminal's code for someone who can program but is new to the web.
 
 ## Credits
 
-Glyph fonts and inspiration from [Rezmason/matrix](https://github.com/Rezmason/matrix/tree/master).
-Rain behavior draws on [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/).
+Glyph fonts and inspiration from [Rezmason/matrix](https://github.com/Rezmason/matrix/tree/master). Rain behaviour draws on [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/). The timeline is set in Archivo, Instrument Serif and JetBrains Mono, as in [rv-markdown-paper](https://github.com/rvs-23/rv-markdown-paper).
 
 Licensed under the [MIT License](LICENSE).

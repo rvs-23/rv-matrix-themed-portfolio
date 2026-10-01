@@ -11,7 +11,7 @@ import { COLUMNS, yearRows } from "./timeview.js";
 import { posix } from "node:path";
 
 export const SITE_URL = "https://rvs23.dev";
-const REPO_URL = "https://github.com/rvs-23/rv-matrix-themed-portfolio/blob/main";
+const REPO_URL = "https://github.com/rvs-23/rv-portfolio-matrix/blob/main";
 
 /** Swapped for the real gzip weight in generateBundle (build only). */
 export const WEIGHT_TOKEN = "__PAPER_PAGE_WEIGHT__";

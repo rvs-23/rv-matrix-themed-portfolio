@@ -1,8 +1,8 @@
 {
-  "name": "rv-matrix-themed-portfolio",
+  "name": "rv-portfolio-matrix",
   "version": "1.1.1",
   "type": "module",
-  "description": "Matrix-themed interactive terminal portfolio (vanilla JS + Vite).",
+  "description": "Personal site: a career timeline, with a Matrix terminal at /matrix (vanilla JS + Vite).",
   "license": "MIT",
   "scripts": {
     "dev": "vite",

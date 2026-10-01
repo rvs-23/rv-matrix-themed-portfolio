@@ -19,7 +19,7 @@ CSS paints the tree; JavaScript manipulates it.
 ```mermaid
 flowchart LR
     %% caption: A browser reads the HTML, builds the DOM, fetches what it links, paints, then lets JavaScript change it.
-    A[Read index.html] --> B[Build the DOM tree]
+    A[Read matrix/index.html] --> B[Build the DOM tree]
     B --> C[Fetch CSS + JS it links]
     C --> D[Paint the styled page]
     D --> E[Run JS: change the DOM live]
@@ -27,9 +27,9 @@ flowchart LR
 
 That is the whole model. Now let us read this repo's one HTML file.
 
-## Reading index.html, top to bottom
+## Reading matrix/index.html, top to bottom
 
-Open `index.html`. It is short (about 140 lines). Everything the visitor sees
+Open `matrix/index.html`. It is short (about 140 lines). Everything the visitor sees
 starts here.
 
 ### The head: metadata, not content
