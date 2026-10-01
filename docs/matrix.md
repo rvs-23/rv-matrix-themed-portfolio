@@ -1,5 +1,9 @@
 # The Matrix terminal
 
+The other face of [rvs23.dev](https://rvs23.dev/matrix/). Nothing on the timeline links to it; you found the door.
+
+![The Matrix terminal's digital rain](images/rain.png)
+
 The page at `/matrix/`: a command line over the digital rain. This covers how to use it, how it is built, and how to change it. For a slower, teaching walk through the same code, read the [primer](primer/01-the-page-and-its-skin.md).
 
 ## Contents
@@ -14,6 +18,7 @@ The page at `/matrix/`: a command line over the digital rain. This covers how to
 - [Rain parameters](#rain-parameters)
 - [Where to change what](#where-to-change-what)
 - [Gotchas](#gotchas)
+- [Credits](#credits)
 
 ## At a glance
 
@@ -147,3 +152,7 @@ The rain reads its defaults from [`public/config/rain.json`](../public/config/ra
 - **A preset must carry every tunable key.** The engine rejects a preset with one missing, and a test catches it first.
 - **Look up typed keys with `own()`** from `js/utils.js`, never plain `obj[key]`, so input like `constructor` cannot reach the prototype chain.
 - **Old links still work.** `/?cmd=…` on the home page forwards to `/matrix/?cmd=…`, and retired `/recruiter` links go home.
+
+## Credits
+
+Glyph fonts and inspiration from [Rezmason/matrix](https://github.com/Rezmason/matrix/tree/master). Rain behaviour draws on [Carl Newton's digital rain analysis](https://carlnewton.github.io/digital-rain-analysis/).
