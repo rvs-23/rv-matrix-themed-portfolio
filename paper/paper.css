@@ -129,6 +129,15 @@ a:hover {
   vertical-align: 0.2em;
 }
 
+/* What kind of piece an entry is ("Explainer"), boxed in solid ink. */
+.tag {
+  display: inline-block;
+  margin-right: 0.5em;
+  padding: 0 0.4em;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+
 .preview-banner {
   margin: 0;
   padding: 0.35rem 1rem;

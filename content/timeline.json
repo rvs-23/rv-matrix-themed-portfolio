@@ -265,7 +265,8 @@
         "Classification metrics"
       ],
       "walkthrough": "https://rvs.medium.com/how-do-accuracy-and-precision-scores-impact-your-entrance-exam-rank-2410f653b0fe",
-      "draft": true
+      "draft": true,
+      "tag": "Explainer"
     },
     {
       "id": "handwriting-mimic",

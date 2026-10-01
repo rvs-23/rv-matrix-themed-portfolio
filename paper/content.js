@@ -52,6 +52,8 @@ function checkEntry(errors, where, e, contentDir) {
   for (const key of ["label", "title", "summary"]) {
     check(errors, isStr(e?.[key]), `${where}.${key} is required`);
   }
+  // A short tag set before the label, e.g. "Explainer".
+  check(errors, e?.tag === undefined || isStr(e.tag), `${where}.tag must be a non-empty string`);
   check(errors, e?.body === undefined || isStr(e.body), `${where}.body must be a non-empty string`);
   check(
     errors,

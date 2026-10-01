@@ -183,7 +183,7 @@ function eventHtml(e, ctx) {
                 <i class="node" aria-hidden="true"></i>
                 ${e.main ? logoHtml(e) : ""}
                 <div class="ev-body">
-                  <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
+                  <p class="kicker">${e.tag ? `<span class="tag">${esc(e.tag)}</span> ` : ""}${esc(e.label)}${draftTag(e, ctx)}</p>
                   <h3 class="ev-title">${title}</h3>
                   <p class="ev-when">${esc(when(e))}</p>
                   <p class="ev-summary">${esc(e.summary)}</p>
