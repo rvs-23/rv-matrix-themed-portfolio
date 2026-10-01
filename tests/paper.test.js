@@ -229,35 +229,32 @@ describe("terminal commands for the paper site", async () => {
   });
 });
 
-describe("timeline eras", async () => {
-  const { eraGroups } = await import("../paper/timeview.js");
-  const eras = [
-    { id: "now", start: "2025-08" },
-    { id: "college", start: "2017-05" },
-  ];
-  const items = [
-    { id: "job-now", kind: "work", start: "2025-08", end: "present", main: true },
-    { id: "pet", kind: "project", start: "2026-04" },
-    { id: "side", kind: "project", start: "2021-05" },
+describe("timeline rows", async () => {
+  const { yearRows } = await import("../paper/timeview.js");
+  const rows = yearRows([
     { id: "tutor", kind: "work", start: "2020-11", end: "2021-12" },
-    { id: "masters", kind: "study", start: "2020-08", end: "2022-05", main: true },
-    { id: "early", kind: "learn", start: "2016" },
-  ];
-  const [now, college] = eraGroups(items, eras);
-  const ids = (group, col) => group.columns.find((c) => c.column.id === col)?.items.map((e) => e.id);
+    { id: "job-now", kind: "work", start: "2025-08", end: "present" },
+    { id: "masters", kind: "study", start: "2020-08", end: "2022-05" },
+    { id: "side", kind: "project", start: "2021-05" },
+    { id: "course", kind: "learn", start: "2020" },
+  ]);
+  const ids = (row, n) => row.columns[n].items.map((e) => e.id);
 
-  it("puts each item in the era it began in; older than all goes to the oldest", () => {
-    expect(ids(now, "side")).toEqual(["pet"]);
-    expect(ids(college, "side")).toEqual(["side", "early"]);
+  it("has a row per year that has something, newest first", () => {
+    expect(rows.map((r) => r.year)).toEqual(["2025", "2021", "2020"]);
   });
 
-  it("leads an era with its main events, kept out of the columns", () => {
-    expect(now.mains.map((e) => e.id)).toEqual(["job-now"]);
-    expect(college.mains.map((e) => e.id)).toEqual(["masters"]);
-    expect(ids(college, "work")).toEqual(["tutor"]);
+  it("puts work on the left and projects, study and learning on the right", () => {
+    expect(ids(rows[0], 0)).toEqual(["job-now"]);
+    expect(ids(rows[1], 1)).toEqual(["side"]);
+    expect(ids(rows[2], 0)).toEqual(["tutor"]);
   });
 
-  it("leaves out a column with nothing in it", () => {
-    expect(now.columns.map((c) => c.column.id)).toEqual(["side"]);
+  it("orders a year's items newest first; a bare year counts as January", () => {
+    expect(ids(rows[2], 1)).toEqual(["masters", "course"]);
+  });
+
+  it("keeps an empty column, so the row still has two sides", () => {
+    expect(ids(rows[0], 1)).toEqual([]);
   });
 });

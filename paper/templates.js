@@ -7,7 +7,7 @@
 
 import { renderMarkdown, renderInline, loadFigureSvg } from "./markdown.js";
 import { dataFigureSvg } from "./figures.js";
-import { eraGroups } from "./timeview.js";
+import { COLUMNS, yearRows } from "./timeview.js";
 import { posix } from "node:path";
 
 export const SITE_URL = "https://rvs23.dev";
@@ -57,13 +57,10 @@ function logoHtml(item) {
   return `<img class="logo" src="/content/logos/${esc(item.logo)}" alt="" width="48" height="48" decoding="async" />`;
 }
 
-/** Cornell cue: the skills an entry used, as a short list. */
-function skillsHtml(skills, cls = "skills") {
+/** The skills an entry used, as one quiet line. */
+function skillsHtml(skills) {
   if (!skills?.length) return "";
-  if (cls === "skills-inline") {
-    return `<p class="${cls}">${skills.map(esc).join(` <span class="sep" aria-hidden="true">·</span> `)}</p>`;
-  }
-  return `<div class="${cls}"><p class="margin-term">Skills</p><ul>${skills.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>`;
+  return `<p class="skills">${skills.map(esc).join(` <span class="sep" aria-hidden="true">·</span> `)}</p>`;
 }
 
 function md(src, ctx, where) {
@@ -71,7 +68,7 @@ function md(src, ctx, where) {
 }
 
 /** Shared <head> + running header + body wrapper. */
-function shell({ title, description, path, body, ctx, runhead }) {
+function shell({ title, description, path, body, ctx, runhead, cls = "" }) {
   const robots = ctx.mode === "production" ? "" : `\n    <meta name="robots" content="noindex" />`;
   const banner =
     ctx.mode === "production"
@@ -97,7 +94,7 @@ function shell({ title, description, path, body, ctx, runhead }) {
     <link rel="stylesheet" href="/paper/paper.css" />
     <script type="module" src="/paper/paper.js"></script>
   </head>
-  <body class="paper">
+  <body class="paper${cls ? ` ${cls}` : ""}">
     <a class="skip" href="#main">Skip to content</a>
     ${banner}
     <header class="runhead">
@@ -171,88 +168,54 @@ function entryLinks(e) {
 
 const titleHtml = (e, ctx) => renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
 
-/** "2022 — 2025" for an era: from its start to the next era's (or now). */
-function eraYears(era, eras) {
-  const n = eras.indexOf(era);
-  return `${era.start.slice(0, 4)} — ${n === 0 ? "now" : eras[n - 1].start.slice(0, 4)}`;
-}
-
-/** The time line's segment beside a row; a main event puts a ring on it. */
-const spineHtml = (inner = "") => `<div class="spine" aria-hidden="true">${inner}</div>`;
-
-/** A main event: logo and headline in the text column, its skills as the
- *  Cornell cue beside it. */
-function heroHtml(e, ctx) {
-  return `          <article class="hero" id="${esc(e.id)}">
-            ${spineHtml('<i class="ring"></i>')}
-            <div class="hero-main">
-              ${logoHtml(e)}
-              <div class="hero-body">
-                <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
-                <h3 class="hero-title">${titleHtml(e, ctx)}</h3>
-                <p class="hero-when">${esc(when(e))}</p>
-                <p class="hero-summary">${esc(e.summary)}</p>
-                ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
-                ${entryLinks(e)}
-              </div>
-            </div>
-            <div class="hero-rail">${skillsHtml(e.skills)}</div>
-          </article>`;
-}
-
-/** A supporting item: a project, a side role, a note. */
-function cardHtml(e, ctx) {
+/** One event in a column. A main event (a role, a degree) carries a logo, a
+ *  larger title and its skills; the rest are a compact title and a line. */
+function eventHtml(e, ctx) {
   const title = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${titleHtml(e, ctx)}</a>` : titleHtml(e, ctx);
   // Short notes open in place; everything else is one line plus a link.
   const inlineNote = e.note?.inline
     ? `<details class="note-inline"><summary>Read it here</summary><div class="prose">${md(e.note.body, ctx, `notes/${e.note.file}`)}</div></details>`
     : "";
-  return `<article class="card" id="${esc(e.id)}">
-                  <p class="card-when">${esc(when(e))}</p>
+  return `<article class="ev ${e.main ? "ev-main" : "ev-minor"}" id="${esc(e.id)}">
+                <i class="node" aria-hidden="true"></i>
+                ${e.main ? logoHtml(e) : ""}
+                <div class="ev-body">
                   <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
-                  <h3 class="card-title">${title}</h3>
-                  <p class="card-summary">${esc(e.summary)}</p>
+                  <h3 class="ev-title">${title}</h3>
+                  <p class="ev-when">${esc(when(e))}</p>
+                  <p class="ev-summary">${esc(e.summary)}</p>
                   ${thumbHtml(e, ctx)}
                   ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
                   ${inlineNote}
-                  ${skillsHtml(e.skills, "skills-inline")}
+                  ${e.main ? skillsHtml(e.skills) : ""}
                   ${entryLinks(e)}
-                </article>`;
+                </div>
+              </article>`;
 }
 
 /**
- * The timeline: one block per era, on a single line running down the left.
- * An era leads with its main events, then shows what ran alongside in two
- * columns of cards.
+ * The timeline: a row per year around one centre line. The column names head
+ * the page once; on a phone, where the columns stack, each group repeats its
+ * own.
  */
 function timelineSection(ctx) {
-  const { eras } = ctx.timeline;
-  const blocks = eraGroups(timelineItems(ctx), eras).map(({ era, mains, columns }) => {
+  const rows = yearRows(timelineItems(ctx)).map(({ year, columns }) => {
     const cols = columns.map(
-      ({ column, items }) => `              <div class="era-col">
-                <p class="kicker era-col-name">${column.label}</p>
-                ${items.map((e) => cardHtml(e, ctx)).join("\n                ")}
-              </div>`,
+      ({ column, items }) => `            <div class="tl-col tl-${column.id}${items.length ? "" : " is-empty"}">
+              <p class="kicker tl-label">${esc(column.label)}</p>
+              ${items.map((e) => eventHtml(e, ctx)).join("\n              ")}
+            </div>`,
     );
-    const support = cols.length
-      ? `          <div class="era-support">
-            ${spineHtml()}
-            <div class="era-grid">
+    return `          <div class="tl-row">
+            <p class="tl-year"><span>${year}</span></p>
 ${cols.join("\n")}
-            </div>
-          </div>`
-      : "";
-    return `        <div class="era" id="era-${esc(era.id)}">
-          <div class="era-head">
-            ${spineHtml(`<span class="era-years">${eraYears(era, eras)}</span>`)}
-            <h2 class="era-title">${esc(era.title)}</h2>
-          </div>
-${mains.map((e) => heroHtml(e, ctx)).join("\n")}
-${support}
-        </div>`;
+          </div>`;
   });
   return `      <section class="sec" id="timeline" data-title="Timeline">
-${blocks.join("\n")}
+        <div class="tl">
+          <div class="tl-row tl-top">${COLUMNS.map((c) => `<p class="kicker">${esc(c.label)}</p>`).join("")}</div>
+${rows.join("\n")}
+        </div>
       </section>`;
 }
 
@@ -269,7 +232,8 @@ export function aboutPage(ctx) {
   const { site } = ctx.timeline;
   const body = `      <header class="masthead">
         <h1 class="name">${esc(site.name)}</h1>
-        ${site.dek ? `<p class="dek">${esc(site.dek)}${draftTag(site, ctx)}</p>` : ""}
+        ${site.motto ? `<p class="motto">${esc(site.motto)}</p>` : ""}
+        ${site.dek ? `<p class="${site.motto ? "roles" : "dek"}">${esc(site.dek)}${draftTag(site, ctx)}</p>` : ""}
         ${site.intro ? `<div class="prose intro">${md(site.intro, ctx, "site.intro")}</div>` : ""}
       </header>
 ${timelineSection(ctx)}
@@ -281,6 +245,7 @@ ${colophon(ctx)}`;
     body,
     ctx,
     runhead: "rvs23.dev",
+    cls: "home",
   });
 }
 
@@ -344,7 +309,7 @@ export function projectPage(project, ctx) {
           <p class="kicker">Pet project · ${esc(entry ? when(entry) : "")}${draftTag(project, ctx)}</p>
           <h1 class="post-title">${esc(project.title)}</h1>
           <p class="dek">${esc(project.summary)}</p>
-          ${skillsHtml(entry?.skills, "skills-inline")}
+          ${skillsHtml(entry?.skills)}
         </header>
         <div class="prose">${html}</div>
         <footer class="post-foot">${linksHtml(links)}</footer>

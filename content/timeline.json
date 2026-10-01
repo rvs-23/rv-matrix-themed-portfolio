@@ -1,8 +1,9 @@
 {
   "site": {
     "name": "Rishav Sharma",
+    "motto": "I like to teach. I like to build.",
     "dek": "Teacher, Palantir & AIP Engineer, Data Scientist",
-    "intro": "A guy who hates randomness. I teach people to build on Palantir Foundry, and I like turning intuition into something you can measure. Away from the screen it's guitar and John Mayer, chess, GeoGuessr, and the occasional attempt at stand-up.",
+    "intro": "I hate randomness. I teach people to build on Palantir Foundry, and I like turning intuition into something you can measure. Away from the screen it's guitar and John Mayer, chess, GeoGuessr, and the occasional attempt at stand-up.",
     "description": "Rishav Sharma — teacher, data scientist, Palantir & AIP engineer. Work, study and projects, with walkthroughs.",
     "links": [
       {
@@ -28,25 +29,6 @@
     ],
     "draft": true
   },
-  "eras": [
-    {
-      "id": "ontologize",
-      "title": "Ontologize",
-      "start": "2025-08",
-      "logo": "ontologize.svg"
-    },
-    {
-      "id": "swiss-re",
-      "title": "Swiss Re",
-      "start": "2022-10",
-      "logo": "swissre.svg"
-    },
-    {
-      "id": "college",
-      "title": "College",
-      "start": "2017-05"
-    }
-  ],
   "entries": [
     {
       "id": "ontologize",

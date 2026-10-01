@@ -82,7 +82,7 @@ function checkEntry(errors, where, e, contentDir) {
       `${where}.thumb must be a file in content/figures or a pipeline`,
     );
   }
-  // A main event (a role, a degree) leads its era; everything else supports it.
+  // A main event (a role, a degree) is set larger than what ran alongside it.
   check(errors, e?.main === undefined || typeof e.main === "boolean", `${where}.main must be boolean`);
   check(errors, e?.draft === undefined || typeof e.draft === "boolean", `${where}.draft must be boolean`);
 }
@@ -91,6 +91,7 @@ export function validateTimeline(data, contentDir = "") {
   const errors = [];
   const site = data?.site;
   check(errors, isStr(site?.name), "site.name is required");
+  check(errors, site?.motto === undefined || isStr(site.motto), "site.motto must be a non-empty string");
   check(errors, site?.intro === undefined || isStr(site.intro), "site.intro must be a non-empty string");
   checkLinks(errors, "site", site?.links);
 
@@ -104,19 +105,6 @@ export function validateTimeline(data, contentDir = "") {
   // `under` nests an entry beneath another (a project inside a role).
   (data?.entries || []).forEach((e, i) => {
     check(errors, e?.under === undefined || ids.includes(e.under), `entries[${i}].under names no entry`);
-  });
-
-  // Eras: the big chapters, newest first. An entry belongs to the era it began in.
-  check(errors, Array.isArray(data?.eras) && data.eras.length > 0, "eras must be a non-empty array");
-  (data?.eras || []).forEach((era, i) => {
-    const where = `eras[${i}]`;
-    check(errors, isStr(era?.id) && /^[a-z0-9-]+$/.test(era.id), `${where}.id must be kebab-case`);
-    check(errors, isStr(era?.title), `${where}.title is required`);
-    check(errors, MONTH.test(era?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
-    check(errors, i === 0 || era.start < data.eras[i - 1].start, `${where} must start before the era above it`);
-    if (era?.logo !== undefined) {
-      check(errors, existsSync(join(contentDir, "logos", era.logo)), `${where}.logo '${era.logo}' must be a file in content/logos`);
-    }
   });
 
   if (errors.length) throw new ContentError(`timeline.json:\n  - ${errors.join("\n  - ")}`);
@@ -164,7 +152,6 @@ export function parseNote(file, raw, repoRoot) {
   };
 }
 
-/** Load everything under `contentDir`. Notes are sorted newest first. */
 /** Parse one project walkthrough (content/projects/<slug>.md). */
 export function parseProject(file, raw) {
   const errors = [];

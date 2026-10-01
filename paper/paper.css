@@ -1,7 +1,7 @@
 /*
  * paper/paper.css — the paper site (/about + notes).
  * Fonts borrowed from rv-markdown-paper; a single ink on white. Layout is three columns — date · text · rail — collapsing
- * to one below 62rem. Nothing here is shared with the terminal's style.css.
+ * to one below 62rem; the home page's timeline uses their full width. Nothing here is shared with the terminal's style.css.
  */
 
 /* ── Fonts ─────────────────────────────────────────────────────────────── */
@@ -34,7 +34,6 @@
   --text: 35rem;
   --rail: 13rem;
   --gap: 2.5rem;
-  --spine-x: 1.25rem; /* the time line's distance from the text */
 }
 
 /* ── Base ──────────────────────────────────────────────────────────────── */
@@ -161,17 +160,12 @@ main,
 
 main > *,
 .sec > *,
-.era > *,
 .post {
   grid-column: 1 / -1;
 }
 
 .masthead,
 .sec,
-.era,
-.era-head,
-.hero,
-.era-support,
 .colophon,
 .post {
   display: grid;
@@ -182,6 +176,17 @@ main > *,
 .colophon > *,
 .post > * {
   grid-column: text;
+}
+
+/* The home page's timeline is as wide as all three columns, centred on its
+ * line; the header and footer share its left edge. */
+.home .masthead > *,
+.home .colophon > * {
+  grid-column: 1 / -1;
+}
+
+.home .runhead-name {
+  grid-column: date-start / text-end;
 }
 
 /* ── Running header ────────────────────────────────────────────────────── */
@@ -261,6 +266,24 @@ html:not(.js) .runhead {
   color: var(--ink-2);
 }
 
+.motto {
+  margin: 0.8rem 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.roles {
+  margin: 0.7rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .links {
   margin: 1rem 0 0;
   font-family: var(--mono);
@@ -273,10 +296,8 @@ html:not(.js) .runhead {
   color: var(--hairline);
 }
 
-/* Two lines under the title: it may run on into the rail's width. */
 .intro {
-  grid-column: text / -1 !important;
-  max-width: 46rem;
+  max-width: 44rem;
   margin-top: 1.4rem;
   color: var(--ink-2);
 }
@@ -289,172 +310,206 @@ html:not(.js) .runhead {
 
 /* ── Timeline ──────────────────────────────────────────────────────────── */
 
-/* One line runs down the date column through every era, so the page reads as
- * going back in time. Each row keeps a cell on it (.spine) for the era's
- * years or a main event's ring. */
-.era {
-  position: relative;
-  padding-bottom: 2.75rem;
+/* One line down the middle with the years on it. Work hangs on its left and
+ * reads toward it; projects and learning hang on its right. */
+.tl {
+  --year: 5.5rem;
+  --arm: calc(var(--gap) + var(--year) / 2); /* an event's edge to the line */
 }
 
-.era::before {
+.tl-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--year) minmax(0, 1fr);
+  column-gap: var(--gap);
+}
+
+.tl-row > * {
+  grid-row: 1;
+}
+
+.tl-work,
+.tl-top .kicker:first-child {
+  grid-column: 1;
+  text-align: right;
+}
+
+.tl-side,
+.tl-top .kicker:last-child {
+  grid-column: 3;
+}
+
+.tl-top .kicker {
+  padding-bottom: 0.9rem;
+  color: var(--ink);
+}
+
+/* Each column names itself only when the columns stack (below). */
+.tl-label {
+  display: none;
+}
+
+.tl-year {
+  grid-column: 2;
+  position: relative;
+  margin: 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.tl-year::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--date) - var(--spine-x) - 1px);
+  left: calc(50% - 1px);
   width: 2px;
   background: var(--ink);
 }
 
-.spine {
-  grid-column: date;
+/* The year sits on the line and breaks it. */
+.tl-year span {
   position: relative;
-  padding-right: calc(var(--spine-x) + 1.25rem);
-  text-align: right;
-}
-
-/* A main event's node, level with its logo. */
-.ring {
-  position: absolute;
-  top: calc(1.875rem - 7.5px);
-  right: calc(var(--spine-x) - 7.5px);
-  width: 15px;
-  height: 15px;
-  border: 3px solid var(--ink);
-  border-radius: 50%;
+  display: inline-block;
+  padding: 0.3rem 0 0.4rem;
   background: var(--paper);
 }
 
-.era-head .spine {
-  padding-top: 0.75rem;
+/* Events start below the year, so their arms never cross it. */
+.tl-col {
+  position: relative;
+  padding: 2.9rem 0 1.6rem;
 }
 
-.era-years {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  color: var(--muted);
+.ev {
+  --node-y: 0.5rem;
+  position: relative;
 }
 
-.era-title {
-  grid-column: text / -1;
-  margin: 0;
-  padding-top: 0.6rem;
-  border-top: 2px solid var(--ink);
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: 2rem;
-  line-height: 1;
+.ev + .ev {
+  margin-top: 1.5rem;
 }
 
-/* Headline level: a role or a degree. Type alone carries the emphasis; its
- * skills sit beside it as the Cornell cue. */
-.hero {
-  padding-top: 1.1rem;
-}
-
-.hero-main {
-  grid-column: text;
+/* Headline level: a role or a degree, with its logo beside the line. */
+.ev-main {
+  --node-y: 1.5rem;
   display: grid;
-  grid-template-columns: 3.75rem minmax(0, 1fr);
-  column-gap: 1.25rem;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  column-gap: 0.9rem;
   align-items: start;
 }
 
-.hero .logo {
-  width: 3.75rem;
-  height: 3.75rem;
-  padding: 0.5rem;
-  border-radius: 12px;
+.tl-work .ev-main {
+  grid-template-columns: minmax(0, 1fr) 3rem;
 }
 
-.hero-title {
+.tl-work .ev-main .logo {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tl-work .ev-main .ev-body {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* A node on the line, and a hairline arm reaching back to the event. */
+.ev::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--node-y) - 0.5px);
+  width: calc(var(--arm) - 0.75rem);
+  height: 1px;
+  background: var(--hairline);
+}
+
+.ev-main::before {
+  background: var(--ink);
+}
+
+.tl-work .ev::before { right: calc(-1 * var(--arm)); }
+.tl-side .ev::before { left: calc(-1 * var(--arm)); }
+
+.node {
+  --r: 4.5px;
+  position: absolute;
+  top: calc(var(--node-y) - var(--r));
+  width: calc(2 * var(--r));
+  height: calc(2 * var(--r));
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px var(--paper);
+}
+
+.ev-main .node {
+  --r: 7.5px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.tl-work .node { right: calc(-1 * var(--arm) - var(--r)); }
+.tl-side .node { left: calc(-1 * var(--arm) - var(--r)); }
+
+.ev .kicker {
+  font-size: 0.64rem;
+}
+
+.ev-title {
   margin: 0.2rem 0 0;
-  font-size: 1.6rem;
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.015em;
-}
-
-.hero-when {
-  margin: 0.25rem 0 0.35rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-}
-
-.hero-summary {
-  margin: 0;
-  font-size: 1.05rem;
-  color: var(--ink-2);
-}
-
-.hero .entry-links {
-  margin-top: 0.5rem;
-}
-
-.hero-rail {
-  grid-column: rail;
-}
-
-/* Supporting level: what ran alongside, as cards in two columns. */
-.era-grid {
-  grid-column: text / -1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: 1.25rem;
-  margin-top: 1.75rem;
-}
-
-.era-col-name {
-  margin-bottom: 0.6rem;
-}
-
-.card {
-  padding: 0.85rem 0.95rem;
-  border: 1px solid var(--hairline);
-  border-radius: 12px;
-}
-
-.card + .card {
-  margin-top: 0.6rem;
-}
-
-.card-when {
-  margin: 0 0 0.1rem;
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.06em;
-  color: var(--ink-3);
-}
-
-.card .kicker {
-  font-size: 0.62rem;
-}
-
-.card-title {
-  margin: 0.25rem 0 0;
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.01em;
 }
 
-.card-summary {
-  margin: 0.15rem 0 0;
+.ev-main .ev-title {
+  font-size: 1.4rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.ev-when {
+  margin: 0.2rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.ev-summary {
+  margin: 0.3rem 0 0;
   font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.ev-main .ev-summary {
+  font-size: 1rem;
   color: var(--ink-2);
 }
 
-.card .thumb {
-  max-width: 100%;
+.ev .thumb {
+  max-width: 19rem;
+  margin-top: 0.7rem;
 }
 
-.card .skills-inline {
-  margin: 0.45rem 0 0.15rem;
-  font-size: 0.66rem;
+.tl-work .thumb {
+  margin-left: auto;
+}
+
+.entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1rem;
+  row-gap: 0.2rem;
+  margin: 0.35rem 0 0;
+}
+
+.tl-work .entry-links {
+  justify-content: flex-end;
 }
 
 .logo {
@@ -468,40 +523,20 @@ html:not(.js) .runhead {
   border-radius: 10px;
 }
 
-/* Cornell cue column: the skills each entry used. */
 .skills {
-  margin: 0 0 0.6rem;
-  padding-top: 0.45rem;
-  border-top: 1px solid var(--ink);
-}
-
-/* Skills wrap as one compact block, so a row is as tall as its text. */
-.skills ul {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 0.75rem;
-  margin: 0.3rem 0 0;
-  padding: 0;
-  list-style: none;
+  margin: 0.55rem 0 0;
   font-family: var(--mono);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   line-height: 1.6;
-  color: var(--ink-2);
+  color: var(--ink-3);
 }
 
-.skills-inline {
-  margin: 0 0 0.6rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--muted);
+.skills .sep {
+  color: var(--mute-2);
 }
 
-.post-head .skills-inline {
+.post-head .skills {
   margin-top: 0.9rem;
-}
-
-.skills-inline .sep {
-  color: var(--hairline);
 }
 
 /* ── Margin notes ──────────────────────────────────────────────────────── */
@@ -606,14 +641,6 @@ html:not(.js) .runhead {
 .draw .fig.is-drawn .d,
 .draw .thumb.is-drawn .d {
   stroke-dashoffset: 0;
-}
-
-.entry-links {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 1rem;
-  row-gap: 0.2rem;
 }
 
 /* Inline figure: a small version of the walkthrough's picture. */
@@ -886,58 +913,73 @@ a.thumb:hover {
     column-gap: 0;
   }
 
-    /* The line hugs the left edge; years and skills stack with the text. */
-  .era {
-    padding-left: 1.6rem;
+    /* The columns stack under their year. The centre line goes; each group
+   * keeps a rail down its left edge instead. */
+  .tl {
+    --pad: 1.75rem;
   }
 
-  .era::before {
-    left: 0.4rem;
+  .tl-row {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .spine {
-    position: static;
-    padding: 0;
+  .tl-row > * {
+    grid-column: 1;
+    grid-row: auto;
     text-align: left;
   }
 
-  .era-head .spine {
-    padding: 0 0 0.4rem;
+  .tl-top,
+  .tl-col.is-empty,
+  .tl-year::before,
+  .ev::before {
+    display: none;
   }
 
-  .hero {
-    position: relative;
+  .tl-year {
+    margin: 0.6rem 0 0.7rem;
   }
 
-  .ring {
-    top: calc(1.1rem + 1.375rem - 7.5px);
-    left: calc(0.4rem + 1px - 1.6rem - 7.5px);
+  .tl-year span {
+    padding: 0;
+  }
+
+  .tl-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: var(--ink);
+  }
+
+  .tl-col {
+    padding: 0 0 1.6rem var(--pad);
+  }
+
+  .tl-col::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+    background: var(--ink);
+  }
+
+  .tl-side::before {
+    background: var(--mute-2);
+  }
+
+  .tl-work .ev-main {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+
+  .tl-work .ev-main .logo { grid-column: 1; }
+  .tl-work .ev-main .ev-body { grid-column: 2; }
+  .tl-work .thumb { margin-left: 0; }
+  .tl-work .entry-links { justify-content: flex-start; }
+
+  .tl-col .node {
+    left: calc(7px - var(--pad) - var(--r));
     right: auto;
-  }
-
-  .hero-main {
-    grid-template-columns: 2.75rem minmax(0, 1fr);
-    column-gap: 0.8rem;
-  }
-
-  .hero .logo {
-    width: 2.75rem;
-    height: 2.75rem;
-  }
-
-  .hero-rail {
-    margin-top: 0.9rem;
-  }
-
-  .era-grid {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 1.25rem;
-  }
-
-  .skills ul {
-    display: flex;
-    flex-wrap: wrap;
-    column-gap: 0.9rem;
   }
 
   .post .prose pre {
@@ -984,14 +1026,9 @@ a.thumb:hover {
     display: none;
   }
 
-  .hero,
-  .card,
+  .ev,
   .fig {
     break-inside: avoid;
-  }
-
-  .era-head {
-    break-after: avoid;
   }
 
   /* The draw-in never runs on paper: print every stroke. */
