@@ -7,7 +7,7 @@
 
 import { renderMarkdown, renderInline, loadFigureSvg } from "./markdown.js";
 import { dataFigureSvg } from "./figures.js";
-import { laneCells, lanesHtml, lanesLegendHtml } from "./timeview.js";
+import { axisRows, lanesHtml, lanesKeyHtml } from "./timeview.js";
 import { posix } from "node:path";
 
 export const SITE_URL = "https://rvs23.dev";
@@ -23,9 +23,7 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-const ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
 
-const year = (d) => d.slice(0, 4);
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -95,7 +93,9 @@ function shell({ title, description, path, body, ctx, runhead }) {
     <meta property="og:url" content="${SITE_URL}${path}" />
     <meta name="twitter:card" content="summary" />
     <link rel="alternate" type="application/rss+xml" title="Notes" href="/feed.xml" />
-    <link rel="icon" href="/favicon/rv-matrix-style-favicon-1.png" type="image/png" />
+    <link rel="icon" href="/paper/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/paper/icon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/paper/icon-180.png" />
     <link rel="stylesheet" href="/paper/paper.css" />
     <script type="module" src="/paper/paper.js"></script>
   </head>
@@ -105,6 +105,7 @@ function shell({ title, description, path, body, ctx, runhead }) {
     <header class="runhead">
       <a class="runhead-name" href="/about/">${esc(ctx.site.name)}</a>
       <span class="runhead-sec" data-runhead>${esc(runhead)}</span>
+      ${linksHtml(ctx.site.links, "runhead-links")}
     </header>
     <main id="main">
 ${body}
@@ -114,15 +115,7 @@ ${body}
 `;
 }
 
-function sectionOpen(id, no, title, extra = "") {
-  return `      <section class="sec" id="${id}" data-title="${esc(title)}">
-        <header class="sec-head">
-          <span class="sec-no" aria-hidden="true">${String(no).padStart(2, "0")}</span>
-          <h2 class="kicker">${esc(title)}${extra}</h2>
-        </header>`;
-}
 
-const folio = (i) => `        <p class="folio" aria-hidden="true">— ${ROMAN[i]} —</p>\n      </section>`;
 
 const sortKey = (d) => (d.length === 4 ? `${d}-00` : d);
 
@@ -135,8 +128,15 @@ function when(e) {
   return `${fmt(e.start)} → ${e.end === "present" ? "now" : fmt(e.end)}`;
 }
 
-/** Under the year in the date column: just the month for a single date. */
-const whenCue = (e) => (e.end ? when(e) : monthOf(e.start));
+/** Date cell beside an entry: the month it began (or its year, when only the
+ *  year is known) and, for a span, when it ended. */
+function dateCue(e) {
+  const fmt = (d) => (d.length > 4 ? monthOf(d) : d);
+  const start = `<span class="entry-month">${fmt(e.start)}</span>`;
+  if (!e.end) return start;
+  const end = e.end === "present" ? "now" : e.end.length > 4 ? `${monthOf(e.end)} ${e.end.slice(0, 4)}` : e.end;
+  return `${start}<span class="entry-end">→ ${esc(end)}</span>`;
+}
 
 /**
  * Everything dated, newest first: timeline.json entries plus the notes. Each
@@ -161,7 +161,7 @@ function timelineItems(ctx) {
 /** Logo tile, or a plain glyph tile for things that have no organisation. */
 function tileHtml(e) {
   if (e.logo) return logoHtml(e);
-  const glyph = e.kind === "writing" ? "¶" : "{ }";
+  const glyph = e.kind === "writing" ? "¶" : e.kind === "learn" ? "+" : "{ }";
   return `<span class="logo glyph" aria-hidden="true">${glyph}</span>`;
 }
 
@@ -190,7 +190,7 @@ function walkLink(e) {
   return `<a class="walk" href="${esc(e.walkthrough)}"${external ? ' rel="noopener"' : ""}>${label}${where} ${external ? "↗" : "→"}</a>`;
 }
 
-function rowHtml(e, showYear, ctx, extras = {}) {
+function rowHtml(e, ctx, lanes) {
   const title = renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
   const titleHtml = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${title}</a>` : title;
   // Short notes still open in place; everything else is one line plus a link.
@@ -200,7 +200,7 @@ function rowHtml(e, showYear, ctx, extras = {}) {
       : "";
   const code = e.repo ? `<a class="walk" href="${esc(e.repo)}" rel="noopener">Code ↗</a>` : "";
   return `          <li class="entry kind-${e.kind}" id="${esc(e.id)}">
-            <p class="entry-date">${showYear ? `<time datetime="${esc(e.start)}">${year(e.start)}</time>` : ""}<span class="entry-end">${esc(whenCue(e))}</span>${extras.lanes ?? ""}</p>
+            <p class="entry-date"><time datetime="${esc(e.start)}">${dateCue(e)}</time>${lanes}</p>
             <div class="entry-main has-logo">
               ${tileHtml(e)}
               <div class="entry-body">
@@ -217,22 +217,21 @@ function rowHtml(e, showYear, ctx, extras = {}) {
 }
 
 function timelineSection(ctx) {
-  const items = timelineItems(ctx);
-  const [by, bm] = ctx.buildDate.split("-").map(Number);
-  const cells = laneCells(items, by + (bm - 1) / 12);
-  let prevYear = "";
-  const rows = items.map((e, i) => {
-    const html = rowHtml(e, year(e.start) !== prevYear, ctx, { lanes: lanesHtml(cells[i]) });
-    prevYear = year(e.start);
-    return html;
+  const rows = axisRows(timelineItems(ctx), ctx.buildDate.slice(0, 7)).map((row) => {
+    const lanes = lanesHtml(row.lanes);
+    if (row.type === "year") {
+      return `          <li class="axis-year" id="y${row.year}"><p class="entry-date"><span class="year-label">${row.year}</span>${lanes}</p></li>`;
+    }
+    if (!row.entry) return `          <li class="axis-month"><p class="entry-date">${lanes}</p></li>`;
+    return rowHtml(row.entry, ctx, lanes);
   });
-  const years = items.map((e) => Number(year(e.start)));
-  // Reads top to bottom, newest first; each lane is one track of the key.
-  return `${sectionOpen("timeline", 1, "Timeline", ` <span class="kicker-span">${Math.min(...years)} — now</span>${lanesLegendHtml()}`)}
+  // Straight from the masthead into the axis: the labels say what each lane is.
+  return `      <section class="sec" id="timeline" data-title="Timeline">
+        ${lanesKeyHtml()}
         <ol class="timeline">
 ${rows.join("\n")}
         </ol>
-${folio(0)}`;
+      </section>`;
 }
 
 function colophon(ctx) {
@@ -246,16 +245,10 @@ function colophon(ctx) {
 /** The /about page. */
 export function aboutPage(ctx) {
   const { site } = ctx.timeline;
-  const inline = (src, where) => renderInline(src, { file: where, figuresDir: ctx.figuresDir });
-  const now = site.now ? `<p class="now"><span class="kicker">Now</span> ${inline(site.now, "site.now")}</p>` : "";
   const body = `      <header class="masthead">
-        <p class="kicker">Notebook${draftTag(site, ctx)}</p>
         <h1 class="name">${esc(site.name)}</h1>
-        ${site.dek ? `<p class="dek">${esc(site.dek)}</p>` : ""}
-        <div class="prose intro">${md(site.intro, ctx, "site.intro")}</div>
-        ${site.guide ? `<p class="guide">${inline(site.guide, "site.guide")}</p>` : ""}
-        ${now}
-        ${linksHtml(site.links, "links elsewhere")}
+        ${site.dek ? `<p class="dek">${esc(site.dek)}${draftTag(site, ctx)}</p>` : ""}
+        ${site.intro ? `<div class="prose intro">${md(site.intro, ctx, "site.intro")}</div>` : ""}
       </header>
 ${timelineSection(ctx)}
 ${colophon(ctx)}`;

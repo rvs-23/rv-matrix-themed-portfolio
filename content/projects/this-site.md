@@ -1,12 +1,12 @@
 ---
-title: The terminal on this site
-summary: A command line over falling-code rain, in plain JavaScript, and how the rain actually works.
+title: Matrix terminal
+summary: The command line at the front of this site, over falling-code rain, and how the rain actually works.
 draft: true
 ---
 
 ## What it is
 
-The front page of rvs23.dev is a terminal. You type `whoami`, `skills` or `rain`, and it answers. Behind it, a full-screen canvas draws the digital rain from The Matrix. There is no framework: plain HTML, CSS and JavaScript, built with Vite.
+The Matrix terminal is the other half of this site: it's what you see at [rvs23.dev](/). The front page of rvs23.dev is a terminal. You type `whoami`, `skills` or `rain`, and it answers. Behind it, a full-screen canvas draws the digital rain from The Matrix. There is no framework: plain HTML, CSS and JavaScript, built with Vite.
 
 ## The idea behind the rain
 

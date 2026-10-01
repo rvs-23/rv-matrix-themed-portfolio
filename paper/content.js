@@ -36,7 +36,7 @@ function checkLinks(errors, where, links) {
 }
 
 /** What a timeline entry can be. Writing joins from content/notes. */
-export const ENTRY_KINDS = ["work", "study", "project"];
+export const ENTRY_KINDS = ["work", "study", "learn", "project"];
 const PROJECT_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 
 function checkEntry(errors, where, e, contentDir) {
@@ -89,7 +89,7 @@ export function validateTimeline(data, contentDir = "") {
   const errors = [];
   const site = data?.site;
   check(errors, isStr(site?.name), "site.name is required");
-  check(errors, isStr(site?.intro), "site.intro is required");
+  check(errors, site?.intro === undefined || isStr(site.intro), "site.intro must be a non-empty string");
   checkLinks(errors, "site", site?.links);
 
   check(errors, Array.isArray(data?.entries), "entries must be an array");

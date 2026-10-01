@@ -1,10 +1,9 @@
 {
   "site": {
     "name": "Rishav Sharma",
-    "dek": "Data scientist. Notes on building things that learn from data.",
-    "description": "Rishav Sharma — data scientist. Work, things built, and short explanations of the ideas behind them.",
-    "intro": "I teach and build on Palantir Foundry at Ontologize. Before that I spent three years at Swiss Re in Bengaluru building machine-learning and language-model pipelines for underwriters, and before that I taught Python online and studied operational research at the University of Delhi.",
-    "now": "Placeholder: one line on what I am building or learning right now.",
+    "dek": "Teacher, Palantir & AIP Engineer, Data Scientist",
+    "intro": "I teach and build on Palantir Foundry at Ontologize, after three years of machine learning at Swiss Re. Below is what I've worked on, built and learned, newest first.",
+    "description": "Rishav Sharma — teacher, data scientist, Palantir & AIP engineer. Work, study and projects, with walkthroughs.",
     "links": [
       {
         "label": "GitHub",
@@ -27,8 +26,7 @@
         "href": "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
       }
     ],
-    "draft": true,
-    "guide": "This page is one timeline, newest first: work, study and pet projects. Projects open into a walkthrough; the right-hand column lists the skills each one used. The [terminal](/) is the playful version of the same."
+    "draft": false
   },
   "entries": [
     {
@@ -80,8 +78,8 @@
       "kind": "project",
       "start": "2025-05",
       "label": "Pet project",
-      "title": "The terminal on this site",
-      "summary": "A command line over falling-code rain, in plain JavaScript.",
+      "title": "Matrix terminal",
+      "summary": "The command line at the front of this site, over falling-code rain, in plain JavaScript.",
       "thumb": "rain.svg",
       "skills": [
         "JavaScript",

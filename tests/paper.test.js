@@ -84,7 +84,7 @@ describe("content", () => {
     } catch (err) {
       message = err.message;
     }
-    for (const part of ["site.name", "site.intro", "entries[0].id", "entries[0].kind", "entries[0].start", "entries[0].label", "entries[0].summary", "entries[0].walkthrough"]) {
+    for (const part of ["site.name", "entries[0].id", "entries[0].kind", "entries[0].start", "entries[0].label", "entries[0].summary", "entries[0].walkthrough"]) {
       expect(message).toContain(part);
     }
   });
@@ -229,54 +229,51 @@ describe("terminal commands for the paper site", async () => {
   });
 });
 
-describe("timeline lanes", async () => {
-  const { laneCells, TRACKS } = await import("../paper/timeview.js");
-  const now = 2026.75;
+describe("timeline axis and lanes", async () => {
+  const { axisRows, TRACKS } = await import("../paper/timeview.js");
   const items = [
     { id: "job-now", kind: "work", start: "2025-08", end: "present" },
     { id: "side", kind: "project", start: "2021-05" },
     { id: "tutor", kind: "work", start: "2020-11", end: "2021-12" },
     { id: "masters", kind: "study", start: "2020-08", end: "2022-05" },
   ];
-  const cells = laneCells(items, now);
-  const lane = (row, id) => cells[row][TRACKS.findIndex((t) => t.id === id)];
+  const rows = axisRows(items, "2026-10");
+  const k = (id) => TRACKS.findIndex((t) => t.id === id);
+  const rowOf = (id) => rows.find((r) => r.entry?.id === id);
+  const monthRow = (y, m) => rows.find((r) => r.type === "month" && !r.entry && r.idx === y * 12 + m - 1);
 
-  it("puts each node on its own track", () => {
-    expect(lane(0, "work").node).toBe(true);
-    expect(lane(1, "projects").node).toBe(true);
-    expect(lane(3, "study").node).toBe(true);
+  it("has every year from now back to the first entry, even empty ones", () => {
+    const years = rows.filter((r) => r.type === "year").map((r) => r.year);
+    expect(years).toEqual([2026, 2025, 2024, 2023, 2022, 2021, 2020]);
   });
 
-  it("runs a current role's line up to now", () => {
-    expect(lane(0, "work").up).toBe(true);
+  it("puts each entry in the month it started, newest first", () => {
+    const order = rows.filter((r) => r.entry).map((r) => r.entry.id);
+    expect(order).toEqual(["job-now", "side", "tutor", "masters"]);
+    expect(rowOf("tutor").month).toBe(11);
   });
 
-  it("shows overlap: the master's runs through the tutoring row", () => {
-    expect(lane(2, "study").up).toBe(true);
-    expect(lane(2, "study").down).toBe(true);
+  it("puts each node on its own lane", () => {
+    expect(rowOf("job-now").lanes[k("work")].node).toBe(true);
+    expect(rowOf("side").lanes[k("projects")].node).toBe(true);
+    expect(rowOf("masters").lanes[k("learn")].node).toBe(true);
   });
 
-  it("stops a line where its entry ended, with an end tick", () => {
-    // The master's ended in 2022: it reaches the 2021 row but not past it.
-    expect(lane(1, "study").down).toBe(true);
-    expect(lane(1, "study").up).toBe(false);
-    expect(lane(1, "study").end).toBe(true);
+  it("draws a solid line for exactly the months something ran", () => {
+    // The master's (Aug 2020 → May 2022) is solid through Jan 2022 …
+    const jan22 = monthRow(2022, 1).lanes[k("learn")];
+    expect(jan22.up && jan22.down).toBe(true);
+    // … and dotted again by Sep 2022.
+    const sep22 = monthRow(2022, 9).lanes[k("learn")];
+    expect(sep22.up || sep22.down).toBe(false);
   });
 
-  it("still shows a span that ended before the next row began", () => {
-    const short = laneCells(
-      [
-        { id: "later", kind: "study", start: "2020-08", end: "2022-05" },
-        { id: "first", kind: "study", start: "2017-05", end: "2020-05" },
-      ],
-      now,
-    );
-    expect(short[1][0].up).toBe(true);
-    expect(short[0][0].down).toBe(true);
+  it("shows overlap: the master's runs beside the tutoring", () => {
+    expect(rowOf("tutor").lanes[k("learn")].up).toBe(true);
   });
 
-  it("draws nothing for a track with nothing running", () => {
-    expect(lane(0, "study").up || lane(0, "study").down).toBe(false);
-    expect(lane(3, "work").down).toBe(false);
+  it("keeps a one-off project a dot, with no line", () => {
+    const side = rowOf("side").lanes[k("projects")];
+    expect(side.up || side.down).toBe(false);
   });
 });

@@ -28,7 +28,7 @@
 
   /* Timeline lanes: one grey per track, darkest for work. */
   --lane-work: var(--ink);
-  --lane-study: #6b6f78;
+  --lane-learn: #6b6f78;
   --lane-projects: #a8aab0;
   --lane-w: 1rem;
 
@@ -215,6 +215,7 @@ html:not(.js) .runhead {
 
 .runhead-name {
   grid-column: text;
+  grid-row: 1;
   font-weight: 600;
   font-size: 0.9rem;
   text-decoration: none;
@@ -223,6 +224,7 @@ html:not(.js) .runhead {
 
 .runhead-sec {
   grid-column: rail;
+  grid-row: 1;
   justify-self: end;
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -231,10 +233,26 @@ html:not(.js) .runhead {
   color: var(--muted);
 }
 
+.runhead-links {
+  grid-column: text / -1;
+  grid-row: 2;
+  justify-self: end;
+  white-space: nowrap;
+  margin: 0.25rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-align: right;
+}
+
+.runhead-links .sep {
+  margin: 0 0.2em;
+  color: var(--hairline);
+}
+
 /* ── Masthead ──────────────────────────────────────────────────────────── */
 
 .masthead {
-  padding-block: clamp(3.5rem, 9vw, 7rem) 1rem;
+  padding-block: clamp(3rem, 7vw, 5rem) 0;
 }
 
 .name {
@@ -254,40 +272,6 @@ html:not(.js) .runhead {
   color: var(--ink-2);
 }
 
-.intro {
-  margin-top: 2.25rem;
-}
-
-/* The one drop cap on the page. */
-.intro > p:first-child::first-letter {
-  float: left;
-  margin: 0.08em 0.1em 0 -0.02em;
-  font-family: var(--serif);
-  font-size: 3.55em;
-  line-height: 0.8;
-  color: var(--ink);
-}
-
-.guide {
-  margin: 1.1rem 0 0;
-  padding: 0.75rem 0.9rem;
-  background: var(--surface);
-  font-size: 0.95rem;
-  color: var(--ink-2);
-}
-
-.now {
-  margin: 1.25rem 0 0;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--hairline);
-  color: var(--ink-2);
-}
-
-.now .kicker {
-  display: inline;
-  margin-right: 0.9em;
-}
-
 .links {
   margin: 1rem 0 0;
   font-family: var(--mono);
@@ -300,8 +284,12 @@ html:not(.js) .runhead {
   color: var(--hairline);
 }
 
-.elsewhere {
+/* Two lines under the title: it may run on into the rail's width. */
+.intro {
+  grid-column: text / -1 !important;
+  max-width: 46rem;
   margin-top: 1.4rem;
+  color: var(--ink-2);
 }
 
 /* ── Sections ──────────────────────────────────────────────────────────── */
@@ -359,14 +347,6 @@ html:not(.js) .runhead {
   text-align: right;
 }
 
-.entry-date time {
-  display: block;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.7rem;
-  line-height: 1;
-  color: var(--ink-2);
-}
 
 .entry-end {
   display: block;
@@ -398,10 +378,11 @@ html:not(.js) .runhead {
 
 /* ── Lanes ─────────────────────────────────────────────────────────────── */
 
-/* Three tracks instead of one spine. Each row draws its own stretch of every
- * lit track — above its node and below it — so the lines join up row to row.
- * paper/timeview.js decides which halves are lit. */
-.lane-study { --tone: var(--lane-study); }
+/* Three lanes down the date column, the full height of the timeline: solid
+ * while something on the lane is running, fine dotted while nothing is. Each
+ * row draws its own top and bottom half of every lane, so they join row to
+ * row; paper/timeview.js decides which halves are solid. */
+.lane-learn { --tone: var(--lane-learn); }
 .lane-work { --tone: var(--lane-work); }
 .lane-projects { --tone: var(--lane-projects); }
 
@@ -414,39 +395,39 @@ html:not(.js) .runhead {
   display: flex;
 }
 
+/* Rows without an entry put their seam in the middle. */
+.axis-year .lanes,
+.axis-month .lanes {
+  --node-y: 50%;
+}
+
 .lane {
   position: relative;
   width: var(--lane-w);
 }
 
-.lane.up::before,
-.lane.down::after {
+.lane::before,
+.lane::after {
   content: "";
   position: absolute;
-  left: calc(50% - 1px);
-  width: 2px;
-  background: var(--tone);
+  left: calc(50% - 0.5px);
+  border-left: 1px dotted var(--tone);
 }
 
-.lane.up::before {
+.lane::before {
   top: 0;
   height: var(--node-y);
 }
 
-.lane.down::after {
+.lane::after {
   top: var(--node-y);
   bottom: 0;
 }
 
-/* Where a line stops between nodes (its entry ended), a short cap. */
-.lane.end::before {
-  content: "";
-  position: absolute;
-  top: calc(var(--node-y) - 1px);
-  left: calc(50% - 4px);
-  width: 8px;
-  height: 2px;
-  background: var(--tone);
+.lane.up::before,
+.lane.down::after {
+  left: calc(50% - 1px);
+  border-left: 2px solid var(--tone);
 }
 
 .dot {
@@ -466,24 +447,89 @@ html:not(.js) .runhead {
   background: var(--tone);
 }
 
-/* Legend in the section head: a swatch of each track's line, then its name. */
-.lanes-legend {
-  display: inline-flex;
-  gap: 1rem;
-  margin-left: 1.2rem;
+/* ── The axis: a row per year, a thin slice per empty month ───────────── */
+
+.axis-year,
+.axis-month {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  position: relative;
 }
 
-.legend-item {
-  display: inline-flex;
+.axis-month {
+  height: 0.5rem;
+}
+
+.axis-year {
+  height: 2.6rem;
   align-items: center;
-  gap: 0.4rem;
+}
+
+.axis-year .entry-date {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.year-label {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+/* A hairline across the content columns marks each year. */
+.axis-year::after {
+  content: "";
+  grid-column: text / -1;
+  border-top: 1px solid var(--hairline);
+}
+
+.entry-date time {
+  display: block;
+}
+
+.entry-month {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+}
+
+/* Track names stand on top of their lanes. The key keeps its own row, and the
+ * stub of each lane's tone sits under the text, never across it. */
+.lanes-key {
+  grid-column: date;
+  justify-self: end;
+  display: flex;
+  margin: 0 0 0.4rem;
+}
+
+.lane-key {
+  position: relative;
+  width: var(--lane-w);
+  padding-top: 0.9rem;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
-.swatch {
-  display: inline-block;
-  width: 1.1rem;
-  height: 2px;
+/* Before the 180° turn, the top padding is what ends up at the foot. */
+.lane-key::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 0.55rem;
   background: var(--tone);
 }
 
@@ -986,14 +1032,31 @@ a.thumb:hover {
     padding-left: calc(3 * var(--lane-w) + 0.9rem);
   }
 
-  .entry .lanes {
+  .axis-year,
+  .axis-month {
+    padding-left: calc(3 * var(--lane-w) + 0.9rem);
+  }
+
+  .entry .lanes,
+  .axis-year .lanes,
+  .axis-month .lanes {
     left: 0;
     right: auto;
   }
 
-  .lanes-legend {
-    display: flex;
-    margin: 0.4rem 0 0;
+  .axis-year .entry-date {
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  .lanes-key {
+    justify-self: start;
+  }
+
+  .runhead-links {
+    grid-column: text;
+    justify-self: start;
+    text-align: left;
   }
 
   .entry-main.has-logo {
@@ -1023,9 +1086,6 @@ a.thumb:hover {
     gap: 0.6rem;
   }
 
-  .entry-date time {
-    font-size: 1.45rem;
-  }
 
   .entry-end {
     margin: 0;
