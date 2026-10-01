@@ -7,6 +7,7 @@
 
 import { renderMarkdown, renderInline, loadFigureSvg } from "./markdown.js";
 import { dataFigureSvg } from "./figures.js";
+import { laneCells, lanesHtml, lanesLegendHtml } from "./timeview.js";
 import { posix } from "node:path";
 
 export const SITE_URL = "https://rvs23.dev";
@@ -189,7 +190,7 @@ function walkLink(e) {
   return `<a class="walk" href="${esc(e.walkthrough)}"${external ? ' rel="noopener"' : ""}>${label}${where} ${external ? "↗" : "→"}</a>`;
 }
 
-function rowHtml(e, showYear, ctx) {
+function rowHtml(e, showYear, ctx, extras = {}) {
   const title = renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
   const titleHtml = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${title}</a>` : title;
   // Short notes still open in place; everything else is one line plus a link.
@@ -199,7 +200,7 @@ function rowHtml(e, showYear, ctx) {
       : "";
   const code = e.repo ? `<a class="walk" href="${esc(e.repo)}" rel="noopener">Code ↗</a>` : "";
   return `          <li class="entry kind-${e.kind}" id="${esc(e.id)}">
-            <p class="entry-date">${showYear ? `<time datetime="${esc(e.start)}">${year(e.start)}</time>` : ""}<span class="entry-end">${esc(whenCue(e))}</span></p>
+            <p class="entry-date">${showYear ? `<time datetime="${esc(e.start)}">${year(e.start)}</time>` : ""}<span class="entry-end">${esc(whenCue(e))}</span>${extras.lanes ?? ""}</p>
             <div class="entry-main has-logo">
               ${tileHtml(e)}
               <div class="entry-body">
@@ -217,19 +218,19 @@ function rowHtml(e, showYear, ctx) {
 
 function timelineSection(ctx) {
   const items = timelineItems(ctx);
+  const [by, bm] = ctx.buildDate.split("-").map(Number);
+  const cells = laneCells(items, by + (bm - 1) / 12);
   let prevYear = "";
-  const rows = items.map((e) => {
-    const html = rowHtml(e, year(e.start) !== prevYear, ctx);
+  const rows = items.map((e, i) => {
+    const html = rowHtml(e, year(e.start) !== prevYear, ctx, { lanes: lanesHtml(cells[i]) });
     prevYear = year(e.start);
     return html;
   });
   const years = items.map((e) => Number(year(e.start)));
-  // The spine reads top to bottom: "now" at the head, an arrow to "earlier".
-  return `${sectionOpen("timeline", 1, "Timeline", ` <span class="kicker-span">${Math.min(...years)} — now · work, study, projects</span>`)}
+  // Reads top to bottom, newest first; each lane is one track of the key.
+  return `${sectionOpen("timeline", 1, "Timeline", ` <span class="kicker-span">${Math.min(...years)} — now</span>${lanesLegendHtml()}`)}
         <ol class="timeline">
-          <li class="spine-cap spine-now" aria-hidden="true"><span>now</span></li>
 ${rows.join("\n")}
-          <li class="spine-cap spine-earlier" aria-hidden="true"><span>earlier</span></li>
         </ol>
 ${folio(0)}`;
 }

@@ -26,11 +26,17 @@
   --hairline: #d9d9d7;
   --surface: #f3f3f2;
 
+  /* Timeline lanes: one grey per track, darkest for work. */
+  --lane-work: var(--ink);
+  --lane-study: #6b6f78;
+  --lane-projects: #a8aab0;
+  --lane-w: 1rem;
+
   --sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --serif: "Instrument Serif", ui-serif, Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  --date: 6rem;
+  --date: 9.5rem;
   --text: 35rem;
   --rail: 13rem;
   --gap: 2.5rem;
@@ -348,23 +354,9 @@ html:not(.js) .runhead {
   grid-column: date;
   position: relative;
   margin: 0;
-  padding-right: 1.1rem;
+  /* Room for the three lanes at the column's right edge. */
+  padding-right: calc(3 * var(--lane-w) + 1rem);
   text-align: right;
-  /* The spine: heavy enough to read as "time runs down this line". */
-  border-right: 2px solid var(--ink);
-}
-
-/* The node where the entry meets the spine. */
-.entry-date::after {
-  content: "";
-  position: absolute;
-  top: 0.55rem;
-  right: -6.5px;
-  width: 11px;
-  height: 11px;
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  background: var(--paper);
 }
 
 .entry-date time {
@@ -404,42 +396,98 @@ html:not(.js) .runhead {
   padding-bottom: 1.2rem;
 }
 
-/* Spine caps: "now" where it starts, an arrowhead into "earlier". */
-.spine-cap {
-  grid-column: date;
+/* ── Lanes ─────────────────────────────────────────────────────────────── */
+
+/* Three tracks instead of one spine. Each row draws its own stretch of every
+ * lit track — above its node and below it — so the lines join up row to row.
+ * paper/timeview.js decides which halves are lit. */
+.lane-study { --tone: var(--lane-study); }
+.lane-work { --tone: var(--lane-work); }
+.lane-projects { --tone: var(--lane-projects); }
+
+.lanes {
+  --node-y: 0.95rem;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+}
+
+.lane {
   position: relative;
-  padding-right: 1.1rem;
-  border-right: 2px solid var(--ink);
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-align: right;
+  width: var(--lane-w);
+}
+
+.lane.up::before,
+.lane.down::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 1px);
+  width: 2px;
+  background: var(--tone);
+}
+
+.lane.up::before {
+  top: 0;
+  height: var(--node-y);
+}
+
+.lane.down::after {
+  top: var(--node-y);
+  bottom: 0;
+}
+
+/* Where a line stops between nodes (its entry ended), a short cap. */
+.lane.end::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--node-y) - 1px);
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 2px;
+  background: var(--tone);
+}
+
+.dot {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--node-y) - 5.5px);
+  left: calc(50% - 5.5px);
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--tone);
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+/* A one-off project is a point in time: a filled dot. */
+.kind-project .dot {
+  background: var(--tone);
+}
+
+/* Legend in the section head: a swatch of each track's line, then its name. */
+.lanes-legend {
+  display: inline-flex;
+  gap: 1rem;
+  margin-left: 1.2rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   color: var(--muted);
 }
 
-.spine-now {
-  padding-bottom: 1.25rem;
+.swatch {
+  display: inline-block;
+  width: 1.1rem;
+  height: 2px;
+  background: var(--tone);
 }
 
-.spine-earlier {
-  height: 2.25rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-}
-
-.spine-earlier::after {
-  content: "";
-  position: absolute;
-  right: -7px;
-  bottom: -9px;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 9px solid var(--ink);
-}
-
-/* Logo tile beside the entry, after the spine (as on karpathy.ai). */
+/* Logo tile beside the entry, after the lanes (as on karpathy.ai). */
 .entry-main.has-logo {
   display: grid;
   grid-template-columns: 3rem minmax(0, 1fr);
@@ -932,27 +980,20 @@ a.thumb:hover {
     flex: 1;
   }
 
-  /* The spine moves to the left edge; the year sits above the entry. */
+  /* The lanes move to the left edge; the date sits above the entry. */
   .entry {
-    padding-left: 1.1rem;
-    border-left: 2px solid var(--ink);
     position: relative;
+    padding-left: calc(3 * var(--lane-w) + 0.9rem);
   }
 
-  .spine-cap {
-    padding: 0 0 0 1.1rem;
-    border-right: 0;
-    border-left: 2px solid var(--ink);
-    text-align: left;
-  }
-
-  .spine-earlier {
-    justify-content: flex-start;
-  }
-
-  .spine-earlier::after {
+  .entry .lanes {
+    left: 0;
     right: auto;
-    left: -7px;
+  }
+
+  .lanes-legend {
+    display: flex;
+    margin: 0.4rem 0 0;
   }
 
   .entry-main.has-logo {
@@ -976,17 +1017,10 @@ a.thumb:hover {
   .entry-date {
     padding: 0 0 0.35rem;
     text-align: left;
-    border: 0;
     position: static;
     display: flex;
     align-items: baseline;
     gap: 0.6rem;
-  }
-
-  .entry-date::after {
-    top: 0.5rem;
-    left: -6.5px;
-    right: auto;
   }
 
   .entry-date time {

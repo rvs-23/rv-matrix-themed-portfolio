@@ -228,3 +228,55 @@ describe("terminal commands for the paper site", async () => {
     expect(html).not.toContain("<b>x</b>");
   });
 });
+
+describe("timeline lanes", async () => {
+  const { laneCells, TRACKS } = await import("../paper/timeview.js");
+  const now = 2026.75;
+  const items = [
+    { id: "job-now", kind: "work", start: "2025-08", end: "present" },
+    { id: "side", kind: "project", start: "2021-05" },
+    { id: "tutor", kind: "work", start: "2020-11", end: "2021-12" },
+    { id: "masters", kind: "study", start: "2020-08", end: "2022-05" },
+  ];
+  const cells = laneCells(items, now);
+  const lane = (row, id) => cells[row][TRACKS.findIndex((t) => t.id === id)];
+
+  it("puts each node on its own track", () => {
+    expect(lane(0, "work").node).toBe(true);
+    expect(lane(1, "projects").node).toBe(true);
+    expect(lane(3, "study").node).toBe(true);
+  });
+
+  it("runs a current role's line up to now", () => {
+    expect(lane(0, "work").up).toBe(true);
+  });
+
+  it("shows overlap: the master's runs through the tutoring row", () => {
+    expect(lane(2, "study").up).toBe(true);
+    expect(lane(2, "study").down).toBe(true);
+  });
+
+  it("stops a line where its entry ended, with an end tick", () => {
+    // The master's ended in 2022: it reaches the 2021 row but not past it.
+    expect(lane(1, "study").down).toBe(true);
+    expect(lane(1, "study").up).toBe(false);
+    expect(lane(1, "study").end).toBe(true);
+  });
+
+  it("still shows a span that ended before the next row began", () => {
+    const short = laneCells(
+      [
+        { id: "later", kind: "study", start: "2020-08", end: "2022-05" },
+        { id: "first", kind: "study", start: "2017-05", end: "2020-05" },
+      ],
+      now,
+    );
+    expect(short[1][0].up).toBe(true);
+    expect(short[0][0].down).toBe(true);
+  });
+
+  it("draws nothing for a track with nothing running", () => {
+    expect(lane(0, "study").up || lane(0, "study").down).toBe(false);
+    expect(lane(3, "work").down).toBe(false);
+  });
+});
