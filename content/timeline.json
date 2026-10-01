@@ -94,6 +94,27 @@
       "draft": true
     },
     {
+      "id": "swiss-re-promotion",
+      "kind": "work",
+      "start": "2024-10",
+      "end": "2025-08",
+      "label": "Swiss Re GBS",
+      "title": "Data Science Specialist II",
+      "summary": "Promoted after two years. Data-science and language-model pipelines on Palantir Foundry for underwriting, operations and finance; underwriters about 30% more productive.",
+      "logo": "swissre.svg",
+      "skills": [
+        "Palantir Foundry",
+        "Python",
+        "PySpark",
+        "TypeScript",
+        "SQL",
+        "LLMs"
+      ],
+      "draft": true,
+      "main": true,
+      "under": "swiss-re"
+    },
+    {
       "id": "nebula",
       "kind": "work",
       "start": "2024-02",
@@ -138,19 +159,11 @@
       "id": "swiss-re",
       "kind": "work",
       "start": "2022-10",
-      "end": "2025-08",
+      "end": "2024-10",
       "label": "Swiss Re GBS",
-      "title": "Data Science Specialist II",
-      "summary": "Joined as Data Scientist I, promoted to Specialist II. Data-science and language-model pipelines on Palantir Foundry for underwriting, operations and finance; underwriters about 30% more productive.",
+      "title": "Data Scientist I",
+      "summary": "Joined Swiss Re's Global Business Solutions as a data scientist, building on Palantir Foundry.",
       "logo": "swissre.svg",
-      "skills": [
-        "Palantir Foundry",
-        "Python",
-        "PySpark",
-        "TypeScript",
-        "SQL",
-        "LLMs"
-      ],
       "draft": true,
       "main": true
     },
