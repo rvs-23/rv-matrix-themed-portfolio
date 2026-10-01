@@ -1,6 +1,6 @@
 # The Matrix terminal
 
-The other face of [rvs23.dev](https://rvs23.dev/matrix/). Nothing on the timeline links to it; you found the door.
+The other face of [rvs23.dev](https://rvs23.dev/matrix/). The timeline's navigation never points here; only the project entry that describes it does. You found the door.
 
 ![The Matrix terminal's digital rain](images/rain.png)
 

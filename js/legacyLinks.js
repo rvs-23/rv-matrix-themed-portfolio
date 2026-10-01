@@ -3,8 +3,8 @@
  * @file js/legacyLinks.js
  * Old recruiter-mode links (`#recruiter`, `?mode=recruiter`) predate its
  * removal. The server never sees a hash and `_redirects` can't match a query,
- * so they're cleaned up here; the `/recruiter` path is handled in
- * `public/_redirects`.
+ * so they're cleaned up here; the `/recruiter` path is handled in the
+ * generated `_redirects` (paper/vite-plugin.js).
  */
 
 /**

@@ -1,5 +1,5 @@
 /*
- * paper/paper.css — the paper site (/about + notes).
+ * paper/paper.css — the paper site (the timeline, walkthroughs, notes).
  * Fonts borrowed from rv-markdown-paper; a single ink on white. Layout is three columns — date · text · rail — collapsing
  * to one below 62rem; the home page's timeline uses their full width. Nothing here is shared with the terminal's style.css.
  */
@@ -722,12 +722,6 @@ a.thumb:hover {
   margin: 0;
 }
 
-.to-terminal {
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--ink);
-}
-
 /* ── Posts ─────────────────────────────────────────────────────────────── */
 
 .post-head {
@@ -904,15 +898,6 @@ a.thumb:hover {
   color: var(--muted);
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
 /* ── One column ────────────────────────────────────────────────────────── */
 
 @media (max-width: 62rem) {
@@ -1031,17 +1016,14 @@ a.thumb:hover {
   .runhead,
   .preview-banner,
   .skip,
-  .to-terminal {
-    display: none;
-  }
-
   .ev,
   .fig {
     break-inside: avoid;
   }
 
   /* The draw-in never runs on paper: print every stroke. */
-  .fig .d {
+  .fig .d,
+  .thumb .d {
     stroke-dasharray: none !important;
     stroke-dashoffset: 0 !important;
   }

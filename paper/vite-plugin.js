@@ -4,13 +4,14 @@
  * Vite build, so a local build and a Cloudflare build are the same command.
  * The Matrix terminal is a plain source page at /matrix/.
  *
- * Release gate — PAPER_PUBLISH:
- *   unset        → build nothing; / redirects to /matrix/ (until launch)
- *   "preview"    → drafts shown and labelled, pages noindex (Cloudflare Preview)
- *   "production" → drafts in timeline.json fail the build; draft notes skipped
- * The dev server always runs as "preview".
+ * Release mode — PAPER_PUBLISH:
+ *   unset        → "review": everything ships; drafts are tagged "in review"
+ *   "preview"    → the same, plus a banner and noindex (Cloudflare Preview)
+ *   "production" → strict: a draft in timeline.json or a walkthrough fails
+ *                  the build; draft notes are left out
  *
- * Generated HTML is written to <root>/.paper/ (gitignored), wiped on every
+ * Generated HTML is written to <root>/.paper/ (.paper-dev/ for the dev
+ * server; both gitignored), wiped on every
  * run so a deleted note can't leave a stale page behind. Vite names an HTML
  * entry's output after its path under the root, so the bundle step moves each
  * page up to the site root, and the dev server maps URLs the same way.
@@ -19,11 +20,14 @@
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join, relative, dirname } from "node:path";
 
-const OUT = ".paper";
+// Dev and build write to different folders, so a build never disturbs the
+// pages a running dev server is serving.
+const outName = (dev) => (dev ? ".paper-dev" : ".paper");
 import { gzipSync } from "node:zlib";
 import { loadContent, listDrafts } from "./content.js";
 import {
   aboutPage,
+  notFoundPage,
   notePage,
   projectPage,
   feedXml,
@@ -34,12 +38,11 @@ import {
 
 const MODES = new Set(["preview", "production"]);
 
-export function resolveMode(command, value = process.env.PAPER_PUBLISH) {
+export function resolveMode(value = process.env.PAPER_PUBLISH) {
   if (value && !MODES.has(value)) {
     throw new Error(`PAPER_PUBLISH must be "preview" or "production", got "${value}"`);
   }
-  if (command === "serve") return value === "production" ? "production" : "preview";
-  return value || "off";
+  return value || "review";
 }
 
 /**
@@ -51,13 +54,8 @@ export function generate({
   mode,
   dev = false,
   buildDate = new Date(),
-  outDir = join(root, OUT),
+  outDir = join(root, outName(dev)),
 }) {
-  if (mode === "off") {
-    rmSync(outDir, { recursive: true, force: true });
-    return { files: [], notes: [], projects: [], site: null };
-  }
-
   // Validate before touching disk: a failed run leaves the last pages intact.
   const content = loadContent(join(root, "content"));
   if (mode === "production") {
@@ -80,7 +78,11 @@ export function generate({
     buildDate: buildDate.toISOString().slice(0, 10),
   };
 
-  const pages = [[join(outDir, "index.html"), aboutPage(ctx)]];
+  const pages = [
+    [join(outDir, "index.html"), aboutPage(ctx)],
+    // Without a 404.html, Cloudflare Pages answers every unknown URL with /.
+    [join(outDir, "404.html"), notFoundPage(ctx)],
+  ];
   for (const note of notes.filter((n) => !n.inline)) {
     pages.push([join(outDir, note.slug, "index.html"), notePage(note, ctx)]);
   }
@@ -109,16 +111,9 @@ export function terminalIndex(notes, projects = []) {
   };
 }
 
-/**
- * Cloudflare's _redirects. Retired recruiter paths go home (hash and query
- * variants: js/legacyLinks.js); until the paper site is published, home is
- * the terminal.
- */
-export function redirects(mode) {
-  const lines = ["/recruiter   /   301", "/recruiter/  /   301"];
-  if (mode === "off") lines.push("/            /matrix/   302");
-  return `${lines.join("\n")}\n`;
-}
+/** Cloudflare's _redirects: retired recruiter paths go home (hash and query
+ *  variants are handled in js/legacyLinks.js). */
+const REDIRECTS = "/recruiter   /   301\n/recruiter/  /   301\n";
 
 export default function paperPlugin() {
   let root;
@@ -133,12 +128,13 @@ export default function paperPlugin() {
     config(config, env) {
       root = config.root || process.cwd();
       command = env.command;
-      mode = resolveMode(command);
+      mode = resolveMode();
       result = generate({ root, mode, dev: command === "serve" });
       if (command !== "build") return;
       const input = { matrix: join(root, "matrix", "index.html") };
       for (const file of result.files) {
-        input[relative(join(root, OUT), dirname(file)) || "home"] = file;
+        // Keyed by path, so no slug can collide with the home page's entry.
+        input[`page:${relative(join(root, outName(false)), file)}`] = file;
       }
       return { build: { rollupOptions: { input } } };
     },
@@ -161,11 +157,12 @@ export default function paperPlugin() {
       // Pages are served from the site root; build-only artefacts are served live.
       server.middlewares.use((req, res, next) => {
         const [path, query] = req.url.split("?");
-        if (!existsSync(join(root, OUT, "index.html"))) {
+        const out = outName(true);
+        if (!existsSync(join(root, out, "index.html"))) {
           result = generate({ root, mode, dev: true });
         }
-        if (path.endsWith("/") && existsSync(join(root, OUT, path, "index.html"))) {
-          req.url = `/${OUT}${path}index.html${query ? `?${query}` : ""}`;
+        if (path.endsWith("/") && existsSync(join(root, out, path, "index.html"))) {
+          req.url = `/${out}${path}index.html${query ? `?${query}` : ""}`;
         }
         if (path === "/feed.xml") {
           res.setHeader("Content-Type", "application/rss+xml");
@@ -182,14 +179,17 @@ export default function paperPlugin() {
     generateBundle(_options, bundle) {
       if (command !== "build") return;
       const emit = (fileName, source) => this.emitFile({ type: "asset", fileName, source });
-      emit("_redirects", redirects(mode));
-      if (mode === "off") return;
+      emit("_redirects", REDIRECTS);
       emit("feed.xml", feedXml(result.notes, { site: result.site }));
       emit("config/content/paper.json", JSON.stringify(terminalIndex(result.notes, result.projects)));
-      if (mode === "production") emit("sitemap.xml", sitemapXml(result.notes, result.projects));
+      if (mode !== "preview") {
+        emit("sitemap.xml", sitemapXml(result.notes, result.projects));
+        emit("robots.txt", `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+      }
 
       // Fill in each page's real weight: gzipped HTML + the CSS/JS it loads.
       for (const [key, asset] of Object.entries(bundle)) {
+        const OUT = outName(false);
         if (!key.startsWith(`${OUT}/`) || !key.endsWith(".html")) continue;
         // Move the page from .paper/ up to the site root.
         delete bundle[key];

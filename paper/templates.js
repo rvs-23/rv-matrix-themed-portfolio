@@ -33,7 +33,7 @@ function formatDay(iso) {
 
 function draftTag(item, ctx) {
   return item.draft && ctx.mode !== "production"
-    ? ` <span class="draft-tag">draft</span>`
+    ? ` <span class="draft-tag">in review</span>`
     : "";
 }
 
@@ -68,12 +68,13 @@ function md(src, ctx, where) {
 }
 
 /** Shared <head> + running header + body wrapper. */
-function shell({ title, description, path, body, ctx, runhead, cls = "" }) {
-  const robots = ctx.mode === "production" ? "" : `\n    <meta name="robots" content="noindex" />`;
-  const banner =
-    ctx.mode === "production"
-      ? ""
-      : `<p class="preview-banner">Preview build — drafts visible, not indexed.</p>`;
+function shell({ title, description, path, body, ctx, runhead, cls = "", noindex = false }) {
+  // Only a preview build hides from search engines and says so.
+  const preview = ctx.mode === "preview";
+  const robots = preview || noindex ? `\n    <meta name="robots" content="noindex" />` : "";
+  const banner = preview
+    ? `<p class="preview-banner">Preview build — not indexed.</p>`
+    : "";
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -184,7 +185,7 @@ function eventHtml(e, ctx) {
                 ${e.main ? logoHtml(e) : ""}
                 <div class="ev-body">
                   <p class="kicker">${e.tag ? `<span class="tag">${esc(e.tag)}</span> ` : ""}${esc(e.label)}${draftTag(e, ctx)}</p>
-                  <h3 class="ev-title">${title}</h3>
+                  <h2 class="ev-title">${title}</h2>
                   <p class="ev-when">${esc(when(e))}</p>
                   <p class="ev-summary">${esc(e.summary)}</p>
                   ${thumbHtml(e, ctx)}
@@ -241,13 +242,34 @@ export function aboutPage(ctx) {
 ${timelineSection(ctx)}
 ${colophon(ctx)}`;
   return shell({
-    title: `${site.name} — notebook`,
+    title: site.name,
     description: site.description || site.dek || site.name,
     path: "/",
     body,
     ctx,
     runhead: "rvs23.dev",
     cls: "home",
+  });
+}
+
+/** The page Cloudflare serves for any URL that isn't one of ours. */
+export function notFoundPage(ctx) {
+  const body = `      <article class="post">
+        <header class="post-head">
+          <p class="kicker">404</p>
+          <h1 class="post-title">Nothing here</h1>
+          <p class="dek">That page doesn't exist, or it moved.</p>
+        </header>
+        <footer class="post-foot"><p><a href="/">← Back to the timeline</a></p></footer>
+      </article>`;
+  return shell({
+    title: `Not found — ${ctx.site.name}`,
+    description: "This page doesn't exist.",
+    path: "/",
+    body,
+    ctx,
+    runhead: "404",
+    noindex: true,
   });
 }
 
@@ -308,7 +330,7 @@ export function projectPage(project, ctx) {
   ].filter(Boolean);
   const body = `      <article class="post">
         <header class="post-head">
-          <p class="kicker">Pet project · ${esc(entry ? when(entry) : "")}${draftTag(project, ctx)}</p>
+          <p class="kicker">${esc(entry ? `${entry.label} · ${when(entry)}` : "Project")}${draftTag(project, ctx)}</p>
           <h1 class="post-title">${esc(project.title)}</h1>
           <p class="dek">${esc(project.summary)}</p>
           ${skillsHtml(entry?.skills)}
@@ -322,7 +344,7 @@ export function projectPage(project, ctx) {
     path: `/${project.slug}/`,
     body,
     ctx,
-    runhead: "Pet project",
+    runhead: entry?.label ?? "Project",
   });
 }
 

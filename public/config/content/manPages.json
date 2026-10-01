@@ -45,7 +45,7 @@
   "about": {
     "name": "about - Open the plain, readable version of this site.",
     "synopsis": "about",
-    "description": "Links to rvs23.dev/about: a single page with the work timeline, things built, notes and short explanations of the ideas behind them. It reads top to bottom and works without JavaScript.",
+    "description": "Links to rvs23.dev: the home page, a timeline of work, study and projects with walkthroughs. It reads top to bottom and works without JavaScript.",
     "arguments": "None",
     "examples": ["about              - Prints the link."]
   },
@@ -187,7 +187,7 @@
   "reset": {
     "name": "reset - Reset all preferences to defaults.",
     "synopsis": "reset",
-    "description": "Clears all saved preferences from localStorage (theme, rain preset, discovered easter eggs) and restores: green theme, default rain preset and font, torch off, default terminal opacity / font size / window size, and exits recruiter mode. Session-only settings (gravity, glyphspeed) are also cleared.",
+    "description": "Clears all saved preferences from localStorage (theme, rain preset, discovered easter eggs) and restores: green theme, default rain preset and font, torch off, default terminal opacity / font size / window size. Session-only settings (gravity, glyphspeed) are also cleared.",
     "arguments": "None",
     "examples": [
       "reset              - Restores everything to factory defaults."

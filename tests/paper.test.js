@@ -1,21 +1,21 @@
 /**
  * @file tests/paper.test.js
  * The paper site's build contract: the Markdown dialect fails loudly, content
- * validates, the release gate holds, and every internal link on the rendered
+ * validates, the release modes hold, and every internal link on the rendered
  * pages lands somewhere real.
  */
 
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { mkdtempSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 
 import { renderMarkdown, MarkdownError } from "../paper/markdown.js";
 import { parseLinearFlowchart } from "../paper/figures.js";
 import { loadContent, validateTimeline, parseNote, listDrafts } from "../paper/content.js";
-import { aboutPage, notePage, projectPage } from "../paper/templates.js";
-import { resolveMode, generate } from "../paper/vite-plugin.js";
+import { aboutPage, notePage, projectPage, feedXml, sitemapXml } from "../paper/templates.js";
+import { resolveMode, generate, terminalIndex } from "../paper/vite-plugin.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const contentDir = join(root, "content");
@@ -123,20 +123,50 @@ describe("content", () => {
   });
 });
 
-describe("release gate", () => {
-  it("only accepts preview or production", () => {
-    expect(resolveMode("build", undefined)).toBe("off");
-    expect(resolveMode("build", "preview")).toBe("preview");
-    expect(resolveMode("serve", undefined)).toBe("preview");
-    expect(() => resolveMode("build", "yes")).toThrow(/PAPER_PUBLISH/);
+describe("content rules added after review", () => {
+  const base = () => ({
+    site: { name: "N" },
+    entries: [{ id: "a", kind: "work", start: "2024-03", label: "L", title: "T", summary: "S" }],
+  });
+  const fails = (edit, re) => {
+    const data = base();
+    edit(data);
+    expect(() => validateTimeline(data, contentDir)).toThrow(re);
+  };
+
+  it("rejects impossible months and an end before its start", () => {
+    fails((d) => (d.entries[0].start = "2024-13"), /start must be/);
+    fails((d) => (d.entries[0].end = "2023"), /end is before its start/);
+    const ok = base();
+    ok.entries[0].end = "2024"; // a bare year may end a start in that year
+    expect(() => validateTimeline(ok, contentDir)).not.toThrow();
+  });
+
+  it("rejects ids the page uses, and protocol-relative links", () => {
+    fails((d) => (d.entries[0].id = "timeline"), /used by the page itself/);
+    fails((d) => (d.site.links = [{ label: "x", href: "//evil.example" }]), /href must be/);
+  });
+
+  it("rejects a note dated on a day that doesn't exist", () => {
+    const raw = "---\ntitle: T\ndate: \"2026-02-30\"\nsummary: S\n---\nHi.\n";
+    expect(() => parseNote("2026-02-30-t.md", raw, root)).toThrow(/real YYYY-MM-DD/);
+  });
+
+  it("rejects a Markdown link with a script scheme", () => {
+    expect(() => md("[x](javascript:alert(1))")).toThrow(MarkdownError);
+    expect(md("[x](/thing/) [y](#a) [z](https://a.example)")).toContain('href="/thing/"');
+  });
+});
+
+describe("release mode", () => {
+  it("is review unless told preview or production", () => {
+    expect(resolveMode(undefined)).toBe("review");
+    expect(resolveMode("preview")).toBe("preview");
+    expect(() => resolveMode("yes")).toThrow(/PAPER_PUBLISH/);
   });
 
   // A throwaway output dir, so tests never touch a dev server's pages.
   const outDir = () => mkdtempSync(join(tmpdir(), "paper-"));
-
-  it("builds nothing when off", () => {
-    expect(generate({ root, mode: "off", outDir: outDir() }).files).toEqual([]);
-  });
 
   it("writes the home page and each note page in preview", () => {
     const dir = outDir();
@@ -152,6 +182,68 @@ describe("release gate", () => {
     generate({ root, mode: "preview", outDir: dir });
     expect(() => generate({ root, mode: "production", outDir: dir })).toThrow(/drafts remain/);
     expect(readdirSync(dir)).toContain("index.html");
+  });
+});
+
+describe("a finished site (no drafts)", () => {
+  // A small site of its own, so the strict path is tested before launch too.
+  const site = mkdtempSync(join(tmpdir(), "paper-site-"));
+  mkdirSync(join(site, "content", "notes"), { recursive: true });
+  mkdirSync(join(site, "content", "projects"));
+  writeFileSync(
+    join(site, "content", "timeline.json"),
+    JSON.stringify({
+      site: { name: "Test <Person>", dek: "Builder" },
+      entries: [
+        { id: "job", kind: "work", start: "2024-03", end: "present", label: "Org", title: "Role", summary: "Did things.", main: true },
+        { id: "thing", kind: "project", start: "2025-01", label: "Pet project", title: "Thing", summary: "A thing.", walkthrough: "/thing/" },
+      ],
+    }),
+  );
+  writeFileSync(join(site, "content", "projects", "thing.md"), "---\ntitle: Thing\nsummary: A thing.\n---\nBody.\n");
+  writeFileSync(join(site, "content", "notes", "2026-01-02-hello.md"), "---\ntitle: Hello & co\ndate: 2026-01-02\nsummary: First.\n---\nHi.\n");
+  writeFileSync(join(site, "content", "notes", "2026-01-03-wip.md"), "---\ntitle: Wip\ndate: 2026-01-03\nsummary: Not yet.\ndraft: true\n---\nHi.\n");
+
+  const build = (mode) => {
+    const dir = mkdtempSync(join(tmpdir(), "paper-out-"));
+    const result = generate({ root: site, mode, outDir: dir });
+    return { dir, result, home: readFileSync(join(dir, "index.html"), "utf8") };
+  };
+
+  it("production ships clean pages and leaves draft notes out", () => {
+    const { dir, result, home } = build("production");
+    expect(home).not.toContain("noindex");
+    expect(home).not.toContain("draft-tag");
+    expect(home).not.toContain("preview-banner");
+    expect(home).toContain("Test &lt;Person&gt;");
+    expect(readdirSync(dir).sort()).toEqual(["404.html", "hello", "index.html", "thing"]);
+    expect(result.notes.map((n) => n.slug)).toEqual(["hello"]);
+  });
+
+  it("review ships everything indexed, with drafts tagged; preview adds noindex", () => {
+    const review = build("review");
+    expect(review.home).toContain("in review");
+    expect(review.home).not.toContain("noindex");
+    expect(readdirSync(review.dir)).toContain("wip");
+    expect(build("preview").home).toContain('content="noindex"');
+  });
+
+  it("the 404 page is never indexed", () => {
+    expect(readFileSync(join(build("production").dir, "404.html"), "utf8")).toContain('content="noindex"');
+  });
+
+  it("feed, sitemap and the terminal's index list the same pages", () => {
+    const { result } = build("production");
+    const feed = feedXml(result.notes, { site: result.site });
+    expect(feed).toContain("<title>Hello &amp; co</title>");
+    expect(feed).toContain("<link>https://rvs23.dev/hello/</link>");
+    const sitemap = sitemapXml(result.notes, result.projects);
+    expect(sitemap.match(/<loc>/g)).toHaveLength(3);
+    expect(sitemap).not.toContain("/matrix/");
+    const index = terminalIndex(result.notes, result.projects);
+    expect(index.about).toBe("/");
+    expect(index.notes[0].url).toBe("/hello/");
+    expect(index.projects[0].url).toBe("/thing/");
   });
 });
 
