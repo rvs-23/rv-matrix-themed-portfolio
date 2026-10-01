@@ -216,28 +216,6 @@ ${rows.join("\n")}
 ${folio(0)}`;
 }
 
-/** Pet projects, as a plain index: what it is, what it used, where to read more. */
-function projectsSection(ctx) {
-  const projects = ctx.timeline.entries
-    .filter((e) => e.kind === "project")
-    .sort((a, b) => sortKey(b.start).localeCompare(sortKey(a.start)));
-  const items = projects.map(
-    (e) => `          <li class="pet" id="pet-${esc(e.id)}">
-            <span class="pet-year">${year(e.start)}</span>
-            <div class="pet-main">
-              <h3 class="pet-title">${e.walkthrough ? `<a href="${esc(e.walkthrough)}">${esc(e.title)}</a>` : esc(e.title)}${draftTag(e, ctx)}</h3>
-              <p class="pet-summary">${esc(e.summary)}</p>
-              ${skillsHtml(e.skills, "skills-inline")}
-            </div>
-          </li>`,
-  );
-  return `${sectionOpen("projects", 2, "Pet projects", ` <span class="kicker-span">things built for fun</span>`)}
-        <ol class="pets">
-${items.join("\n")}
-        </ol>
-${folio(1)}`;
-}
-
 function colophon(ctx) {
   return `      <footer class="colophon" id="colophon" data-title="Colophon">
         <p class="kicker">Colophon</p>
@@ -261,7 +239,6 @@ export function aboutPage(ctx) {
         ${linksHtml(site.links, "links elsewhere")}
       </header>
 ${timelineSection(ctx)}
-${projectsSection(ctx)}
 ${colophon(ctx)}`;
   return shell({
     title: `${site.name} — notebook`,

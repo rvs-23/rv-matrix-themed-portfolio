@@ -195,11 +195,9 @@ describe("rendered pages", () => {
     expect(about).toContain('class="draft-tag"');
   });
 
-  it("every pet project shows up in both the timeline and the projects index", () => {
-    for (const e of content.timeline.entries.filter((x) => x.kind === "project")) {
-      expect(about).toContain(`id="${e.id}"`);
-      expect(about).toContain(`id="pet-${e.id}"`);
-    }
+  it("every entry and note is on the timeline", () => {
+    for (const e of content.timeline.entries) expect(about).toContain(`id="${e.id}"`);
+    for (const n of content.notes) expect(about).toContain(`id="note-${n.slug}"`);
   });
 
   it("carries no Matrix styling or scripts", () => {

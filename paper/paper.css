@@ -168,8 +168,6 @@ main > *,
 .sec > *,
 .timeline,
 .entry,
-.pets,
-.pet,
 .post {
   grid-column: 1 / -1;
 }
@@ -179,8 +177,6 @@ main > *,
 .sec-head,
 .timeline,
 .entry,
-.pets,
-.pet,
 .colophon,
 .post {
   display: grid;
@@ -659,48 +655,6 @@ html:not(.js) .runhead {
   border-left: 1px solid var(--hairline);
 }
 
-/* ── Pet projects ──────────────────────────────────────────────────────── */
-
-.pets {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pet {
-  align-items: baseline;
-  padding: 0.9rem 0;
-  border-top: 1px solid var(--hairline);
-}
-
-.pet:last-child {
-  border-bottom: 1px solid var(--hairline);
-}
-
-.pet-year {
-  grid-column: date;
-  justify-self: end;
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.2rem;
-  color: var(--ink-2);
-}
-
-.pet-main {
-  grid-column: text / -1;
-}
-
-.pet-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.pet-summary {
-  margin: 0.1rem 0 0.25rem;
-  color: var(--ink-2);
-}
-
 /* ── Colophon ──────────────────────────────────────────────────────────── */
 
 .colophon {
@@ -980,10 +934,6 @@ html:not(.js) .runhead {
     border-radius: 8px;
   }
 
-  .pet-year {
-    justify-self: start;
-  }
-
   .skills ul {
     display: flex;
     flex-wrap: wrap;
@@ -1072,7 +1022,6 @@ html:not(.js) .runhead {
   }
 
   .entry,
-  .pet,
   .fig {
     break-inside: avoid;
   }
