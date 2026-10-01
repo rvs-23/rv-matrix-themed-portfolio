@@ -147,8 +147,9 @@ function thumbHtml(e, ctx) {
       ? loadFigureSvg(ctx.figuresDir, e.thumb, `entries.${e.id}`)
       : dataFigureSvg(e.thumb);
   const art = svg.replace("<svg", '<svg aria-hidden="true" focusable="false"');
-  return e.walkthrough
-    ? `<a class="thumb" href="${esc(e.walkthrough)}" tabindex="-1" aria-hidden="true">${art}</a>`
+  const href = e.walkthrough ?? e.repo;
+  return href
+    ? `<a class="thumb" href="${esc(href)}" tabindex="-1" aria-hidden="true">${art}</a>`
     : `<div class="thumb" aria-hidden="true">${art}</div>`;
 }
 
@@ -156,9 +157,9 @@ function thumbHtml(e, ctx) {
 function walkLink(e) {
   if (!e.walkthrough) return "";
   const external = e.walkthrough.startsWith("https://");
-  const label = e.kind === "writing" ? "Read" : "Walkthrough";
-  const where = external ? (/medium\.com|faun\.pub/.test(e.walkthrough) ? " on Medium" : "") : "";
-  return `<a class="walk" href="${esc(e.walkthrough)}"${external ? ' rel="noopener"' : ""}>${label}${where} ${external ? "↗" : "→"}</a>`;
+  const medium = external && /medium\.com|faun\.pub/.test(e.walkthrough);
+  const label = medium ? "Read on Medium" : e.kind === "writing" ? "Read" : "Walkthrough";
+  return `<a class="walk" href="${esc(e.walkthrough)}"${external ? ' rel="noopener"' : ""}>${label} ${external ? "↗" : "→"}</a>`;
 }
 
 function entryLinks(e) {
@@ -171,7 +172,9 @@ const titleHtml = (e, ctx) => renderInline(e.title, { file: `entries.${e.id}`, f
 /** One event in a column. A main event (a role, a degree) carries a logo, a
  *  larger title and its skills; the rest are a compact title and a line. */
 function eventHtml(e, ctx) {
-  const title = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${titleHtml(e, ctx)}</a>` : titleHtml(e, ctx);
+  // The title opens the entry's depth: its walkthrough or article, else its code.
+  const href = e.walkthrough ?? e.repo;
+  const title = href ? `<a href="${esc(href)}"${href.startsWith("https://") ? ' rel="noopener"' : ""}>${titleHtml(e, ctx)}</a>` : titleHtml(e, ctx);
   // Short notes open in place; everything else is one line plus a link.
   const inlineNote = e.note?.inline
     ? `<details class="note-inline"><summary>Read it here</summary><div class="prose">${md(e.note.body, ctx, `notes/${e.note.file}`)}</div></details>`

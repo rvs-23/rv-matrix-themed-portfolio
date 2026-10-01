@@ -91,23 +91,6 @@
       "draft": true
     },
     {
-      "id": "one-to-one-classes",
-      "kind": "project",
-      "start": "2025-06",
-      "end": "present",
-      "label": "Teaching",
-      "title": "One-to-one classes: ML, then building with AI",
-      "summary": "Live classes for one student: Python, statistics and machine-learning foundations, and since June 2026 building real things with AI, then reading and fixing them without it.",
-      "skills": [
-        "Python",
-        "Statistics",
-        "Machine learning",
-        "Curriculum design"
-      ],
-      "repo": "https://github.com/rvs-23/becoming-ai-builder",
-      "draft": true
-    },
-    {
       "id": "this-site",
       "kind": "project",
       "start": "2025-05",
@@ -266,7 +249,6 @@
         "Flask",
         "Heroku"
       ],
-      "walkthrough": "/about/customer-prioritization/",
       "repo": "https://github.com/rvs-23/customer_prioritization_packt",
       "draft": true
     },
@@ -274,7 +256,7 @@
       "id": "exam-precision",
       "kind": "project",
       "start": "2021-06",
-      "label": "Pet project · Medium",
+      "label": "Writing · Medium",
       "title": "Accuracy and precision, in an entrance exam",
       "summary": "Accuracy, precision and recall explained through how a multiple-choice exam is scored.",
       "skills": [
@@ -283,14 +265,13 @@
         "Classification metrics"
       ],
       "walkthrough": "https://rvs.medium.com/how-do-accuracy-and-precision-scores-impact-your-entrance-exam-rank-2410f653b0fe",
-      "repo": "https://github.com/rvs-23/Accuracy_Precision_EExam",
       "draft": true
     },
     {
       "id": "handwriting-mimic",
       "kind": "project",
       "start": "2021-05",
-      "label": "Pet project · Medium",
+      "label": "Writing · Medium",
       "title": "Python that writes my signature",
       "summary": "Points traced from a signature, joined with spline and Bézier interpolation, and animated stroke by stroke.",
       "skills": [
@@ -300,7 +281,6 @@
         "Animation"
       ],
       "walkthrough": "https://faun.pub/can-i-make-python-replicate-my-signature-65241e719eb1",
-      "repo": "https://github.com/rvs-23/HandwritingMimic",
       "draft": true
     },
     {
