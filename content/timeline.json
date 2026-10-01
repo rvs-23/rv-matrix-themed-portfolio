@@ -1,0 +1,305 @@
+{
+  "site": {
+    "name": "Rishav Sharma",
+    "motto": "I like to teach. I like to build.",
+    "dek": "Teacher, Palantir & AIP Engineer, Data Scientist",
+    "intro": "I hate randomness. I teach people to build on Palantir Foundry, and I like turning intuition into something you can measure. Away from the screen it's guitar and John Mayer, chess, GeoGuessr, and the occasional attempt at stand-up.",
+    "description": "Rishav Sharma — teacher, data scientist, Palantir & AIP engineer. Work, study and projects, with walkthroughs.",
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/rvs-23"
+      },
+      {
+        "label": "LinkedIn",
+        "href": "https://www.linkedin.com/in/rishav-sharma-23rvs"
+      },
+      {
+        "label": "Medium",
+        "href": "https://medium.com/@rvs"
+      },
+      {
+        "label": "Email",
+        "href": "mailto:23rishavsharma@gmail.com"
+      },
+      {
+        "label": "CV",
+        "href": "https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing"
+      }
+    ],
+    "draft": true
+  },
+  "entries": [
+    {
+      "id": "ontologize",
+      "kind": "work",
+      "start": "2025-08",
+      "end": "present",
+      "label": "Ontologize",
+      "title": "Palantir instructor & engineer",
+      "summary": "I teach Palantir Foundry and build with it: ontologies, pipelines and the applications on top.",
+      "logo": "ontologize.svg",
+      "skills": [
+        "Palantir Foundry",
+        "Ontology",
+        "Pipeline Builder",
+        "Workshop",
+        "AIP",
+        "Teaching"
+      ],
+      "draft": true,
+      "main": true
+    },
+    {
+      "id": "hisaab-tracker",
+      "kind": "project",
+      "start": "2026-06",
+      "label": "Pet project",
+      "title": "Hisaab, a finances tracker",
+      "summary": "A local app for two people that replaced a finance spreadsheet and answers one question: did we invest what the plan said this year?",
+      "skills": [
+        "Python",
+        "Streamlit",
+        "pytest"
+      ],
+      "repo": "https://github.com/rvs-23/hisaab-tracker",
+      "draft": true
+    },
+    {
+      "id": "rv-markdown-paper",
+      "kind": "project",
+      "start": "2026-04",
+      "label": "Pet project",
+      "title": "rv-markdown-paper",
+      "summary": "Markdown in, a print-quality PDF out, with a fixed editorial design.",
+      "thumb": {
+        "type": "pipeline",
+        "steps": [
+          "input.md",
+          "syntax tree",
+          "Typst",
+          "PDF"
+        ]
+      },
+      "skills": [
+        "TypeScript",
+        "unified / remark",
+        "Typst"
+      ],
+      "walkthrough": "/rv-markdown-paper/",
+      "repo": "https://github.com/rvs-23/rv-markdown-paper",
+      "draft": true
+    },
+    {
+      "id": "this-site",
+      "kind": "project",
+      "start": "2025-05",
+      "label": "Pet project",
+      "title": "Matrix terminal",
+      "summary": "A command line over falling-code rain, in plain JavaScript. It is still here, at /matrix.",
+      "thumb": "rain.svg",
+      "skills": [
+        "JavaScript",
+        "Canvas 2D",
+        "CSS",
+        "Vite"
+      ],
+      "walkthrough": "/this-site/",
+      "repo": "https://github.com/rvs-23/rv-portfolio-matrix",
+      "draft": true
+    },
+    {
+      "id": "swiss-re-promotion",
+      "kind": "work",
+      "start": "2024-10",
+      "end": "2025-08",
+      "label": "Swiss Re GBS",
+      "title": "Data Science Specialist II",
+      "summary": "Promoted after two years. Data-science and language-model pipelines on Palantir Foundry for underwriting, operations and finance; underwriters about 30% more productive.",
+      "logo": "swissre.svg",
+      "skills": [
+        "Palantir Foundry",
+        "Python",
+        "PySpark",
+        "TypeScript",
+        "SQL",
+        "LLMs"
+      ],
+      "draft": true,
+      "main": true,
+      "under": "swiss-re"
+    },
+    {
+      "id": "nebula",
+      "kind": "work",
+      "start": "2024-02",
+      "end": "2025",
+      "label": "Swiss Re",
+      "title": "Nebula, a retrieval assistant",
+      "summary": "Answers from news, filings and financial documents; underwriter research went from days to minutes.",
+      "walkthrough": "/nebula/",
+      "thumb": "rag.svg",
+      "logo": "swissre.svg",
+      "skills": [
+        "Python",
+        "TypeScript",
+        "RAG",
+        "Semantic search",
+        "Palantir AIP"
+      ],
+      "draft": true,
+      "under": "swiss-re"
+    },
+    {
+      "id": "loss-ratio-hotspots",
+      "kind": "work",
+      "start": "2023",
+      "end": "2024",
+      "label": "Swiss Re",
+      "title": "Loss-ratio hotspots",
+      "summary": "A model of portfolio losses, explained with SHAP, that pointed at the drivers; loss ratios fell 5%.",
+      "walkthrough": "/loss-ratio-hotspots/",
+      "thumb": "shap.svg",
+      "logo": "swissre.svg",
+      "skills": [
+        "Python",
+        "scikit-learn",
+        "SHAP",
+        "Pandas"
+      ],
+      "draft": true,
+      "under": "swiss-re"
+    },
+    {
+      "id": "swiss-re",
+      "kind": "work",
+      "start": "2022-10",
+      "end": "2024-10",
+      "label": "Swiss Re GBS",
+      "title": "Data Scientist I",
+      "summary": "Joined Swiss Re's Global Business Solutions as a data scientist, building on Palantir Foundry.",
+      "logo": "swissre.svg",
+      "draft": true,
+      "main": true
+    },
+    {
+      "id": "songs-database",
+      "kind": "project",
+      "start": "2022-01",
+      "label": "Pet project · Medium",
+      "title": "A database of every song I have heard",
+      "summary": "Years of listening history from Google Takeout, cleaned into a song database, with a word-cloud animation.",
+      "skills": [
+        "Python",
+        "Pandas",
+        "Google Takeout",
+        "Word clouds"
+      ],
+      "walkthrough": "https://rvs.medium.com/how-to-build-a-database-of-all-the-songs-you-have-ever-heard-using-python-b34dfd4f5f3d",
+      "repo": "https://github.com/rvs-23/SongsDatabase",
+      "draft": true
+    },
+    {
+      "id": "delhi",
+      "kind": "study",
+      "start": "2020-08",
+      "end": "2022-05",
+      "label": "University of Delhi · Hindu College",
+      "title": "Master of Operational Research",
+      "summary": "The mathematics of deciding under constraints: optimisation, queues, simulation and forecasting.",
+      "logo": "hindu-college.png",
+      "skills": [
+        "Optimisation",
+        "Simulation",
+        "Queueing theory",
+        "Forecasting"
+      ],
+      "draft": true,
+      "main": true
+    },
+    {
+      "id": "code-young",
+      "kind": "work",
+      "start": "2020-11",
+      "end": "2021-12",
+      "label": "Code-Young",
+      "title": "Python instructor",
+      "summary": "About 750 hours of live Python lessons for 25 students in India, the US and the UAE.",
+      "logo": "codeyoung.png",
+      "skills": [
+        "Python",
+        "Curriculum design",
+        "Assessment"
+      ],
+      "draft": true
+    },
+    {
+      "id": "customer-prioritization",
+      "kind": "project",
+      "start": "2021-10",
+      "label": "Pet project · Packt",
+      "title": "Customer prioritization",
+      "summary": "Rank trial users by how likely they are to buy, so sales calls 83% fewer people.",
+      "thumb": "boundary.svg",
+      "logo": "packt.png",
+      "skills": [
+        "Python",
+        "scikit-learn",
+        "SGD",
+        "Flask",
+        "Heroku"
+      ],
+      "repo": "https://github.com/rvs-23/customer_prioritization_packt",
+      "draft": true
+    },
+    {
+      "id": "exam-precision",
+      "kind": "project",
+      "start": "2021-06",
+      "label": "Writing · Medium",
+      "title": "Accuracy and precision, in an entrance exam",
+      "summary": "Accuracy, precision and recall explained through how a multiple-choice exam is scored.",
+      "skills": [
+        "Statistics",
+        "Python",
+        "Classification metrics"
+      ],
+      "walkthrough": "https://rvs.medium.com/how-do-accuracy-and-precision-scores-impact-your-entrance-exam-rank-2410f653b0fe",
+      "draft": true,
+      "tag": "Explainer"
+    },
+    {
+      "id": "handwriting-mimic",
+      "kind": "project",
+      "start": "2021-05",
+      "label": "Writing · Medium",
+      "title": "Python that writes my signature",
+      "summary": "Points traced from a signature, joined with spline and Bézier interpolation, and animated stroke by stroke.",
+      "skills": [
+        "Python",
+        "OpenCV",
+        "Interpolation",
+        "Animation"
+      ],
+      "walkthrough": "https://faun.pub/can-i-make-python-replicate-my-signature-65241e719eb1",
+      "draft": true
+    },
+    {
+      "id": "osmania",
+      "kind": "study",
+      "start": "2017-05",
+      "end": "2020-05",
+      "label": "Osmania University · Bhavans College",
+      "title": "B.Sc. in mathematics, statistics and computer science",
+      "summary": "Three subjects side by side, which is close to the recipe for data science.",
+      "logo": "osmania.png",
+      "skills": [
+        "Mathematics",
+        "Statistics",
+        "Computer science"
+      ],
+      "draft": true,
+      "main": true
+    }
+  ]
+}

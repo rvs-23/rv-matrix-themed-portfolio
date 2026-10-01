@@ -218,8 +218,9 @@ export const help = {
     { cmd: "skilltree [path]", display: "skilltree [path]", desc: "Explore skills. E.g., `skilltree se`." },
     { cmd: "hobbies", display: "hobbies", desc: "List my hobbies and interests." },
     { cmd: "contact", display: "contact", desc: "Show contact information." },
-    { cmd: "mission", display: "mission", desc: "Recruiter dossier — profile summary and quick links." },
     { cmd: "download cv", display: "download cv", desc: "Download my CV." },
+    { cmd: "about", display: "about", desc: "The plain, readable version of this site." },
+    { cmd: "notes", display: "notes", desc: "Recent notes and primers." },
     // Customization
     {
       cmd: "theme <name>",
@@ -325,10 +326,11 @@ export const ask = {
   routes: [
     { keywords: ["who", "about", "yourself", "name", "rishav"], command: "whoami" },
     { keywords: ["skill", "tech", "stack", "python", "ml", "language", "tool", "framework"], command: "skills" },
-    { keywords: ["project", "built", "build", "made", "work", "experience", "done"], command: "mission" },
-    { keywords: ["contact", "reach", "email", "hire", "touch", "connect", "linkedin"], command: "contact" },
+    { keywords: ["project", "built", "build", "made", "work", "experience", "done"], command: "whoami" },
+    { keywords: ["contact", "reach", "email", "touch", "connect", "linkedin"], command: "contact" },
     { keywords: ["hobby", "hobbies", "interest", "fun", "music", "guitar"], command: "hobbies" },
     { keywords: ["resume", "cv", "download"], command: "download cv" },
+    { keywords: ["blog", "note", "notes", "writing", "article", "post", "primer"], command: "notes" },
     { keywords: ["rain", "matrix", "animation", "background"], command: "rain" },
     { keywords: ["theme", "color", "colour", "dark", "look"], command: "theme" },
   ],

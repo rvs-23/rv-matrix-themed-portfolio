@@ -4,6 +4,7 @@
  * Imports individual command modules and aggregates them.
  */
 
+import aboutCommand from "./about.js";
 import askCommand from "./ask.js";
 import bluepillCommand from "./bluepill.js";
 import clearCommand from "./clear.js";
@@ -15,8 +16,8 @@ import eeCommand from "./ee.js";
 import helpCommand from "./help.js";
 import hobbiesCommand from "./hobbies.js";
 import manCommand from "./man.js";
-import missionCommand from "./mission.js";
 import nospoonCommand from "./nospoon.js";
+import notesCommand from "./notes.js";
 import rainCommand from "./rain.js";
 import redpillCommand from "./redpill.js";
 import resetCommand from "./reset.js";
@@ -57,8 +58,8 @@ export function getAllCommands() {
     skilltree: skillTreeCommand,
     hobbies: hobbiesCommand,
     contact: contactCommand,
-    mission: missionCommand,
-    hire: missionCommand,
+    about: aboutCommand,
+    notes: notesCommand,
 
     // Utility
     help: helpCommand,

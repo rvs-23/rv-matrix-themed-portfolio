@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" role="img" aria-label="Documents are searched, the top passages and the question go to a language model, which answers citing them" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+<rect class="d" pathLength="1" x="34" y="48" width="76" height="92" rx="2"/>
+<rect class="d" pathLength="1" x="27" y="55" width="76" height="92" rx="2"/>
+<rect class="d" pathLength="1" x="20" y="62" width="76" height="92" rx="2"/>
+<path class="d soft" pathLength="1" d="M30 80H84"/>
+<path class="d soft" pathLength="1" d="M30 92H84"/>
+<path class="d soft" pathLength="1" d="M30 104H84"/>
+<path class="d soft" pathLength="1" d="M30 116H84"/>
+<path class="d soft" pathLength="1" d="M30 128H84"/>
+<path class="d soft" pathLength="1" d="M30 140H84"/>
+<text class="fig-label" x="58" y="184" text-anchor="middle">documents</text>
+<path class="d" pathLength="1" d="M112 108L158 108"/><path class="d" pathLength="1" d="M151.7 111.0L158 108L151.7 105.0"/>
+<circle class="d" pathLength="1" cx="190" cy="103" r="18"/><path class="d" pathLength="1" d="M203 116L217 130"/>
+<text class="fig-label" x="192" y="184" text-anchor="middle">search</text>
+<path class="d" pathLength="1" d="M228 108L272 108"/><path class="d" pathLength="1" d="M265.7 111.0L272 108L265.7 105.0"/>
+<rect class="d" pathLength="1" x="282" y="82" width="70" height="11" rx="1.5"/>
+<rect class="fill" x="282" y="82" width="46" height="11" rx="1.5"/>
+<rect class="d" pathLength="1" x="282" y="103" width="70" height="11" rx="1.5"/>
+<rect class="d" pathLength="1" x="282" y="124" width="70" height="11" rx="1.5"/>
+<text class="fig-label" x="317" y="184" text-anchor="middle">top passages</text>
+<path class="d" pathLength="1" d="M362 108L400 108"/><path class="d" pathLength="1" d="M393.7 111.0L400 108L393.7 105.0"/>
+<text class="fig-label" x="442" y="22" text-anchor="middle">question</text>
+<path class="d" pathLength="1" d="M442 32L442 70"/><path class="d" pathLength="1" d="M439.0 63.7L442 70L445.0 63.7"/>
+<rect class="d" pathLength="1" x="404" y="76" width="76" height="64" rx="6"/>
+<text class="fig-label" x="442" y="112" text-anchor="middle">model</text>
+<path class="d" pathLength="1" d="M486 108L516 108"/><path class="d" pathLength="1" d="M509.7 111.0L516 108L509.7 105.0"/>
+<text class="fig-label" x="524" y="104" text-anchor="start">answer</text>
+<text class="fig-note" x="524" y="124" text-anchor="start">[1] [3]</text>
+</svg>

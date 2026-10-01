@@ -210,6 +210,7 @@ loop = (timestamp) => {
 
 ```mermaid
 flowchart LR
+    %% caption: One frame of the rain, sixty times a second.
     A[Frame begins] --> B[Decay grid brightness]
     B --> C[Mutate some glyphs]
     C --> D[Step each stream, light its head]
@@ -241,6 +242,7 @@ into a preset, and a new preset needs no code at all.
 
 ```mermaid
 flowchart TD
+    %% caption: The boot sequence in js/main.js.
     A[Fetch rain.json + content JSON] --> B[Build commandContext]
     B --> C[Init terminal: wire input, print welcome]
     C --> D[Start rain engine]
@@ -281,4 +283,4 @@ Hints only.
    glow before editing.)
 
 For the full list of rain parameters and their ranges, see the parameter table in
-the [README](../README.md#rain-parameters).
+the [terminal guide](../matrix.md#rain-parameters).

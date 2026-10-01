@@ -133,7 +133,7 @@ export function initializeTerminalController(
   });
 
   displayInitialWelcomeMessage(true);
-  renderCommandChips();
+  renderCommandChips(Boolean(config.paperIndex));
   document.body.classList.remove("terminal-hidden");
 
   reapplyTerminalSize();
@@ -217,10 +217,12 @@ export function setInputLocked(locked) {
 }
 
 /** Render clickable command chips above the input for quick discovery. */
-function renderCommandChips() {
+function renderCommandChips(paperPublished = false) {
   const host = document.getElementById("command-chips");
   if (!host) return;
-  const chips = ["whoami", "skills", "contact", "mission", "rain", "help"];
+  const chips = paperPublished
+    ? ["about", "whoami", "skills", "contact", "rain", "help"]
+    : ["whoami", "skills", "contact", "rain", "help"];
   host.replaceChildren();
   for (const cmd of chips) {
     const btn = document.createElement("button");

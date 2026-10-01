@@ -1,0 +1,1055 @@
+/*
+ * paper/paper.css — the paper site (/about + notes).
+ * Fonts borrowed from rv-markdown-paper; a single ink on white. Layout is three columns — date · text · rail — collapsing
+ * to one below 62rem; the home page's timeline uses their full width. Nothing here is shared with the terminal's style.css.
+ */
+
+/* ── Fonts ─────────────────────────────────────────────────────────────── */
+
+@font-face { font-family: "Archivo"; font-weight: 300; font-display: swap; src: url("./fonts/Archivo-Light.woff2") format("woff2"); }
+@font-face { font-family: "Archivo"; font-weight: 400; font-display: swap; src: url("./fonts/Archivo-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Archivo"; font-weight: 400; font-style: italic; font-display: swap; src: url("./fonts/Archivo-Italic.woff2") format("woff2"); }
+@font-face { font-family: "Archivo"; font-weight: 600; font-display: swap; src: url("./fonts/Archivo-SemiBold.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Serif"; font-display: swap; src: url("./fonts/InstrumentSerif-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Instrument Serif"; font-style: italic; font-display: swap; src: url("./fonts/InstrumentSerif-Italic.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-display: swap; src: url("./fonts/JetBrainsMono-Regular.woff2") format("woff2"); }
+
+/* ── Tokens ────────────────────────────────────────────────────────────── */
+
+:root {
+  --paper: #fff;
+  --ink: #11131a;
+  --ink-2: #2a2d36;
+  --ink-3: #464952;
+  --muted: #5f636c;
+  --mute-2: #8b8e97; /* large numerals only — too light for small text */
+  --hairline: #d9d9d7;
+  --surface: #f3f3f2;
+
+  --sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --date: 9.5rem;
+  --text: 35rem;
+  --rail: 13rem;
+  --gap: 2.5rem;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body.paper {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: clamp(1rem, 0.95rem + 0.22vw, 1.0625rem);
+  line-height: 1.5;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Jump targets clear the sticky running header. */
+[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--hairline);
+  transition: text-decoration-color 0.15s;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+}
+
+.skip:focus {
+  left: 1rem;
+  top: 0.5rem;
+  z-index: 10;
+  background: var(--paper);
+  padding: 0.25rem 0.5rem;
+}
+
+/* ── Small type voices ─────────────────────────────────────────────────── */
+
+.kicker {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.draft-tag {
+  display: inline-block;
+  margin-left: 0.6em;
+  padding: 0 0.4em;
+  border: 1px dashed var(--muted);
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  vertical-align: 0.2em;
+}
+
+/* What kind of piece an entry is ("Explainer"), boxed in solid ink. */
+.tag {
+  display: inline-block;
+  margin-right: 0.5em;
+  padding: 0 0.4em;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+}
+
+.preview-banner {
+  margin: 0;
+  padding: 0.35rem 1rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ── Grid ──────────────────────────────────────────────────────────────── */
+
+/* Every block spans all three columns and passes them down (subgrid), so a
+ * year, a paragraph and its margin note line up across the whole page. */
+main,
+.runhead {
+  display: grid;
+  grid-template-columns:
+    [date-start] var(--date)
+    [date-end text-start] minmax(0, var(--text))
+    [text-end rail-start] var(--rail)
+    [rail-end];
+  column-gap: var(--gap);
+  justify-content: center;
+  padding-inline: 1.25rem;
+}
+
+main > *,
+.sec > *,
+.post {
+  grid-column: 1 / -1;
+}
+
+.masthead,
+.sec,
+.colophon,
+.post {
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.masthead > *,
+.colophon > *,
+.post > * {
+  grid-column: text;
+}
+
+/* The home page's timeline is as wide as all three columns, centred on its
+ * line; the header and footer share its left edge. */
+.home .masthead > *,
+.home .colophon > * {
+  grid-column: 1 / -1;
+}
+
+.home .runhead-name {
+  grid-column: date-start / text-end;
+}
+
+/* ── Running header ────────────────────────────────────────────────────── */
+
+.runhead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  align-items: baseline;
+  padding-block: 0.8rem 0.7rem;
+  background: var(--paper);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.runhead.is-stuck,
+html:not(.js) .runhead {
+  border-bottom-color: var(--hairline);
+}
+
+.runhead-name {
+  grid-column: text;
+  grid-row: 1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  letter-spacing: -0.005em;
+}
+
+.runhead-sec {
+  grid-column: rail;
+  grid-row: 1;
+  justify-self: end;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.runhead-links {
+  grid-column: text / -1;
+  grid-row: 2;
+  justify-self: end;
+  white-space: nowrap;
+  margin: 0.25rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-align: right;
+}
+
+.runhead-links .sep {
+  margin: 0 0.2em;
+  color: var(--hairline);
+}
+
+/* ── Masthead ──────────────────────────────────────────────────────────── */
+
+.masthead {
+  padding-block: clamp(2.5rem, 6vw, 4.25rem) 0;
+}
+
+.name {
+  margin: 0.9rem 0 0;
+  font-size: clamp(2.2rem, 1.3rem + 3.9vw, 4.1rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.dek {
+  margin: 0.8rem 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
+  line-height: 1.2;
+  color: var(--ink-2);
+}
+
+.motto {
+  margin: 0.8rem 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.roles {
+  margin: 0.7rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.links {
+  margin: 1rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.links .sep {
+  margin: 0 0.25em;
+  color: var(--hairline);
+}
+
+.intro {
+  max-width: 44rem;
+  margin-top: 1.4rem;
+  color: var(--ink-2);
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────── */
+
+.sec {
+  padding-top: clamp(2.5rem, 5vw, 3.75rem);
+}
+
+/* ── Timeline ──────────────────────────────────────────────────────────── */
+
+/* One line down the middle with the years on it. Work hangs on its left and
+ * reads toward it; projects and learning hang on its right. */
+.tl {
+  --year: 5.5rem;
+  --arm: calc(var(--gap) + var(--year) / 2); /* an event's edge to the line */
+}
+
+.tl-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--year) minmax(0, 1fr);
+  column-gap: var(--gap);
+}
+
+.tl-row > * {
+  grid-row: 1;
+}
+
+.tl-work,
+.tl-top .kicker:first-child {
+  grid-column: 1;
+  text-align: right;
+}
+
+.tl-side,
+.tl-top .kicker:last-child {
+  grid-column: 3;
+}
+
+.tl-top .kicker {
+  padding-bottom: 0.9rem;
+  color: var(--ink);
+}
+
+/* Each column names itself only when the columns stack (below). */
+.tl-label {
+  display: none;
+}
+
+.tl-year {
+  grid-column: 2;
+  position: relative;
+  margin: 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--ink-2);
+}
+
+.tl-year::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  background: var(--ink);
+}
+
+/* The year sits on the line and breaks it. */
+.tl-year span {
+  position: relative;
+  display: inline-block;
+  padding: 0.3rem 0 0.4rem;
+  background: var(--paper);
+}
+
+/* Events start below the year, so their arms never cross it. */
+.tl-col {
+  position: relative;
+  padding: 2.9rem 0 1.6rem;
+}
+
+.ev {
+  --node-y: 0.5rem;
+  position: relative;
+}
+
+.ev + .ev {
+  margin-top: 1.5rem;
+}
+
+/* Headline level: a role or a degree, with its logo beside the line. */
+.ev-main {
+  --node-y: 1.5rem;
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  column-gap: 0.9rem;
+  align-items: start;
+}
+
+.tl-work .ev-main {
+  grid-template-columns: minmax(0, 1fr) 3rem;
+}
+
+.tl-work .ev-main .logo {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tl-work .ev-main .ev-body {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* A node on the line, and a hairline arm reaching back to the event. */
+.ev::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--node-y) - 0.5px);
+  width: calc(var(--arm) - 0.75rem);
+  height: 1px;
+  background: var(--hairline);
+}
+
+.ev-main::before {
+  background: var(--ink);
+}
+
+.tl-work .ev::before { right: calc(-1 * var(--arm)); }
+.tl-side .ev::before { left: calc(-1 * var(--arm)); }
+
+.node {
+  --r: 4.5px;
+  position: absolute;
+  top: calc(var(--node-y) - var(--r));
+  width: calc(2 * var(--r));
+  height: calc(2 * var(--r));
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px var(--paper);
+}
+
+.ev-main .node {
+  --r: 7.5px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.tl-work .node { right: calc(-1 * var(--arm) - var(--r)); }
+.tl-side .node { left: calc(-1 * var(--arm) - var(--r)); }
+
+.ev .kicker {
+  font-size: 0.64rem;
+}
+
+.ev-title {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.ev-main .ev-title {
+  font-size: 1.4rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.ev-when {
+  margin: 0.2rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.ev-summary {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.ev-main .ev-summary {
+  font-size: 1rem;
+  color: var(--ink-2);
+}
+
+.ev .thumb {
+  max-width: 19rem;
+  margin-top: 0.7rem;
+}
+
+.tl-work .thumb {
+  margin-left: auto;
+}
+
+.entry-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1rem;
+  row-gap: 0.2rem;
+  margin: 0.35rem 0 0;
+}
+
+.tl-work .entry-links {
+  justify-content: flex-end;
+}
+
+.logo {
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.4rem;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+}
+
+.skills {
+  margin: 0.55rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+.skills .sep {
+  color: var(--mute-2);
+}
+
+.post-head .skills {
+  margin-top: 0.9rem;
+}
+
+/* ── Margin notes ──────────────────────────────────────────────────────── */
+
+.margin-note {
+  margin: 0 0 1rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.margin-note p {
+  margin: 0;
+}
+
+.margin-term {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Inside running prose (notes), a margin note floats out into the rail. */
+.prose .margin-note {
+  float: right;
+  clear: right;
+  width: var(--rail);
+  margin-right: calc(-1 * (var(--rail) + var(--gap)));
+}
+
+/* ── Figures ───────────────────────────────────────────────────────────── */
+
+.fig {
+  margin: 1.75rem 0 2rem;
+}
+
+.fig-art {
+  color: var(--ink);
+}
+
+.fig-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.fig-art text {
+  stroke: none;
+  fill: currentColor;
+}
+
+.fig-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.fig-note {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  fill: var(--muted) !important;
+}
+
+.fig-art .soft,
+.thumb .soft {
+  stroke: var(--hairline);
+}
+
+.fig-art .fill,
+.thumb .fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.fig figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.fig-no {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.08rem;
+  color: var(--ink-2);
+}
+
+/* Figures draw themselves in once, only when JS runs and motion is welcome. */
+.draw .fig .d,
+.draw .thumb .d {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.draw .fig.is-drawn .d,
+.draw .thumb.is-drawn .d {
+  stroke-dashoffset: 0;
+}
+
+/* Inline figure: a small version of the walkthrough's picture. */
+.thumb {
+  display: block;
+  max-width: 22rem;
+  margin: 0.9rem 0 0.2rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.thumb svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.thumb text {
+  stroke: none;
+  fill: currentColor;
+}
+
+a.thumb {
+  transition: opacity 0.15s;
+}
+
+a.thumb:hover {
+  opacity: 0.7;
+}
+
+.walk {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.note-inline {
+  margin-top: 0.4rem;
+}
+
+.note-inline summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.note-inline .prose {
+  margin-top: 0.7rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--hairline);
+}
+
+/* ── Colophon ──────────────────────────────────────────────────────────── */
+
+.colophon {
+  margin-top: clamp(4rem, 8vw, 6rem);
+  padding-block: 1.5rem 5rem;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.colophon > p {
+  margin: 0.6rem 0 0;
+}
+
+.colophon .kicker {
+  margin: 0;
+}
+
+.to-terminal {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink);
+}
+
+/* ── Posts ─────────────────────────────────────────────────────────────── */
+
+.post-head {
+  padding-block: clamp(3rem, 8vw, 6rem) 2rem;
+}
+
+.post-title {
+  margin: 0.8rem 0 0;
+  font-size: clamp(2rem, 1.5rem + 2.2vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.post-foot {
+  margin-top: 3rem;
+  padding: 1.25rem 0 5rem;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.post-foot p {
+  margin: 0.3rem 0;
+}
+
+/* ── Prose ─────────────────────────────────────────────────────────────── */
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 0 0 1em;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.2em;
+}
+
+.prose li + li {
+  margin-top: 0.3em;
+}
+
+.prose h2 {
+  margin: 2.4em 0 0.6em;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.prose h3 {
+  margin: 1.8em 0 0.5em;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+.prose code {
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+  font-size: 0.86em;
+  padding: 0.08em 0.3em;
+  background: var(--surface);
+  border-radius: 2px;
+}
+
+.prose pre {
+  margin: 1.4em 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  background: var(--surface);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* On wide screens long code may run on into the empty margin rail. */
+.post .prose pre {
+  margin-right: calc(-1 * (var(--rail) + var(--gap)));
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.prose table {
+  width: 100%;
+  margin: 1.5em 0;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.prose th {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: left;
+}
+
+.prose th,
+.prose td {
+  padding: 0.45em 0.8em 0.45em 0;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+.prose blockquote {
+  margin: 1.5em 0;
+  padding-left: 1rem;
+  border-left: 1px solid var(--ink);
+  color: var(--ink-2);
+}
+
+.prose .epigraph {
+  padding: 0;
+  border: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.55rem;
+  line-height: 1.25;
+}
+
+.prose .callout {
+  margin: 1.5em 0;
+  padding: 0.7rem 0 0.2rem;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.prose .callout::before {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.prose .callout-note::before { content: "Note"; }
+.prose .callout-tip::before { content: "Tip"; }
+.prose .callout-warning::before { content: "Careful"; }
+
+.prose hr {
+  margin: 2.5em auto;
+  width: 3rem;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.prose .sc {
+  font-style: normal;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.05em;
+}
+
+.prose .footnotes {
+  margin-top: 3em;
+  padding-top: 1em;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── One column ────────────────────────────────────────────────────────── */
+
+@media (max-width: 62rem) {
+  main,
+  .runhead {
+    grid-template-columns: [date-start text-start rail-start] minmax(0, 38rem) [date-end text-end rail-end];
+    column-gap: 0;
+  }
+
+    /* The columns stack under their year. The centre line goes; each group
+   * keeps a rail down its left edge instead. */
+  .tl {
+    --pad: 1.75rem;
+  }
+
+  .tl-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tl-row > * {
+    grid-column: 1;
+    grid-row: auto;
+    text-align: left;
+  }
+
+  .tl-top,
+  .tl-col.is-empty,
+  .tl-year::before,
+  .ev::before {
+    display: none;
+  }
+
+  .tl-year {
+    margin: 0.6rem 0 0.7rem;
+  }
+
+  .tl-year span {
+    padding: 0;
+  }
+
+  .tl-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: var(--ink);
+  }
+
+  .tl-col {
+    padding: 0 0 1.6rem var(--pad);
+  }
+
+  .tl-col::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+    background: var(--ink);
+  }
+
+  .tl-side::before {
+    background: var(--mute-2);
+  }
+
+  .tl-work .ev-main {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+
+  .tl-work .ev-main .logo { grid-column: 1; }
+  .tl-work .ev-main .ev-body { grid-column: 2; }
+  .tl-work .thumb { margin-left: 0; }
+  .tl-work .entry-links { justify-content: flex-start; }
+
+  .tl-col .node {
+    left: calc(7px - var(--pad) - var(--r));
+    right: auto;
+  }
+
+  .post .prose pre {
+    margin-right: 0;
+  }
+
+  .margin-note,
+  .prose .margin-note {
+    float: none;
+    width: auto;
+    margin: 0 0 1rem;
+    padding: 0.1rem 0 0.1rem 0.9rem;
+    border-top: 0;
+    border-left: 1px solid var(--hairline);
+  }
+
+  /* Keep figure labels legible: scroll sideways rather than shrink. */
+  .fig-art {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .fig-art svg {
+    min-width: min(calc(var(--fig-w, 0px) * 0.82), 40rem);
+  }
+}
+
+/* ── Print ─────────────────────────────────────────────────────────────── */
+
+@media print {
+  @page {
+    margin: 16mm 16mm 18mm;
+  }
+
+  body.paper {
+    background: #fff;
+    font-size: 10pt;
+  }
+
+  .runhead,
+  .preview-banner,
+  .skip,
+  .to-terminal {
+    display: none;
+  }
+
+  .ev,
+  .fig {
+    break-inside: avoid;
+  }
+
+  /* The draw-in never runs on paper: print every stroke. */
+  .fig .d {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+
+  /* Links in running text print their address; the link rows stay short. */
+  .prose a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: var(--muted);
+  }
+}
