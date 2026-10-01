@@ -21,7 +21,9 @@ if (!process.env.PAPER_PUBLISH) {
   }
 } else {
   const index = JSON.parse(read("config/content/paper.json"));
-  const pages = index.notes.filter((n) => !n.url.includes("#")).map((n) => n.url);
+  const pages = [...index.notes, ...(index.projects ?? [])]
+    .filter((n) => !n.url.includes("#"))
+    .map((n) => n.url);
   for (const url of pages) expect(has(`.${url}index.html`), `note page missing: ${url}`);
   const built = readdirSync(new URL("about/", dist), { withFileTypes: true })
     .filter((d) => d.isDirectory())

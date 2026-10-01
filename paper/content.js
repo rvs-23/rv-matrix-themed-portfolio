@@ -1,7 +1,8 @@
 /**
  * @file paper/content.js
  * Loads and validates everything the paper site renders: content/timeline.json
- * (header, work, plates, learn) and content/notes/*.md. Every problem is
+ * (header + dated entries), content/projects/*.md (walkthroughs) and
+ * content/notes/*.md (writing, which joins the timeline at render time). Every problem is
  * collected and thrown together, so one build run lists all of them.
  */
 
@@ -34,28 +35,23 @@ function checkLinks(errors, where, links) {
   });
 }
 
-function checkEntry(errors, where, e, { dated, logosDir }) {
+/** What a timeline entry can be. Writing joins from content/notes. */
+export const ENTRY_KINDS = ["work", "study", "project"];
+const PROJECT_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
+
+function checkEntry(errors, where, e, logosDir) {
   check(errors, isStr(e?.id) && /^[a-z0-9-]+$/.test(e.id), `${where}.id must be kebab-case`);
-  check(errors, isStr(e?.title), `${where}.title is required`);
-  check(errors, isStr(e?.body), `${where}.body is required`);
-  if (dated) {
-    check(errors, MONTH.test(e?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
-    check(
-      errors,
-      e?.end === undefined || e.end === "present" || MONTH.test(e.end),
-      `${where}.end must be YYYY, YYYY-MM or "present"`,
-    );
-    check(errors, isStr(e?.label), `${where}.label is required`);
+  check(errors, ENTRY_KINDS.includes(e?.kind), `${where}.kind must be one of ${ENTRY_KINDS.join(", ")}`);
+  check(errors, MONTH.test(e?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
+  check(
+    errors,
+    e?.end === undefined || e.end === "present" || MONTH.test(e.end),
+    `${where}.end must be YYYY, YYYY-MM or "present"`,
+  );
+  for (const key of ["label", "title", "summary"]) {
+    check(errors, isStr(e?.[key]), `${where}.${key} is required`);
   }
-  if (e?.figure !== undefined) {
-    const f = e.figure;
-    check(
-      errors,
-      (isStr(f?.src) && f.src.endsWith(".svg")) || f?.type === "pipeline",
-      `${where}.figure needs an .svg src or type "pipeline"`,
-    );
-    check(errors, isStr(f?.caption), `${where}.figure.caption is required`);
-  }
+  check(errors, e?.body === undefined || isStr(e.body), `${where}.body must be a non-empty string`);
   check(
     errors,
     e?.skills === undefined || (Array.isArray(e.skills) && e.skills.every(isStr)),
@@ -68,13 +64,15 @@ function checkEntry(errors, where, e, { dated, logosDir }) {
       `${where}.logo '${e.logo}' must be a file in content/logos`,
     );
   }
-  (e?.notes || []).forEach((n, i) => {
-    check(errors, isStr(n?.term) && isStr(n?.text), `${where}.notes[${i}] needs term and text`);
-  });
-  checkLinks(errors, where, e?.links);
+  // A walkthrough is either one of our pages (/about/<slug>/) or an article elsewhere.
+  check(
+    errors,
+    e?.walkthrough === undefined || /^(\/about\/[a-z0-9-]+\/|https:\/\/)/.test(e.walkthrough),
+    `${where}.walkthrough must be /about/<slug>/ or an https URL`,
+  );
+  check(errors, e?.repo === undefined || /^https:\/\//.test(e.repo), `${where}.repo must be an https URL`);
   check(errors, e?.draft === undefined || typeof e.draft === "boolean", `${where}.draft must be boolean`);
 }
-
 /** Validate the parsed timeline.json; returns it unchanged or throws. */
 export function validateTimeline(data, logosDir = "") {
   const errors = [];
@@ -83,27 +81,16 @@ export function validateTimeline(data, logosDir = "") {
   check(errors, isStr(site?.intro), "site.intro is required");
   checkLinks(errors, "site", site?.links);
 
-  for (const key of ["work", "plates"]) {
-    check(errors, Array.isArray(data?.[key]), `${key} must be an array`);
-    (data?.[key] || []).forEach((e, i) =>
-      checkEntry(errors, `${key}[${i}]`, e, { dated: key === "work", logosDir }),
-    );
-  }
-  check(errors, Array.isArray(data?.learn), "learn must be an array");
-  (data?.learn || []).forEach((q, i) => {
-    check(errors, isStr(q?.question), `learn[${i}].question is required`);
-    check(errors, isStr(q?.answer), `learn[${i}].answer is required`);
-    checkLinks(errors, `learn[${i}]`, q?.links);
-  });
+  check(errors, Array.isArray(data?.entries), "entries must be an array");
+  (data?.entries || []).forEach((e, i) => checkEntry(errors, `entries[${i}]`, e, logosDir));
 
-  const ids = [...(data?.work || []), ...(data?.plates || [])].map((e) => e?.id);
+  const ids = (data?.entries || []).map((e) => e?.id);
   const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
   check(errors, dupes.length === 0, `duplicate ids: ${dupes.join(", ")}`);
 
   if (errors.length) throw new ContentError(`timeline.json:\n  - ${errors.join("\n  - ")}`);
   return data;
 }
-
 /**
  * Parse + validate one note file. A note may borrow its body from a Markdown
  * file elsewhere in the repo (`source: primer/01-….md`), so a primer is
@@ -147,37 +134,69 @@ export function parseNote(file, raw, repoRoot) {
 }
 
 /** Load everything under `contentDir`. Notes are sorted newest first. */
+/** Parse one project walkthrough (content/projects/<slug>.md). */
+export function parseProject(file, raw) {
+  const errors = [];
+  const m = PROJECT_FILE.exec(file);
+  check(errors, m, `${file}: name must be kebab-slug.md`);
+  const { data, content } = matter(raw);
+  check(errors, isStr(data.title), `${file}: title is required`);
+  check(errors, isStr(data.summary), `${file}: summary is required`);
+  check(errors, isStr(content), `${file}: the walkthrough has no body`);
+  check(errors, data.draft === undefined || typeof data.draft === "boolean", `${file}: draft must be boolean`);
+  if (errors.length) throw new ContentError(errors.join("\n"));
+  return { file, slug: m[1], title: data.title, summary: data.summary, draft: data.draft === true, body: content };
+}
+
+function readMarkdownDir(dir, parse, errors) {
+  if (!existsSync(dir)) return [];
+  const out = [];
+  for (const f of readdirSync(dir).filter((name) => name.endsWith(".md"))) {
+    try {
+      out.push(parse(f, readFileSync(join(dir, f), "utf8")));
+    } catch (err) {
+      errors.push(err.message);
+    }
+  }
+  return out;
+}
+
+/** Load everything under `contentDir`. Notes are sorted newest first. */
 export function loadContent(contentDir) {
   const timeline = validateTimeline(
     JSON.parse(readFileSync(join(contentDir, "timeline.json"), "utf8")),
     join(contentDir, "logos"),
   );
-  const notesDir = join(contentDir, "notes");
-  const files = existsSync(notesDir)
-    ? readdirSync(notesDir).filter((f) => f.endsWith(".md"))
-    : [];
   const errors = [];
-  const notes = [];
-  for (const f of files) {
-    try {
-      notes.push(parseNote(f, readFileSync(join(notesDir, f), "utf8"), join(contentDir, "..")));
-    } catch (err) {
-      errors.push(err.message);
-    }
+  const repoRoot = join(contentDir, "..");
+  const notes = readMarkdownDir(join(contentDir, "notes"), (f, raw) => parseNote(f, raw, repoRoot), errors);
+  const projects = readMarkdownDir(join(contentDir, "projects"), parseProject, errors);
+
+  const slugs = [...notes, ...projects].map((n) => n.slug);
+  const dupes = slugs.filter((x, i) => slugs.indexOf(x) !== i);
+  if (dupes.length) errors.push(`duplicate page slugs: ${dupes.join(", ")}`);
+
+  // Every on-site walkthrough has a page, and every page is reachable.
+  const pages = new Set(projects.map((p) => `/about/${p.slug}/`));
+  const linked = new Set();
+  for (const e of timeline.entries) {
+    if (!e.walkthrough?.startsWith("/about/")) continue;
+    linked.add(e.walkthrough);
+    if (!pages.has(e.walkthrough)) errors.push(`entry '${e.id}': no content/projects page for ${e.walkthrough}`);
   }
-  const slugs = notes.map((n) => n.slug);
-  const dupes = slugs.filter((s, i) => slugs.indexOf(s) !== i);
-  if (dupes.length) errors.push(`duplicate note slugs: ${dupes.join(", ")}`);
+  for (const p of pages) if (!linked.has(p)) errors.push(`content/projects page ${p} is not linked from any entry`);
+
   if (errors.length) throw new ContentError(errors.join("\n"));
   notes.sort((a, b) => b.date.localeCompare(a.date));
-  return { timeline, notes };
+  return { timeline, notes, projects };
 }
-
 /** Every draft still in the content, for the production gate. */
-export function listDrafts({ timeline, notes }) {
-  const entries = [...timeline.work, ...timeline.plates]
-    .filter((e) => e.draft)
-    .map((e) => `entry '${e.id}'`);
+export function listDrafts({ timeline, notes, projects = [] }) {
   const site = timeline.site.draft ? ["site header"] : [];
-  return [...site, ...entries, ...notes.filter((n) => n.draft).map((n) => `note '${n.slug}'`)];
+  return [
+    ...site,
+    ...timeline.entries.filter((e) => e.draft).map((e) => `entry '${e.id}'`),
+    ...projects.filter((p) => p.draft).map((p) => `walkthrough '${p.slug}'`),
+    ...notes.filter((n) => n.draft).map((n) => `note '${n.slug}'`),
+  ];
 }

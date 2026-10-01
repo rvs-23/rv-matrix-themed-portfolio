@@ -22,6 +22,7 @@ import { loadContent, listDrafts } from "./content.js";
 import {
   aboutPage,
   notePage,
+  projectPage,
   feedXml,
   sitemapXml,
   WEIGHT_TOKEN,
@@ -51,12 +52,13 @@ export function generate({
 }) {
   if (mode === "off") {
     rmSync(outDir, { recursive: true, force: true });
-    return { files: [], notes: [], site: null };
+    return { files: [], notes: [], projects: [], site: null };
   }
 
   // Validate before touching disk: a failed run leaves the last pages intact.
   const content = loadContent(join(root, "content"));
   if (mode === "production") {
+    // Draft notes are simply left out of production; anything else blocks it.
     const drafts = listDrafts({ ...content, notes: [] });
     if (drafts.length) {
       throw new Error(`PAPER_PUBLISH=production but drafts remain: ${drafts.join(", ")}`);
@@ -70,6 +72,7 @@ export function generate({
     site: content.timeline.site,
     timeline: content.timeline,
     notes,
+    projects: content.projects,
     figuresDir: join(root, "content", "figures"),
     buildDate: buildDate.toISOString().slice(0, 10),
   };
@@ -78,18 +81,22 @@ export function generate({
   for (const note of notes.filter((n) => !n.inline)) {
     pages.push([join(outDir, note.slug, "index.html"), notePage(note, ctx)]);
   }
+  for (const project of content.projects) {
+    pages.push([join(outDir, project.slug, "index.html"), projectPage(project, ctx)]);
+  }
   for (const [file, html] of pages) {
     mkdirSync(dirname(file), { recursive: true });
     // The page weight is only known after bundling; dev shows a dash.
     writeFileSync(file, dev ? html.replace(WEIGHT_TOKEN, "—") : html);
   }
-  return { files: pages.map(([f]) => f), notes, site: ctx.site };
+  return { files: pages.map(([f]) => f), notes, projects: content.projects, site: ctx.site };
 }
 
 /** The small index the terminal's `about` / `notes` commands read. */
-export function terminalIndex(notes) {
+export function terminalIndex(notes, projects = []) {
   return {
     about: "/about/",
+    projects: projects.map((p) => ({ title: p.title, summary: p.summary, url: `/about/${p.slug}/` })),
     notes: notes.map((n) => ({
       title: n.title,
       date: n.date,
@@ -103,7 +110,7 @@ export default function paperPlugin() {
   let root;
   let mode;
   let command;
-  let result = { files: [], notes: [], site: null };
+  let result = { files: [], notes: [], projects: [], site: null };
 
   return {
     name: "paper",
@@ -149,7 +156,7 @@ export default function paperPlugin() {
         }
         if (path === "/config/content/paper.json") {
           res.setHeader("Content-Type", "application/json");
-          return res.end(JSON.stringify(terminalIndex(result.notes)));
+          return res.end(JSON.stringify(terminalIndex(result.notes, result.projects)));
         }
         next();
       });
@@ -159,8 +166,8 @@ export default function paperPlugin() {
       if (mode === "off" || command !== "build") return;
       const emit = (fileName, source) => this.emitFile({ type: "asset", fileName, source });
       emit("feed.xml", feedXml(result.notes, { site: result.site }));
-      emit("config/content/paper.json", JSON.stringify(terminalIndex(result.notes)));
-      if (mode === "production") emit("sitemap.xml", sitemapXml(result.notes));
+      emit("config/content/paper.json", JSON.stringify(terminalIndex(result.notes, result.projects)));
+      if (mode === "production") emit("sitemap.xml", sitemapXml(result.notes, result.projects));
 
       // Fill in each page's real weight: gzipped HTML + the CSS/JS it loads.
       for (const asset of Object.values(bundle)) {

@@ -168,11 +168,8 @@ main > *,
 .sec > *,
 .timeline,
 .entry,
-.notes,
-.note,
-.plates,
-.learn,
-.learn-item,
+.pets,
+.pet,
 .post {
   grid-column: 1 / -1;
 }
@@ -182,11 +179,8 @@ main > *,
 .sec-head,
 .timeline,
 .entry,
-.notes,
-.note,
-.plates,
-.learn,
-.learn-item,
+.pets,
+.pet,
 .colophon,
 .post {
   display: grid;
@@ -195,8 +189,7 @@ main > *,
 
 .masthead > *,
 .colophon > *,
-.post > *,
-.learn-item > * {
+.post > * {
   grid-column: text;
 }
 
@@ -271,6 +264,14 @@ html:not(.js) .runhead {
   font-size: 3.55em;
   line-height: 0.8;
   color: var(--ink);
+}
+
+.guide {
+  margin: 1.1rem 0 0;
+  padding: 0.75rem 0.9rem;
+  background: var(--surface);
+  font-size: 0.95rem;
+  color: var(--ink-2);
 }
 
 .now {
@@ -390,13 +391,12 @@ html:not(.js) .runhead {
 
 .entry-main {
   grid-column: text;
-  padding-bottom: 3rem;
+  padding-bottom: 1.6rem;
 }
 
-.entry-title,
-.plate-title {
-  margin: 0.35rem 0 0.6rem;
-  font-size: 1.3rem;
+.entry-title {
+  margin: 0.25rem 0 0;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.01em;
@@ -404,7 +404,8 @@ html:not(.js) .runhead {
 
 .entry-rail {
   grid-column: rail;
-  padding-top: 1.5rem;
+  padding-top: 0.2rem;
+  padding-bottom: 1.2rem;
 }
 
 /* Spine caps: "now" where it starts, an arrowhead into "earlier". */
@@ -461,32 +462,24 @@ html:not(.js) .runhead {
   border-radius: 10px;
 }
 
-/* Wordmarks keep their shape here, so the tile is as wide as the logo. */
-.plate-title .logo {
-  display: inline-block;
-  width: auto;
-  max-width: 5.5rem;
-  height: 1.9rem;
-  padding: 0.2rem;
-  margin-right: 0.55rem;
-  border-radius: 6px;
-  vertical-align: -0.4rem;
-}
-
 /* Cornell cue column: the skills each entry used. */
 .skills {
-  margin: 0 0 1rem;
+  margin: 0 0 0.6rem;
   padding-top: 0.45rem;
   border-top: 1px solid var(--ink);
 }
 
+/* Skills wrap as one compact block, so a row is as tall as its text. */
 .skills ul {
-  margin: 0.35rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.75rem;
+  margin: 0.3rem 0 0;
   padding: 0;
   list-style: none;
   font-family: var(--mono);
   font-size: 0.72rem;
-  line-height: 1.75;
+  line-height: 1.6;
   color: var(--ink-2);
 }
 
@@ -495,6 +488,10 @@ html:not(.js) .runhead {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--muted);
+}
+
+.post-head .skills-inline {
+  margin-top: 0.9rem;
 }
 
 .skills-inline .sep {
@@ -601,121 +598,107 @@ html:not(.js) .runhead {
   stroke-dashoffset: 0;
 }
 
-/* ── Plates ────────────────────────────────────────────────────────────── */
+/* ── Rows: one line of title, one of summary ─────────────────────────── */
 
-.plate {
-  grid-column: text / -1;
-  padding-bottom: 3.5rem;
+.entry-title a {
+  text-decoration-color: var(--hairline);
 }
 
-.plate .fig {
-  margin: 0 0 0.25rem;
+.entry-summary {
+  margin: 0.15rem 0 0;
+  color: var(--ink-2);
 }
 
-/* Plates after the first are separated by a hairline; the first sits under
- * the section rule already. */
-.plate + .plate .fig {
-  padding-top: 2rem;
-  border-top: 1px solid var(--hairline);
+.entry-body .prose {
+  margin-top: 0.6rem;
 }
 
-.plate .prose,
-.plate .plate-title,
-.plate .links {
-  max-width: var(--text);
+/* Glyph tile for rows with no organisation (pet projects, writing). */
+.logo.glyph {
+  display: grid;
+  place-items: center;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--ink-3);
 }
 
-/* ── Notes ─────────────────────────────────────────────────────────────── */
+.kind-project .logo.glyph {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
 
-.notes {
+.rail-links {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1rem;
+  row-gap: 0.2rem;
+}
+
+.walk {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.note-inline {
+  margin-top: 0.4rem;
+}
+
+.note-inline summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.note-inline .prose {
+  margin-top: 0.7rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--hairline);
+}
+
+/* ── Pet projects ──────────────────────────────────────────────────────── */
+
+.pets {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.note {
+.pet {
   align-items: baseline;
-  padding-bottom: 1.4rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--hairline);
 }
 
-.note > p,
-.note > details {
-  grid-column: text;
-  margin: 0;
+.pet:last-child {
+  border-bottom: 1px solid var(--hairline);
 }
 
-.note-date {
+.pet-year {
   grid-column: date;
   justify-self: end;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.note-title {
-  font-weight: 600;
-}
-
-.note-summary {
-  display: block;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.note-inline summary {
-  cursor: pointer;
-  list-style: none;
-}
-
-.note-inline summary::-webkit-details-marker {
-  display: none;
-}
-
-.note-inline summary .note-title::after {
-  content: " +";
-  font-family: var(--mono);
-  font-weight: 400;
-  color: var(--muted);
-}
-
-.note-inline[open] summary .note-title::after {
-  content: " −";
-}
-
-.note-inline .prose {
-  margin-top: 0.9rem;
-  padding-left: 1rem;
-  border-left: 1px solid var(--hairline);
-}
-
-.empty {
-  grid-column: text;
-  color: var(--muted);
-}
-
-/* ── Learn ─────────────────────────────────────────────────────────────── */
-
-.learn {
-  margin: 0;
-}
-
-.learn dt {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  color: var(--ink);
-}
-
-.learn dd {
-  margin: 0.5rem 0 2.25rem;
+  font-size: 1.2rem;
   color: var(--ink-2);
 }
 
-.learn .links {
-  margin-top: 0.5rem;
+.pet-main {
+  grid-column: text / -1;
+}
+
+.pet-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.pet-summary {
+  margin: 0.1rem 0 0.25rem;
+  color: var(--ink-2);
 }
 
 /* ── Colophon ──────────────────────────────────────────────────────────── */
@@ -997,6 +980,10 @@ html:not(.js) .runhead {
     border-radius: 8px;
   }
 
+  .pet-year {
+    justify-self: start;
+  }
+
   .skills ul {
     display: flex;
     flex-wrap: wrap;
@@ -1062,10 +1049,6 @@ html:not(.js) .runhead {
   .fig-art svg {
     min-width: min(calc(var(--fig-w, 0px) * 0.82), 40rem);
   }
-
-  .learn dt {
-    font-size: 1.3rem;
-  }
 }
 
 /* ── Print ─────────────────────────────────────────────────────────────── */
@@ -1089,9 +1072,8 @@ html:not(.js) .runhead {
   }
 
   .entry,
-  .plate,
-  .fig,
-  .learn-item {
+  .pet,
+  .fig {
     break-inside: avoid;
   }
 

@@ -1,13 +1,12 @@
 /**
  * @file paper/templates.js
- * HTML for /about, each note page, the RSS feed and the sitemap. Plain
+ * HTML for /about, note and walkthrough pages, the RSS feed and the sitemap. Plain
  * template strings: every content string is either escaped here or comes out
  * of renderMarkdown (which rejects raw HTML).
  */
 
-import { renderMarkdown, renderInline, loadFigureSvg } from "./markdown.js";
+import { renderMarkdown, renderInline } from "./markdown.js";
 import { posix } from "node:path";
-import { dataFigureSvg, figureStyle } from "./figures.js";
 
 export const SITE_URL = "https://rvs23.dev";
 const REPO_URL = "https://github.com/rvs-23/rv-matrix-themed-portfolio/blob/main";
@@ -23,16 +22,8 @@ const esc = (s) =>
     .replace(/"/g, "&quot;");
 
 const ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
-const PLATE = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 const year = (d) => d.slice(0, 4);
-
-/** "2024" / "2022 – now" style span for an entry. */
-function dateSpan(start, end) {
-  if (!end) return "";
-  if (end === "present") return "now";
-  return year(end) === year(start) ? "" : year(end);
-}
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -75,14 +66,6 @@ function skillsHtml(skills, cls = "skills") {
     return `<p class="${cls}">${skills.map(esc).join(` <span class="sep" aria-hidden="true">·</span> `)}</p>`;
   }
   return `<div class="${cls}"><p class="margin-term">Skills</p><ul>${skills.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>`;
-}
-
-function figureHtml(fig, label, ctx) {
-  const svg = fig.type ? dataFigureSvg(fig) : loadFigureSvg(ctx.figuresDir, fig.src, "timeline.json");
-  return (
-    `<figure class="fig"><div class="fig-art" style="${figureStyle(svg)}">${svg}</div>` +
-    `<figcaption><span class="fig-no">${label}</span> — ${esc(fig.caption)}</figcaption></figure>`
-  );
 }
 
 function md(src, ctx, where) {
@@ -139,92 +122,120 @@ function sectionOpen(id, no, title, extra = "") {
 
 const folio = (i) => `        <p class="folio" aria-hidden="true">— ${ROMAN[i]} —</p>\n      </section>`;
 
-function workSection(work, ctx, figNo) {
-  const years = work.map((e) => Number(year(e.start)));
-  const span = years.length ? ` <span class="kicker-span">${Math.min(...years)} — now</span>` : "";
-  const items = work.map((e) => {
-    const end = dateSpan(e.start, e.end);
-    const notes = (e.notes || [])
-      .map((n) => `<aside class="margin-note"><p class="margin-term">${esc(n.term)}</p><p>${esc(n.text)}</p></aside>`)
-      .join("");
-    const fig = e.figure ? figureHtml(e.figure, `Fig. ${++figNo.n}`, ctx) : "";
-    return `          <li class="entry" id="${esc(e.id)}">
-            <p class="entry-date"><time datetime="${esc(e.start)}">${year(e.start)}</time>${end ? `<span class="entry-end">→ ${end}</span>` : ""}</p>
-            <div class="entry-main${e.logo ? " has-logo" : ""}">
-              ${logoHtml(e)}
+const sortKey = (d) => (d.length === 4 ? `${d}-00` : d);
+
+const monthOf = (d) => (d.length > 4 ? MONTHS[Number(d.slice(5, 7)) - 1] : "");
+
+/** "Aug 2025 → now", "2024 → 2025", "May 2021": an entry's span, compactly. */
+function when(e) {
+  const fmt = (d) => (d.length > 4 ? `${monthOf(d)} ${d.slice(0, 4)}` : d);
+  if (!e.end) return fmt(e.start);
+  return `${fmt(e.start)} → ${e.end === "present" ? "now" : fmt(e.end)}`;
+}
+
+/** Under the year in the date column: just the month for a single date. */
+const whenCue = (e) => (e.end ? when(e) : monthOf(e.start));
+
+/**
+ * Everything dated, newest first: timeline.json entries plus the notes. Each
+ * row is one line of title and one of summary; depth lives on the walkthrough
+ * or note it links to.
+ */
+function timelineItems(ctx) {
+  const notes = ctx.notes.map((n) => ({
+    id: `note-${n.slug}`,
+    kind: "writing",
+    start: n.date.slice(0, 7),
+    label: n.source ? "Primer" : "Note",
+    title: n.title,
+    summary: n.summary,
+    walkthrough: n.inline ? undefined : `/about/${n.slug}/`,
+    draft: n.draft,
+    note: n,
+  }));
+  return [...ctx.timeline.entries, ...notes].sort((a, b) => sortKey(b.start).localeCompare(sortKey(a.start)));
+}
+
+/** Logo tile, or a plain glyph tile for things that have no organisation. */
+function tileHtml(e) {
+  if (e.logo) return logoHtml(e);
+  const glyph = e.kind === "writing" ? "¶" : "{ }";
+  return `<span class="logo glyph" aria-hidden="true">${glyph}</span>`;
+}
+
+/** The link that opens an entry's depth: our walkthrough, a note, or Medium. */
+function walkLink(e) {
+  if (!e.walkthrough) return "";
+  const external = e.walkthrough.startsWith("https://");
+  const label = e.kind === "writing" ? "Read" : "Walkthrough";
+  const where = external ? (/medium\.com|faun\.pub/.test(e.walkthrough) ? " on Medium" : "") : "";
+  return `<a class="walk" href="${esc(e.walkthrough)}"${external ? ' rel="noopener"' : ""}>${label}${where} ${external ? "↗" : "→"}</a>`;
+}
+
+function rowHtml(e, showYear, ctx) {
+  const title = renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
+  const titleHtml = e.walkthrough ? `<a href="${esc(e.walkthrough)}">${title}</a>` : title;
+  // Short notes still open in place; everything else is one line plus a link.
+  const inlineNote =
+    e.note?.inline
+      ? `<details class="note-inline"><summary>Read it here</summary><div class="prose">${md(e.note.body, ctx, `notes/${e.note.file}`)}</div></details>`
+      : "";
+  const code = e.repo ? `<a class="walk" href="${esc(e.repo)}" rel="noopener">Code ↗</a>` : "";
+  return `          <li class="entry kind-${e.kind}" id="${esc(e.id)}">
+            <p class="entry-date">${showYear ? `<time datetime="${esc(e.start)}">${year(e.start)}</time>` : ""}<span class="entry-end">${esc(whenCue(e))}</span></p>
+            <div class="entry-main has-logo">
+              ${tileHtml(e)}
               <div class="entry-body">
                 <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
-                <h3 class="entry-title">${renderInline(e.title, { file: `work.${e.id}`, figuresDir: ctx.figuresDir })}</h3>
-                <div class="prose">${md(e.body, ctx, `work.${e.id}`)}</div>
-                ${fig}
-                ${linksHtml(e.links)}
+                <h3 class="entry-title">${titleHtml}</h3>
+                <p class="entry-summary">${esc(e.summary)}</p>
+                ${e.body ? `<div class="prose">${md(e.body, ctx, `entries.${e.id}`)}</div>` : ""}
+                ${inlineNote}
               </div>
             </div>
-            <div class="entry-rail">${skillsHtml(e.skills)}${notes}</div>
+            <div class="entry-rail">${skillsHtml(e.skills)}${walkLink(e) || code ? `<p class="rail-links">${walkLink(e)}${code}</p>` : ""}</div>
           </li>`;
+}
+
+function timelineSection(ctx) {
+  const items = timelineItems(ctx);
+  let prevYear = "";
+  const rows = items.map((e) => {
+    const html = rowHtml(e, year(e.start) !== prevYear, ctx);
+    prevYear = year(e.start);
+    return html;
   });
+  const years = items.map((e) => Number(year(e.start)));
   // The spine reads top to bottom: "now" at the head, an arrow to "earlier".
-  return `${sectionOpen("work", 1, "Work", span)}
+  return `${sectionOpen("timeline", 1, "Timeline", ` <span class="kicker-span">${Math.min(...years)} — now · work, projects, writing</span>`)}
         <ol class="timeline">
           <li class="spine-cap spine-now" aria-hidden="true"><span>now</span></li>
-${items.join("\n")}
+${rows.join("\n")}
           <li class="spine-cap spine-earlier" aria-hidden="true"><span>earlier</span></li>
         </ol>
 ${folio(0)}`;
 }
 
-function platesSection(plates, ctx) {
-  const items = plates.map((p, i) => {
-    const fig = p.figure ? figureHtml(p.figure, `Plate ${PLATE[i]}`, ctx) : "";
-    return `          <article class="plate" id="${esc(p.id)}">
-            ${fig}
-            <h3 class="plate-title">${logoHtml(p)}${renderInline(p.title, { file: `plates.${p.id}`, figuresDir: ctx.figuresDir })}${draftTag(p, ctx)}</h3>
-            ${skillsHtml(p.skills, "skills-inline")}
-            <div class="prose">${md(p.body, ctx, `plates.${p.id}`)}</div>
-            ${linksHtml(p.links)}
-          </article>`;
-  });
-  return `${sectionOpen("plates", 2, "Plates", ` <span class="kicker-span">things built</span>`)}
-        <div class="plates">
-${items.join("\n")}
-        </div>
-${folio(1)}`;
-}
-
-function notesSection(notes, ctx) {
-  const items = notes.map((n) => {
-    const date = `<time class="note-date" datetime="${n.date}">${formatDay(n.date)}</time>`;
-    if (n.inline) {
-      return `          <li class="note" id="note-${n.slug}">${date}
-            <details class="note-inline"><summary><span class="note-title">${esc(n.title)}</span>${draftTag(n, ctx)}<span class="note-summary">${esc(n.summary)}</span></summary>
-              <div class="prose">${md(n.body, ctx, `notes/${n.file}`)}</div>
-            </details>
-          </li>`;
-    }
-    return `          <li class="note" id="note-${n.slug}">${date}
-            <p><a class="note-title" href="/about/${n.slug}/">${esc(n.title)}</a>${draftTag(n, ctx)}<span class="note-summary">${esc(n.summary)}</span></p>
-          </li>`;
-  });
-  const body = items.length
-    ? `        <ol class="notes">\n${items.join("\n")}\n        </ol>`
-    : `        <p class="empty">Nothing yet.</p>`;
-  return `${sectionOpen("notes", 3, "Notes", ` <span class="kicker-span"><a href="/feed.xml">rss</a></span>`)}
-${body}
-${folio(2)}`;
-}
-
-function learnSection(learn, ctx) {
-  const items = learn.map(
-    (q) => `          <div class="learn-item">
-            <dt>${esc(q.question)}</dt>
-            <dd><div class="prose">${md(q.answer, ctx, "learn")}</div>${linksHtml(q.links)}</dd>
-          </div>`,
+/** Pet projects, as a plain index: what it is, what it used, where to read more. */
+function projectsSection(ctx) {
+  const projects = ctx.timeline.entries
+    .filter((e) => e.kind === "project")
+    .sort((a, b) => sortKey(b.start).localeCompare(sortKey(a.start)));
+  const items = projects.map(
+    (e) => `          <li class="pet" id="pet-${esc(e.id)}">
+            <span class="pet-year">${year(e.start)}</span>
+            <div class="pet-main">
+              <h3 class="pet-title">${e.walkthrough ? `<a href="${esc(e.walkthrough)}">${esc(e.title)}</a>` : esc(e.title)}${draftTag(e, ctx)}</h3>
+              <p class="pet-summary">${esc(e.summary)}</p>
+              ${skillsHtml(e.skills, "skills-inline")}
+            </div>
+          </li>`,
   );
-  return `${sectionOpen("learn", 4, "Learn", ` <span class="kicker-span">start here</span>`)}
-        <dl class="learn">
+  return `${sectionOpen("projects", 2, "Pet projects", ` <span class="kicker-span">things built for fun</span>`)}
+        <ol class="pets">
 ${items.join("\n")}
-        </dl>
-${folio(3)}`;
+        </ol>
+${folio(1)}`;
 }
 
 function colophon(ctx) {
@@ -237,24 +248,20 @@ function colophon(ctx) {
 
 /** The /about page. */
 export function aboutPage(ctx) {
-  const { site, work, plates, learn } = ctx.timeline;
-  const figNo = { n: 0 };
-  const intro = md(site.intro, ctx, "site.intro");
-  const now = site.now
-    ? `<p class="now"><span class="kicker">Now</span> ${renderInline(site.now, { file: "site.now", figuresDir: ctx.figuresDir })}</p>`
-    : "";
+  const { site } = ctx.timeline;
+  const inline = (src, where) => renderInline(src, { file: where, figuresDir: ctx.figuresDir });
+  const now = site.now ? `<p class="now"><span class="kicker">Now</span> ${inline(site.now, "site.now")}</p>` : "";
   const body = `      <header class="masthead">
         <p class="kicker">Notebook${draftTag(site, ctx)}</p>
         <h1 class="name">${esc(site.name)}</h1>
         ${site.dek ? `<p class="dek">${esc(site.dek)}</p>` : ""}
-        <div class="prose intro">${intro}</div>
+        <div class="prose intro">${md(site.intro, ctx, "site.intro")}</div>
+        ${site.guide ? `<p class="guide">${inline(site.guide, "site.guide")}</p>` : ""}
         ${now}
         ${linksHtml(site.links, "links elsewhere")}
       </header>
-${workSection(work, ctx, figNo)}
-${platesSection(plates, ctx)}
-${notesSection(ctx.notes, ctx)}
-${learnSection(learn, ctx)}
+${timelineSection(ctx)}
+${projectsSection(ctx)}
 ${colophon(ctx)}`;
   return shell({
     title: `${site.name} — notebook`,
@@ -300,7 +307,7 @@ export function notePage(note, ctx) {
         <div class="prose">${html}</div>
         <footer class="post-foot">
           ${email ? `<p>Replies → <a href="${esc(email.href)}">email</a></p>` : ""}
-          <p><a href="/about/#notes">← All notes</a></p>
+          <p><a href="/about/#timeline">← Back to the timeline</a></p>
         </footer>
       </article>`;
   return shell({
@@ -310,6 +317,34 @@ export function notePage(note, ctx) {
     body,
     ctx,
     runhead: "Notes",
+  });
+}
+
+/** A pet project's walkthrough at /about/<slug>/. */
+export function projectPage(project, ctx) {
+  const entry = ctx.timeline.entries.find((e) => e.walkthrough === `/about/${project.slug}/`);
+  const { html } = renderMarkdown(project.body, { file: `projects/${project.file}`, figuresDir: ctx.figuresDir });
+  const links = [
+    entry?.repo && { label: "Code", href: entry.repo },
+    { label: "Back to the timeline", href: `/about/#${entry?.id ?? "timeline"}` },
+  ].filter(Boolean);
+  const body = `      <article class="post">
+        <header class="post-head">
+          <p class="kicker">Pet project · ${esc(entry ? when(entry) : "")}${draftTag(project, ctx)}</p>
+          <h1 class="post-title">${esc(project.title)}</h1>
+          <p class="dek">${esc(project.summary)}</p>
+          ${skillsHtml(entry?.skills, "skills-inline")}
+        </header>
+        <div class="prose">${html}</div>
+        <footer class="post-foot">${linksHtml(links)}</footer>
+      </article>`;
+  return shell({
+    title: `${project.title} — ${ctx.site.name}`,
+    description: project.summary,
+    path: `/about/${project.slug}/`,
+    body,
+    ctx,
+    runhead: "Pet project",
   });
 }
 
@@ -340,8 +375,13 @@ ${items}
 `;
 }
 
-export function sitemapXml(notes) {
-  const urls = ["/", "/about/", ...notes.filter((n) => !n.inline).map((n) => `/about/${n.slug}/`)];
+export function sitemapXml(notes, projects = []) {
+  const urls = [
+    "/",
+    "/about/",
+    ...projects.map((p) => `/about/${p.slug}/`),
+    ...notes.filter((n) => !n.inline).map((n) => `/about/${n.slug}/`),
+  ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${SITE_URL}${u}</loc></url>`).join("\n")}

@@ -7,14 +7,14 @@
 
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { mkdtempSync, readdirSync } from "node:fs";
+import { mkdtempSync, readdirSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { describe, expect, it } from "vitest";
 
 import { renderMarkdown, MarkdownError } from "../paper/markdown.js";
 import { parseLinearFlowchart } from "../paper/figures.js";
 import { loadContent, validateTimeline, parseNote, listDrafts } from "../paper/content.js";
-import { aboutPage, notePage } from "../paper/templates.js";
+import { aboutPage, notePage, projectPage } from "../paper/templates.js";
 import { resolveMode, generate } from "../paper/vite-plugin.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -31,7 +31,7 @@ describe("markdown dialect", () => {
   });
 
   it("inlines a figure and numbers it", () => {
-    const html = md("![Retrieve, then answer.](figures/rag.svg)");
+    const html = md("![Retrieve, then answer.](figures/boundary.svg)");
     expect(html).toMatch(/<figure class="fig"><div class="fig-art" style="--fig-w:\d+px"><svg/);
     expect(html).toContain('<span class="fig-no">Fig. 1</span> — Retrieve, then answer.');
   });
@@ -46,7 +46,7 @@ describe("markdown dialect", () => {
     ["a remote image", "![x](https://example.com/a.svg)"],
     ["an image escaping figures/", "![x](../secret.svg)"],
     ["a missing figure", "![x](figures/nope.svg)"],
-    ["an inline image", "text ![x](figures/rag.svg) text"],
+    ["an inline image", "text ![x](figures/boundary.svg) text"],
     ["a branching mermaid chart", "```mermaid\nflowchart LR\n  A --> B\n  A --> C\n```"],
   ])("rejects %s with file and line", (_what, src) => {
     expect(() => md(src)).toThrow(MarkdownError);
@@ -77,22 +77,31 @@ describe("content", () => {
   });
 
   it("collects every timeline problem at once", () => {
-    const bad = { site: {}, work: [{ id: "Bad Id", start: "May" }], plates: [], learn: [] };
+    const bad = { site: {}, entries: [{ id: "Bad Id", kind: "job", start: "May", walkthrough: "/x" }] };
     let message = "";
     try {
       validateTimeline(bad);
     } catch (err) {
       message = err.message;
     }
-    for (const part of ["site.name", "site.intro", "work[0].id", "work[0].start", "work[0].label"]) {
+    for (const part of ["site.name", "site.intro", "entries[0].id", "entries[0].kind", "entries[0].start", "entries[0].label", "entries[0].summary", "entries[0].walkthrough"]) {
       expect(message).toContain(part);
     }
   });
 
   it("rejects a logo that isn't in content/logos", () => {
     const data = JSON.parse(JSON.stringify(loadContent(contentDir).timeline));
-    data.work[0].logo = "nope.svg";
+    data.entries[0].logo = "nope.svg";
     expect(() => validateTimeline(data, join(contentDir, "logos"))).toThrow(/logo 'nope\.svg'/);
+  });
+
+  it("rejects an entry whose on-site walkthrough has no page", () => {
+    const data = JSON.parse(JSON.stringify(loadContent(contentDir).timeline));
+    const dir = mkdtempSync(join(tmpdir(), "content-"));
+    data.entries[0].walkthrough = "/about/missing/";
+    writeFileSync(join(dir, "timeline.json"), JSON.stringify(data));
+    symlinkSync(join(contentDir, "logos"), join(dir, "logos"));
+    expect(() => loadContent(dir)).toThrow(/no content\/projects page for \/about\/missing\//);
   });
 
   it("rejects a note whose date disagrees with its filename", () => {
@@ -152,6 +161,7 @@ describe("rendered pages", () => {
     site: content.timeline.site,
     timeline: content.timeline,
     notes: content.notes,
+    projects: content.projects,
     figuresDir,
     buildDate: "2026-01-01",
   };
@@ -159,6 +169,9 @@ describe("rendered pages", () => {
   const pages = new Map([["/about/", about]]);
   for (const n of content.notes.filter((n) => !n.inline)) {
     pages.set(`/about/${n.slug}/`, notePage(n, ctx));
+  }
+  for (const p of content.projects) {
+    pages.set(`/about/${p.slug}/`, projectPage(p, ctx));
   }
 
   it("every internal link lands on a page, and every #anchor exists", () => {
@@ -180,6 +193,13 @@ describe("rendered pages", () => {
   it("labels drafts in preview and marks the page noindex", () => {
     expect(about).toContain('<meta name="robots" content="noindex" />');
     expect(about).toContain('class="draft-tag"');
+  });
+
+  it("every pet project shows up in both the timeline and the projects index", () => {
+    for (const e of content.timeline.entries.filter((x) => x.kind === "project")) {
+      expect(about).toContain(`id="${e.id}"`);
+      expect(about).toContain(`id="pet-${e.id}"`);
+    }
   });
 
   it("carries no Matrix styling or scripts", () => {
