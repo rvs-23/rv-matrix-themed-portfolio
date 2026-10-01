@@ -3,7 +3,7 @@
     "name": "Rishav Sharma",
     "dek": "Data scientist. Notes on building things that learn from data.",
     "description": "Rishav Sharma — data scientist. Work, things built, and short explanations of the ideas behind them.",
-    "intro": "I work at Swiss Re in Bengaluru, building machine-learning and language-model pipelines for underwriters on Palantir Foundry. Before that I taught Python online and studied operational research at the University of Delhi. This page is the plain version of me; the [terminal](/) is the playful one.",
+    "intro": "I teach and build on Palantir Foundry at Ontologize. Before that I spent three years at Swiss Re in Bengaluru building machine-learning and language-model pipelines for underwriters, and before that I taught Python online and studied operational research at the University of Delhi.\n\nThis page is the plain version: what I have worked on, what I have built, and a short explanation of the idea behind each. The [terminal](/) is the playful version.",
     "now": "Placeholder: one line on what I am building or learning right now.",
     "links": [
       {
@@ -33,15 +33,31 @@
     ],
     "draft": true
   },
-  "entries": [
+  "work": [
+    {
+      "id": "ontologize",
+      "start": "2025-08",
+      "end": "present",
+      "label": "Ontologize · Palantir instructor & engineer",
+      "title": "Teaching and building on Palantir Foundry",
+      "body": "Ontologize runs Palantir training, fellowships and exams. I teach Foundry and build with it: how data is modelled into an ontology, how pipelines feed it, and how applications sit on top.",
+      "logo": "ontologize.svg",
+      "skills": [
+        "Palantir Foundry",
+        "Ontology",
+        "Pipeline Builder",
+        "Workshop",
+        "AIP",
+        "Teaching"
+      ],
+      "draft": true
+    },
     {
       "id": "nebula",
-      "kind": "work",
       "start": "2024",
       "end": "2025",
       "label": "Swiss Re · Retrieval",
       "title": "Nebula: answers from a pile of documents",
-      "summary": "Ask a question, get an answer drawn only from the documents that matter.",
       "body": "Underwriters judge a company by reading its news, filings and financial reports. Nebula lets them ask a question instead. It searches a corpus of company documents for the passages that matter, then has a language model answer from those passages only, so every answer points back to its sources.\n\nI built the PDF ingestion and the semantic search (Python for text extraction, TypeScript for vector search), plus an admin panel for prompts, evaluation and one-click reruns. Research that took days now takes minutes.",
       "figure": {
         "src": "rag.svg",
@@ -57,16 +73,23 @@
           "text": "Search by meaning rather than exact words, by comparing text as vectors."
         }
       ],
-      "draft": true
+      "draft": true,
+      "logo": "swissre.svg",
+      "skills": [
+        "Python",
+        "TypeScript",
+        "RAG",
+        "Semantic search",
+        "LLM evaluation",
+        "Palantir AIP"
+      ]
     },
     {
       "id": "loss-ratio-hotspots",
-      "kind": "work",
       "start": "2023",
       "end": "2024",
       "label": "Swiss Re · Explainability",
       "title": "Loss-ratio hotspots",
-      "summary": "A model that predicts losses, asked to explain which factors drove them.",
       "body": "A portfolio loses money in some places and not others. We trained a model to predict losses across a portfolio of US agents and lawyers, then used SHAP to ask it which factors drove its predictions: claim frequency, policy tenure, regional risk.\n\nThe model was the means; the explanation was the product. It told the business where to look, and the changes that followed brought the loss ratio down by 5%.",
       "figure": {
         "src": "shap.svg",
@@ -82,16 +105,22 @@
           "text": "Splits one prediction into each input's contribution, using an idea from game theory."
         }
       ],
-      "draft": true
+      "draft": true,
+      "logo": "swissre.svg",
+      "skills": [
+        "Python",
+        "scikit-learn",
+        "SHAP",
+        "Pandas",
+        "Key-driver analysis"
+      ]
     },
     {
       "id": "swiss-re",
-      "kind": "work",
       "start": "2022-10",
-      "end": "present",
+      "end": "2025",
       "label": "Swiss Re GBS · Data Science Specialist II",
       "title": "Data science for underwriters",
-      "summary": "Data-science and language-model pipelines, two in daily use, underwriters about 30% faster.",
       "body": "I design and ship data-science and language-model pipelines on Palantir Foundry for underwriting, operations and finance teams. Two are in daily use and made underwriters about 30% more productive. I also run internal trainings on Foundry's AI platform; around sixty colleagues have taken one.",
       "notes": [
         {
@@ -99,27 +128,38 @@
           "text": "The person who decides whether to insure a risk, and at what price."
         }
       ],
-      "draft": true
+      "draft": true,
+      "logo": "swissre.svg",
+      "skills": [
+        "Palantir Foundry",
+        "Python",
+        "PySpark",
+        "TypeScript",
+        "SQL",
+        "LLMs"
+      ]
     },
     {
       "id": "code-young",
-      "kind": "work",
       "start": "2020-11",
       "end": "2021-12",
       "label": "Code-Young · Teaching",
       "title": "Teaching Python, one student at a time",
-      "summary": "About 750 hours of live Python lessons for 25 students in three countries.",
       "body": "Part-time, during my master's: about 750 hours of live Python lessons for 25 students in India, the US and the UAE, with a written progress report for each of them every week.",
-      "draft": true
+      "draft": true,
+      "logo": "codeyoung.png",
+      "skills": [
+        "Python",
+        "Curriculum design",
+        "Assessment"
+      ]
     },
     {
       "id": "delhi",
-      "kind": "work",
       "start": "2020-08",
       "end": "2022-05",
       "label": "University of Delhi · Hindu College",
       "title": "Master of Operational Research",
-      "summary": "The mathematics of deciding under constraints.",
       "body": "The mathematics of deciding under constraints: optimisation, queues, simulation and forecasting.",
       "notes": [
         {
@@ -127,27 +167,35 @@
           "text": "Using models to pick the best option when time, money or capacity is limited."
         }
       ],
-      "draft": true
+      "draft": true,
+      "logo": "hindu-college.png",
+      "skills": [
+        "Optimisation",
+        "Simulation",
+        "Queueing theory",
+        "Forecasting"
+      ]
     },
     {
       "id": "osmania",
-      "kind": "work",
       "start": "2017-05",
       "end": "2020-05",
       "label": "Osmania University · Bhavans College",
       "title": "B.Sc. in mathematics, statistics and computer science",
-      "summary": "Mathematics, statistics and computer science, side by side.",
       "body": "Three subjects side by side, which is close to the recipe for data science.",
-      "draft": true
-    },
+      "draft": true,
+      "logo": "osmania.png",
+      "skills": [
+        "Mathematics",
+        "Statistics",
+        "Computer science"
+      ]
+    }
+  ],
+  "plates": [
     {
       "id": "matrix-terminal",
-      "kind": "built",
-      "start": "2025-05",
-      "end": "present",
-      "label": "Side project · This site",
       "title": "The terminal on this site",
-      "summary": "A command line over falling-code rain, in plain JavaScript.",
       "body": "The front page of rvs23.dev is a command line over a digital-rain animation drawn on a canvas. The rain is a grid of characters that never moves: each falling stream is a bright cursor that lights cells as it passes, and every cell fades back to black on its own. Plain JavaScript, no framework.",
       "figure": {
         "src": "rain.svg",
@@ -167,15 +215,17 @@
           "href": "/about/the-terminal-and-the-rain/"
         }
       ],
-      "draft": true
+      "draft": true,
+      "skills": [
+        "JavaScript",
+        "Canvas 2D",
+        "CSS",
+        "Vite"
+      ]
     },
     {
       "id": "customer-prioritization",
-      "kind": "built",
-      "start": "2021-10",
-      "label": "Packt Publishing · Classification",
       "title": "Customer prioritization",
-      "summary": "Rank trial users by how likely they are to buy, so sales calls fewer people.",
       "body": "Which trial users are about to buy? A linear classifier trained with stochastic gradient descent on 50+ behavioural signals scored every user daily, and sales called the top 250 instead of everyone: 83% fewer calls, 63% more conversions. It learned from each day's outcomes without retraining from scratch. Written for Packt Publishing, 2021.",
       "figure": {
         "src": "boundary.svg",
@@ -187,16 +237,19 @@
           "href": "https://github.com/rvs-23/customer_prioritization_packt"
         }
       ],
-      "draft": true
+      "draft": true,
+      "skills": [
+        "Python",
+        "scikit-learn",
+        "SGD",
+        "Flask",
+        "Heroku"
+      ],
+      "logo": "packt.png"
     },
     {
       "id": "rv-markdown-paper",
-      "kind": "built",
-      "start": "2026-04",
-      "end": "present",
-      "label": "Side project · Typesetting",
       "title": "rv-markdown-paper",
-      "summary": "Markdown in, a print-quality PDF out, with a fixed editorial design.",
       "body": "A tool that turns a Markdown file into a print-quality PDF with a fixed editorial design: grey paper, one ink, three typefaces. Authors write content and the template does the rest. This page borrows its look.",
       "figure": {
         "type": "pipeline",
@@ -224,7 +277,12 @@
           "href": "https://github.com/rvs-23/rv-markdown-paper"
         }
       ],
-      "draft": true
+      "draft": true,
+      "skills": [
+        "TypeScript",
+        "unified / remark",
+        "Typst"
+      ]
     }
   ],
   "learn": [
@@ -253,7 +311,7 @@
       "answer": "A language model that looks things up before it answers, so it can cite what it read instead of recalling it.",
       "links": [
         {
-          "label": "Nebula",
+          "label": "Nebula, Fig. 1",
           "href": "/about/#nebula"
         }
       ]
@@ -263,7 +321,7 @@
       "answer": "Ask how much each input moved it. SHAP does that fairly across inputs that interact.",
       "links": [
         {
-          "label": "Loss-ratio hotspots",
+          "label": "Loss-ratio hotspots, Fig. 2",
           "href": "/about/#loss-ratio-hotspots"
         }
       ]

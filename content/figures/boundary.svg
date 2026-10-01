@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220" role="img" aria-label="Two groups of users separated by a straight line; a user's distance from the line becomes their score" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
-<path class="soft" d="M60 190V20M60 190H420"/>
-<path d="M410 190L420 190"/><path d="M413.7 193.0L420 190L413.7 187.0"/>
-<path d="M60 30L60 20"/><path d="M63.0 26.3L60 20L57.0 26.3"/>
+<path class="d soft" pathLength="1" d="M60 190V20M60 190H420"/>
+<path class="d" pathLength="1" d="M410 190L420 190"/><path class="d" pathLength="1" d="M413.7 193.0L420 190L413.7 187.0"/>
+<path class="d" pathLength="1" d="M60 30L60 20"/><path class="d" pathLength="1" d="M63.0 26.3L60 20L57.0 26.3"/>
 <text class="fig-note" x="420" y="210" text-anchor="end">sessions</text>
 <text class="fig-note" x="50" y="34" text-anchor="end">payments</text>
-<path d="M110 189.5L400 30.0"/>
+<path class="d" pathLength="1" d="M110 189.5L400 30.0"/>
 <circle cx="385.0" cy="99.8" r="3.2"/>
 <circle class="fill" cx="140.9" cy="106.8" r="3.2"/>
 <circle cx="287.9" cy="148.9" r="3.2"/>

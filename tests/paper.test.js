@@ -77,16 +77,22 @@ describe("content", () => {
   });
 
   it("collects every timeline problem at once", () => {
-    const bad = { site: {}, entries: [{ id: "Bad Id", kind: "job", start: "May" }], learn: [] };
+    const bad = { site: {}, work: [{ id: "Bad Id", start: "May" }], plates: [], learn: [] };
     let message = "";
     try {
       validateTimeline(bad);
     } catch (err) {
       message = err.message;
     }
-    for (const part of ["site.name", "site.intro", "entries[0].id", "entries[0].kind", "entries[0].start", "entries[0].label"]) {
+    for (const part of ["site.name", "site.intro", "work[0].id", "work[0].start", "work[0].label"]) {
       expect(message).toContain(part);
     }
+  });
+
+  it("rejects a logo that isn't in content/logos", () => {
+    const data = JSON.parse(JSON.stringify(loadContent(contentDir).timeline));
+    data.work[0].logo = "nope.svg";
+    expect(() => validateTimeline(data, join(contentDir, "logos"))).toThrow(/logo 'nope\.svg'/);
   });
 
   it("rejects a note whose date disagrees with its filename", () => {

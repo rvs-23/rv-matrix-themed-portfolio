@@ -1,8 +1,7 @@
 /**
  * @file paper/content.js
  * Loads and validates everything the paper site renders: content/timeline.json
- * (header, dated entries, learn) and content/notes/*.md. Notes join the
- * timeline at render time as entries of kind "wrote". Every problem is
+ * (header, work, plates, learn) and content/notes/*.md. Every problem is
  * collected and thrown together, so one build run lists all of them.
  */
 
@@ -12,8 +11,6 @@ import matter from "gray-matter";
 
 const MONTH = /^\d{4}(-\d{2})?$/; // "2024" or "2024-10"
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
-/** Kinds of timeline entry authored in timeline.json (notes add "wrote"). */
-export const ENTRY_KINDS = ["work", "built"];
 const NOTE_FILE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 
 export class ContentError extends Error {}
@@ -37,19 +34,19 @@ function checkLinks(errors, where, links) {
   });
 }
 
-function checkEntry(errors, where, e) {
+function checkEntry(errors, where, e, { dated, logosDir }) {
   check(errors, isStr(e?.id) && /^[a-z0-9-]+$/.test(e.id), `${where}.id must be kebab-case`);
-  check(errors, ENTRY_KINDS.includes(e?.kind), `${where}.kind must be one of ${ENTRY_KINDS.join(", ")}`);
   check(errors, isStr(e?.title), `${where}.title is required`);
   check(errors, isStr(e?.body), `${where}.body is required`);
-  check(errors, e?.summary === undefined || isStr(e.summary), `${where}.summary must be a non-empty string`);
-  check(errors, MONTH.test(e?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
-  check(
-    errors,
-    e?.end === undefined || e.end === "present" || MONTH.test(e.end),
-    `${where}.end must be YYYY, YYYY-MM or "present"`,
-  );
-  check(errors, isStr(e?.label), `${where}.label is required`);
+  if (dated) {
+    check(errors, MONTH.test(e?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
+    check(
+      errors,
+      e?.end === undefined || e.end === "present" || MONTH.test(e.end),
+      `${where}.end must be YYYY, YYYY-MM or "present"`,
+    );
+    check(errors, isStr(e?.label), `${where}.label is required`);
+  }
   if (e?.figure !== undefined) {
     const f = e.figure;
     check(
@@ -59,6 +56,18 @@ function checkEntry(errors, where, e) {
     );
     check(errors, isStr(f?.caption), `${where}.figure.caption is required`);
   }
+  check(
+    errors,
+    e?.skills === undefined || (Array.isArray(e.skills) && e.skills.every(isStr)),
+    `${where}.skills must be a list of strings`,
+  );
+  if (e?.logo !== undefined) {
+    check(
+      errors,
+      /^[a-z0-9-]+\.(svg|png)$/.test(e.logo) && existsSync(join(logosDir, e.logo)),
+      `${where}.logo '${e.logo}' must be a file in content/logos`,
+    );
+  }
   (e?.notes || []).forEach((n, i) => {
     check(errors, isStr(n?.term) && isStr(n?.text), `${where}.notes[${i}] needs term and text`);
   });
@@ -67,15 +76,19 @@ function checkEntry(errors, where, e) {
 }
 
 /** Validate the parsed timeline.json; returns it unchanged or throws. */
-export function validateTimeline(data) {
+export function validateTimeline(data, logosDir = "") {
   const errors = [];
   const site = data?.site;
   check(errors, isStr(site?.name), "site.name is required");
   check(errors, isStr(site?.intro), "site.intro is required");
   checkLinks(errors, "site", site?.links);
 
-  check(errors, Array.isArray(data?.entries), "entries must be an array");
-  (data?.entries || []).forEach((e, i) => checkEntry(errors, `entries[${i}]`, e));
+  for (const key of ["work", "plates"]) {
+    check(errors, Array.isArray(data?.[key]), `${key} must be an array`);
+    (data?.[key] || []).forEach((e, i) =>
+      checkEntry(errors, `${key}[${i}]`, e, { dated: key === "work", logosDir }),
+    );
+  }
   check(errors, Array.isArray(data?.learn), "learn must be an array");
   (data?.learn || []).forEach((q, i) => {
     check(errors, isStr(q?.question), `learn[${i}].question is required`);
@@ -83,7 +96,7 @@ export function validateTimeline(data) {
     checkLinks(errors, `learn[${i}]`, q?.links);
   });
 
-  const ids = (data?.entries || []).map((e) => e?.id);
+  const ids = [...(data?.work || []), ...(data?.plates || [])].map((e) => e?.id);
   const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
   check(errors, dupes.length === 0, `duplicate ids: ${dupes.join(", ")}`);
 
@@ -137,6 +150,7 @@ export function parseNote(file, raw, repoRoot) {
 export function loadContent(contentDir) {
   const timeline = validateTimeline(
     JSON.parse(readFileSync(join(contentDir, "timeline.json"), "utf8")),
+    join(contentDir, "logos"),
   );
   const notesDir = join(contentDir, "notes");
   const files = existsSync(notesDir)
@@ -161,7 +175,7 @@ export function loadContent(contentDir) {
 
 /** Every draft still in the content, for the production gate. */
 export function listDrafts({ timeline, notes }) {
-  const entries = timeline.entries
+  const entries = [...timeline.work, ...timeline.plates]
     .filter((e) => e.draft)
     .map((e) => `entry '${e.id}'`);
   const site = timeline.site.draft ? ["site header"] : [];

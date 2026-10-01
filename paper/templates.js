@@ -22,6 +22,8 @@ const esc = (s) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+const ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"];
+const PLATE = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 
 const year = (d) => d.slice(0, 4);
 
@@ -55,6 +57,24 @@ function linksHtml(links, cls = "links") {
   });
   // Real spaces around the separator so the row can wrap on narrow screens.
   return `<p class="${cls}">${items.join(` <span class="sep" aria-hidden="true">·</span> `)}</p>`;
+}
+
+/**
+ * An organisation's logo tile. The root-relative src lets Vite fingerprint
+ * the file on build, and only pages that render a logo ship it.
+ */
+function logoHtml(item) {
+  if (!item.logo) return "";
+  return `<img class="logo" src="/content/logos/${esc(item.logo)}" alt="" width="48" height="48" decoding="async" />`;
+}
+
+/** Cornell cue: the skills an entry used, as a short list. */
+function skillsHtml(skills, cls = "skills") {
+  if (!skills?.length) return "";
+  if (cls === "skills-inline") {
+    return `<p class="${cls}">${skills.map(esc).join(` <span class="sep" aria-hidden="true">·</span> `)}</p>`;
+  }
+  return `<div class="${cls}"><p class="margin-term">Skills</p><ul>${skills.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>`;
 }
 
 function figureHtml(fig, label, ctx) {
@@ -109,172 +129,131 @@ ${body}
 `;
 }
 
-/**
- * Page layout, after the Diátaxis "start here" page: a wide
- * right-aligned cue column (headings, years, labels) beside the body column.
- * On the timeline the two are joined by a spine whose node shape says what
- * kind of entry it is.
- */
-const KINDS = {
-  work: { mark: "○", label: "work & study" },
-  built: { mark: "□", label: "built" },
-  wrote: { mark: "●", label: "wrote" },
-};
-
-/** First sentence of a Markdown body, as plain text — the fallback summary. */
-function firstSentence(markdown) {
-  const text = markdown.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/[*_`]/g, "");
-  return (/^.+?[.!?](\s|$)/.exec(text)?.[0] ?? text).trim();
+function sectionOpen(id, no, title, extra = "") {
+  return `      <section class="sec" id="${id}" data-title="${esc(title)}">
+        <header class="sec-head">
+          <span class="sec-no" aria-hidden="true">${String(no).padStart(2, "0")}</span>
+          <h2 class="kicker">${esc(title)}${extra}</h2>
+        </header>`;
 }
 
-/** Sort key: "2024" sorts as the start of its year, "2024-10" as October. */
-const sortKey = (d) => (d.length === 4 ? `${d}-00` : d);
+const folio = (i) => `        <p class="folio" aria-hidden="true">— ${ROMAN[i]} —</p>\n      </section>`;
 
-/**
- * Every dated thing on one spine, newest first: timeline.json entries plus
- * the notes (as kind "wrote"). The year prints once per year; later entries
- * in the same year show only their month.
- */
-function timelineItems(ctx) {
-  const notes = ctx.notes.map((n) => ({
-    id: `note-${n.slug}`,
-    kind: "wrote",
-    start: n.date.slice(0, 7),
-    label: n.source ? "Primer" : "Note",
-    title: n.title,
-    summary: n.summary,
-    draft: n.draft,
-    note: n,
-  }));
-  return [...ctx.timeline.entries, ...notes].sort((a, b) =>
-    sortKey(b.start).localeCompare(sortKey(a.start)),
-  );
-}
-
-function entryHtml(e, prevYear, ctx, figNo) {
-  const y = year(e.start);
-  const month = e.start.length > 4 ? MONTHS[Number(e.start.slice(5, 7)) - 1] : "";
-  const end = e.end ? dateSpan(e.start, e.end) : "";
-  const when = [month, end && `→ ${end}`].filter(Boolean).join(" ");
-  const cue = `<div class="cue entry-cue">
-              ${y !== prevYear ? `<time class="entry-year" datetime="${esc(e.start)}">${y}</time>` : ""}
-              <span class="entry-when">${esc(when)}</span>
-              <span class="kicker">${esc(e.label)}</span>
-            </div>`;
-  const title = renderInline(e.title, { file: `entries.${e.id}`, figuresDir: ctx.figuresDir });
-  const head = `<span class="entry-title" role="heading" aria-level="3">${title}</span>${draftTag(e, ctx)}`;
-
-  // A long note is its own page: the row links there instead of opening.
-  if (e.kind === "wrote" && !e.note.inline) {
-    return `          <li class="entry kind-wrote" id="${esc(e.id)}">
-            ${cue}
-            <div class="entry-main">
-              <a class="entry-link" href="/about/${e.note.slug}/">${head}</a>
-              <span class="entry-summary">${esc(e.summary)}</span>
+function workSection(work, ctx, figNo) {
+  const years = work.map((e) => Number(year(e.start)));
+  const span = years.length ? ` <span class="kicker-span">${Math.min(...years)} — now</span>` : "";
+  const items = work.map((e) => {
+    const end = dateSpan(e.start, e.end);
+    const notes = (e.notes || [])
+      .map((n) => `<aside class="margin-note"><p class="margin-term">${esc(n.term)}</p><p>${esc(n.text)}</p></aside>`)
+      .join("");
+    const fig = e.figure ? figureHtml(e.figure, `Fig. ${++figNo.n}`, ctx) : "";
+    return `          <li class="entry" id="${esc(e.id)}">
+            <p class="entry-date"><time datetime="${esc(e.start)}">${year(e.start)}</time>${end ? `<span class="entry-end">→ ${end}</span>` : ""}</p>
+            <div class="entry-main${e.logo ? " has-logo" : ""}">
+              ${logoHtml(e)}
+              <div class="entry-body">
+                <p class="kicker">${esc(e.label)}${draftTag(e, ctx)}</p>
+                <h3 class="entry-title">${renderInline(e.title, { file: `work.${e.id}`, figuresDir: ctx.figuresDir })}</h3>
+                <div class="prose">${md(e.body, ctx, `work.${e.id}`)}</div>
+                ${fig}
+                ${linksHtml(e.links)}
+              </div>
             </div>
+            <div class="entry-rail">${skillsHtml(e.skills)}${notes}</div>
           </li>`;
-  }
-
-  const body = e.kind === "wrote" ? e.note.body : e.body;
-  const fig = e.figure ? figureHtml(e.figure, `Fig. ${++figNo.n}`, ctx) : "";
-  const more = fig ? `the idea, in Fig. ${figNo.n}` : "more";
-  const notes = (e.notes || [])
-    .map((n) => `<aside class="margin-note"><p class="margin-term">${esc(n.term)}</p><p>${esc(n.text)}</p></aside>`)
-    .join("");
-  return `          <li class="entry kind-${e.kind}" id="${esc(e.id)}">
-            ${cue}
-            <details class="entry-main">
-              <summary>
-                ${head}
-                <span class="entry-summary">${esc(e.summary || firstSentence(body))} <span class="more">${more}</span></span>
-              </summary>
-              <div class="prose">${md(body, ctx, `entries.${e.id}`)}</div>
-              ${fig}
-              ${notes ? `<div class="entry-notes">${notes}</div>` : ""}
-              ${linksHtml(e.links)}
-            </details>
-          </li>`;
-}
-
-function timelineSection(ctx) {
-  const items = timelineItems(ctx);
-  const figNo = { n: 0 };
-  let prevYear = "";
-  const rows = items.map((e) => {
-    const html = entryHtml(e, prevYear, ctx, figNo);
-    prevYear = year(e.start);
-    return html;
   });
-  const years = items.map((e) => Number(year(e.start)));
-  const legend = Object.values(KINDS)
-    .map((k) => `<li><span class="mark" aria-hidden="true">${k.mark}</span> ${esc(k.label)}</li>`)
-    .join("");
-  return `      <section class="sec" id="timeline" data-title="Timeline">
-        <header class="sec-head">
-          <div class="cue">
-            <h2 class="sec-title">Timeline</h2>
-            <p class="kicker">${Math.min(...years)} — now</p>
-            <ul class="legend">${legend}</ul>
-            <p class="links sec-feed"><a href="/feed.xml">rss</a> for new notes</p>
-          </div>
-        </header>
+  // The spine reads top to bottom: "now" at the head, an arrow to "earlier".
+  return `${sectionOpen("work", 1, "Work", span)}
         <ol class="timeline">
-${rows.join("\n")}
+          <li class="spine-cap spine-now" aria-hidden="true"><span>now</span></li>
+${items.join("\n")}
+          <li class="spine-cap spine-earlier" aria-hidden="true"><span>earlier</span></li>
         </ol>
-      </section>`;
+${folio(0)}`;
 }
 
-/** Learn: the question is the cue; the answer opens beneath it. */
-function learnSection(learn, ctx) {
-  const items = learn.map(
-    (q, i) => `          <details class="learn-item" id="learn-${i + 1}">
-            <summary>${esc(q.question)}</summary>
-            <div class="learn-answer"><div class="prose">${md(q.answer, ctx, "learn")}</div>${linksHtml(q.links)}</div>
-          </details>`,
-  );
-  return `      <section class="sec" id="learn" data-title="Learn">
-        <header class="sec-head">
-          <div class="cue">
-            <h2 class="sec-title">Learn</h2>
-            <p class="kicker">start here</p>
-          </div>
-        </header>
-        <div class="learn">
+function platesSection(plates, ctx) {
+  const items = plates.map((p, i) => {
+    const fig = p.figure ? figureHtml(p.figure, `Plate ${PLATE[i]}`, ctx) : "";
+    return `          <article class="plate" id="${esc(p.id)}">
+            ${fig}
+            <h3 class="plate-title">${logoHtml(p)}${renderInline(p.title, { file: `plates.${p.id}`, figuresDir: ctx.figuresDir })}${draftTag(p, ctx)}</h3>
+            ${skillsHtml(p.skills, "skills-inline")}
+            <div class="prose">${md(p.body, ctx, `plates.${p.id}`)}</div>
+            ${linksHtml(p.links)}
+          </article>`;
+  });
+  return `${sectionOpen("plates", 2, "Plates", ` <span class="kicker-span">things built</span>`)}
+        <div class="plates">
 ${items.join("\n")}
         </div>
-      </section>`;
+${folio(1)}`;
+}
+
+function notesSection(notes, ctx) {
+  const items = notes.map((n) => {
+    const date = `<time class="note-date" datetime="${n.date}">${formatDay(n.date)}</time>`;
+    if (n.inline) {
+      return `          <li class="note" id="note-${n.slug}">${date}
+            <details class="note-inline"><summary><span class="note-title">${esc(n.title)}</span>${draftTag(n, ctx)}<span class="note-summary">${esc(n.summary)}</span></summary>
+              <div class="prose">${md(n.body, ctx, `notes/${n.file}`)}</div>
+            </details>
+          </li>`;
+    }
+    return `          <li class="note" id="note-${n.slug}">${date}
+            <p><a class="note-title" href="/about/${n.slug}/">${esc(n.title)}</a>${draftTag(n, ctx)}<span class="note-summary">${esc(n.summary)}</span></p>
+          </li>`;
+  });
+  const body = items.length
+    ? `        <ol class="notes">\n${items.join("\n")}\n        </ol>`
+    : `        <p class="empty">Nothing yet.</p>`;
+  return `${sectionOpen("notes", 3, "Notes", ` <span class="kicker-span"><a href="/feed.xml">rss</a></span>`)}
+${body}
+${folio(2)}`;
+}
+
+function learnSection(learn, ctx) {
+  const items = learn.map(
+    (q) => `          <div class="learn-item">
+            <dt>${esc(q.question)}</dt>
+            <dd><div class="prose">${md(q.answer, ctx, "learn")}</div>${linksHtml(q.links)}</dd>
+          </div>`,
+  );
+  return `${sectionOpen("learn", 4, "Learn", ` <span class="kicker-span">start here</span>`)}
+        <dl class="learn">
+${items.join("\n")}
+        </dl>
+${folio(3)}`;
 }
 
 function colophon(ctx) {
   return `      <footer class="colophon" id="colophon" data-title="Colophon">
-        <p class="cue"><span class="kicker">Colophon</span></p>
-        <div class="colophon-body">
-          <p>Set in Archivo, Instrument Serif and JetBrains Mono. Written in Markdown, built without a framework, no tracking. This page weighs <span class="weight">${WEIGHT_TOKEN}</span> before fonts. Updated ${formatDay(ctx.buildDate)}.</p>
-          <p><a class="to-terminal" href="/">› Open the terminal</a></p>
-        </div>
+        <p class="kicker">Colophon</p>
+        <p>Set in Archivo, Instrument Serif and JetBrains Mono. Written in Markdown, built without a framework, no tracking. This page weighs <span class="weight">${WEIGHT_TOKEN}</span> before fonts. Updated ${formatDay(ctx.buildDate)}.</p>
+        <p><a class="to-terminal" href="/">› Open the terminal</a></p>
       </footer>`;
 }
 
 /** The /about page. */
 export function aboutPage(ctx) {
-  const { site, learn } = ctx.timeline;
+  const { site, work, plates, learn } = ctx.timeline;
+  const figNo = { n: 0 };
   const intro = md(site.intro, ctx, "site.intro");
   const now = site.now
     ? `<p class="now"><span class="kicker">Now</span> ${renderInline(site.now, { file: "site.now", figuresDir: ctx.figuresDir })}</p>`
     : "";
   const body = `      <header class="masthead">
-        <div class="cue">
-          <p class="kicker">Notebook${draftTag(site, ctx)}</p>
-          ${site.dek ? `<p class="dek">${esc(site.dek)}</p>` : ""}
-        </div>
-        <div class="masthead-body">
-          <h1 class="name">${esc(site.name)}</h1>
-          <div class="prose intro">${intro}</div>
-          ${now}
-          ${linksHtml(site.links, "links elsewhere")}
-        </div>
+        <p class="kicker">Notebook${draftTag(site, ctx)}</p>
+        <h1 class="name">${esc(site.name)}</h1>
+        ${site.dek ? `<p class="dek">${esc(site.dek)}</p>` : ""}
+        <div class="prose intro">${intro}</div>
+        ${now}
+        ${linksHtml(site.links, "links elsewhere")}
       </header>
-${timelineSection(ctx)}
+${workSection(work, ctx, figNo)}
+${platesSection(plates, ctx)}
+${notesSection(ctx.notes, ctx)}
 ${learnSection(learn, ctx)}
 ${colophon(ctx)}`;
   return shell({
@@ -321,7 +300,7 @@ export function notePage(note, ctx) {
         <div class="prose">${html}</div>
         <footer class="post-foot">
           ${email ? `<p>Replies → <a href="${esc(email.href)}">email</a></p>` : ""}
-          <p><a href="/about/#timeline">← The timeline</a></p>
+          <p><a href="/about/#notes">← All notes</a></p>
         </footer>
       </article>`;
   return shell({

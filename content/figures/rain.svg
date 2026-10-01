@@ -111,13 +111,13 @@
 <text class="fig-label" x="306" y="142" text-anchor="middle" fill-opacity="1">D</text>
 <text class="fig-label" x="306" y="164" text-anchor="middle" fill-opacity="0.13">7</text>
 <text class="fig-label" x="306" y="186" text-anchor="middle" fill-opacity="0.13">9</text>
-<circle cx="306" cy="137" r="11"/>
-<path d="M322 21H328V123H322"/>
-<path d="M328 72.0H358"/>
+<circle class="d" pathLength="1" cx="306" cy="137" r="11"/>
+<path class="d" pathLength="1" d="M322 21H328V123H322"/>
+<path class="d" pathLength="1" d="M328 72.0H358"/>
 <text class="fig-note" x="366" y="77.0" text-anchor="start">trail: fades back to black</text>
-<path d="M318 137H358"/>
+<path class="d" pathLength="1" d="M318 137H358"/>
 <text class="fig-note" x="366" y="142" text-anchor="start">head: the brightest cell</text>
-<path d="M342 159L342 189"/><path d="M339.0 182.7L342 189L345.0 182.7"/>
+<path class="d" pathLength="1" d="M342 159L342 189"/><path class="d" pathLength="1" d="M339.0 182.7L342 189L345.0 182.7"/>
 <text class="fig-note" x="366" y="181" text-anchor="start">moves down one row a tick</text>
 <text class="fig-note" x="366" y="32" text-anchor="start">the letters never move;</text>
 <text class="fig-note" x="366" y="52" text-anchor="start">only the light does</text>

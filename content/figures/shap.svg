@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 210" role="img" aria-label="SHAP summary: for each factor, dots show how much each policy's value pushed predicted loss up or down" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
-<path class="soft" d="M330 18V160"/>
+<path class="d soft" pathLength="1" d="M330 18V160"/>
 <text class="fig-label" x="150" y="44" text-anchor="end">claim frequency</text>
 <circle class="fill" cx="366.4" cy="38.1" r="3.1"/>
 <circle  cx="278.0" cy="42.5" r="3.1"/>
@@ -105,8 +105,8 @@
 <circle class="fill" cx="366.3" cy="133.1" r="3.1"/>
 <circle class="fill" cx="382.0" cy="135.6" r="3.1"/>
 <circle class="fill" cx="402.5" cy="125.5" r="3.1"/>
-<path d="M318 182L210 182"/><path d="M216.3 179.0L210 182L216.3 185.0"/>
-<path d="M342 182L450 182"/><path d="M443.7 185.0L450 182L443.7 179.0"/>
+<path class="d" pathLength="1" d="M318 182L210 182"/><path class="d" pathLength="1" d="M216.3 179.0L210 182L216.3 185.0"/>
+<path class="d" pathLength="1" d="M342 182L450 182"/><path class="d" pathLength="1" d="M443.7 185.0L450 182L443.7 179.0"/>
 <text class="fig-note" x="202" y="186" text-anchor="end">lowers predicted loss</text>
 <text class="fig-note" x="458" y="186" text-anchor="start">raises it</text>
 <circle class="fill" cx="486" cy="30" r="3.1"/><text class="fig-note" x="496" y="34" text-anchor="start">high value</text>
