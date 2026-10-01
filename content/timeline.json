@@ -51,6 +51,21 @@
       "main": true
     },
     {
+      "id": "hisaab-tracker",
+      "kind": "project",
+      "start": "2026-06",
+      "label": "Pet project",
+      "title": "Hisaab, a finances tracker",
+      "summary": "A local app for two people that replaced a finance spreadsheet and answers one question: did we invest what the plan said this year?",
+      "skills": [
+        "Python",
+        "Streamlit",
+        "pytest"
+      ],
+      "repo": "https://github.com/rvs-23/hisaab-tracker",
+      "draft": true
+    },
+    {
       "id": "rv-markdown-paper",
       "kind": "project",
       "start": "2026-04",
@@ -73,6 +88,23 @@
       ],
       "walkthrough": "/about/rv-markdown-paper/",
       "repo": "https://github.com/rvs-23/rv-markdown-paper",
+      "draft": true
+    },
+    {
+      "id": "one-to-one-classes",
+      "kind": "project",
+      "start": "2025-06",
+      "end": "present",
+      "label": "Teaching",
+      "title": "One-to-one classes: ML, then building with AI",
+      "summary": "Live classes for one student: Python, statistics and machine-learning foundations, and since June 2026 building real things with AI, then reading and fixing them without it.",
+      "skills": [
+        "Python",
+        "Statistics",
+        "Machine learning",
+        "Curriculum design"
+      ],
+      "repo": "https://github.com/rvs-23/becoming-ai-builder",
       "draft": true
     },
     {
