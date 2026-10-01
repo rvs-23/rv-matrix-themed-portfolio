@@ -10,8 +10,12 @@ import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import matter from "gray-matter";
 
-const MONTH = /^\d{4}(-\d{2})?$/; // "2024" or "2024-10"
+const MONTH = /^\d{4}(-(0[1-9]|1[0-2]))?$/; // "2024" or "2024-10"
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
+/** A real calendar day, not just the right shape ("2026-02-30" is not). */
+const isDay = (d) => DAY.test(d ?? "") && new Date(`${d}T00:00:00Z`).toISOString().slice(0, 10) === d;
+/** Ids the page itself uses; an entry may not take one. */
+const RESERVED_IDS = ["main", "timeline", "colophon"];
 const NOTE_FILE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 
 export class ContentError extends Error {}
@@ -29,7 +33,7 @@ function checkLinks(errors, where, links) {
     check(errors, isStr(l?.label), `${where}.links[${i}].label is required`);
     check(
       errors,
-      isStr(l?.href) && /^(https?:|mailto:|\/)/.test(l.href),
+      isStr(l?.href) && /^(https?:\/\/|mailto:|\/(?!\/))/.test(l.href),
       `${where}.links[${i}].href must be http(s), mailto: or root-relative`,
     );
   });
@@ -43,6 +47,7 @@ const PROJECT_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 function checkEntry(errors, where, e, contentDir) {
   const logosDir = join(contentDir, "logos");
   check(errors, isStr(e?.id) && /^[a-z0-9-]+$/.test(e.id), `${where}.id must be kebab-case`);
+  check(errors, !RESERVED_IDS.includes(e?.id) && !e?.id?.startsWith("note-"), `${where}.id '${e?.id}' is used by the page itself`);
   check(errors, ENTRY_KINDS.includes(e?.kind), `${where}.kind must be one of ${ENTRY_KINDS.join(", ")}`);
   check(errors, MONTH.test(e?.start ?? ""), `${where}.start must be YYYY or YYYY-MM`);
   check(
@@ -50,6 +55,11 @@ function checkEntry(errors, where, e, contentDir) {
     e?.end === undefined || e.end === "present" || MONTH.test(e.end),
     `${where}.end must be YYYY, YYYY-MM or "present"`,
   );
+  if (MONTH.test(e?.start ?? "") && MONTH.test(e?.end ?? "")) {
+    // Compared at the precision both share: "2024" may end a "2024-02" start.
+    const n = Math.min(e.start.length, e.end.length);
+    check(errors, e.end.slice(0, n) >= e.start.slice(0, n), `${where}.end is before its start`);
+  }
   for (const key of ["label", "title", "summary"]) {
     check(errors, isStr(e?.[key]), `${where}.${key} is required`);
   }
@@ -105,11 +115,6 @@ export function validateTimeline(data, contentDir = "") {
   const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
   check(errors, dupes.length === 0, `duplicate ids: ${dupes.join(", ")}`);
 
-  // `under` nests an entry beneath another (a project inside a role).
-  (data?.entries || []).forEach((e, i) => {
-    check(errors, e?.under === undefined || ids.includes(e.under), `entries[${i}].under names no entry`);
-  });
-
   if (errors.length) throw new ContentError(`timeline.json:\n  - ${errors.join("\n  - ")}`);
   return data;
 }
@@ -127,7 +132,7 @@ export function parseNote(file, raw, repoRoot) {
   const date =
     data.date instanceof Date ? data.date.toISOString().slice(0, 10) : data.date;
   check(errors, isStr(data.title), `${file}: title is required`);
-  check(errors, DAY.test(date ?? ""), `${file}: date must be YYYY-MM-DD`);
+  check(errors, isDay(date), `${file}: date must be a real YYYY-MM-DD day`);
   check(errors, !m || date === m[1], `${file}: date must match the filename`);
   check(errors, isStr(data.summary), `${file}: summary is required`);
   check(errors, data.draft === undefined || typeof data.draft === "boolean", `${file}: draft must be boolean`);

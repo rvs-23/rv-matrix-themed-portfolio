@@ -126,8 +126,7 @@
         "LLMs"
       ],
       "draft": true,
-      "main": true,
-      "under": "swiss-re"
+      "main": true
     },
     {
       "id": "nebula",
@@ -147,8 +146,7 @@
         "Semantic search",
         "Palantir AIP"
       ],
-      "draft": true,
-      "under": "swiss-re"
+      "draft": true
     },
     {
       "id": "loss-ratio-hotspots",
@@ -167,8 +165,7 @@
         "SHAP",
         "Pandas"
       ],
-      "draft": true,
-      "under": "swiss-re"
+      "draft": true
     },
     {
       "id": "swiss-re",

@@ -58,10 +58,10 @@ The header comes from the `site` object in the same file: `name`, `motto`, `dek`
 
 | Field | Required | What it is |
 |---|---|---|
-| `id` | yes | Kebab-case, unique. It is the entry's anchor on the page (`/#nebula`). |
+| `id` | yes | Kebab-case, unique. It is the entry's anchor on the page (`/#nebula`). `main`, `timeline`, `colophon` and `note-…` are taken. |
 | `kind` | yes | `work`, `study`, `learn` or `project`. `work` goes in the left column; the rest go right. |
 | `start` | yes | `YYYY` or `YYYY-MM`. Decides the year row and the order within it. |
-| `end` | no | `YYYY`, `YYYY-MM` or `"present"`. Shown as "Oct 2022 → Aug 2025". |
+| `end` | no | `YYYY`, `YYYY-MM` or `"present"`, not before `start`. Shown as "Oct 2022 → Aug 2025". |
 | `label` | yes | The small line above the title: an organisation, or "Pet project". |
 | `title` | yes | The entry's name. |
 | `summary` | yes | One line. |
@@ -110,7 +110,7 @@ Standard Markdown with tables and footnotes, plus a small set of extras. Anythin
 | `![Caption](figures/rain.svg)` alone in a paragraph | A numbered figure with the SVG inlined |
 | A `mermaid` block with a linear `flowchart` | A pipeline figure in the page's own style |
 
-Not allowed: raw HTML, unknown `:::` blocks, images that are not `figures/*.svg`, and images inside a sentence.
+Not allowed: raw HTML, unknown `:::` blocks, images that are not `figures/*.svg`, images inside a sentence, and links that are not `http(s)`, `mailto:`, `#anchor` or root-relative.
 
 ## Figures
 
@@ -136,10 +136,10 @@ There are no notes yet; the folder is empty.
 
 Mark anything unfinished with `"draft": true` (entries, and `site` for the header) or `draft: true` (walkthroughs and notes).
 
-- In `preview`, drafts are shown with a dashed "draft" tag and every page is marked `noindex`.
-- In `production`, a draft entry, header or walkthrough fails the build and is named in the error. Draft notes are left out instead.
+- By default a draft is published with a dashed "in review" tag beside it.
+- With `PAPER_PUBLISH=production`, a draft entry, header or walkthrough fails the build and is named in the error. Draft notes are left out instead.
 
-To launch, remove every draft flag, then set `PAPER_PUBLISH=production`.
+When all the copy is final, remove every draft flag and set `PAPER_PUBLISH=production`, so nothing unfinished can ship by accident. [development.md](development.md#release-modes) has the full table.
 
 ## How a page is generated
 
@@ -147,10 +147,10 @@ To launch, remove every draft flag, then set `PAPER_PUBLISH=production`.
 
 1. **Load and validate.** [`content.js`](../paper/content.js) reads `timeline.json` and every Markdown file, checks each field, and collects all errors before throwing.
 2. **Render.** [`templates.js`](../paper/templates.js) builds each page as a template string. [`timeview.js`](../paper/timeview.js) groups entries into year rows and columns. [`markdown.js`](../paper/markdown.js) turns Markdown into HTML through unified, remark and rehype; [`figures.js`](../paper/figures.js) draws pipeline figures.
-3. **Write.** Pages go to `.paper/` at the repo root. The folder is gitignored and wiped on every run, so a deleted page cannot linger.
-4. **Bundle.** The pages are registered as Vite HTML entries, so Vite fingerprints the CSS, script and logos. In the bundle step the plugin moves each page from `.paper/` to the site root, fills in the page weight shown in the footer, and writes `feed.xml`, `sitemap.xml` (production only), `_redirects`, and `config/content/paper.json` (the index the terminal's `about` and `notes` commands read).
+3. **Write.** Pages go to `.paper/` at the repo root (`.paper-dev/` for the dev server, so a build never disturbs a running one). Both are gitignored and wiped on every run, so a deleted page cannot linger. A `404.html` is written alongside.
+4. **Bundle.** The pages are registered as Vite HTML entries, so Vite fingerprints the CSS, script and logos. In the bundle step the plugin moves each page from `.paper/` to the site root, fills in the page weight shown in the footer, and writes `feed.xml`, `sitemap.xml` and `robots.txt` (not in preview), `_redirects`, and `config/content/paper.json` (the index the terminal's `about` and `notes` commands read).
 
-In dev, a middleware maps `/` and `/<slug>/` onto the files in `.paper/` and regenerates them when anything in `content/` or `paper/` changes.
+In dev, a middleware maps `/` and `/<slug>/` onto the files in `.paper-dev/` and regenerates them when anything in `content/` or `paper/` changes.
 
 ## Where to change what
 
@@ -166,7 +166,7 @@ In dev, a middleware maps `/` and `/<slug>/` onto the files in `.paper/` and reg
 
 ## Gotchas
 
-- **`.paper/` is generated.** Edit `content/` or `paper/`, never the files in `.paper/`.
+- **`.paper/` and `.paper-dev/` are generated.** Edit `content/` or `paper/`, never the files in them.
 - **The page is three grid columns wide** (date, text, rail). Walkthrough pages use the text column, with margin notes in the rail. The home page spans all three.
 - **A bare year sorts as January.** An entry with `"start": "2023"` sits below one with `"start": "2023-03"` in the same year row.
 - **Skills only show on main events.** A project's skills appear on its walkthrough page, not on the timeline.

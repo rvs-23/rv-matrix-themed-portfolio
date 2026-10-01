@@ -7,7 +7,7 @@ How to set up the repo, run the checks, and ship. The two halves of the site hav
 - [Setup](#setup)
 - [Commands](#commands)
 - [URL map](#url-map)
-- [The release gate](#the-release-gate)
+- [Release modes](#release-modes)
 - [Tests](#tests)
 - [Deployment](#deployment)
 - [Conventions](#conventions)
@@ -23,7 +23,7 @@ npm install
 npm run dev
 ```
 
-The dev server serves the timeline at http://localhost:5173/ and the terminal at http://localhost:5173/matrix/. It always shows drafts.
+The dev server serves the timeline at http://localhost:5173/ and the terminal at http://localhost:5173/matrix/.
 
 ## Commands
 
@@ -36,12 +36,12 @@ npm run build        # dist/, then scripts/check-dist.mjs
 npm run preview      # serve dist/ locally
 ```
 
-To build the site as a visitor would see it before launch, and after:
+The build has three modes (see [Release modes](#release-modes)):
 
 ```bash
-npm run build                           # terminal only
-PAPER_PUBLISH=preview npm run build     # timeline with drafts
-PAPER_PUBLISH=production npm run build  # timeline; fails if a draft remains
+npm run build                           # as deployed: drafts tagged "in review"
+PAPER_PUBLISH=preview npm run build     # the same, with a banner and noindex
+PAPER_PUBLISH=production npm run build  # strict: fails if a draft remains
 ```
 
 ## URL map
@@ -52,21 +52,22 @@ PAPER_PUBLISH=production npm run build  # timeline; fails if a draft remains
 | `/<slug>/` | A walkthrough or note | Generated from `content/projects/` or `content/notes/` |
 | `/matrix/` | The terminal | `matrix/index.html` |
 | `/feed.xml` | RSS of the notes | Generated |
-| `/sitemap.xml` | Home and every page; production only | Generated |
+| `/sitemap.xml`, `/robots.txt` | Home and every page; not in preview | Generated |
+| `/404.html` | Served for any unknown URL | Generated |
 | `/config/content/paper.json` | Index for the terminal's `about` and `notes` | Generated |
 | `/recruiter` | Redirects to `/` | `_redirects`, generated |
 
-## The release gate
+## Release modes
 
-`PAPER_PUBLISH` decides whether the timeline is built at all. It exists so the timeline can be reviewed on a preview URL while the live site keeps serving the terminal.
+The whole site is always built. `PAPER_PUBLISH` only decides how unfinished copy is treated.
 
-| Value | Timeline | Drafts | Indexing | `/` |
-|---|---|---|---|---|
-| unset | Not built | n/a | n/a | Redirects to `/matrix/` (302) |
-| `preview` | Built | Shown, tagged | `noindex` on every page | The timeline |
-| `production` | Built | Fail the build | Indexed, with a sitemap | The timeline |
+| Value | Drafts | Indexing | Use it for |
+|---|---|---|---|
+| unset | Shown, tagged "in review" | Indexed, with a sitemap | The live site while copy is still being reviewed |
+| `preview` | Shown, tagged "in review" | `noindex` and a banner on every page | Pull-request previews |
+| `production` | Fail the build, by name | Indexed, with a sitemap | The live site once every draft flag is cleared |
 
-Any other value fails the build. After every build, [`scripts/check-dist.mjs`](../scripts/check-dist.mjs) confirms that `dist/` matches the gate: nothing of the timeline when it is unset; otherwise a home page, a page for every walkthrough, no orphan pages, a valid feed, and the terminal intact at `/matrix/`.
+Any other value fails the build. `npm run dev` follows the same variable. After every build, [`scripts/check-dist.mjs`](../scripts/check-dist.mjs) confirms that `dist/` is whole: a home page, a page for every walkthrough, no orphan pages, a valid feed, `noindex` only in preview, no draft tag in production, and the terminal intact at `/matrix/`.
 
 ## Tests
 
@@ -76,7 +77,7 @@ npm test
 
 | File | What it covers |
 |---|---|
-| [`tests/paper.test.js`](../tests/paper.test.js) | Content validation, the Markdown rules, the release gate, year rows, and that every internal link on every rendered page lands somewhere |
+| [`tests/paper.test.js`](../tests/paper.test.js) | Content validation, the Markdown rules, the release modes (on a small draft-free fixture site), year rows, and that every internal link on every rendered page lands somewhere |
 | [`tests/contract.test.js`](../tests/contract.test.js) | The terminal's contracts: commands against help and man pages, `rain.json`'s shape, themes against their CSS, tab completion |
 | [`tests/legacy-links.test.js`](../tests/legacy-links.test.js) | Cleaning retired recruiter-mode links |
 
@@ -86,8 +87,8 @@ The tests render the real `content/` folder, so a broken link or an invalid entr
 
 Cloudflare Pages builds `main` with `npm run build` and serves `dist/`. Every pull request gets a preview deployment.
 
-- **Preview environment:** set `PAPER_PUBLISH=preview`, so pull requests show the timeline with drafts.
-- **Production environment:** leave `PAPER_PUBLISH` unset until launch. To launch, clear every draft flag in `content/`, then set it to `production`.
+- **Production environment:** `PAPER_PUBLISH` is unset, so the timeline ships with unfinished entries tagged "in review". Once every draft flag in `content/` is cleared, set it to `production` so a stray draft can never ship.
+- **Preview environment:** optionally set `PAPER_PUBLISH=preview`, so preview links stay out of search engines.
 
 Changes go through a pull request; nothing is pushed straight to `main`.
 

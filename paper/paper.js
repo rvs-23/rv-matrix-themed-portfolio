@@ -11,7 +11,7 @@ root.classList.add("js");
 // Running header: a hairline once scrolled, and the section being read.
 // The terminal used to live at /, and its ?cmd= deep links still point here.
 if (location.pathname === "/" && new URLSearchParams(location.search).has("cmd")) {
-  location.replace(`/matrix/${location.search}`);
+  location.replace(`/matrix/${location.search}${location.hash}`);
 }
 
 const runhead = document.querySelector(".runhead");
@@ -58,8 +58,13 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 // A link to an inline note (/#note-x) opens it.
 function openLinkedNote() {
   if (!location.hash) return;
-  const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-  target?.querySelector("details")?.setAttribute("open", "");
+  let id;
+  try {
+    id = decodeURIComponent(location.hash.slice(1));
+  } catch {
+    return; // a malformed hash ("#%") names nothing
+  }
+  document.getElementById(id)?.querySelector("details")?.setAttribute("open", "");
 }
 window.addEventListener("hashchange", openLinkedNote);
 openLinkedNote();

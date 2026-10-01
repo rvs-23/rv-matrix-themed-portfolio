@@ -29,7 +29,7 @@ There is no framework, no backend and no tracking, and the page makes no third-p
 ## Docs
 
 - [docs/timeline.md](docs/timeline.md): add an entry, write a walkthrough, draw a figure, and how a page is generated.
-- [docs/development.md](docs/development.md): setup, commands, tests, the release gate and deployment.
+- [docs/development.md](docs/development.md): setup, commands, tests, release modes and deployment.
 
 Licensed under the [MIT License](LICENSE).
 

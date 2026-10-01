@@ -56,7 +56,12 @@ function paperDialect({ file, figuresDir, figureCounter, resolveLink }) {
     visit(tree, (node, index, parent) => {
       if (node.type === "html") fail(file, node, "raw HTML is not allowed");
 
-      if (node.type === "link" && resolveLink) node.url = resolveLink(node.url);
+      if (node.type === "link") {
+        if (resolveLink) node.url = resolveLink(node.url);
+        if (!/^(https?:\/\/|mailto:|#|\/(?!\/))/.test(node.url)) {
+          fail(file, node, `link '${node.url}' must be http(s), mailto:, #anchor or root-relative`);
+        }
+      }
 
       // A linear ```mermaid flowchart becomes one of our own drawn figures.
       if (node.type === "code" && node.lang === "mermaid") {
