@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nebula, a retrieval assistant — Rishav Sharma</title>
+    <meta name="description" content="How an assistant answers from a pile of documents instead of from memory, and what that changed for underwriters." />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://rvs23.dev/about/nebula/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nebula, a retrieval assistant — Rishav Sharma" />
+    <meta property="og:description" content="How an assistant answers from a pile of documents instead of from memory, and what that changed for underwriters." />
+    <meta property="og:url" content="https://rvs23.dev/about/nebula/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="alternate" type="application/rss+xml" title="Notes" href="/feed.xml" />
+    <link rel="icon" href="/paper/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/paper/icon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/paper/icon-180.png" />
+    <link rel="stylesheet" href="/paper/paper.css" />
+    <script type="module" src="/paper/paper.js"></script>
+  </head>
+  <body class="paper">
+    <a class="skip" href="#main">Skip to content</a>
+    <p class="preview-banner">Preview build — drafts visible, not indexed.</p>
+    <header class="runhead">
+      <a class="runhead-name" href="/about/">Rishav Sharma</a>
+      <span class="runhead-sec" data-runhead>Pet project</span>
+      <p class="runhead-links"><a href="https://github.com/rvs-23" rel="noopener">GitHub</a> <span class="sep" aria-hidden="true">·</span> <a href="https://www.linkedin.com/in/rishav-sharma-23rvs" rel="noopener">LinkedIn</a> <span class="sep" aria-hidden="true">·</span> <a href="https://medium.com/@rvs" rel="noopener">Medium</a> <span class="sep" aria-hidden="true">·</span> <a href="mailto:23rishavsharma@gmail.com">Email</a> <span class="sep" aria-hidden="true">·</span> <a href="https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing" rel="noopener">CV</a></p>
+    </header>
+    <main id="main">
+      <article class="post">
+        <header class="post-head">
+          <p class="kicker">Pet project · Feb 2024 → 2025 <span class="draft-tag">draft</span></p>
+          <h1 class="post-title">Nebula, a retrieval assistant</h1>
+          <p class="dek">How an assistant answers from a pile of documents instead of from memory, and what that changed for underwriters.</p>
+          <p class="skills">Python <span class="sep" aria-hidden="true">·</span> TypeScript <span class="sep" aria-hidden="true">·</span> RAG <span class="sep" aria-hidden="true">·</span> Semantic search <span class="sep" aria-hidden="true">·</span> Palantir AIP</p>
+        </header>
+        <div class="prose"><div class="callout callout-note"><p>This was built inside Swiss Re, so the system itself isn't public. What follows is the idea behind it and the outcome from my CV, nothing internal.</p></div>
+<h2>The problem</h2>
+<p>To price a risk, an underwriter reads about the company behind it: news, filings, financial reports. That reading took days per case.</p>
+<h2>The idea: retrieve, then answer</h2>
+<p>A language model on its own answers from what it absorbed in training, which is out of date and can't be checked. Retrieval-augmented generation (RAG) changes the order of things: first find the passages that matter, then let the model answer <em>only</em> from those passages, and cite them.</p>
+<figure class="fig"><div class="fig-art" style="--fig-w:600px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" role="img" aria-label="Documents are searched, the top passages and the question go to a language model, which answers citing them" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+<rect class="d" pathLength="1" x="34" y="48" width="76" height="92" rx="2"/>
+<rect class="d" pathLength="1" x="27" y="55" width="76" height="92" rx="2"/>
+<rect class="d" pathLength="1" x="20" y="62" width="76" height="92" rx="2"/>
+<path class="d soft" pathLength="1" d="M30 80H84"/>
+<path class="d soft" pathLength="1" d="M30 92H84"/>
+<path class="d soft" pathLength="1" d="M30 104H84"/>
+<path class="d soft" pathLength="1" d="M30 116H84"/>
+<path class="d soft" pathLength="1" d="M30 128H84"/>
+<path class="d soft" pathLength="1" d="M30 140H84"/>
+<text class="fig-label" x="58" y="184" text-anchor="middle">documents</text>
+<path class="d" pathLength="1" d="M112 108L158 108"/><path class="d" pathLength="1" d="M151.7 111.0L158 108L151.7 105.0"/>
+<circle class="d" pathLength="1" cx="190" cy="103" r="18"/><path class="d" pathLength="1" d="M203 116L217 130"/>
+<text class="fig-label" x="192" y="184" text-anchor="middle">search</text>
+<path class="d" pathLength="1" d="M228 108L272 108"/><path class="d" pathLength="1" d="M265.7 111.0L272 108L265.7 105.0"/>
+<rect class="d" pathLength="1" x="282" y="82" width="70" height="11" rx="1.5"/>
+<rect class="fill" x="282" y="82" width="46" height="11" rx="1.5"/>
+<rect class="d" pathLength="1" x="282" y="103" width="70" height="11" rx="1.5"/>
+<rect class="d" pathLength="1" x="282" y="124" width="70" height="11" rx="1.5"/>
+<text class="fig-label" x="317" y="184" text-anchor="middle">top passages</text>
+<path class="d" pathLength="1" d="M362 108L400 108"/><path class="d" pathLength="1" d="M393.7 111.0L400 108L393.7 105.0"/>
+<text class="fig-label" x="442" y="22" text-anchor="middle">question</text>
+<path class="d" pathLength="1" d="M442 32L442 70"/><path class="d" pathLength="1" d="M439.0 63.7L442 70L445.0 63.7"/>
+<rect class="d" pathLength="1" x="404" y="76" width="76" height="64" rx="6"/>
+<text class="fig-label" x="442" y="112" text-anchor="middle">model</text>
+<path class="d" pathLength="1" d="M486 108L516 108"/><path class="d" pathLength="1" d="M509.7 111.0L516 108L509.7 105.0"/>
+<text class="fig-label" x="524" y="104" text-anchor="start">answer</text>
+<text class="fig-note" x="524" y="124" text-anchor="start">[1] [3]</text>
+</svg></div><figcaption><span class="fig-no">Fig. 1</span> — Retrieve, then answer. The model only sees the passages the search found.</figcaption></figure>
+<ol>
+<li><strong>Ingest.</strong> Documents are split into passages and turned into vectors, numbers that capture what a passage is about.</li>
+<li><strong>Search.</strong> A question becomes a vector too; the closest passages are the relevant ones. This is semantic search: it matches meaning, not exact words.</li>
+<li><strong>Answer.</strong> The model gets the question plus those passages, and writes an answer that points back to them.</li>
+</ol>
+<h2>What I built</h2>
+<p>PDF ingestion and the semantic search (Python for text extraction, TypeScript for the vector search), and an admin panel for prompts, evaluation and one-click reruns, all on Palantir Foundry. Underwriter research went from days to minutes.</p></div>
+        <footer class="post-foot"><p class="links"><a href="/about/#nebula">Back to the timeline</a></p></footer>
+      </article>
+    </main>
+  </body>
+</html>

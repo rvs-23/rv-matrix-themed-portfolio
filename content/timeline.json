@@ -86,7 +86,7 @@
         "unified / remark",
         "Typst"
       ],
-      "walkthrough": "/about/rv-markdown-paper/",
+      "walkthrough": "/rv-markdown-paper/",
       "repo": "https://github.com/rvs-23/rv-markdown-paper",
       "draft": true
     },
@@ -96,7 +96,7 @@
       "start": "2025-05",
       "label": "Pet project",
       "title": "Matrix terminal",
-      "summary": "The command line at the front of this site, over falling-code rain, in plain JavaScript.",
+      "summary": "A command line over falling-code rain, in plain JavaScript. It is still here, at /matrix.",
       "thumb": "rain.svg",
       "skills": [
         "JavaScript",
@@ -104,7 +104,7 @@
         "CSS",
         "Vite"
       ],
-      "walkthrough": "/about/this-site/",
+      "walkthrough": "/this-site/",
       "repo": "https://github.com/rvs-23/rv-matrix-themed-portfolio",
       "draft": true
     },
@@ -137,7 +137,7 @@
       "label": "Swiss Re",
       "title": "Nebula, a retrieval assistant",
       "summary": "Answers from news, filings and financial documents; underwriter research went from days to minutes.",
-      "walkthrough": "/about/nebula/",
+      "walkthrough": "/nebula/",
       "thumb": "rag.svg",
       "logo": "swissre.svg",
       "skills": [
@@ -158,7 +158,7 @@
       "label": "Swiss Re",
       "title": "Loss-ratio hotspots",
       "summary": "A model of portfolio losses, explained with SHAP, that pointed at the drivers; loss ratios fell 5%.",
-      "walkthrough": "/about/loss-ratio-hotspots/",
+      "walkthrough": "/loss-ratio-hotspots/",
       "thumb": "shap.svg",
       "logo": "swissre.svg",
       "skills": [

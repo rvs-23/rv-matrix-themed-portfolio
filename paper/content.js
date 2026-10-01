@@ -37,6 +37,7 @@ function checkLinks(errors, where, links) {
 
 /** What a timeline entry can be. Writing joins from content/notes. */
 export const ENTRY_KINDS = ["work", "study", "learn", "project"];
+const RESERVED_SLUGS = ["matrix", "assets", "config", "content", "paper", "favicon", "recruiter"];
 const PROJECT_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 
 function checkEntry(errors, where, e, contentDir) {
@@ -67,11 +68,11 @@ function checkEntry(errors, where, e, contentDir) {
       `${where}.logo '${e.logo}' must be a file in content/logos`,
     );
   }
-  // A walkthrough is either one of our pages (/about/<slug>/) or an article elsewhere.
+  // A walkthrough is either one of our pages (/<slug>/) or an article elsewhere.
   check(
     errors,
-    e?.walkthrough === undefined || /^(\/about\/[a-z0-9-]+\/|https:\/\/)/.test(e.walkthrough),
-    `${where}.walkthrough must be /about/<slug>/ or an https URL`,
+    e?.walkthrough === undefined || /^(\/[a-z0-9-]+\/$|https:\/\/)/.test(e.walkthrough),
+    `${where}.walkthrough must be /<slug>/ or an https URL`,
   );
   check(errors, e?.repo === undefined || /^https:\/\//.test(e.repo), `${where}.repo must be an https URL`);
   // A small inline figure: a file in content/figures, or a pipeline drawn from data.
@@ -147,7 +148,7 @@ export function parseNote(file, raw, repoRoot) {
     date,
     summary: data.summary,
     draft: data.draft === true,
-    // Short notes expand in place on /about instead of getting their own page.
+    // Short notes expand in place on the home page instead of getting their own page.
     inline: data.inline === true,
     source: data.source ? String(data.source) : null,
     body,
@@ -195,12 +196,16 @@ export function loadContent(contentDir) {
   const slugs = [...notes, ...projects].map((n) => n.slug);
   const dupes = slugs.filter((x, i) => slugs.indexOf(x) !== i);
   if (dupes.length) errors.push(`duplicate page slugs: ${dupes.join(", ")}`);
+  // Pages sit at the site root, beside the terminal and the built assets.
+  for (const slug of slugs.filter((x) => RESERVED_SLUGS.includes(x))) {
+    errors.push(`page slug '${slug}' is reserved`);
+  }
 
   // Every on-site walkthrough has a page, and every page is reachable.
-  const pages = new Set(projects.map((p) => `/about/${p.slug}/`));
+  const pages = new Set(projects.map((p) => `/${p.slug}/`));
   const linked = new Set();
   for (const e of timeline.entries) {
-    if (!e.walkthrough?.startsWith("/about/")) continue;
+    if (!e.walkthrough?.startsWith("/")) continue;
     linked.add(e.walkthrough);
     if (!pages.has(e.walkthrough)) errors.push(`entry '${e.id}': no content/projects page for ${e.walkthrough}`);
   }

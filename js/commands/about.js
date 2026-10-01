@@ -1,6 +1,6 @@
 /**
  * @file js/commands/about.js
- * Points to the paper site (/about): the same person, readable top to bottom.
+ * Points to the paper site (the home page): the same person, readable top to bottom.
  */
 
 export default function aboutCommand(_args, context) {

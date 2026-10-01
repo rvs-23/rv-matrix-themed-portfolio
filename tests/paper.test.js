@@ -98,11 +98,11 @@ describe("content", () => {
   it("rejects an entry whose on-site walkthrough has no page", () => {
     const data = JSON.parse(JSON.stringify(loadContent(contentDir).timeline));
     const dir = mkdtempSync(join(tmpdir(), "content-"));
-    data.entries[0].walkthrough = "/about/missing/";
+    data.entries[0].walkthrough = "/missing/";
     writeFileSync(join(dir, "timeline.json"), JSON.stringify(data));
     symlinkSync(join(contentDir, "logos"), join(dir, "logos"));
     symlinkSync(join(contentDir, "figures"), join(dir, "figures"));
-    expect(() => loadContent(dir)).toThrow(/no content\/projects page for \/about\/missing\//);
+    expect(() => loadContent(dir)).toThrow(/no content\/projects page for \/missing\//);
   });
 
   it("rejects a note whose date disagrees with its filename", () => {
@@ -138,7 +138,7 @@ describe("release gate", () => {
     expect(generate({ root, mode: "off", outDir: outDir() }).files).toEqual([]);
   });
 
-  it("writes /about and each note page in preview", () => {
+  it("writes the home page and each note page in preview", () => {
     const dir = outDir();
     const { files } = generate({ root, mode: "preview", outDir: dir });
     expect(files[0]).toBe(join(dir, "index.html"));
@@ -167,12 +167,12 @@ describe("rendered pages", () => {
     buildDate: "2026-01-01",
   };
   const about = aboutPage(ctx);
-  const pages = new Map([["/about/", about]]);
+  const pages = new Map([["/", about]]);
   for (const n of content.notes.filter((n) => !n.inline)) {
-    pages.set(`/about/${n.slug}/`, notePage(n, ctx));
+    pages.set(`/${n.slug}/`, notePage(n, ctx));
   }
   for (const p of content.projects) {
-    pages.set(`/about/${p.slug}/`, projectPage(p, ctx));
+    pages.set(`/${p.slug}/`, projectPage(p, ctx));
   }
 
   it("every internal link lands on a page, and every #anchor exists", () => {
@@ -181,7 +181,8 @@ describe("rendered pages", () => {
       // Code samples quote HTML (`href="/css/…"`); only real links count.
       const live = html.replace(/<pre>[\s\S]*?<\/pre>|<code>[\s\S]*?<\/code>/g, "");
       for (const [, href] of live.matchAll(/href="(\/[^"]*)"/g)) {
-        if (/^\/(paper|favicon|feed\.xml)/.test(href) || href === "/") continue;
+        // The terminal is a source page, not a generated one.
+        if (/^\/(paper|favicon|feed\.xml|matrix\/$)/.test(href)) continue;
         const [path, anchor] = href.split("#");
         const target = pages.get(path || from);
         if (!target) broken.push(`${from} → ${href}`);
@@ -221,8 +222,8 @@ describe("terminal commands for the paper site", async () => {
   });
 
   it("link to the page and escape note fields", () => {
-    const paper = { about: "/about/", notes: [{ title: "<b>x</b>", date: "2026-01-01", summary: "s", url: "/about/x/" }] };
-    expect(run(about, paper)).toContain('href="/about/"');
+    const paper = { about: "/", notes: [{ title: "<b>x</b>", date: "2026-01-01", summary: "s", url: "/x/" }] };
+    expect(run(about, paper)).toContain('href="/"');
     const html = run(notes, paper);
     expect(html).toContain("&lt;b&gt;x&lt;/b&gt;");
     expect(html).not.toContain("<b>x</b>");

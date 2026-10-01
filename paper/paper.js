@@ -9,6 +9,11 @@ const root = document.documentElement;
 root.classList.add("js");
 
 // Running header: a hairline once scrolled, and the section being read.
+// The terminal used to live at /, and its ?cmd= deep links still point here.
+if (location.pathname === "/" && new URLSearchParams(location.search).has("cmd")) {
+  location.replace(`/matrix/${location.search}`);
+}
+
 const runhead = document.querySelector(".runhead");
 const label = document.querySelector("[data-runhead]");
 const fallback = label?.textContent ?? "";
@@ -50,7 +55,7 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   document.querySelectorAll(".fig, .thumb").forEach((f) => drawer.observe(f));
 }
 
-// A link to an inline note (/about/#note-x) opens it.
+// A link to an inline note (/#note-x) opens it.
 function openLinkedNote() {
   if (!location.hash) return;
   const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));

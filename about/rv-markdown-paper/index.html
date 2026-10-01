@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>rv-markdown-paper — Rishav Sharma</title>
+    <meta name="description" content="A command that turns a Markdown file into a PDF that looks like a page from a well-made book." />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href="https://rvs23.dev/about/rv-markdown-paper/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="rv-markdown-paper — Rishav Sharma" />
+    <meta property="og:description" content="A command that turns a Markdown file into a PDF that looks like a page from a well-made book." />
+    <meta property="og:url" content="https://rvs23.dev/about/rv-markdown-paper/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="alternate" type="application/rss+xml" title="Notes" href="/feed.xml" />
+    <link rel="icon" href="/paper/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/paper/icon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/paper/icon-180.png" />
+    <link rel="stylesheet" href="/paper/paper.css" />
+    <script type="module" src="/paper/paper.js"></script>
+  </head>
+  <body class="paper">
+    <a class="skip" href="#main">Skip to content</a>
+    <p class="preview-banner">Preview build — drafts visible, not indexed.</p>
+    <header class="runhead">
+      <a class="runhead-name" href="/about/">Rishav Sharma</a>
+      <span class="runhead-sec" data-runhead>Pet project</span>
+      <p class="runhead-links"><a href="https://github.com/rvs-23" rel="noopener">GitHub</a> <span class="sep" aria-hidden="true">·</span> <a href="https://www.linkedin.com/in/rishav-sharma-23rvs" rel="noopener">LinkedIn</a> <span class="sep" aria-hidden="true">·</span> <a href="https://medium.com/@rvs" rel="noopener">Medium</a> <span class="sep" aria-hidden="true">·</span> <a href="mailto:23rishavsharma@gmail.com">Email</a> <span class="sep" aria-hidden="true">·</span> <a href="https://drive.google.com/file/d/1Iuc5cFy34BkkRYLZPeGUOMGZNdGUOz-n/view?usp=sharing" rel="noopener">CV</a></p>
+    </header>
+    <main id="main">
+      <article class="post">
+        <header class="post-head">
+          <p class="kicker">Pet project · Apr 2026 <span class="draft-tag">draft</span></p>
+          <h1 class="post-title">rv-markdown-paper</h1>
+          <p class="dek">A command that turns a Markdown file into a PDF that looks like a page from a well-made book.</p>
+          <p class="skills">TypeScript <span class="sep" aria-hidden="true">·</span> unified / remark <span class="sep" aria-hidden="true">·</span> Typst</p>
+        </header>
+        <div class="prose"><h2>Why</h2>
+<p>Markdown is pleasant to write, but turning it into a PDF usually gives you a printed web page or a LaTeX project. A printed page has the wrong margins and no running headers; LaTeX asks you to stop writing Markdown.</p>
+<p>rv-markdown-paper keeps the Markdown and sets it in a fixed editorial design: a cover page, running headers, page numbers, margin notes, footnotes, callouts, figures and tables. The author writes; the template decides how it looks.</p>
+<h2>How it works</h2>
+<figure class="fig"><div class="fig-art" style="--fig-w:582px"><svg viewBox="0 0 582 56" role="img" aria-label="input.md → syntax tree → Typst source → PDF" style="max-width:582px" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><rect class="d" pathLength="1" x="8" y="8" width="110" height="40" rx="3"/><text class="fig-label" x="63" y="32" text-anchor="middle">input.md</text><path class="d" pathLength="1" d="M124 28H152"/><path class="d" pathLength="1" d="M146 23L152 28L146 33"/><rect class="d" pathLength="1" x="158" y="8" width="110" height="40" rx="3"/><text class="fig-label" x="213" y="32" text-anchor="middle">syntax tree</text><path class="d" pathLength="1" d="M274 28H302"/><path class="d" pathLength="1" d="M296 23L302 28L296 33"/><rect class="d" pathLength="1" x="308" y="8" width="116" height="40" rx="3"/><text class="fig-label" x="366" y="32" text-anchor="middle">Typst source</text><path class="d" pathLength="1" d="M430 28H458"/><path class="d" pathLength="1" d="M452 23L458 28L452 33"/><rect class="d" pathLength="1" x="464" y="8" width="110" height="40" rx="3"/><text class="fig-label" x="519" y="32" text-anchor="middle">PDF</text></svg></div><figcaption><span class="fig-no">Fig. 1</span> — Markdown is parsed into a syntax tree, written out as Typst, and compiled to PDF.</figcaption></figure>
+<ol>
+<li><strong>Parse.</strong> <code>remark</code> turns the Markdown into a syntax tree, with a few extensions: <code>:::</code> blocks for margin notes and callouts, <code>{#id .class}</code> attributes, maths and definition lists.</li>
+<li><strong>Generate.</strong> Each node becomes Typst markup. Anything the design can't render, such as raw HTML or a remote image, is rejected with a clear error rather than dropped.</li>
+<li><strong>Compile.</strong> Typst typesets the page with fonts bundled in the repo, so the same file gives the same PDF on every machine.</li>
+</ol>
+<h2>Using it</h2>
+<pre><code class="language-bash">npm run mdpdf -- notes.md notes.pdf --paper-bg platinum --author "Rv"
+</code></pre>
+<p>Settings can also sit at the top of the Markdown file, so a document carries its own look. This page borrows its palette and fonts.</p></div>
+        <footer class="post-foot"><p class="links"><a href="https://github.com/rvs-23/rv-markdown-paper" rel="noopener">Code</a> <span class="sep" aria-hidden="true">·</span> <a href="/about/#rv-markdown-paper">Back to the timeline</a></p></footer>
+      </article>
+    </main>
+  </body>
+</html>

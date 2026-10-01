@@ -1,6 +1,6 @@
 /**
  * @file paper/templates.js
- * HTML for /about, note and walkthrough pages, the RSS feed and the sitemap. Plain
+ * HTML for the home page, note and walkthrough pages, the RSS feed and the sitemap. Plain
  * template strings: every content string is either escaped here or comes out
  * of renderMarkdown (which rejects raw HTML).
  */
@@ -98,7 +98,7 @@ function shell({ title, description, path, body, ctx, runhead, cls = "" }) {
     <a class="skip" href="#main">Skip to content</a>
     ${banner}
     <header class="runhead">
-      <a class="runhead-name" href="/about/">${esc(ctx.site.name)}</a>
+      <a class="runhead-name" href="/">${esc(ctx.site.name)}</a>
       <span class="runhead-sec" data-runhead>${esc(runhead)}</span>
       ${linksHtml(ctx.site.links, "runhead-links")}
     </header>
@@ -129,7 +129,7 @@ function timelineItems(ctx) {
     label: n.source ? "Primer" : "Note",
     title: n.title,
     summary: n.summary,
-    walkthrough: n.inline ? undefined : `/about/${n.slug}/`,
+    walkthrough: n.inline ? undefined : `/${n.slug}/`,
     draft: n.draft,
     note: n,
   }));
@@ -226,11 +226,10 @@ function colophon(ctx) {
   return `      <footer class="colophon" id="colophon" data-title="Colophon">
         <p class="kicker">Colophon</p>
         <p>Set in Archivo, Instrument Serif and JetBrains Mono. Written in Markdown, built without a framework, no tracking. This page weighs <span class="weight">${WEIGHT_TOKEN}</span> before fonts. Updated ${formatDay(ctx.buildDate)}.</p>
-        <p><a class="to-terminal" href="/">› Open the terminal</a></p>
       </footer>`;
 }
 
-/** The /about page. */
+/** The home page. */
 export function aboutPage(ctx) {
   const { site } = ctx.timeline;
   const body = `      <header class="masthead">
@@ -244,7 +243,7 @@ ${colophon(ctx)}`;
   return shell({
     title: `${site.name} — notebook`,
     description: site.description || site.dek || site.name,
-    path: "/about/",
+    path: "/",
     body,
     ctx,
     runhead: "rvs23.dev",
@@ -264,12 +263,12 @@ function noteLinkResolver(note, notes) {
     const [path, hash = ""] = url.split("#");
     const target = posix.normalize(posix.join(posix.dirname(note.source), path));
     const other = bySource.get(target);
-    if (other) return `/about/${other.slug}/${hash ? `#${hash}` : ""}`;
+    if (other) return `/${other.slug}/${hash ? `#${hash}` : ""}`;
     return `${REPO_URL}/${target}${hash ? `#${hash}` : ""}`;
   };
 }
 
-/** A standalone note page at /about/<slug>/. */
+/** A standalone note page at /<slug>/. */
 export function notePage(note, ctx) {
   const { html } = renderMarkdown(note.body, {
     file: `notes/${note.file}`,
@@ -286,26 +285,26 @@ export function notePage(note, ctx) {
         <div class="prose">${html}</div>
         <footer class="post-foot">
           ${email ? `<p>Replies → <a href="${esc(email.href)}">email</a></p>` : ""}
-          <p><a href="/about/#timeline">← Back to the timeline</a></p>
+          <p><a href="/#timeline">← Back to the timeline</a></p>
         </footer>
       </article>`;
   return shell({
     title: `${note.title} — ${ctx.site.name}`,
     description: note.summary,
-    path: `/about/${note.slug}/`,
+    path: `/${note.slug}/`,
     body,
     ctx,
     runhead: "Notes",
   });
 }
 
-/** A pet project's walkthrough at /about/<slug>/. */
+/** A project's walkthrough at /<slug>/. */
 export function projectPage(project, ctx) {
-  const entry = ctx.timeline.entries.find((e) => e.walkthrough === `/about/${project.slug}/`);
+  const entry = ctx.timeline.entries.find((e) => e.walkthrough === `/${project.slug}/`);
   const { html } = renderMarkdown(project.body, { file: `projects/${project.file}`, figuresDir: ctx.figuresDir });
   const links = [
     entry?.repo && { label: "Code", href: entry.repo },
-    { label: "Back to the timeline", href: `/about/#${entry?.id ?? "timeline"}` },
+    { label: "Back to the timeline", href: `/#${entry?.id ?? "timeline"}` },
   ].filter(Boolean);
   const body = `      <article class="post">
         <header class="post-head">
@@ -320,7 +319,7 @@ export function projectPage(project, ctx) {
   return shell({
     title: `${project.title} — ${ctx.site.name}`,
     description: project.summary,
-    path: `/about/${project.slug}/`,
+    path: `/${project.slug}/`,
     body,
     ctx,
     runhead: "Pet project",
@@ -332,7 +331,7 @@ export function feedXml(notes, ctx) {
   const x = (s) => esc(s).replace(/'/g, "&apos;");
   const items = notes
     .map((n) => {
-      const link = n.inline ? `${SITE_URL}/about/#note-${n.slug}` : `${SITE_URL}/about/${n.slug}/`;
+      const link = n.inline ? `${SITE_URL}/#note-${n.slug}` : `${SITE_URL}/${n.slug}/`;
       return `  <item>
     <title>${x(n.title)}</title>
     <link>${link}</link>
@@ -346,7 +345,7 @@ export function feedXml(notes, ctx) {
 <rss version="2.0">
 <channel>
   <title>${x(ctx.site.name)} — notes</title>
-  <link>${SITE_URL}/about/</link>
+  <link>${SITE_URL}/</link>
   <description>${x(ctx.site.dek || "Notes")}</description>
 ${items}
 </channel>
@@ -357,9 +356,8 @@ ${items}
 export function sitemapXml(notes, projects = []) {
   const urls = [
     "/",
-    "/about/",
-    ...projects.map((p) => `/about/${p.slug}/`),
-    ...notes.filter((n) => !n.inline).map((n) => `/about/${n.slug}/`),
+    ...projects.map((p) => `/${p.slug}/`),
+    ...notes.filter((n) => !n.inline).map((n) => `/${n.slug}/`),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
